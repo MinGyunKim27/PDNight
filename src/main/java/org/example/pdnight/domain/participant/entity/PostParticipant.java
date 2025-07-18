@@ -1,7 +1,7 @@
 package org.example.pdnight.domain.participant.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.pdnight.domain.common.entity.Timestamped;
@@ -12,10 +12,10 @@ import org.example.pdnight.domain.user.entity.User;
 @Entity
 @Table(name = "posts_participants")
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
-public class PostParticipant extends Timestamped{
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class PostParticipant extends Timestamped {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -28,4 +28,14 @@ public class PostParticipant extends Timestamped{
 
     @Enumerated(EnumType.STRING)
     private JoinStatus status;
+
+    public PostParticipant(Post post, User user, JoinStatus status) {
+        this.post = post;
+        this.user = user;
+        this.status = status;
+    }
+
+    public static PostParticipant create(Post post, User user) {
+        return new PostParticipant(post, user, JoinStatus.PENDING);
+    }
 }
