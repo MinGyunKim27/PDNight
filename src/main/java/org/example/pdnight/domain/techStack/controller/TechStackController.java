@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/hobby")
+@RequestMapping("/api/techstack")
 @RequiredArgsConstructor
 public class TechStackController {
     public final TechStackService techStackService;
@@ -22,7 +22,7 @@ public class TechStackController {
             ){
         TechStackResponseDto techStack = techStackService.createTechStack(dto);
 
-        return ResponseEntity.ok(ApiResponse.ok("TechStack이 성공적으로 생성 되었습니다",techStack));
+        return ResponseEntity.ok(ApiResponse.ok("기술 스택이 성공적으로 생성 되었습니다",techStack));
     }
 
     @GetMapping
