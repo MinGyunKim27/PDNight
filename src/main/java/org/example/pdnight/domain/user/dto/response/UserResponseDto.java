@@ -21,8 +21,8 @@ public class UserResponseDto {
     private Gender gender;
     private Long age;
     private JobCategory jobCategory;
-    private Region region;
-    private Region workLocation;
+    private String region;
+    private String workLocation;
     private String comment;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -38,8 +38,8 @@ public class UserResponseDto {
         this.gender = user.getGender();
         this.age = user.getAge();
         this.jobCategory = user.getJobCategory();
-        this.region = Region.valueOf(user.getRegion().getKoreanName());
-        this.workLocation = Region.valueOf(user.getWorkLocation().getKoreanName());
+        this.region = user.getRegion().getKoreanName();
+        this.workLocation = user.getWorkLocation().getKoreanName();
         this.comment = user.getComment();
         this.createdAt = user.getCreatedAt();
         this.updatedAt = user.getUpdatedAt();

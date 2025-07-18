@@ -19,6 +19,7 @@ import org.example.pdnight.domain.user.enums.Region;
 @AllArgsConstructor
 public class User extends Timestamped {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, length = 255)
