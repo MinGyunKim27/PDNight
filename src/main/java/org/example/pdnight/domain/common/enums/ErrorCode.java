@@ -32,8 +32,8 @@ public enum ErrorCode {
     ALREADY_LIKED(HttpStatus.CONFLICT, "이미 좋아요를 누른 게시글입니다."),
 
     // 사용자 리뷰 관련 에러
-    CANNOT_REVIEW_SELF(HttpStatus.BAD_REQUEST,"리뷰 작성자는 본인을 평가할 수 없습니다."),
-    ALREADY_REVIEWED(HttpStatus.BAD_REQUEST,"이미 해당 게시글에 리뷰를 작성했습니다."),
+    CANNOT_REVIEW_SELF(HttpStatus.BAD_REQUEST, "리뷰 작성자는 본인을 평가할 수 없습니다."),
+    ALREADY_REVIEWED(HttpStatus.BAD_REQUEST, "이미 해당 게시글에 리뷰를 작성했습니다."),
 
     // 댓글 관련 에러 (400 Bad Request,  404 NOT_FOUND)
     COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "댓글을 찾을 수 없습니다"),
