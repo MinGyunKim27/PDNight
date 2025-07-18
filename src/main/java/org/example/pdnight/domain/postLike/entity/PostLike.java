@@ -9,12 +9,16 @@ import org.example.pdnight.domain.post.entity.Post;
 import org.example.pdnight.domain.user.entity.User;
 
 @Entity
-@Table(name = "post_likes")
+@Table(
+        name = "post_likes",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"post_id", "user_id"})
+)
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 public class PostLike extends Timestamped {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -24,4 +28,9 @@ public class PostLike extends Timestamped {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    public PostLike(Post post, User user) {
+        this.post = post;
+        this.user = user;
+    }
 }
