@@ -17,6 +17,6 @@ public class PostLikeResponse {
        this.postId = postLike.getId();
        this.userId = postLike.getUser().getId();
        this.createdAt = postLike.getCreatedAt();
-       this.updatedAt = postLike.getModifiedAt();
+       this.updatedAt = postLike.getUpdatedAt();
    }
 }
