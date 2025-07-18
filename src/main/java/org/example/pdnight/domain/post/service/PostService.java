@@ -2,6 +2,7 @@ package org.example.pdnight.domain.post.service;
 
 import java.util.Optional;
 
+import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.post.dto.request.PostRequestDto;
 import org.example.pdnight.domain.post.dto.response.PostResponseDto;
@@ -43,10 +44,10 @@ public class PostService {
 
 	//이하 헬퍼 메서드
 	private Post getPostOrThrow(Optional<Post> post) {
-		return post.orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND, "id 값과 일치하는 게시글을 찾을 수 없습니다."));
+		return post.orElseThrow(() -> new BaseException(ErrorCode.POST_NOT_FOUND));
 	}
 
 	private User getUserOrThrow(Optional<User> user) {
-		return user.orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND, "id 값과 일치하는 사용자를 찾을 수 없습니다."));
+		return user.orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 	}
 }
