@@ -7,6 +7,7 @@ import org.example.pdnight.domain.hobby.dto.request.HobbyRequest;
 import org.example.pdnight.domain.hobby.dto.response.HobbyResponse;
 import org.example.pdnight.domain.hobby.service.HobbyService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,7 +20,7 @@ public class HobbyController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<HobbyResponse>> createHobby(
-            @RequestBody HobbyRequest dto
+            @Validated @RequestBody HobbyRequest dto
     ){
         HobbyResponse hobby = hobbyService.createHobby(dto);
 

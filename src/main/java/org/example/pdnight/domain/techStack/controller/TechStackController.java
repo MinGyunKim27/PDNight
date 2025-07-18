@@ -6,6 +6,7 @@ import org.example.pdnight.domain.techStack.dto.request.TechStackRequestDto;
 import org.example.pdnight.domain.techStack.dto.response.TechStackResponseDto;
 import org.example.pdnight.domain.techStack.service.TechStackService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,7 +19,7 @@ public class TechStackController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<TechStackResponseDto>> createTechStack(
-            @RequestBody TechStackRequestDto dto
+            @Validated @RequestBody TechStackRequestDto dto
             ){
         TechStackResponseDto techStack = techStackService.createTechStack(dto);
 
