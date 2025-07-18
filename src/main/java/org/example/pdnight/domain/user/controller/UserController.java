@@ -3,6 +3,7 @@ package org.example.pdnight.domain.user.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.common.dto.ApiResponse;
+import org.example.pdnight.domain.user.dto.request.UserPasswordUpdateRequest;
 import org.example.pdnight.domain.user.dto.request.UserUpdateRequest;
 import org.example.pdnight.domain.user.service.UserService;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +27,7 @@ public class UserController {
         );
     }
 
-    @PatchMapping("my")
+    @PatchMapping("/my/profile")
     public ApiResponse<?> updateMyProfile(
             HttpServletRequest request,
             @RequestBody UserUpdateRequest requestDto
@@ -35,6 +36,20 @@ public class UserController {
         return ApiResponse.ok(
                 "프로필이 수정되었습니다.",
                 userService.updateMyProfile(1L, requestDto)
+        );
+    }
+
+    @PatchMapping("/my/password")
+    public ApiResponse<?> updatePassword(
+            HttpServletRequest request,
+            @RequestBody UserPasswordUpdateRequest requestDto
+    ){
+        // todo : @AuthenticationPrincipal를 통해 id 가져오기
+        userService.updatePassword(1L, requestDto);
+
+        return ApiResponse.ok(
+                "비밀번호가 수정되었습니다.",
+                null
         );
     }
 }

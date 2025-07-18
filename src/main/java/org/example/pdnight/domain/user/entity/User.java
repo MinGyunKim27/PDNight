@@ -94,4 +94,8 @@ public class User extends Timestamped {
             this.comment = request.getComment();
         }
     }
+
+    public void changePassword(String encodedPassword) {
+        this.password = encodedPassword;
+    }
 }
