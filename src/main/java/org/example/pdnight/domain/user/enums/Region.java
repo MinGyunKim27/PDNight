@@ -4,24 +4,21 @@ import lombok.Getter;
 
 @Getter
 public enum Region {
-    SEOUL("서울"),
-    GYEONGGI("경기도"),
-    INCHEON("인천"),
-    GANGWON("강원도"),
-    CHUNGBUK("충청북도"),
-    CHUNGNAM("충청남도"),
-    SEJONG("세종"),
-    DAEJEON("대전"),
-    JEONBUK("전라북도"),
-    JEONNAM("전라남도"),
-    GWANGJU("광주"),
-    GYEONGBUK("경상북도"),
-    GYEONGNAM("경상남도"),
-    DAEGU("대구"),
-    BUSAN("부산"),
-    ULSAN("울산"),
-    JEJU("제주도");
-
+    BUNDANG_DONG("분당구 분당동"),
+    SUNAE_DONG("분당구 수내동"),
+    JEONGJA_DONG("분당구 정자동"),
+    SEOHYEON_DONG("분당구 서현동"),
+    IMAE_DONG("분당구 이매동"),
+    YATAP_DONG("분당구 야탑동"),
+    PANGYO_DONG("분당구 판교동"),
+    SAMPYEONG_DONG("분당구 삼평동"),
+    BAEKHYEON_DONG("분당구 백현동"),
+    UNJUNG_DONG("분당구 운중동"),
+    GUMI_DONG("분당구 구미동"),
+    GEUMGOK_DONG("분당구 금곡동"),
+    SUJEONG_GU("수정구"),
+    JUNGWON_GU("중원구")
+    ;
     private final String koreanName;
 
     Region(String koreanName) {
