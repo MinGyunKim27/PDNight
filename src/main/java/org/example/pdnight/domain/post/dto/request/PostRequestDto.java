@@ -7,6 +7,8 @@ import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.enums.PostStatus;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -14,10 +16,15 @@ import lombok.Getter;
 @AllArgsConstructor
 public class PostRequestDto {
 
+	@NotBlank(message = "제목은 필수 입력값입니다.")
 	private String title;
+
+	@NotNull(message = "시간은 필수 입력값입니다.")
 	private LocalDateTime timeslot;
+
 	private String publicContent;
 	private String privateContent;
+
 	private PostStatus status;
 	private Integer maxParticipants;
 	private Gender genderLimit;

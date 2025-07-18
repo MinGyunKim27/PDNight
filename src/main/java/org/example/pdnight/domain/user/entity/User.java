@@ -1,5 +1,7 @@
 package org.example.pdnight.domain.user.entity;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -62,4 +64,8 @@ public class User extends Timestamped {
 
     private Long totalRate;
     private Long totalReviewer;
+
+    private Boolean isDeleted = false;
+    private LocalDateTime deletedAt;
+
 }
