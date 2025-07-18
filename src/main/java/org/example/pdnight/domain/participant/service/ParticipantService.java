@@ -45,8 +45,8 @@ public class ParticipantService {
         return participantRepository.findByUserAndPost(user, post);
     }
 
-    private Page<PostParticipant> getPendingParticipantListByPostId(Post post, Pageable pageable) {
-        return participantRepository.findByPostAndStatus(post, JoinStatus.PENDING, pageable);
+    private Page<PostParticipant> getParticipantListByPostIdAndStatus(Post post, JoinStatus status, Pageable pageable) {
+        return participantRepository.findByPostAndStatus(post, status, pageable);
     }
 
     @Transactional
@@ -141,10 +141,10 @@ public class ParticipantService {
         );
     }
 
-    public PagedResponse<ParticipantResponse> getPendingParticipantList(Long postId, int page, int size) {
+    public PagedResponse<ParticipantResponse> getParticipantListByStatus(Long postId, JoinStatus status, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Post post = getPost(postId);
-        Page<PostParticipant> postParticipant = getPendingParticipantListByPostId(post, pageable);
+        Page<PostParticipant> postParticipant = getParticipantListByPostIdAndStatus(post, status, pageable);
 
         return PagedResponse.from(postParticipant.map(p -> ParticipantResponse.of(
                 p.getUser().getId(),
