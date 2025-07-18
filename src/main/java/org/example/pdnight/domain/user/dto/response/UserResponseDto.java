@@ -5,7 +5,6 @@ import org.example.pdnight.domain.common.enums.JobCategory;
 import org.example.pdnight.domain.common.enums.UserRole;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.user.entity.User;
-import org.example.pdnight.domain.user.enums.Region;
 import java.time.LocalDateTime;
 
 @Getter

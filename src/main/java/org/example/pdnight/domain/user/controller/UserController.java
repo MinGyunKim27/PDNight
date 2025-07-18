@@ -3,10 +3,10 @@ package org.example.pdnight.domain.user.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.common.dto.ApiResponse;
+import org.example.pdnight.domain.user.dto.request.UserRequestDto;
+import org.example.pdnight.domain.user.dto.request.UserUpdateRequest;
 import org.example.pdnight.domain.user.service.UserService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/users")
@@ -24,6 +24,17 @@ public class UserController {
         return ApiResponse.ok(
                 "내 프로필이 조회되었습니다.",
                 userService.getMyProfile(1L)
+        );
+    }
+
+    @PatchMapping("my")
+    public ApiResponse<?> updateMyProfile(
+            HttpServletRequest request,
+            @RequestBody UserUpdateRequest requestDto
+    ){
+        return ApiResponse.ok(
+                "프로필이 수정되었습니다.",
+                userService.updateMyProfile(1L, requestDto)
         );
     }
 }
