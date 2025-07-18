@@ -28,6 +28,10 @@ public class PostLikeService {
         Post post = postRepository.findById(id)
                 .orElseThrow(()-> new BaseException(ErrorCode.POST_NOT_FOUND));
 
+        if (postLikeRepository.existsByPostAndUser(post, user)) {
+            throw new BaseException(ErrorCode.ALREADY_LIKED);
+        }
+
         PostLike postLike = new PostLike(post, user);
         postLikeRepository.save(postLike);
 
