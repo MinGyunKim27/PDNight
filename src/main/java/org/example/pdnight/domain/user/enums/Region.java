@@ -16,6 +16,12 @@ public enum Region {
     UNJUNG_DONG("분당구 운중동"),
     GUMI_DONG("분당구 구미동"),
     GEUMGOK_DONG("분당구 금곡동"),
+    YULDONG("분당구 율동"),
+    HASANUN_DONG("분당구 하산운동"),
+    SEOKUN_DONG("분당구 석운동"),
+    DAEJANG_DONG("분당구 대장동"),
+    GUNGNAE_DONG("분당구 궁내동"),
+    DONGWON_DONG("분당구 동원동"),
     SUJEONG_GU("수정구"),
     JUNGWON_GU("중원구")
     ;
