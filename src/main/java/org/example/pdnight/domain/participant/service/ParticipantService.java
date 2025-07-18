@@ -1,6 +1,7 @@
 package org.example.pdnight.domain.participant.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.pdnight.domain.common.dto.PagedResponse;
 import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.participant.dto.response.ParticipantResponse;
@@ -12,6 +13,9 @@ import org.example.pdnight.domain.post.enums.PostStatus;
 import org.example.pdnight.domain.post.repository.PostRepository;
 import org.example.pdnight.domain.user.entity.User;
 import org.example.pdnight.domain.user.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +43,10 @@ public class ParticipantService {
 
     private List<PostParticipant> getParticipantList(User user, Post post) {
         return participantRepository.findByUserAndPost(user, post);
+    }
+
+    private Page<PostParticipant> getPendingParticipantListByPostId(Post post, Pageable pageable) {
+        return participantRepository.findByPostAndStatus(post, JoinStatus.PENDING, pageable);
     }
 
     @Transactional
@@ -78,11 +86,6 @@ public class ParticipantService {
         return ParticipantResponse.of(
                 userId,
                 postId,
-                user.getNickname(),
-                user.getJobCategory(),
-                user.getTechStack().getTechStack(),
-                user.getAge(),
-                user.getGender(),
                 participant.getStatus(),
                 participant.getCreatedAt(),
                 participant.getUpdatedAt()
@@ -132,14 +135,23 @@ public class ParticipantService {
         return ParticipantResponse.of(
                 userId,
                 postId,
-                user.getNickname(),
-                user.getJobCategory(),
-                user.getTechStack().getTechStack(),
-                user.getAge(),
-                user.getGender(),
                 pending.getStatus(),
                 pending.getCreatedAt(),
                 pending.getUpdatedAt()
         );
+    }
+
+    public PagedResponse<ParticipantResponse> getPendingParticipantList(Long postId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Post post = getPost(postId);
+        Page<PostParticipant> postParticipant = getPendingParticipantListByPostId(post, pageable);
+
+        return PagedResponse.from(postParticipant.map(p -> ParticipantResponse.of(
+                p.getUser().getId(),
+                p.getPost().getId(),
+                p.getStatus(),
+                p.getCreatedAt(),
+                p.getUpdatedAt()
+        )));
     }
 }
