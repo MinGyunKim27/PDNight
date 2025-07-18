@@ -11,7 +11,6 @@ import org.example.pdnight.domain.post.enums.PostStatus;
 import org.example.pdnight.domain.post.repository.PostRepository;
 import org.example.pdnight.domain.user.entity.User;
 import org.example.pdnight.domain.user.repository.UserRepository;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,6 +50,13 @@ public class PostService {
 		return new PostResponseDto(foundPost);
 	}
 
+	@Transactional
+	public void deletePostById(Long userId, Long id) {
+		Post foundPost = getPostOrThrow(postRepository.findByIdAndStatus(id, PostStatus.OPEN));
+		validateAuthor(userId, foundPost);
+		postRepository.delete(foundPost);
+	}
+
 	//이하 헬퍼 메서드
 	private Post getPostOrThrow(Optional<Post> post) {
 		return post.orElseThrow(() -> new BaseException(ErrorCode.POST_NOT_FOUND));
@@ -58,6 +64,12 @@ public class PostService {
 
 	private User getUserOrThrow(Optional<User> user) {
 		return user.orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+	}
+
+	private void validateAuthor(Long userId, Post post) {
+		if(!post.getAuthor().getId().equals(userId)) {
+			throw new BaseException(ErrorCode.POST_FORBIDDEN);
+		}
 	}
 
 }

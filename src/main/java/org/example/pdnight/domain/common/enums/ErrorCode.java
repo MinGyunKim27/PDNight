@@ -26,6 +26,7 @@ public enum ErrorCode {
     TASK_DEACTIVATED(HttpStatus.UNAUTHORIZED, "삭제 된 Task 입니다."),
     TASK_STATE_NOT_REVERSIBLE(HttpStatus.BAD_REQUEST, "Task 상태는 이전 단계로 되돌릴 수 없습니다"),
     TASK_STATE_FLOW_ERROR(HttpStatus.BAD_REQUEST, "Task 상태 변경 흐름이 올바르지 않습니다."),
+    POST_FORBIDDEN(HttpStatus.FORBIDDEN, "작성자만 접근할 수 있습니다."),
 
     // 게시물 좋아요 관련 에러
     POSTLIKE_NOT_FOUND(HttpStatus.NOT_FOUND, "게시물 좋아요를 찾을 수 없습니다"),

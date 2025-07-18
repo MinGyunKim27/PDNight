@@ -6,7 +6,9 @@ import org.example.pdnight.domain.post.dto.response.PostResponseDto;
 import org.example.pdnight.domain.post.service.PostService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,11 +34,18 @@ public class PostController {
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<ApiResponse<PostResponseDto>> getPostById(@RequestParam Long id) {
-		return ResponseEntity.status(HttpStatus.CREATED)
+	public ResponseEntity<ApiResponse<PostResponseDto>> getPostById(@PathVariable Long id) {
+		return ResponseEntity.status(HttpStatus.OK)
 			.body(ApiResponse.ok("게시글이 조회되었습니다.", postService.findOpenedPost(id)));
 	}
 
-
+	@DeleteMapping("/{id}")
+	public ResponseEntity<ApiResponse<Void>> deletePost(@PathVariable Long id) {
+		//인증객체 도입 전 임시 데이터 1번 유저
+		Long userId = 1L;
+		postService.deletePostById(userId, id);
+		return ResponseEntity.status(HttpStatus.OK)
+			.body(ApiResponse.ok("게시글이 삭제되었습니다.", null));
+	}
 
 }
