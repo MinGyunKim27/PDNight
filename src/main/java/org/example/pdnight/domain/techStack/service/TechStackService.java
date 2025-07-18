@@ -1,6 +1,8 @@
 package org.example.pdnight.domain.techStack.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.pdnight.domain.common.enums.ErrorCode;
+import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.techStack.dto.request.TechStackRequestDto;
 import org.example.pdnight.domain.techStack.dto.response.TechStackResponseDto;
 import org.example.pdnight.domain.techStack.entity.TechStack;
@@ -17,6 +19,10 @@ public class TechStackService {
     private final TechStackRepositoryQuery techStackRepositoryQuery;
 
     public TechStackResponseDto createTechStack(TechStackRequestDto dto) {
+        boolean exists = techStackRepository.existsTechStackByTechStack(dto.getTechStack());
+        if (exists) {
+            throw new BaseException(ErrorCode.INVALID_INPUT);
+        }
         TechStack techStack = new TechStack(dto.getTechStack());
         TechStack save = techStackRepository.save(techStack);
         return TechStackResponseDto.of(save);
