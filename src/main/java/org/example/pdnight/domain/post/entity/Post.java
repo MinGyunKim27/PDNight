@@ -1,6 +1,7 @@
 package org.example.pdnight.domain.post.entity;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,15 +11,18 @@ import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.common.enums.JobCategory;
 import org.example.pdnight.domain.post.enums.PostStatus;
 import org.example.pdnight.domain.user.entity.User;
+
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Entity
 @Table(name = "posts")
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Post extends Timestamped {
+
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -29,7 +33,7 @@ public class Post extends Timestamped {
     private String title;
 
     @Column(nullable = false)
-    private LocalTime timeSlot;
+    private LocalDateTime timeSlot;
 
     private String publicContent;
     private String privateContent;
@@ -48,4 +52,26 @@ public class Post extends Timestamped {
 
     @Enumerated(EnumType.STRING)
     private AgeLimit ageLimit;
+
+    private Post(User author, String title, LocalDateTime timeSlot, String publicContent, String privateContent,
+        Integer maxParticipants, Gender genderLimit, JobCategory jobCategoryLimit, AgeLimit ageLimit)
+    {
+        this.author = author;
+        this.title = title;
+        this.timeSlot = timeSlot;
+        this.publicContent = publicContent;
+        this.privateContent = privateContent;
+        this.status = PostStatus.OPEN;
+        this.maxParticipants = maxParticipants;
+        this.genderLimit = genderLimit;
+        this.jobCategoryLimit = jobCategoryLimit;
+        this.ageLimit = ageLimit;
+    }
+
+    public static Post createPost(User author, String title, LocalDateTime timeSlot, String publicContent, String privateContent,
+        Integer maxParticipants, Gender genderLimit, JobCategory jobCategoryLimit, AgeLimit ageLimit)
+    {
+        return new Post(author, title, timeSlot, publicContent, privateContent, maxParticipants, genderLimit, jobCategoryLimit, ageLimit);
+    }
+
 }
