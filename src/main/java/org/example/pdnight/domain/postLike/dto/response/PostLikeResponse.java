@@ -1,9 +1,11 @@
 package org.example.pdnight.domain.postLike.dto.response;
 
+import lombok.Getter;
 import org.example.pdnight.domain.postLike.entity.PostLike;
 
 import java.time.LocalDateTime;
 
+@Getter
 public class PostLikeResponse {
 
    private Long postId;

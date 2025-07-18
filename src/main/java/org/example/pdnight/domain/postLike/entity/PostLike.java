@@ -18,6 +18,7 @@ import org.example.pdnight.domain.user.entity.User;
 @AllArgsConstructor
 public class PostLike extends Timestamped {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
