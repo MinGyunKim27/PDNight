@@ -7,11 +7,13 @@ import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.post.dto.request.PostRequestDto;
 import org.example.pdnight.domain.post.dto.response.PostResponseDto;
 import org.example.pdnight.domain.post.entity.Post;
+import org.example.pdnight.domain.post.enums.PostStatus;
 import org.example.pdnight.domain.post.repository.PostRepository;
 import org.example.pdnight.domain.user.entity.User;
 import org.example.pdnight.domain.user.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 
@@ -21,6 +23,7 @@ public class PostService {
 	private final PostRepository postRepository;
 	private final UserRepository userRepository;
 
+	@Transactional
 	public PostResponseDto createPost(Long userId, PostRequestDto request) {
 		//임시 메서드 User 도메인 작업에 따라 변동될 것
 		User foundUser = getUserOrThrow(userRepository.findByIdAndIsDeletedFalse(userId));
@@ -41,6 +44,12 @@ public class PostService {
 		return new PostResponseDto(savedPost);
 	}
 
+	//조회는 상태값 "OPEN" 인 게시글만 가능
+	@Transactional(readOnly = true)
+	public PostResponseDto findOpenedPost(Long id) {
+		Post foundPost = getPostOrThrow(postRepository.findByIdAndStatus(id, PostStatus.OPEN));
+		return new PostResponseDto(foundPost);
+	}
 
 	//이하 헬퍼 메서드
 	private Post getPostOrThrow(Optional<Post> post) {
@@ -50,4 +59,5 @@ public class PostService {
 	private User getUserOrThrow(Optional<User> user) {
 		return user.orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 	}
+
 }
