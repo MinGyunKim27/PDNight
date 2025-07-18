@@ -31,6 +31,7 @@ public class HobbyController {
     private ResponseEntity<ApiResponse<List<HobbyResponse>>> searchHobby(
             @RequestParam String searchHobby
     ){
+        System.out.println(searchHobby);
         List<HobbyResponse> hobbyResponses = hobbyService.searchHobby(searchHobby);
         return ResponseEntity.ok(ApiResponse.ok("취미 리스트가 출력 되었습니다.", hobbyResponses));
     }

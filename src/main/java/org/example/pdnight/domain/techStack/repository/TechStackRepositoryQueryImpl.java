@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.techStack.entity.QTechStack;
 import org.example.pdnight.domain.techStack.entity.TechStack;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -20,7 +21,7 @@ public class TechStackRepositoryQueryImpl implements TechStackRepositoryQuery{
         QTechStack qTechStack = QTechStack.techStack1;
         BooleanBuilder booleanBuilder = new BooleanBuilder();
 
-        if (techStack!=null){
+        if (StringUtils.hasText(techStack)){
             booleanBuilder.and(qTechStack.techStack.contains(techStack));
         }
 
