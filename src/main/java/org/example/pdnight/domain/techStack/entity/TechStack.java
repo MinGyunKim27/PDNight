@@ -13,8 +13,13 @@ import org.example.pdnight.domain.common.entity.Timestamped;
 @AllArgsConstructor
 public class TechStack extends Timestamped {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "tech_stack", length = 255)
+    @Column(name = "tech_stack")
     private String techStack;
+
+    public TechStack(String techStack){
+        this.techStack = techStack;
+    }
 }
