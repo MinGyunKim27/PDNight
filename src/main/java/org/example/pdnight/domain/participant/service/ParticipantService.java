@@ -88,4 +88,24 @@ public class ParticipantService {
                 participant.getUpdatedAt()
         );
     }
+
+    @Transactional
+    public void deleteParticipant(Long userId, Long postId) {
+        User user = getUser(userId);
+        Post post = getPost(postId);
+
+        // 삭제 안됨 : 신청하지 않거나, 이미 수락 혹은 거절당했을때
+        List<PostParticipant> postParticipant = getParticipantList(user, post);
+        PostParticipant pending = postParticipant.stream()
+                .filter(p -> p.getStatus().equals(JoinStatus.PENDING))
+                .findFirst()
+                .orElse(null);
+
+        if (pending == null) {
+            throw new BaseException(HttpStatus.CONFLICT, "취소할 수 없습니다.");
+        }
+
+        // 정상 삭제
+        participantRepository.delete(pending);
+    }
 }
