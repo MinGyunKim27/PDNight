@@ -3,6 +3,7 @@ package org.example.pdnight.domain.post.dto.response;
 import java.time.LocalDateTime;
 
 import org.example.pdnight.domain.common.enums.JobCategory;
+import org.example.pdnight.domain.post.entity.Post;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.enums.PostStatus;
@@ -28,5 +29,20 @@ public class PostResponseDto {
 	private final Gender genderLimit;
 	private final JobCategory jobCategoryLimit;
 	private final AgeLimit ageLimit;
+
+	public static PostResponseDto toDto(Post post){
+		return new PostResponseDto(
+				post.getId(),
+				post.getAuthor().getId(),
+				post.getTitle(),
+				post.getTimeSlot(),
+				post.getPublicContent(),
+				post.getPrivateContent(),
+				post.getStatus(),
+				post.getMaxParticipants(),
+				post.getGenderLimit(),
+				post.getJobCategoryLimit(),
+				post.getAgeLimit());
+	}
 
 }
