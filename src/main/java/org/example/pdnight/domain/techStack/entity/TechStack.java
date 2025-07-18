@@ -17,4 +17,8 @@ public class TechStack extends Timestamped {
 
     @Column(name = "tech_stack", length = 255)
     private String techStack;
+
+    public TechStack(String techStack){
+        this.techStack = techStack;
+    }
 }
