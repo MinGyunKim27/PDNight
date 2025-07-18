@@ -1,6 +1,7 @@
 package org.example.pdnight.domain.user.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.common.dto.ApiResponse;
 import org.example.pdnight.domain.user.dto.request.UserPasswordUpdateRequest;
@@ -42,7 +43,7 @@ public class UserController {
     @PatchMapping("/my/password")
     public ApiResponse<?> updatePassword(
             HttpServletRequest request,
-            @RequestBody UserPasswordUpdateRequest requestDto
+            @Valid @RequestBody UserPasswordUpdateRequest requestDto
     ){
         // todo : @AuthenticationPrincipal를 통해 id 가져오기
         userService.updatePassword(1L, requestDto);
