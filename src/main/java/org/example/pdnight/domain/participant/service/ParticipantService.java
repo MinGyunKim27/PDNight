@@ -108,4 +108,38 @@ public class ParticipantService {
         // 정상 삭제
         participantRepository.delete(pending);
     }
+
+    @Transactional
+    public ParticipantResponse changeStatusParticipant(Long userId, Long postId, String status) {
+        User user = getUser(userId);
+        Post post = getPost(postId);
+        JoinStatus joinStatus = JoinStatus.of(status);
+
+        List<PostParticipant> postParticipant = getParticipantList(user, post);
+        PostParticipant pending = postParticipant.stream()
+                .filter(p -> p.getStatus().equals(JoinStatus.PENDING))
+                .findFirst()
+                .orElse(null);
+
+        // 상태변경 안됨 : 신청 대기 상태가 아닐때
+        if (pending == null || joinStatus.equals(JoinStatus.PENDING)) {
+            throw new BaseException(HttpStatus.CONFLICT, "수락 혹은 거절할 수 없습니다.");
+        }
+
+        // 상태변경
+        pending.changeStatus(joinStatus);
+
+        return ParticipantResponse.of(
+                userId,
+                postId,
+                user.getNickname(),
+                user.getJobCategory(),
+                user.getTechStack().getTechStack(),
+                user.getAge(),
+                user.getGender(),
+                pending.getStatus(),
+                pending.getCreatedAt(),
+                pending.getUpdatedAt()
+        );
+    }
 }

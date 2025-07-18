@@ -35,4 +35,15 @@ public class ParticipantController {
                 .body(ApiResponse.ok("참여 신청이 취소되었습니다.", null));
     }
 
+    @PatchMapping("/{postId}/users/{userId}")
+    public ResponseEntity<ApiResponse<ParticipantResponse>> changeStatusParticipant(
+            @PathVariable Long postId,
+            @PathVariable Long userId,
+            @RequestParam String status
+    ) {
+        ParticipantResponse response = participantService.changeStatusParticipant(userId, postId, status);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.ok("신청자가 수락 혹은 거절되었습니다.", response));
+    }
+
 }
