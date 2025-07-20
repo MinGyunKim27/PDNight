@@ -3,6 +3,7 @@ package org.example.pdnight.domain.post.controller;
 import org.example.pdnight.domain.common.dto.ApiResponse;
 import org.example.pdnight.domain.common.enums.JobCategory;
 import org.example.pdnight.domain.post.dto.request.PostRequestDto;
+import org.example.pdnight.domain.post.dto.request.PostUpdateRequestDto;
 import org.example.pdnight.domain.post.dto.response.PostResponseDto;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
@@ -14,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -68,6 +70,18 @@ public class PostController {
 			jobCategoryLimit, genderLimit);
 		return ResponseEntity.status(HttpStatus.OK)
 			.body(ApiResponse.ok("게시글 목록이 조회되었습니다.", postDtos));
+	}
+
+	@PatchMapping("/{id}")
+	public ResponseEntity<ApiResponse<PostResponseDto>> updatePost(
+		@PathVariable Long id,
+		@RequestBody PostUpdateRequestDto requestDto
+	) {
+		//인증객체 도입 전 임시 데이터 1번 유저
+		Long userId = 1L;
+		PostResponseDto updatedPost = postService.updatePostDetails(userId, id, requestDto);
+		return ResponseEntity.status(HttpStatus.OK)
+			.body(ApiResponse.ok("게시글이 수정되었습니다.", updatedPost));
 	}
 
 }

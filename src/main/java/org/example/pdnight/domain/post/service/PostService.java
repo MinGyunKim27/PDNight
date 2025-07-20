@@ -6,6 +6,7 @@ import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.enums.JobCategory;
 import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.post.dto.request.PostRequestDto;
+import org.example.pdnight.domain.post.dto.request.PostUpdateRequestDto;
 import org.example.pdnight.domain.post.dto.response.PostResponseDto;
 import org.example.pdnight.domain.post.entity.Post;
 import org.example.pdnight.domain.post.enums.AgeLimit;
@@ -74,6 +75,25 @@ public class PostService {
 			ageLimit, jobCategoryLimit, genderLimit);
 	}
 
+	@Transactional
+	public PostResponseDto updatePostDetails(Long userId, Long id, PostUpdateRequestDto request) {
+		Post foundPost = getPostOrThrow(postRepository.findByIdAndStatus(id, PostStatus.OPEN));
+		validateAuthor(userId, foundPost);
+
+		foundPost.updatePostIfNotNull(
+			request.getTitle(),
+			request.getTimeSlot(),
+			request.getPublicContent(),
+			request.getPrivateContent(),
+			request.getMaxParticipants(),
+			request.getGenderLimit(),
+			request.getJobCategoryLimit(),
+			request.getAgeLimit()
+		);
+
+		return new PostResponseDto(foundPost);
+	}
+
 	//이하 헬퍼 메서드
 	private Post getPostOrThrow(Optional<Post> post) {
 		return post.orElseThrow(() -> new BaseException(ErrorCode.POST_NOT_FOUND));
@@ -88,4 +108,5 @@ public class PostService {
 			throw new BaseException(ErrorCode.POST_FORBIDDEN);
 		}
 	}
+
 }
