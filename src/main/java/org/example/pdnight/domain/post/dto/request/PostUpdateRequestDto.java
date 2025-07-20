@@ -8,10 +8,12 @@ import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.enums.PostStatus;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 
 //업데이트에 사용될 DTO, Null 아닌 필드만 업데이트
 @Getter
+@Builder
 @AllArgsConstructor
 public class PostUpdateRequestDto {
 

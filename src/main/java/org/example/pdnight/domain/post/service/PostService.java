@@ -59,7 +59,7 @@ public class PostService {
 
 	@Transactional
 	public void deletePostById(Long userId, Long id) {
-		Post foundPost = getPostOrThrow(postRepository.findByIdAndStatus(id, PostStatus.OPEN));
+		Post foundPost = getPostOrThrow(postRepository.findById(id));
 		validateAuthor(userId, foundPost);
 		postRepository.delete(foundPost);
 	}
@@ -78,7 +78,7 @@ public class PostService {
 
 	@Transactional
 	public PostResponseDto updatePostDetails(Long userId, Long id, PostUpdateRequestDto request) {
-		Post foundPost = getPostOrThrow(postRepository.findByIdAndStatus(id, PostStatus.OPEN));
+		Post foundPost = getPostOrThrow(postRepository.findById(id));
 		validateAuthor(userId, foundPost);
 
 		foundPost.updatePostIfNotNull(
