@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import org.example.pdnight.domain.common.enums.JobCategory;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
-import org.example.pdnight.domain.post.enums.PostStatus;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -25,8 +24,6 @@ public class PostRequestDto {
 
 	private String publicContent;
 	private String privateContent;
-
-	private PostStatus status;
 
 	@Min(value = 1, message = "참가인원은 최소 1인이상입니다.")
 	private Integer maxParticipants;
