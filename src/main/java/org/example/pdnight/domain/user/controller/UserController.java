@@ -56,13 +56,21 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ApiResponse<?> getProfile(
-            @PathVariable Long id,
-            HttpServletRequest request
+            @PathVariable Long id
     ){
-        // todo : @AuthenticationPrincipal를 통해 id 가져오기
         return ApiResponse.ok(
                 "프로필이 조회되었습니다.",
                 userService.getProfile(id, null)
+        );
+    }
+
+    @GetMapping("/{id}/evaluation")
+    public ApiResponse<?> getEvaluation(
+            @PathVariable Long id
+    ){
+        return ApiResponse.ok(
+                "사용자 평가가 조회되었습니다.",
+                userService.getEvaluation(id)
         );
     }
 }

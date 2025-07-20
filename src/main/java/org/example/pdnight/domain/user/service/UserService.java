@@ -7,6 +7,7 @@ import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.user.dto.request.UserPasswordUpdateRequest;
 import org.example.pdnight.domain.user.dto.request.UserRequestDto;
 import org.example.pdnight.domain.user.dto.request.UserUpdateRequest;
+import org.example.pdnight.domain.user.dto.response.UserEvalueationResponse;
 import org.example.pdnight.domain.user.dto.response.UserResponseDto;
 import org.example.pdnight.domain.user.entity.User;
 import org.example.pdnight.domain.user.repository.UserRepository;
@@ -68,5 +69,13 @@ public class UserService {
 
         // UserResponseDto로 변환하여 반환
         return new UserResponseDto(user);
+    }
+
+    public UserEvalueationResponse getEvaluation(Long id){
+        // id로 유저 조회
+        User user = userRepository.findById(id).orElseThrow(
+                ()-> new BaseException(ErrorCode.USER_NOT_FOUND));
+
+        return new UserEvalueationResponse(user);
     }
 }
