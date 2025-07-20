@@ -1,9 +1,15 @@
 package org.example.pdnight.domain.post.controller;
 
 import org.example.pdnight.domain.common.dto.ApiResponse;
+import org.example.pdnight.domain.common.enums.JobCategory;
 import org.example.pdnight.domain.post.dto.request.PostRequestDto;
 import org.example.pdnight.domain.post.dto.response.PostResponseDto;
+import org.example.pdnight.domain.post.enums.AgeLimit;
+import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.service.PostService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -46,6 +52,22 @@ public class PostController {
 		postService.deletePostById(userId, id);
 		return ResponseEntity.status(HttpStatus.OK)
 			.body(ApiResponse.ok("게시글이 삭제되었습니다.", null));
+	}
+
+	@GetMapping
+	public ResponseEntity<ApiResponse<Page<PostResponseDto>>> searchPosts(
+		@RequestParam(defaultValue = "0") int page,
+		@RequestParam(defaultValue = "10") int size,
+		@RequestParam(defaultValue = "1") Integer maxParticipants,
+		@RequestParam(required = false) AgeLimit ageLimit,
+		@RequestParam(required = false) JobCategory jobCategoryLimit,
+		@RequestParam(required = false) Gender genderLimit
+	) {
+		Pageable pageable = PageRequest.of(page, size);
+		Page<PostResponseDto> postDtos = postService.getPostDtosBySearch(pageable, maxParticipants, ageLimit,
+			jobCategoryLimit, genderLimit);
+		return ResponseEntity.status(HttpStatus.OK)
+			.body(ApiResponse.ok("게시글 목록이 조회되었습니다.", postDtos));
 	}
 
 }
