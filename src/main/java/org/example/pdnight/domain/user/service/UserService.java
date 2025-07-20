@@ -23,8 +23,11 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     public UserResponseDto getMyProfile(Long userId){
+        // id로 유저 조회
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+
+        // UserResponseDto로 변환하여 반환
         return new UserResponseDto(user);
     }
 
@@ -56,5 +59,14 @@ public class UserService {
         String encodedPassword = BCrypt.withDefaults().hashToString(10, request.getNewPassword().toCharArray());
         user.changePassword(encodedPassword);
         userRepository.save(user);
+    }
+
+    public UserResponseDto getProfile(Long id, UserRequestDto request){
+        // id로 유저 조회
+        User user = userRepository.findById(id).orElseThrow(
+                ()-> new BaseException(ErrorCode.USER_NOT_FOUND));
+
+        // UserResponseDto로 변환하여 반환
+        return new UserResponseDto(user);
     }
 }
