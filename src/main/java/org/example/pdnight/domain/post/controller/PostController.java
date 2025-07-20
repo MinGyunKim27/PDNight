@@ -3,6 +3,7 @@ package org.example.pdnight.domain.post.controller;
 import org.example.pdnight.domain.common.dto.ApiResponse;
 import org.example.pdnight.domain.common.enums.JobCategory;
 import org.example.pdnight.domain.post.dto.request.PostRequestDto;
+import org.example.pdnight.domain.post.dto.request.PostStatusRequestDto;
 import org.example.pdnight.domain.post.dto.request.PostUpdateRequestDto;
 import org.example.pdnight.domain.post.dto.response.PostResponseDto;
 import org.example.pdnight.domain.post.enums.AgeLimit;
@@ -82,6 +83,18 @@ public class PostController {
 		PostResponseDto updatedPost = postService.updatePostDetails(userId, id, requestDto);
 		return ResponseEntity.status(HttpStatus.OK)
 			.body(ApiResponse.ok("게시글이 수정되었습니다.", updatedPost));
+	}
+
+	@PatchMapping("/{id}/status")
+	public ResponseEntity<ApiResponse<PostResponseDto>> updateStatus(
+		@PathVariable Long id,
+		@RequestBody PostStatusRequestDto requestDto
+	) {
+		//인증객체 도입 전 임시 데이터 1번 유저
+		Long userId = 1L;;
+		PostResponseDto updatedPost = postService.changeStatus(userId, id, requestDto);
+		return ResponseEntity.status(HttpStatus.OK)
+			.body(ApiResponse.ok("게시글 상태가 수정되었습니다.", updatedPost));
 	}
 
 }

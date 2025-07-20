@@ -6,6 +6,7 @@ import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.enums.JobCategory;
 import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.post.dto.request.PostRequestDto;
+import org.example.pdnight.domain.post.dto.request.PostStatusRequestDto;
 import org.example.pdnight.domain.post.dto.request.PostUpdateRequestDto;
 import org.example.pdnight.domain.post.dto.response.PostResponseDto;
 import org.example.pdnight.domain.post.entity.Post;
@@ -90,6 +91,20 @@ public class PostService {
 			request.getJobCategoryLimit(),
 			request.getAgeLimit()
 		);
+
+		return new PostResponseDto(foundPost);
+	}
+
+	@Transactional
+	public PostResponseDto changeStatus(Long userId, Long id, PostStatusRequestDto request) {
+		//상태값 변경은 어떤 상태라도 불러와서 수정
+		Post foundPost = getPostOrThrow(postRepository.findById(id));
+		validateAuthor(userId, foundPost);
+
+		//변동사항 있을시에만 업데이트
+		if(!foundPost.getStatus().equals(request.getStatus())){
+			foundPost.updateStatus(request.getStatus());
+		}
 
 		return new PostResponseDto(foundPost);
 	}

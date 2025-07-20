@@ -88,4 +88,9 @@ public class Post extends Timestamped {
         if(ageLimit != null) this.ageLimit = ageLimit;
     }
 
+    //상태 변경 메서드
+    public void updateStatus(PostStatus status) {
+        this.status = status;
+    }
+
 }
