@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @AllArgsConstructor
-public class SignInResponseDto {
+public class SignupResponseDto {
     private String email;
 
     private UserRole role;
@@ -41,7 +41,7 @@ public class SignInResponseDto {
 
     private LocalDateTime updateAt;
 
-    public SignInResponseDto(User user, String hobby, String techStack) {
+    public SignupResponseDto(User user, String hobby, String techStack) {
         this.email = user.getEmail();
         this.role = UserRole.USER;
         this.name = user.getName();

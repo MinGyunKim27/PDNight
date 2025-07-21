@@ -49,4 +49,8 @@ public class Review extends Timestamped {
         this.rate = dto.getRate();
         this.comment = dto.getComment();
     }
+
+    public void removePost() {
+        this.post = null;
+    }
 }

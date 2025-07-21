@@ -3,10 +3,10 @@ package org.example.pdnight.domain.auth.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.auth.dto.request.LoginRequestDto;
-import org.example.pdnight.domain.auth.dto.request.SignInRequestDto;
+import org.example.pdnight.domain.auth.dto.request.SignupRequestDto;
 import org.example.pdnight.domain.auth.dto.request.WithdrawRequestDto;
 import org.example.pdnight.domain.auth.dto.response.LoginResponseDto;
-import org.example.pdnight.domain.auth.dto.response.SignInResponseDto;
+import org.example.pdnight.domain.auth.dto.response.SignupResponseDto;
 import org.example.pdnight.domain.auth.service.AuthService;
 import org.example.pdnight.domain.common.dto.ApiResponse;
 import org.example.pdnight.global.filter.CustomUserDetails;
@@ -25,8 +25,8 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/api/auth/signup")
-    private ResponseEntity<ApiResponse<SignInResponseDto>> signIn(@Valid @RequestBody SignInRequestDto request) {
-        SignInResponseDto user = authService.signIn(request);
+    private ResponseEntity<ApiResponse<SignupResponseDto>> signup(@Valid @RequestBody SignupRequestDto request) {
+        SignupResponseDto user = authService.signup(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.ok("회원가입 되었습니다.", user));
     }

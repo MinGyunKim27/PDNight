@@ -17,7 +17,6 @@ import org.example.pdnight.domain.participant.entity.QPostParticipant;
 import org.example.pdnight.domain.participant.enums.JoinStatus;
 import org.example.pdnight.domain.post.entity.Post;
 import org.example.pdnight.domain.post.entity.QPost;
-import org.example.pdnight.domain.post.service.PostService;
 import org.example.pdnight.domain.postLike.entity.QPostLike;
 import org.example.pdnight.domain.user.dto.response.PostWithJoinStatusAndAppliedAtResponseDto;
 import org.example.pdnight.domain.user.dto.response.QPostWithJoinStatusAndAppliedAtResponseDto;
@@ -32,8 +31,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Optional;
 @Repository
 @RequiredArgsConstructor
 public class PostRepositoryQueryImpl implements PostRepositoryQuery{
@@ -43,11 +40,15 @@ public class PostRepositoryQueryImpl implements PostRepositoryQuery{
         QPost post = QPost.post;
         QPostLike postLike = QPostLike.postLike;
 
+		BooleanBuilder builder = new BooleanBuilder();
+		builder.and(post.status.ne(PostStatus.CLOSED));
+		builder.and(postLike.user.id.eq(userId));
+
         List<Post> content = queryFactory
                 .select(post)
                 .from(post)
                 .join(postLike).on(postLike.post.eq(post))
-                .where(postLike.user.id.eq(userId))
+                .where(builder)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();

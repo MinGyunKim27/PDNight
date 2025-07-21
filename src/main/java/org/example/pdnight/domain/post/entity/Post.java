@@ -2,7 +2,6 @@ package org.example.pdnight.domain.post.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.pdnight.domain.common.entity.Timestamped;
@@ -57,8 +56,13 @@ public class Post extends Timestamped {
     @Enumerated(EnumType.STRING)
     private AgeLimit ageLimit;
 
+
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PostLike> postLikes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "post", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = false)
+    private List<Review> reviews = new ArrayList<>();
+
 
     private Post(User author, String title, LocalDateTime timeSlot, String publicContent, String privateContent,
         Integer maxParticipants, Gender genderLimit, JobCategory jobCategoryLimit, AgeLimit ageLimit)
@@ -100,11 +104,21 @@ public class Post extends Timestamped {
         this.status = status;
     }
 
+
     public void addLike(PostLike postLike) {
         this.postLikes.add(postLike);
     }
 
     public void removeLike(PostLike postLike) {
         this.postLikes.remove(postLike);
+
+    public void addReview(Review review) {
+        this.reviews.add(review);
+    }
+
+    public void unlinkReviews() {
+        for (Review review : reviews) {
+            review.removePost();
+        }
     }
 }
