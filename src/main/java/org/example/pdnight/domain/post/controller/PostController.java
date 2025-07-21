@@ -9,11 +9,13 @@ import org.example.pdnight.domain.post.dto.response.PostResponseDto;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.service.PostService;
+import org.example.pdnight.global.filter.CustomUserDetails;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -35,9 +37,11 @@ public class PostController {
 	private final PostService postService;
 
 	@PostMapping
-	public ResponseEntity<ApiResponse<PostResponseDto>> savePost(@Valid @RequestBody PostRequestDto request) {
-		//인증객체 도입 전 임시 데이터 1번 유저
-		Long userId = 1L;
+	public ResponseEntity<ApiResponse<PostResponseDto>> savePost(
+		@Valid @RequestBody PostRequestDto request,
+		@AuthenticationPrincipal CustomUserDetails loginUser
+	) {
+		Long userId = loginUser.getUserId();
 		return ResponseEntity.status(HttpStatus.CREATED)
 			.body(ApiResponse.ok("정상적으로 등록되었습니다.", postService.createPost(userId, request)));
 	}
@@ -49,9 +53,11 @@ public class PostController {
 	}
 
 	@DeleteMapping("/{id}")
-	public ResponseEntity<ApiResponse<Void>> deletePost(@PathVariable Long id) {
-		//인증객체 도입 전 임시 데이터 1번 유저
-		Long userId = 1L;
+	public ResponseEntity<ApiResponse<Void>> deletePost(
+		@PathVariable Long id,
+		@AuthenticationPrincipal CustomUserDetails loginUser
+	) {
+		Long userId = loginUser.getUserId();
 		postService.deletePostById(userId, id);
 		return ResponseEntity.status(HttpStatus.OK)
 			.body(ApiResponse.ok("게시글이 삭제되었습니다.", null));
@@ -76,10 +82,10 @@ public class PostController {
 	@PatchMapping("/{id}")
 	public ResponseEntity<ApiResponse<PostResponseDto>> updatePost(
 		@PathVariable Long id,
-		@RequestBody PostUpdateRequestDto requestDto
+		@RequestBody PostUpdateRequestDto requestDto,
+		@AuthenticationPrincipal CustomUserDetails loginUser
 	) {
-		//인증객체 도입 전 임시 데이터 1번 유저
-		Long userId = 1L;
+		Long userId = loginUser.getUserId();
 		PostResponseDto updatedPost = postService.updatePostDetails(userId, id, requestDto);
 		return ResponseEntity.status(HttpStatus.OK)
 			.body(ApiResponse.ok("게시글이 수정되었습니다.", updatedPost));
@@ -88,10 +94,10 @@ public class PostController {
 	@PatchMapping("/{id}/status")
 	public ResponseEntity<ApiResponse<PostResponseDto>> updateStatus(
 		@PathVariable Long id,
-		@RequestBody PostStatusRequestDto requestDto
+		@RequestBody PostStatusRequestDto requestDto,
+		@AuthenticationPrincipal CustomUserDetails loginUser
 	) {
-		//인증객체 도입 전 임시 데이터 1번 유저
-		Long userId = 1L;;
+		Long userId = loginUser.getUserId();
 		PostResponseDto updatedPost = postService.changeStatus(userId, id, requestDto);
 		return ResponseEntity.status(HttpStatus.OK)
 			.body(ApiResponse.ok("게시글 상태가 수정되었습니다.", updatedPost));
