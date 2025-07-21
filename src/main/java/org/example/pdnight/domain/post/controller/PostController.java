@@ -1,6 +1,7 @@
 package org.example.pdnight.domain.post.controller;
 
 import org.example.pdnight.domain.common.dto.ApiResponse;
+import org.example.pdnight.domain.common.dto.PagedResponse;
 import org.example.pdnight.domain.common.enums.JobCategory;
 import org.example.pdnight.domain.post.dto.request.PostRequestDto;
 import org.example.pdnight.domain.post.dto.request.PostStatusRequestDto;
@@ -10,7 +11,6 @@ import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.service.PostService;
 import org.example.pdnight.global.filter.CustomUserDetails;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -64,7 +64,7 @@ public class PostController {
 	}
 
 	@GetMapping
-	public ResponseEntity<ApiResponse<Page<PostResponseDto>>> searchPosts(
+	public ResponseEntity<ApiResponse<PagedResponse<PostResponseDto>>> searchPosts(
 		@RequestParam(defaultValue = "0") int page,
 		@RequestParam(defaultValue = "10") int size,
 		@RequestParam(defaultValue = "1") Integer maxParticipants,
@@ -73,10 +73,11 @@ public class PostController {
 		@RequestParam(required = false) Gender genderLimit
 	) {
 		Pageable pageable = PageRequest.of(page, size);
-		Page<PostResponseDto> postDtos = postService.getPostDtosBySearch(pageable, maxParticipants, ageLimit,
-			jobCategoryLimit, genderLimit);
+
+		PagedResponse<PostResponseDto> pagedResponse = PagedResponse.from(
+			postService.getPostDtosBySearch(pageable, maxParticipants, ageLimit, jobCategoryLimit, genderLimit));
 		return ResponseEntity.status(HttpStatus.OK)
-			.body(ApiResponse.ok("게시글 목록이 조회되었습니다.", postDtos));
+			.body(ApiResponse.ok("게시글 목록이 조회되었습니다.", pagedResponse));
 	}
 
 	@PatchMapping("/{id}")

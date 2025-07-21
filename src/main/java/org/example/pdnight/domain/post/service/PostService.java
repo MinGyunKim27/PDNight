@@ -2,6 +2,7 @@ package org.example.pdnight.domain.post.service;
 
 import java.util.Optional;
 
+import org.example.pdnight.domain.common.dto.PagedResponse;
 import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.enums.JobCategory;
 import org.example.pdnight.domain.common.exception.BaseException;

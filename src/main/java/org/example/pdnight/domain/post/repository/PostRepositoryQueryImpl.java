@@ -15,6 +15,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.participant.entity.QPostParticipant;
 import org.example.pdnight.domain.participant.enums.JoinStatus;
+import org.example.pdnight.domain.post.dto.response.QPostResponseDto;
 import org.example.pdnight.domain.post.entity.Post;
 import org.example.pdnight.domain.post.entity.QPost;
 import org.example.pdnight.domain.postLike.entity.QPostLike;
@@ -126,9 +127,7 @@ public class PostRepositoryQueryImpl implements PostRepositoryQuery{
 		Gender genderLimit
 	) {
 		List<PostResponseDto> contents = queryFactory
-			.select(
-				Projections.constructor(
-					PostResponseDto.class,
+			.select(new QPostResponseDto(
 					post.id,
 					post.author.id,
 					post.title,

@@ -9,6 +9,7 @@ import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.enums.PostStatus;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.querydsl.core.annotations.QueryProjection;
 
 import lombok.Getter;
 
@@ -46,7 +47,7 @@ public class PostResponseDto {
 		this.updatedAt = post.getUpdatedAt();
 	}
 
-	//queryDSL 프로젝션 용 전체생성자
+	@QueryProjection
 	public PostResponseDto(
 		Long id,
 		Long authorId,
