@@ -69,6 +69,8 @@ public class JwtFilter implements Filter {
                     "",
                     userRole);
 
+            httpRequest.setAttribute("userId", userId);
+
             SecurityContextHolder.getContext().setAuthentication(
                     new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities())
             );
