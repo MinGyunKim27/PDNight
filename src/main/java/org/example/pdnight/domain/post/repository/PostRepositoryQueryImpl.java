@@ -19,7 +19,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
-
 @Repository
 @RequiredArgsConstructor
 public class PostRepositoryQueryImpl implements PostRepositoryQuery{
@@ -100,4 +99,5 @@ public class PostRepositoryQueryImpl implements PostRepositoryQuery{
 
         return PageableExecutionUtils.getPage(content, pageable, () -> Optional.ofNullable(count).orElse(0L));
     }
+
 }

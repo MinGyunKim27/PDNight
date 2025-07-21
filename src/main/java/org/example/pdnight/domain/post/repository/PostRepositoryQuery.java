@@ -10,7 +10,9 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PostRepositoryQuery {
+
     Page<Post> getMyLikePost(Long userId, Pageable pageable);
 
     Page<PostWithJoinStatusAndAppliedAtResponseDto> getConfirmedPost(Long userId, JoinStatus joinStatus, Pageable pageable);
+
 }
