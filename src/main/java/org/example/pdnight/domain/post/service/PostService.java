@@ -2,6 +2,7 @@ package org.example.pdnight.domain.post.service;
 
 import java.util.Optional;
 
+import org.example.pdnight.domain.common.dto.PagedResponse;
 import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.enums.JobCategory;
 import org.example.pdnight.domain.common.exception.BaseException;
@@ -65,15 +66,15 @@ public class PostService {
 	}
 
 	@Transactional(readOnly = true)
-	public Page<PostResponseDto> getPostDtosBySearch(
+	public PagedResponse<PostResponseDto> getPostDtosBySearch(
 		Pageable pageable,
 		Integer maxParticipants,
 		AgeLimit ageLimit,
 		JobCategory jobCategoryLimit,
 		Gender genderLimit
 	) {
-		return postRepository.findPostDtosBySearch(pageable, maxParticipants,
-			ageLimit, jobCategoryLimit, genderLimit);
+		return PagedResponse.from(postRepository.findPostDtosBySearch(pageable, maxParticipants,
+			ageLimit, jobCategoryLimit, genderLimit));
 	}
 
 	@Transactional

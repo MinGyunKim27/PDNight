@@ -1,6 +1,7 @@
 package org.example.pdnight.domain.post.controller;
 
 import org.example.pdnight.domain.common.dto.ApiResponse;
+import org.example.pdnight.domain.common.dto.PagedResponse;
 import org.example.pdnight.domain.common.enums.JobCategory;
 import org.example.pdnight.domain.post.dto.request.PostRequestDto;
 import org.example.pdnight.domain.post.dto.request.PostStatusRequestDto;
@@ -64,7 +65,7 @@ public class PostController {
 	}
 
 	@GetMapping
-	public ResponseEntity<ApiResponse<Page<PostResponseDto>>> searchPosts(
+	public ResponseEntity<ApiResponse<PagedResponse<PostResponseDto>>> searchPosts(
 		@RequestParam(defaultValue = "0") int page,
 		@RequestParam(defaultValue = "10") int size,
 		@RequestParam(defaultValue = "1") Integer maxParticipants,
@@ -73,10 +74,10 @@ public class PostController {
 		@RequestParam(required = false) Gender genderLimit
 	) {
 		Pageable pageable = PageRequest.of(page, size);
-		Page<PostResponseDto> postDtos = postService.getPostDtosBySearch(pageable, maxParticipants, ageLimit,
-			jobCategoryLimit, genderLimit);
+
 		return ResponseEntity.status(HttpStatus.OK)
-			.body(ApiResponse.ok("게시글 목록이 조회되었습니다.", postDtos));
+			.body(ApiResponse.ok("게시글 목록이 조회되었습니다.",
+				postService.getPostDtosBySearch(pageable, maxParticipants, ageLimit, jobCategoryLimit, genderLimit)));
 	}
 
 	@PatchMapping("/{id}")
