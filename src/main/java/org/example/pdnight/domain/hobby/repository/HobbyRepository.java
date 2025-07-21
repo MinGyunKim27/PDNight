@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface HobbyRepository extends JpaRepository<Hobby,Long> {
     Boolean existsHobbiesByHobby(@NotNull String hobby);
 
-public interface HobbyRepository extends JpaRepository<Hobby, Long> {
     Hobby findByhobby(String hobby);
 
 }
