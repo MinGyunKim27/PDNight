@@ -71,6 +71,16 @@ public class User extends Timestamped {
     private Boolean isDeleted = false;
     private LocalDateTime deletedAt;
 
+    public User(Long id, String name) {
+        this.id = id;
+        this.name = name;
+        this.role = UserRole.USER;
+        this.totalRate = 0L;
+        this.totalReviewer = 0L;
+        this.isDeleted = false;
+        this.deletedAt = null;
+    }
+
     public User(SignupRequestDto request, String encodePassword, Hobby hobby, TechStack techStack) {
         this.email = request.getEmail();
         this.password = encodePassword;
@@ -87,6 +97,19 @@ public class User extends Timestamped {
         this.comment = request.getComment();
         this.totalRate = 0L;
         this.totalReviewer = 0L;
+    }
+
+    public User(Long id, String name, String hashedOldPassword) {
+        this.id = id;
+        this.name = name;
+        this.password = hashedOldPassword;
+    }
+
+    public User(Long userId, String name, Long totalRate, Long totalReviewer) {
+        this.id = userId;
+        this.name = name;
+        this.totalRate = totalRate;
+        this.totalReviewer = totalReviewer;
     }
 
     public void softDelete() {
