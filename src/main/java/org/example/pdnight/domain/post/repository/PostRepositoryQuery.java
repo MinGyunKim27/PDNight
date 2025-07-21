@@ -8,9 +8,12 @@ import org.example.pdnight.domain.common.enums.JobCategory;
 import org.example.pdnight.domain.post.dto.response.PostResponseDto;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
+import org.example.pdnight.domain.user.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 public interface PostRepositoryQuery {
 
@@ -26,5 +29,4 @@ public interface PostRepositoryQuery {
 		JobCategory jobCategoryLimit,
 		Gender genderLimit
 	);
-
 }
