@@ -57,14 +57,20 @@ public class UserService {
 
     @Transactional
     public UserResponseDto updateMyProfile(Long userId, UserUpdateRequest request){
-        System.out.println("HobbyId : " + request.getHobbyId() + " TechStackId : " + request.getTechStackId() + "");
-        Hobby hobby = hobbyRepository.findById(request.getHobbyId()).orElseThrow(
-                () -> new BaseException(ErrorCode.HOBBY_NOT_FOUND)
-        );
+        Hobby hobby = null;
+        TechStack techStack = null;
 
-        TechStack techStack = techStackRepository.findById(request.getTechStackId()).orElseThrow(
-                () -> new BaseException(ErrorCode.TECH_STACK_NOT_FOUND)
-        );
+        if(request.getHobbyId() != null){
+            hobby = hobbyRepository.findById(request.getHobbyId()).orElseThrow(
+                    () -> new BaseException(ErrorCode.HOBBY_NOT_FOUND)
+            );
+        }
+
+        if(request.getTechStackId() != null){
+             techStack = techStackRepository.findById(request.getTechStackId()).orElseThrow(
+                    () -> new BaseException(ErrorCode.TECH_STACK_NOT_FOUND)
+            );
+        }
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
