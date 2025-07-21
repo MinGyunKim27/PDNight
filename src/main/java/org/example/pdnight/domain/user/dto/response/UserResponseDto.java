@@ -32,8 +32,8 @@ public class UserResponseDto {
         this.id = user.getId();
         this.email = user.getEmail();
         this.role = user.getRole();
-        this.hobbies = user.getHobby().getHobby();
-        this.techStacks = user.getTechStack().getTechStack();
+        this.hobbies = user.getHobby() != null ? user.getHobby().getHobby() : "";
+        this.techStacks = user.getTechStack() != null ? user.getTechStack().getTechStack() : "";
         this.name = user.getName();
         this.nickname = user.getNickname();
         this.gender = user.getGender();
