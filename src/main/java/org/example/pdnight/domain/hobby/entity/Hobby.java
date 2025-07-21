@@ -1,9 +1,6 @@
 package org.example.pdnight.domain.hobby.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,8 +13,14 @@ import org.example.pdnight.domain.common.entity.Timestamped;
 @AllArgsConstructor
 public class Hobby extends Timestamped{
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 255)
+    @Column(name = "hobby", unique = true)
     private String hobby;
+
+    public Hobby(String hobby){
+        this.hobby = hobby;
+    }
+
 }
