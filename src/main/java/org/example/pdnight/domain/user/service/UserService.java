@@ -46,6 +46,11 @@ public class UserService {
         return PagedResponse.from(myLikePost);
     }
 
+    public PagedResponse<PostResponseDto> findMyWrittenPosts(Long userId, Pageable pageable) {
+        Page<PostResponseDto> myLikePost = postRepositoryQuery.getWrittenPost(userId, pageable);
+        return PagedResponse.from(myLikePost);
+    }
+
     public UserResponseDto getMyProfile(Long userId){
         // id로 유저 조회
         User user = userRepository.findById(userId)

@@ -2,10 +2,10 @@ package org.example.pdnight.domain.auth.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.auth.dto.request.LoginRequestDto;
-import org.example.pdnight.domain.auth.dto.request.SignInRequestDto;
+import org.example.pdnight.domain.auth.dto.request.SignupRequestDto;
 import org.example.pdnight.domain.auth.dto.request.WithdrawRequestDto;
 import org.example.pdnight.domain.auth.dto.response.LoginResponseDto;
-import org.example.pdnight.domain.auth.dto.response.SignInResponseDto;
+import org.example.pdnight.domain.auth.dto.response.SignupResponseDto;
 import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.hobby.entity.Hobby;
@@ -30,7 +30,7 @@ public class AuthService {
     private final JwtUtil jwtUtil;
 
     @Transactional
-    public SignInResponseDto signIn(SignInRequestDto request) {
+    public SignupResponseDto signup(SignupRequestDto request) {
 
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new BaseException(ErrorCode.EMAIL_ALREADY_EXISTS);
@@ -39,15 +39,17 @@ public class AuthService {
         // 취미, 기술 스택 입력은 db에 존재하는 값만 입력받는 조건
         Hobby hobby = null;
         String hobbyStr = null;
-        if (request.getHobby() != null) {
-            hobby = hobbyRepository.findByhobby(request.getHobby());
+        if (request.getHobbyId() != null) {
+            hobby = hobbyRepository.findById(request.getHobbyId())
+                    .orElseThrow(() -> new BaseException(ErrorCode.HOBBY_NOT_FOUND));
             hobbyStr = hobby.getHobby();
         }
 
         TechStack techStack = null;
         String techStackStr = null;
-        if (request.getTechStack() != null) {
-            techStack = techStackRepository.findByTechStack(request.getTechStack());
+        if (request.getTechStackId() != null) {
+            techStack = techStackRepository.findById(request.getTechStackId())
+                    .orElseThrow(() -> new BaseException(ErrorCode.TECH_STACK_NOT_FOUND));
             techStackStr = techStack.getTechStack();
         }
 
@@ -56,7 +58,7 @@ public class AuthService {
 
         User saveUser = userRepository.save(user);
 
-        return new SignInResponseDto(saveUser, hobbyStr, techStackStr);
+        return new SignupResponseDto(saveUser, hobbyStr, techStackStr);
 
     }
 

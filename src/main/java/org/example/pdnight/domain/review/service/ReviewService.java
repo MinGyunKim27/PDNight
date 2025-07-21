@@ -36,13 +36,14 @@ public class ReviewService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new BaseException(ErrorCode.POST_NOT_FOUND));
 
-        Review review = new Review(reviewer, ratedUser, post, requestDto);
-
         if (reviewRepository.existsByReviewerAndRatedUserAndPost(reviewer, ratedUser, post)) {
             throw new BaseException(ErrorCode.ALREADY_REVIEWED);
         }
 
+        Review review = new Review(reviewer, ratedUser, post, requestDto);
+
         reviewRepository.save(review);
+        post.addReview(review);
 
         return new ReviewResponseDto(review);
     }
