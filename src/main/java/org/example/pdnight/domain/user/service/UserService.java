@@ -7,12 +7,11 @@ import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.user.dto.request.UserPasswordUpdateRequest;
 import org.example.pdnight.domain.user.dto.request.UserRequestDto;
 import org.example.pdnight.domain.user.dto.request.UserUpdateRequest;
-import org.example.pdnight.domain.user.dto.response.UserEvalueationResponse;
+import org.example.pdnight.domain.user.dto.response.UserEvaluationResponse;
 import org.example.pdnight.domain.user.dto.response.UserResponseDto;
 import org.example.pdnight.domain.user.entity.User;
 import org.example.pdnight.domain.user.repository.UserRepository;
 import org.example.pdnight.global.config.PasswordEncoder;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -71,11 +70,11 @@ public class UserService {
         return new UserResponseDto(user);
     }
 
-    public UserEvalueationResponse getEvaluation(Long id){
+    public UserEvaluationResponse getEvaluation(Long id){
         // id로 유저 조회
         User user = userRepository.findById(id).orElseThrow(
                 ()-> new BaseException(ErrorCode.USER_NOT_FOUND));
 
-        return new UserEvalueationResponse(user);
+        return new UserEvaluationResponse(user);
     }
 }
