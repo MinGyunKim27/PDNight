@@ -54,7 +54,7 @@ public class Post extends Timestamped {
     @Enumerated(EnumType.STRING)
     private AgeLimit ageLimit;
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = false)
+    @OneToMany(mappedBy = "post", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = false)
     private List<Review> reviews = new ArrayList<>();
 
     private Post(User author, String title, LocalDateTime timeSlot, String publicContent, String privateContent,
