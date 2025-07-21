@@ -13,7 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-@Primary
+//@Primary
 public interface PostRepository extends JpaRepository<Post, Long>, PostRepositoryQuery {
 	//상태값 조건 쿼리메서드
 	Optional<Post> findByIdAndStatus(Long id, PostStatus status);
