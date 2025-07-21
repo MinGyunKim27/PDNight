@@ -27,4 +27,5 @@ public interface PostRepositoryQuery {
 		Gender genderLimit
 	);
 
+    Page<PostResponseDto> getWrittenPost(Long userId, Pageable pageable);
 }
