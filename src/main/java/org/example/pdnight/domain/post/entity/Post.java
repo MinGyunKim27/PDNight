@@ -111,6 +111,7 @@ public class Post extends Timestamped {
 
     public void removeLike(PostLike postLike) {
         this.postLikes.remove(postLike);
+    }
 
     public void addReview(Review review) {
         this.reviews.add(review);
