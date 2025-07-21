@@ -94,7 +94,7 @@ public class User extends Timestamped {
         deletedAt = LocalDateTime.now();
     }
   
-    public void updateProfile(UserUpdateRequest request) {
+    public void updateProfile(UserUpdateRequest request, Hobby hobby, TechStack techStack) {
         if (request.getEmail() != null) {
             this.email = request.getEmail();
         }
@@ -119,6 +119,12 @@ public class User extends Timestamped {
         }
         if (request.getComment() != null){
             this.comment = request.getComment();
+        }
+        if (hobby != null){
+            this.hobby = hobby;
+        }
+        if (techStack != null){
+            this.techStack = techStack;
         }
     }
 

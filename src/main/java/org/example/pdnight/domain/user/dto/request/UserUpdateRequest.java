@@ -6,8 +6,8 @@ import lombok.Getter;
 public class UserUpdateRequest {
     // todo : 포맷 설정 통일
     private String email;
-    private String hobbies;
-    private String techStacks;
+    private Long hobbyId;
+    private Long techStackId;
     private String name;
     private String nickname;
     private String gender;

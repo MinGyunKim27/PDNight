@@ -48,12 +48,11 @@ public enum ErrorCode {
 
     //취미 관련 오류
     HOBBY_ALREADY_EXISTS(HttpStatus.CONFLICT,"이미 존재하는 취미 입니다"),
-    HOBBY_NOT_FOUND(HttpStatus.NOT_FOUND,"취미를 찾을 수 없습니다"),
+    HOBBY_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 취미입니다."),
 
     //기술 스택 관련 오류
     TECH_STACK_ALREADY_EXISTS(HttpStatus.CONFLICT,"이미 존재하는 기술 스택입니다"),
-    TECH_STACK_NOT_FOUND(HttpStatus.NOT_FOUND,"기술 스택을 찾을 수 없습니다")
-
+    TECH_STACK_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 기술 스택입니다.")
     ;
 
     private final HttpStatus status;// HTTP 상태 코드
