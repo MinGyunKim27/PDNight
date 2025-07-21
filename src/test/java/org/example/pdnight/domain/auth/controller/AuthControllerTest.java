@@ -2,10 +2,15 @@ package org.example.pdnight.domain.auth.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.pdnight.domain.auth.dto.request.LoginRequestDto;
-import org.example.pdnight.domain.auth.dto.request.SignInRequestDto;
+import org.example.pdnight.domain.auth.dto.request.SignupRequestDto;
+import org.example.pdnight.domain.auth.dto.request.WithdrawRequestDto;
 import org.example.pdnight.domain.common.enums.JobCategory;
 import org.example.pdnight.domain.post.enums.Gender;
+import org.example.pdnight.domain.user.entity.User;
 import org.example.pdnight.domain.user.enums.Region;
+import org.example.pdnight.domain.user.repository.UserRepository;
+import org.example.pdnight.global.config.PasswordEncoder;
+import org.example.pdnight.global.utils.JwtUtil;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +24,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -34,12 +40,21 @@ class AuthControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Test
     @Rollback
     @DisplayName("회원 가입 성공 테스트")
     void signInSuccess() throws Exception {
         //given
-        SignInRequestDto request = signInRequest("SignIn");
+        SignupRequestDto request = signInRequest("Signup");
 
         //when
         ResultActions perform = mockMvc.perform(post("/api/auth/signup")
@@ -48,7 +63,7 @@ class AuthControllerTest {
 
         //then
         perform.andExpect(status().isCreated())
-                .andExpect(jsonPath("$.data.email").value("SignInTest@example.com"));
+                .andExpect(jsonPath("$.data.email").value("SignupTest@example.com"));
     }
 
     @Test
@@ -56,15 +71,10 @@ class AuthControllerTest {
     @DisplayName("로그인 성공 테스트")
     void loginSuccess() throws Exception {
         //given
-        SignInRequestDto request = signInRequest("login");
+        SignupRequestDto request = signInRequest("login");
+        createUser(request);
 
-        mockMvc.perform(post("/api/auth/signup")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)));
-
-        LoginRequestDto loginRequest = LoginRequestDto.builder()
-                .email("loginTest@example.com")
-                .password("testPassword").build();
+        LoginRequestDto loginRequest = loginRequest("login");
 
         //when
         ResultActions perform = mockMvc.perform(post("/api/auth/login")
@@ -76,8 +86,43 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.data.token").isNotEmpty());
     }
 
-    private SignInRequestDto signInRequest(String name) {
-        return SignInRequestDto.builder()
+    @Test
+    @Rollback
+    @DisplayName("필터 테스트 - 토큰이 없는 경우 회원 탈퇴 실패")
+    void filterTestNoToken() throws Exception {
+        //given
+        WithdrawRequestDto withdrawRequest = withdrawRequest();
+
+        //when
+        mockMvc.perform(delete("/api/auth/withdraw")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(withdrawRequest)))
+        //then
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("JWT 토큰이 필요합니다."));
+    }
+
+    @Test
+    @Rollback
+    @DisplayName("토큰이 있는 경우 회원 탈퇴 성공")
+    void Withdraw() throws Exception {
+        //given
+        SignupRequestDto request = signInRequest("withDraw");
+        User user = createUser(request);
+        String token = jwtUtil.createToken(user.getId(), user.getRole());
+
+        WithdrawRequestDto withdrawRequest = withdrawRequest();
+        //when
+        mockMvc.perform(delete("/api/auth/withdraw")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(withdrawRequest)))
+                //then
+                .andExpect(status().isOk());
+    }
+
+    private SignupRequestDto signInRequest(String name) {
+        return SignupRequestDto.builder()
                 .email(name + "Test@example.com")
                 .password("testPassword")
                 .name("test")
@@ -86,5 +131,21 @@ class AuthControllerTest {
                 .jobCategory(JobCategory.BACK_END_DEVELOPER)
                 .region(Region.PANGYO_DONG)
                 .workLocation(Region.BAEKHYEON_DONG).build();
+    }
+
+    private LoginRequestDto loginRequest(String name) {
+        return LoginRequestDto.builder()
+                .email(name + "Test@example.com")
+                .password("testPassword").build();
+    }
+
+    private WithdrawRequestDto withdrawRequest() {
+        return WithdrawRequestDto.builder()
+                .password("testPassword").build();
+    }
+    private User createUser(SignupRequestDto request){
+        String encode = passwordEncoder.encode(request.getPassword());
+        User user = new User(request, encode, null, null);
+        return userRepository.save(user);
     }
 }
