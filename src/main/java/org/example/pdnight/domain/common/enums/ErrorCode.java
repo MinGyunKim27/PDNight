@@ -44,7 +44,14 @@ public enum ErrorCode {
     MISSING_REQUIRED_FIELD(HttpStatus.BAD_REQUEST, "필수 입력값이 누락되었습니다"),
 
     // 서버 오류 (500 Internal Server Error)
-    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "처리 중 오류가 발생했습니다")
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "처리 중 오류가 발생했습니다"),
+
+    //취미 관련 오류
+    HOBBY_ALREADY_EXISTS(HttpStatus.CONFLICT,"이미 존재하는 취미 입니다"),
+
+    //기술 스택 관련 오류
+    TECH_STACK_ALREADY_EXISTS(HttpStatus.CONFLICT,"이미 존재하는 기술 스택입니다")
+
 
     ;
 

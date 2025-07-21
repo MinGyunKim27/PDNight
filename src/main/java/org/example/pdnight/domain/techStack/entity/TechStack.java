@@ -16,7 +16,8 @@ public class TechStack extends Timestamped {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "tech_stack")
+
+    @Column(name = "tech_stack", unique = true)
     private String techStack;
 
     public TechStack(String techStack){
