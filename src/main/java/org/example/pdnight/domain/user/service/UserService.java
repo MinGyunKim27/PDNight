@@ -3,14 +3,20 @@ package org.example.pdnight.domain.user.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.common.dto.PagedResponse;
+import org.example.pdnight.domain.hobby.entity.Hobby;
+import org.example.pdnight.domain.hobby.repository.HobbyRepository;
 import org.example.pdnight.domain.participant.enums.JoinStatus;
 import org.example.pdnight.domain.post.dto.response.PostResponseDto;
 import org.example.pdnight.domain.post.entity.Post;
+import org.example.pdnight.domain.post.repository.PostRepositoryQuery;
+import org.example.pdnight.domain.techStack.entity.TechStack;
+import org.example.pdnight.domain.techStack.repository.TechStackRepository;
 import org.example.pdnight.domain.post.repository.PostRepositoryQueryImpl;
 import org.example.pdnight.domain.user.dto.response.PostWithJoinStatusAndAppliedAtResponseDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import at.favre.lib.crypto.bcrypt.BCrypt;
+import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.user.dto.request.UserPasswordUpdateRequest;
@@ -27,6 +33,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UserService {
 
+    private final HobbyRepository hobbyRepository;
+    private final TechStackRepository techStackRepository;
     private final PostRepositoryQueryImpl postRepositoryQuery;
     private final UserRepository userRepository;
 
@@ -52,11 +60,20 @@ public class UserService {
 
     @Transactional
     public UserResponseDto updateMyProfile(Long userId, UserUpdateRequest request){
+        System.out.println("HobbyId : " + request.getHobbyId() + " TechStackId : " + request.getTechStackId() + "");
+        Hobby hobby = hobbyRepository.findById(request.getHobbyId()).orElseThrow(
+                () -> new BaseException(ErrorCode.HOBBY_NOT_FOUND)
+        );
+
+        TechStack techStack = techStackRepository.findById(request.getTechStackId()).orElseThrow(
+                () -> new BaseException(ErrorCode.TECH_STACK_NOT_FOUND)
+        );
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
         // 수정 로직
-        user.updateProfile(request);
+        user.updateProfile(request, hobby, techStack);
         userRepository.save(user);
 
         return new UserResponseDto(user);
