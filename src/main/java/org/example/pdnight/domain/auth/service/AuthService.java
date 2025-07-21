@@ -2,10 +2,10 @@ package org.example.pdnight.domain.auth.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.auth.dto.request.LoginRequestDto;
-import org.example.pdnight.domain.auth.dto.request.SignInRequestDto;
+import org.example.pdnight.domain.auth.dto.request.SignupRequestDto;
 import org.example.pdnight.domain.auth.dto.request.WithdrawRequestDto;
 import org.example.pdnight.domain.auth.dto.response.LoginResponseDto;
-import org.example.pdnight.domain.auth.dto.response.SignInResponseDto;
+import org.example.pdnight.domain.auth.dto.response.SignupResponseDto;
 import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.hobby.entity.Hobby;
@@ -30,7 +30,7 @@ public class AuthService {
     private final JwtUtil jwtUtil;
 
     @Transactional
-    public SignInResponseDto signIn(SignInRequestDto request) {
+    public SignupResponseDto signup(SignupRequestDto request) {
 
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new BaseException(ErrorCode.EMAIL_ALREADY_EXISTS);
@@ -56,7 +56,7 @@ public class AuthService {
 
         User saveUser = userRepository.save(user);
 
-        return new SignInResponseDto(saveUser, hobbyStr, techStackStr);
+        return new SignupResponseDto(saveUser, hobbyStr, techStackStr);
 
     }
 

@@ -11,7 +11,7 @@ import org.example.pdnight.global.annotation.ValidEmailPattern;
 
 @Getter
 @Builder
-public class SignInRequestDto {
+public class SignupRequestDto {
     @NotBlank(message = "이메일은 작성해야 합니다.")
     @ValidEmailPattern
     private String email;
