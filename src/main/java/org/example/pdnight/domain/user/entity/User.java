@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.example.pdnight.domain.auth.dto.request.SignInRequestDto;
 import org.example.pdnight.domain.common.entity.Timestamped;
 import org.example.pdnight.domain.common.enums.UserRole;
 import org.example.pdnight.domain.hobby.entity.Hobby;
@@ -14,6 +15,8 @@ import org.example.pdnight.domain.common.enums.JobCategory;
 import org.example.pdnight.domain.techStack.entity.TechStack;
 import org.example.pdnight.domain.user.dto.request.UserUpdateRequest;
 import org.example.pdnight.domain.user.enums.Region;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
@@ -39,11 +42,11 @@ public class User extends Timestamped {
 
     private String nickname;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "hobby_id")
     private Hobby hobby;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "teck_stack_id")
     private TechStack techStack;
 
@@ -70,6 +73,29 @@ public class User extends Timestamped {
     private Boolean isDeleted = false;
     private LocalDateTime deletedAt;
 
+    public User(SignInRequestDto request, String encodePassword, Hobby hobby, TechStack techStack) {
+        this.email = request.getEmail();
+        this.password = encodePassword;
+        this.role = UserRole.USER;
+        this.name = request.getName();
+        this.nickname = request.getNickname();
+        this.hobby = hobby;
+        this.techStack = techStack;
+        this.gender = request.getGender();
+        this.age =  request.getAge();
+        this.jobCategory = request.getJobCategory();
+        this.region = request.getRegion();
+        this.workLocation = request.getWorkLocation();
+        this.comment = request.getComment();
+        this.totalRate = 0L;
+        this.totalReviewer = 0L;
+    }
+
+    public void softDelete() {
+        isDeleted = true;
+        deletedAt = LocalDateTime.now();
+    }
+  
     public void updateProfile(UserUpdateRequest request) {
         if (request.getEmail() != null) {
             this.email = request.getEmail();
