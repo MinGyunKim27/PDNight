@@ -100,9 +100,6 @@ public class User extends Timestamped {
         if (request.getEmail() != null) {
             this.email = request.getEmail();
         }
-        if (request.getRole() != null) {
-            this.role = UserRole.valueOf(request.getRole());
-        }
         if (name != null) {
             this.name = request.getName();
         }

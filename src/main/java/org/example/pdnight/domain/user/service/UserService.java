@@ -49,9 +49,10 @@ public class UserService {
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
         // 비밀번호 검증
-        String encoded = BCrypt.withDefaults().hashToString(10, "password123!".toCharArray());
-        boolean match = BCrypt.verifyer().verify("password123!".toCharArray(), encoded).verified;
-        if(!match){
+        boolean match = BCrypt.verifyer()
+                .verify(request.getOldPassword().toCharArray(), user.getPassword())
+                .verified;
+        if (!match) {
             throw new BaseException(ErrorCode.INVALID_PASSWORD);
         }
 
