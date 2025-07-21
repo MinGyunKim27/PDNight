@@ -77,4 +77,19 @@ public class PostResponseDto {
 		this.updatedAt = updatedAt;
 	}
 
+	public static PostResponseDto toDto(Post post){
+		return new PostResponseDto(
+				post.getId(),
+				post.getAuthor().getId(),
+				post.getTitle(),
+				post.getTimeSlot(),
+				post.getPublicContent(),
+				post.getPrivateContent(),
+				post.getStatus(),
+				post.getMaxParticipants(),
+				post.getGenderLimit(),
+				post.getJobCategoryLimit(),
+				post.getAgeLimit());
+	}
+
 }
