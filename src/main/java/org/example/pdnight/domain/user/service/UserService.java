@@ -17,11 +17,11 @@ import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.user.dto.request.UserPasswordUpdateRequest;
 import org.example.pdnight.domain.user.dto.request.UserRequestDto;
 import org.example.pdnight.domain.user.dto.request.UserUpdateRequest;
+import org.example.pdnight.domain.user.dto.response.UserEvaluationResponse;
 import org.example.pdnight.domain.user.dto.response.UserResponseDto;
 import org.example.pdnight.domain.user.entity.User;
 import org.example.pdnight.domain.user.repository.UserRepository;
 import org.example.pdnight.global.config.PasswordEncoder;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final PostRepositoryQuery postRepositoryQuery;
+    private final UserRepository userRepository;
 
     public PagedResponse<PostResponseDto> findMyLikedPosts(Long userId, Pageable pageable){
         Page<Post> myLikePost = postRepositoryQuery.getMyLikePost(userId, pageable);
@@ -41,10 +42,6 @@ public class UserService {
         Page<PostWithJoinStatusAndAppliedAtResponseDto> myLikePost = postRepositoryQuery.getConfirmedPost(userId, joinStatus, pageable);
         return PagedResponse.from(myLikePost);
     }
-
-
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
 
     public UserResponseDto getMyProfile(Long userId){
         // id로 유저 조회
@@ -73,9 +70,10 @@ public class UserService {
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
         // 비밀번호 검증
-        String encoded = BCrypt.withDefaults().hashToString(10, "password123!".toCharArray());
-        boolean match = BCrypt.verifyer().verify("password123!".toCharArray(), encoded).verified;
-        if(!match){
+        boolean match = BCrypt.verifyer()
+                .verify(request.getOldPassword().toCharArray(), user.getPassword())
+                .verified;
+        if (!match) {
             throw new BaseException(ErrorCode.INVALID_PASSWORD);
         }
 
@@ -93,5 +91,13 @@ public class UserService {
         // UserResponseDto로 변환하여 반환
         return new UserResponseDto(user);
 
+    }
+
+    public UserEvaluationResponse getEvaluation(Long id){
+        // id로 유저 조회
+        User user = userRepository.findById(id).orElseThrow(
+                ()-> new BaseException(ErrorCode.USER_NOT_FOUND));
+
+        return new UserEvaluationResponse(user);
     }
 }
