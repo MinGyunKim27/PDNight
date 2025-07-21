@@ -174,7 +174,52 @@ public class PostRepositoryQueryImpl implements PostRepositoryQuery{
 				.fetchOne()
 		).orElse(0L);
 
+
+
 		return new PageImpl<>(contents, pageable, total);
+	}
+
+	@Override
+	public Page<PostResponseDto> getWrittenPost(
+			Long userId,
+			Pageable pageable) {
+		QPost post1 = post;
+
+		BooleanBuilder builder = new BooleanBuilder();
+
+		builder.and(post1.author.id.eq(userId));
+		builder.and(post1.status.ne(PostStatus.CLOSED));
+
+		List<PostResponseDto> writtenPost = queryFactory.select(Projections.constructor(
+						PostResponseDto.class,
+						post.id,
+						post.author.id,
+						post.title,
+						post.timeSlot,
+						post.publicContent,
+						post.privateContent,
+						post.status,
+						post.maxParticipants,
+						post.genderLimit,
+						post.jobCategoryLimit,
+						post.ageLimit,
+						post.createdAt,
+						post.updatedAt))
+				.from(post1)
+				.where(builder)
+				.offset(pageable.getOffset())
+				.limit(pageable.getPageSize())
+				.fetch();
+
+		Long count = queryFactory
+				.select(post.count())
+				.from(post)
+				.where(
+						builder
+				)
+				.fetchOne();
+
+		return PageableExecutionUtils.getPage(writtenPost,pageable,() ->Optional.ofNullable(count).orElse(0L));
 	}
 
 	//이하 헬퍼메서드

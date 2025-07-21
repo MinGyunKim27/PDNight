@@ -47,6 +47,16 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.ok("참여 신청한 게시글 목록이 조회되었습니다.",myLikedPost));
     }
 
+    @GetMapping("/my/writtenPosts")
+    public ResponseEntity<ApiResponse<PagedResponse<PostResponseDto>>> getMyWrittenPosts(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PageableDefault(size = 10,page = 0) Pageable pageable
+    ){
+        Long id = userDetails.getUserId();
+        PagedResponse<PostResponseDto> myLikedPost = userService.findMyWrittenPosts(id, pageable);
+        return ResponseEntity.ok(ApiResponse.ok("참여 신청한 게시글 목록이 조회되었습니다.",myLikedPost));
+    }
+
     @GetMapping("/my")
     public ResponseEntity<ApiResponse<?>> getMyProfile(
             @AuthenticationPrincipal CustomUserDetails userDetails
