@@ -33,6 +33,7 @@ public class PostLikeService {
         }
 
         PostLike postLike = new PostLike(post, user);
+        post.addLike(postLike);
         postLikeRepository.save(postLike);
 
         return new PostLikeResponse(postLike);
@@ -47,6 +48,7 @@ public class PostLikeService {
         PostLike like = postLikeRepository.findByPostAndUser(post, user)
                 .orElseThrow(()-> new BaseException(ErrorCode.POSTLIKE_NOT_FOUND));
 
+        post.removeLike(like);
         postLikeRepository.delete(like);
     }
 }
