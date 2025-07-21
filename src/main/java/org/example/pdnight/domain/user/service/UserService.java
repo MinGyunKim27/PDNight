@@ -8,7 +8,6 @@ import org.example.pdnight.domain.hobby.repository.HobbyRepository;
 import org.example.pdnight.domain.participant.enums.JoinStatus;
 import org.example.pdnight.domain.post.dto.response.PostResponseDto;
 import org.example.pdnight.domain.post.entity.Post;
-import org.example.pdnight.domain.post.repository.PostRepositoryQuery;
 import org.example.pdnight.domain.techStack.entity.TechStack;
 import org.example.pdnight.domain.techStack.repository.TechStackRepository;
 import org.example.pdnight.domain.post.repository.PostRepositoryQueryImpl;
@@ -16,11 +15,9 @@ import org.example.pdnight.domain.user.dto.response.PostWithJoinStatusAndApplied
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import at.favre.lib.crypto.bcrypt.BCrypt;
-import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.user.dto.request.UserPasswordUpdateRequest;
-import org.example.pdnight.domain.user.dto.request.UserRequestDto;
 import org.example.pdnight.domain.user.dto.request.UserUpdateRequest;
 import org.example.pdnight.domain.user.dto.response.UserEvaluationResponse;
 import org.example.pdnight.domain.user.dto.response.UserResponseDto;
@@ -65,14 +62,20 @@ public class UserService {
 
     @Transactional
     public UserResponseDto updateMyProfile(Long userId, UserUpdateRequest request){
-        System.out.println("HobbyId : " + request.getHobbyId() + " TechStackId : " + request.getTechStackId() + "");
-        Hobby hobby = hobbyRepository.findById(request.getHobbyId()).orElseThrow(
-                () -> new BaseException(ErrorCode.HOBBY_NOT_FOUND)
-        );
+        Hobby hobby = null;
+        TechStack techStack = null;
 
-        TechStack techStack = techStackRepository.findById(request.getTechStackId()).orElseThrow(
-                () -> new BaseException(ErrorCode.TECH_STACK_NOT_FOUND)
-        );
+        if(request.getHobbyId() != null){
+            hobby = hobbyRepository.findById(request.getHobbyId()).orElseThrow(
+                    () -> new BaseException(ErrorCode.HOBBY_NOT_FOUND)
+            );
+        }
+
+        if(request.getTechStackId() != null){
+             techStack = techStackRepository.findById(request.getTechStackId()).orElseThrow(
+                    () -> new BaseException(ErrorCode.TECH_STACK_NOT_FOUND)
+            );
+        }
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
@@ -103,7 +106,7 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public UserResponseDto getProfile(Long id, UserRequestDto request){
+    public UserResponseDto getProfile(Long id){
         // id로 유저 조회
         User user = userRepository.findById(id).orElseThrow(
                 ()-> new BaseException(ErrorCode.USER_NOT_FOUND));

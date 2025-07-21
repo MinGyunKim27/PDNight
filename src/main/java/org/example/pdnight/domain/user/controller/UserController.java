@@ -96,13 +96,13 @@ public class UserController {
         ));
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{id}/profile")
     public ResponseEntity<ApiResponse<?>> getProfile(
             @PathVariable Long id
     ){
         return ResponseEntity.ok(ApiResponse.ok(
                 "프로필이 조회되었습니다.",
-                userService.getProfile(id, null)
+                userService.getProfile(id)
         ));
     }
 
