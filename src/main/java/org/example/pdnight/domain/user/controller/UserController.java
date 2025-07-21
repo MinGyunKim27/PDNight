@@ -97,6 +97,16 @@ public class UserController {
     }
 
     @GetMapping("/{id}/evaluation")
+    public ApiResponse<?> getEvaluation(
+            @PathVariable Long id
+    ){
+        return ApiResponse.ok(
+                "사용자 평가가 조회되었습니다.",
+                userService.getEvaluation(id)
+        );
+    }
+  
+    @GetMapping("/{id}/evaluation")
     public ResponseEntity<ApiResponse<?> >getEvaluation(
             @PathVariable Long id
     ){
