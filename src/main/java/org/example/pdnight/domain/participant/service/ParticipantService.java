@@ -16,7 +16,6 @@ import org.example.pdnight.domain.user.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,12 +30,17 @@ public class ParticipantService {
 
     private User getUser(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND.getStatus(), ErrorCode.USER_NOT_FOUND.getMessage()));
+                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
     }
 
     private Post getPost(Long postId) {
         return postRepository.findById(postId)
-                .orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND, "게시글을 찾을 수 없습니다"));
+                .orElseThrow(() -> new BaseException(ErrorCode.POST_NOT_FOUND));
+    }
+
+    private Post getPostWithOpen(Long postId) {
+        return postRepository.findByIdAndStatus(postId, PostStatus.OPEN)
+                .orElseThrow(() -> new BaseException(ErrorCode.POST_NOT_FOUND));
     }
 
     private PostParticipant getParticipantByStatus(User user, Post post, JoinStatus pending) {
@@ -47,9 +51,9 @@ public class ParticipantService {
     }
 
     private void validForCreateParticipant(User user, Post post) {
-        // 신청 안됨 : 열려있는 게시글만 신청 가능 - PostStatus status 가 open 가 아닌경우
-        if (post.getStatus() != PostStatus.OPEN) {
-            throw new BaseException(HttpStatus.CONFLICT, "신청할 수 없습니다.");
+        // 신청 안됨 : 본인 게시글에 본인이 신청하는 경우
+        if (post.getAuthor().equals(user)) {
+            throw new BaseException(ErrorCode.CANNOT_PARTICIPANT_SELF);
         }
 
         // 신청 안됨 : 이미 신청함 - JoinStatus status 가 대기중 or 수락됨 인 경우
@@ -57,17 +61,17 @@ public class ParticipantService {
         PostParticipant accepted = getParticipantByStatus(user, post, JoinStatus.ACCEPTED);
 
         if (pending != null) {
-            throw new BaseException(HttpStatus.CONFLICT, "이미 신청했습니다.");
+            throw new BaseException(ErrorCode.POST_ALREADY_PENDING);
         }
         if (accepted != null) {
-            throw new BaseException(HttpStatus.CONFLICT, "이미 가입되어있습니다.");
+            throw new BaseException(ErrorCode.POST_ALREADY_ACCEPTED);
         }
     }
 
     @Transactional
-    public ParticipantResponse applyParticipant(Long userId, Long postId) {
-        User user = getUser(userId);
-        Post post = getPost(postId);
+    public ParticipantResponse applyParticipant(Long loginId, Long postId) {
+        User user = getUser(loginId);
+        Post post = getPostWithOpen(postId);
 
         // 신청 안되는지 확인
         validForCreateParticipant(user, post);
@@ -77,7 +81,7 @@ public class ParticipantService {
         participantRepository.save(participant);
 
         return ParticipantResponse.of(
-                userId,
+                loginId,
                 postId,
                 participant.getStatus(),
                 participant.getCreatedAt(),
@@ -86,15 +90,15 @@ public class ParticipantService {
     }
 
     @Transactional
-    public void deleteParticipant(Long userId, Long postId) {
-        User user = getUser(userId);
-        Post post = getPost(postId);
+    public void deleteParticipant(Long loginId, Long postId) {
+        User user = getUser(loginId);
+        Post post = getPostWithOpen(postId);
 
-        // 삭제 안됨 : 신청하지 않거나, 이미 수락 혹은 거절당했을때
         PostParticipant pending = getParticipantByStatus(user, post, JoinStatus.PENDING);
 
+        // 삭제 안됨 : 신청하지 않거나, 이미 수락 혹은 거절당했을때
         if (pending == null) {
-            throw new BaseException(HttpStatus.CONFLICT, "취소할 수 없습니다.");
+            throw new BaseException(ErrorCode.CANNOT_CANCEL);
         }
 
         // 정상 삭제
@@ -102,20 +106,36 @@ public class ParticipantService {
     }
 
     @Transactional
-    public ParticipantResponse changeStatusParticipant(Long userId, Long postId, String status) {
+    public ParticipantResponse changeStatusParticipant(Long authorId, Long userId, Long postId, String status) {
         User user = getUser(userId);
-        Post post = getPost(postId);
+        Post post = getPostWithOpen(postId);
         JoinStatus joinStatus = JoinStatus.of(status);
 
         PostParticipant pending = getParticipantByStatus(user, post, JoinStatus.PENDING);
 
+        // 상태변경 안됨 : 게시글이 본인것이 아님
+        if (!post.getAuthor().getId().equals(authorId)) {
+            throw new BaseException(ErrorCode.NO_UPDATE_PERMISSION);
+        }
+
         // 상태변경 안됨 : 신청 대기 상태가 아닐때
-        if (pending == null || joinStatus.equals(JoinStatus.PENDING)) {
-            throw new BaseException(HttpStatus.CONFLICT, "수락 혹은 거절할 수 없습니다.");
+        if (pending == null) {
+            throw new BaseException(ErrorCode.NOT_PARTICIPANT);
+        }
+
+        // 상태변경 안됨 : 대기 상태로 만들려고 할 때
+        if (joinStatus.equals(JoinStatus.PENDING)) {
+            throw new BaseException(ErrorCode.NOT_CHANGE_PENDING);
         }
 
         // 상태변경
         pending.changeStatus(joinStatus);
+
+        // 게시글 인원이 꽉차게 되면 게시글 상태를 마감으로 변경 (CONFIRMED)
+        int participantSize = participantRepository.findByPostAndStatus(post, JoinStatus.ACCEPTED).size();
+        if (post.getMaxParticipants().equals(participantSize)) {
+            post.updateStatus(PostStatus.CONFIRMED);
+        }
 
         return ParticipantResponse.of(
                 userId,
@@ -126,10 +146,33 @@ public class ParticipantService {
         );
     }
 
-    public PagedResponse<ParticipantResponse> getParticipantListByStatus(Long postId, JoinStatus status, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+    public PagedResponse<ParticipantResponse> getParticipantListByPending(Long authorId, Long postId, int page, int size) {
         Post post = getPost(postId);
-        Page<PostParticipant> postParticipant = participantRepository.findByPostAndStatus(post, status, pageable);
+        // 신청자 조회 안됨 : 게시글이 본인것이 아님
+        if (!post.getAuthor().getId().equals(authorId)) {
+            throw new BaseException(ErrorCode.NO_VIEWING_PERMISSION);
+        }
+        Pageable pageable = PageRequest.of(page, size);
+        Page<PostParticipant> postParticipant = participantRepository.findByPostAndStatus(post, JoinStatus.PENDING, pageable);
+
+        return PagedResponse.from(postParticipant.map(p -> ParticipantResponse.of(
+                p.getUser().getId(),
+                p.getPost().getId(),
+                p.getStatus(),
+                p.getCreatedAt(),
+                p.getUpdatedAt()
+        )));
+    }
+
+    public PagedResponse<ParticipantResponse> getParticipantListByAccepted(Long loginId, Long postId, int page, int size) {
+        User user = getUser(loginId);
+        Post post = getPost(postId);
+        // 참가자 조회 안됨 : 게시글 주인이 아니거나, 참가되지 않은 사람들이 조회하는 경우 (미신청, 신청 대기, 거부)
+        if (!post.getAuthor().equals(user) && getParticipantByStatus(user, post, JoinStatus.ACCEPTED) == null) {
+            throw new BaseException(ErrorCode.NO_VIEWING_PERMISSION);
+        }
+        Pageable pageable = PageRequest.of(page, size);
+        Page<PostParticipant> postParticipant = participantRepository.findByPostAndStatus(post, JoinStatus.ACCEPTED, pageable);
 
         return PagedResponse.from(postParticipant.map(p -> ParticipantResponse.of(
                 p.getUser().getId(),

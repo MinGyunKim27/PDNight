@@ -39,40 +39,37 @@ class ParticipantServiceSuccessTest extends BaseParticipantTest {
     @DisplayName("참여 신청 성공")
     void applyParticipantTest() {
         //given
-        User mockUser = getUser();
-        Post mockPost = getPost();
-        PostParticipant participant = getPostParticipant(mockUser, mockPost, JoinStatus.PENDING);
+        User user = getUser(2L);
+        Post post = getPost(getUser(1L), 1L);
+        PostParticipant participant = getPostParticipant(user, post, JoinStatus.PENDING);
 
         //when
-        when(participantRepository.findByUserAndPost(mockUser, mockPost)).thenReturn(Collections.emptyList());
+        when(participantRepository.findByUserAndPost(user, post))
+                .thenReturn(Collections.emptyList());
         when(participantRepository.save(any(PostParticipant.class))).thenReturn(participant);
-
         // run method
-        ParticipantResponse response = participantService.applyParticipant(USER_ID, POST_ID);
-
+        ParticipantResponse response = participantService.applyParticipant(2L, 1L);
 
         //then
         assertNotNull(response);
         assertEquals(participant.getStatus(), response.getStatus());
-        assertEquals(participant.getPost().getId(), response.getPostId());
-        assertEquals(participant.getUser().getId(), response.getUserId());
+        assertEquals(1L, response.getPostId());
+        assertEquals(2L, response.getUserId());
     }
 
     @Test
     @DisplayName("참여 신청 취소 성공")
     void deleteParticipantTest() {
         //given
-        User mockUser = getUser();
-        Post mockPost = getPost();
-        PostParticipant participant = getPostParticipant(mockUser, mockPost, JoinStatus.PENDING);
+        User user = getUser(2L);
+        Post post = getPost(getUser(1L), 1L);
+        PostParticipant participant = getPostParticipant(user, post, JoinStatus.PENDING);
 
         //when
-        when(participantRepository.findByUserAndPost(mockUser, mockPost))
+        when(participantRepository.findByUserAndPost(user, post))
                 .thenReturn(Collections.singletonList(participant));
-
         // run method
-        participantService.deleteParticipant(USER_ID, POST_ID);
-
+        participantService.deleteParticipant(2L, 1L);
 
         //then
         verify(participantRepository, times(1)).delete(participant);
@@ -94,50 +91,36 @@ class ParticipantServiceSuccessTest extends BaseParticipantTest {
 
     private void changeStatusParticipant(String status) {
         //given
-        User mockUser = getUser();
-        Post mockPost = getPost();
+        User user = getUser(2L);
+        Post post = getPost(getUser(1L), 1L);
         JoinStatus joinStatus = JoinStatus.of(status);
-        PostParticipant participant = PostParticipant.create(mockPost, mockUser);
+        PostParticipant participant = PostParticipant.create(post, user);
 
         //when
-        when(participantRepository.findByUserAndPost(mockUser, mockPost))
+        when(participantRepository.findByUserAndPost(user, post))
                 .thenReturn(Collections.singletonList(participant));
 
         // run method
-        ParticipantResponse response = participantService.changeStatusParticipant(USER_ID, POST_ID, status);
-
+        ParticipantResponse response = participantService.changeStatusParticipant(1L, 2L, 1L, status);
 
         //then
         assertNotNull(response);
         assertEquals(joinStatus, response.getStatus());
-        assertEquals(participant.getPost().getId(), response.getPostId());
-        assertEquals(participant.getUser().getId(), response.getUserId());
+        assertEquals(1L, response.getPostId());
+        assertEquals(2L, response.getUserId());
     }
 
     @Test
     @DisplayName("신청자 목록 조회 성공")
     void getPendingParticipantList() {
-        String status = "pending";
-        getParticipantList(status);
-    }
-
-
-    @Test
-    @DisplayName("참여자 목록 조회 성공")
-    void getAcceptedParticipantList() {
-        String status = "accepted";
-        getParticipantList(status);
-    }
-
-    private void getParticipantList(String status) {
         //given
         int page = 1;
         int size = 5;
-        User mockUser = getUser();
-        Post mockPost = getPost();
-        JoinStatus joinStatus = JoinStatus.of(status);
+        User user = getUser(2L);
+        Post post = getPost(getUser(1L), 1L);
+        JoinStatus joinStatus = JoinStatus.PENDING;
         Pageable pageable = PageRequest.of(page, size);
-        PostParticipant participant = getPostParticipant(mockUser, mockPost, joinStatus);
+        PostParticipant participant = getPostParticipant(user, post, joinStatus);
 
         // get Page PostParticipant
         List<PostParticipant> participantList = Collections.singletonList(participant);
@@ -145,12 +128,11 @@ class ParticipantServiceSuccessTest extends BaseParticipantTest {
 
 
         //when
-        when(participantRepository.findByPostAndStatus(mockPost, joinStatus, pageable))
+        when(participantRepository.findByPostAndStatus(post, joinStatus, pageable))
                 .thenReturn(participantPage);
 
         // run method
-        PagedResponse<ParticipantResponse> response = participantService.getParticipantListByStatus(USER_ID, joinStatus, page, size);
-
+        PagedResponse<ParticipantResponse> response = participantService.getParticipantListByPending(1L, 1L, page, size);
 
         //then
         // page
@@ -160,8 +142,82 @@ class ParticipantServiceSuccessTest extends BaseParticipantTest {
         // contents
         assertEquals(1, response.contents().size());
         assertEquals(joinStatus, response.contents().get(0).getStatus());
-        assertEquals(mockUser.getId(), response.contents().get(0).getUserId());
-        assertEquals(mockPost.getId(), response.contents().get(0).getPostId());
+        assertEquals(user.getId(), response.contents().get(0).getUserId());
+        assertEquals(post.getId(), response.contents().get(0).getPostId());
     }
+
+
+    @Test
+    @DisplayName("참여자 목록 조회 성공 : 참가자")
+    void getAcceptedParticipantList() {
+        //given
+        int page = 1;
+        int size = 5;
+        User user = getUser(2L);
+        Post post = getPost(getUser(1L), 1L);
+        JoinStatus joinStatus = JoinStatus.ACCEPTED;
+        Pageable pageable = PageRequest.of(page, size);
+        PostParticipant participant = getPostParticipant(user, post, joinStatus);
+
+        // get Page PostParticipant
+        List<PostParticipant> participantList = Collections.singletonList(participant);
+        Page<PostParticipant> participantPage = new PageImpl<>(participantList, pageable, participantList.size());
+
+
+        //when
+        when(participantRepository.findByPostAndStatus(post, joinStatus, pageable))
+                .thenReturn(participantPage);
+
+        // run method
+        PagedResponse<ParticipantResponse> response = participantService.getParticipantListByAccepted(1L, 1L, page, size);
+
+        //then
+        // page
+        assertNotNull(response);
+        assertEquals(size, response.size());
+        assertEquals(page, response.number());
+        // contents
+        assertEquals(1, response.contents().size());
+        assertEquals(joinStatus, response.contents().get(0).getStatus());
+        assertEquals(user.getId(), response.contents().get(0).getUserId());
+        assertEquals(post.getId(), response.contents().get(0).getPostId());
+    }
+
+    @Test
+    @DisplayName("참여자 목록 조회 성공 : 게시글 주인")
+    void getAcceptedParticipantList_with_Author() {
+        //given
+        int page = 1;
+        int size = 5;
+        User user = getUser(2L);
+        Post post = getPost(getUser(1L), 1L);
+        JoinStatus joinStatus = JoinStatus.ACCEPTED;
+        Pageable pageable = PageRequest.of(page, size);
+        PostParticipant participant = getPostParticipant(user, post, joinStatus);
+
+        // get Page PostParticipant
+        List<PostParticipant> participantList = Collections.singletonList(participant);
+        Page<PostParticipant> participantPage = new PageImpl<>(participantList, pageable, participantList.size());
+
+
+        //when
+        when(participantRepository.findByPostAndStatus(post, joinStatus, pageable))
+                .thenReturn(participantPage);
+
+        // run method
+        PagedResponse<ParticipantResponse> response = participantService.getParticipantListByAccepted(1L, 1L, page, size);
+
+        //then
+        // page
+        assertNotNull(response);
+        assertEquals(size, response.size());
+        assertEquals(page, response.number());
+        // contents
+        assertEquals(1, response.contents().size());
+        assertEquals(joinStatus, response.contents().get(0).getStatus());
+        assertEquals(user.getId(), response.contents().get(0).getUserId());
+        assertEquals(post.getId(), response.contents().get(0).getPostId());
+    }
+
 
 }

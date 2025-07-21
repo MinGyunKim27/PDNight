@@ -13,5 +13,7 @@ import java.util.List;
 public interface ParticipantRepository extends JpaRepository<PostParticipant, Long> {
     List<PostParticipant> findByUserAndPost(User user, Post post);
 
+    List<PostParticipant> findByPostAndStatus(Post post, JoinStatus status);
+
     Page<PostParticipant> findByPostAndStatus(Post post, JoinStatus status, Pageable pageable);
 }

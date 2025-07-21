@@ -25,21 +25,19 @@ public class BaseParticipantTest {
     @Mock
     private PostRepository postRepository;
 
-    static final Long USER_ID = 1L;
-    static final Long POST_ID = 1L;
-
-    protected User getUser() {
+    protected User getUser(Long userId) {
         User mockUser = Mockito.mock(User.class);
-        lenient().when(mockUser.getId()).thenReturn(1L);
-        lenient().when(userRepository.findById(USER_ID)).thenReturn(Optional.of(mockUser));
+        lenient().when(mockUser.getId()).thenReturn(userId);
+        lenient().when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
         return mockUser;
     }
 
-    protected Post getPost() {
+    protected Post getPost(User user, Long postId) {
         Post mockPost = Mockito.mock(Post.class);
-        lenient().when(mockPost.getId()).thenReturn(1L);
-        lenient().when(mockPost.getStatus()).thenReturn(PostStatus.OPEN);
-        lenient().when(postRepository.findById(POST_ID)).thenReturn(Optional.of(mockPost));
+        lenient().when(mockPost.getId()).thenReturn(postId);
+        lenient().when(mockPost.getAuthor()).thenReturn(user);
+        lenient().when(postRepository.findById(postId)).thenReturn(Optional.of(mockPost));
+        lenient().when(postRepository.findByIdAndStatus(postId, PostStatus.OPEN)).thenReturn(Optional.of(mockPost));
         return mockPost;
     }
 
