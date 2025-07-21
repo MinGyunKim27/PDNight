@@ -12,7 +12,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
-@Repository
 public interface PostRepositoryQuery {
 
     Page<Post> getMyLikePost(Long userId, Pageable pageable);
@@ -27,6 +26,5 @@ public interface PostRepositoryQuery {
 		JobCategory jobCategoryLimit,
 		Gender genderLimit
 	);
-
 
 }
