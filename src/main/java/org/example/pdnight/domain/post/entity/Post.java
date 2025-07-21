@@ -10,10 +10,14 @@ import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.common.enums.JobCategory;
 import org.example.pdnight.domain.post.enums.PostStatus;
+import org.example.pdnight.domain.postLike.entity.PostLike;
+import org.example.pdnight.domain.review.entity.Review;
 import org.example.pdnight.domain.user.entity.User;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "posts")
@@ -52,6 +56,9 @@ public class Post extends Timestamped {
 
     @Enumerated(EnumType.STRING)
     private AgeLimit ageLimit;
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PostLike> postLikes = new ArrayList<>();
 
     private Post(User author, String title, LocalDateTime timeSlot, String publicContent, String privateContent,
         Integer maxParticipants, Gender genderLimit, JobCategory jobCategoryLimit, AgeLimit ageLimit)
@@ -93,4 +100,11 @@ public class Post extends Timestamped {
         this.status = status;
     }
 
+    public void addLike(PostLike postLike) {
+        this.postLikes.add(postLike);
+    }
+
+    public void removeLike(PostLike postLike) {
+        this.postLikes.remove(postLike);
+    }
 }
