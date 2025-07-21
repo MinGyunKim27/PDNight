@@ -30,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final PostRepositoryQuery postRepositoryQuery;
+    private final UserRepository userRepository;
 
     public PagedResponse<PostResponseDto> findMyLikedPosts(Long userId, Pageable pageable){
         Page<Post> myLikePost = postRepositoryQuery.getMyLikePost(userId, pageable);
@@ -37,13 +38,10 @@ public class UserService {
         return PagedResponse.from(postResponseDtos);
     }
 
-    public PagedResponse<PostWithJoinStatusAndAppliedAtResponseDto> findMyConfirmedPosts(Long userId, JoinStatus joinStatus, Pageable pageable){
-        Page<PostWithJoinStatusAndAppliedAtResponseDto> myLikePost = postRepositoryQuery.getConfirmedPost(userId,joinStatus, pageable);
+    public PagedResponse<PostWithJoinStatusAndAppliedAtResponseDto> findMyConfirmedPosts(Long userId, JoinStatus joinStatus, Pageable pageable) {
+        Page<PostWithJoinStatusAndAppliedAtResponseDto> myLikePost = postRepositoryQuery.getConfirmedPost(userId, joinStatus, pageable);
         return PagedResponse.from(myLikePost);
-
-
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+    }
 
     public UserResponseDto getMyProfile(Long userId){
         // id로 유저 조회
