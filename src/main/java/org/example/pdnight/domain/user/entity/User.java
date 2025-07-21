@@ -98,28 +98,26 @@ public class User extends Timestamped {
         if (request.getEmail() != null) {
             this.email = request.getEmail();
         }
-        if (request.getRole() != null) {
-            this.role = UserRole.valueOf(request.getRole());
-        }
-        if (name != null) {
+
+        if (request.getName() != null) {
             this.name = request.getName();
         }
-        if (nickname != null) {
+        if (request.getNickname() != null) {
             this.nickname = request.getNickname();
         }
         if (request.getGender() != null) {
             this.gender = Gender.valueOf(request.getGender());
         }
-        if (age != null) {
+        if (request.getAge() != null) {
             this.age = request.getAge();
         }
-        if (jobCategory != null) {
+        if (request.getJobCategory() != null) {
             this.jobCategory = JobCategory.valueOf(request.getJobCategory());
         }
-        if (region != null) {
+        if (request.getRegion() != null) {
             this.region = Region.valueOf(request.getRegion());
         }
-        if (comment != null){
+        if (request.getComment() != null){
             this.comment = request.getComment();
         }
     }

@@ -7,7 +7,6 @@ import org.example.pdnight.domain.common.dto.ApiResponse;
 import org.example.pdnight.domain.common.dto.PagedResponse;
 import org.example.pdnight.domain.participant.enums.JoinStatus;
 import org.example.pdnight.domain.post.dto.response.PostResponseDto;
-import org.example.pdnight.domain.user.dto.request.ConfirmedPostRequestDto;
 import org.example.pdnight.domain.user.dto.response.PostWithJoinStatusAndAppliedAtResponseDto;
 import org.example.pdnight.domain.user.service.UserService;
 import org.springframework.data.domain.Pageable;
@@ -43,56 +42,73 @@ public class UserController {
         PagedResponse<PostWithJoinStatusAndAppliedAtResponseDto> myLikedPost = userService.findMyConfirmedPosts(id,joinStatus, pageable);
         return ResponseEntity.ok(ApiResponse.ok("참여 신청한 게시글 목록이 조회되었습니다.",myLikedPost));
     }
-
-
+  
     @GetMapping("/my")
-    public ApiResponse<?> getMyProfile(
+    public ResponseEntity<ApiResponse<?>> getMyProfile(
             HttpServletRequest request
     ){
-        // todo : @AuthenticationPrincipal를 통해 id 가져오기
+        Long userId = (Long) request.getAttribute("userId");
         // 로그인 중인 아이디로 프로필 조회
-        return ApiResponse.ok(
+        return ResponseEntity.ok(ApiResponse.ok(
                 "내 프로필이 조회되었습니다.",
-                userService.getMyProfile(1L)
-        );
+                userService.getMyProfile(userId)
+        ));
     }
 
     @PatchMapping("/my/profile")
-    public ApiResponse<?> updateMyProfile(
+    public ResponseEntity<ApiResponse<?>> updateMyProfile(
             HttpServletRequest request,
             @RequestBody UserUpdateRequest requestDto
     ){
-        // todo : @AuthenticationPrincipal를 통해 id 가져오기
-        return ApiResponse.ok(
+        Long userId = (Long) request.getAttribute("userId");
+
+        return ResponseEntity.ok(ApiResponse.ok(
                 "프로필이 수정되었습니다.",
-                userService.updateMyProfile(1L, requestDto)
-        );
+                userService.updateMyProfile(userId, requestDto)
+        ));
     }
 
     @PatchMapping("/my/password")
-    public ApiResponse<?> updatePassword(
+    public ResponseEntity<ApiResponse<?>> updatePassword(
             HttpServletRequest request,
             @Valid @RequestBody UserPasswordUpdateRequest requestDto
     ){
-        // todo : @AuthenticationPrincipal를 통해 id 가져오기
-        userService.updatePassword(1L, requestDto);
+        Long userId = (Long) request.getAttribute("userId");
+        userService.updatePassword(userId, requestDto);
 
-        return ApiResponse.ok(
+        return ResponseEntity.ok(ApiResponse.ok(
                 "비밀번호가 수정되었습니다.",
                 null
-        );
+        ));
     }
 
     @GetMapping("/{id}")
-    public ApiResponse<?> getProfile(
-            @PathVariable Long id,
-            HttpServletRequest request
+    public ResponseEntity<ApiResponse<?>> getProfile(
+            @PathVariable Long id
     ){
-        // todo : @AuthenticationPrincipal를 통해 id 가져오기
-        return ApiResponse.ok(
+        return ResponseEntity.ok(ApiResponse.ok(
                 "프로필이 조회되었습니다.",
                 userService.getProfile(id, null)
+        ));
+    }
+
+    @GetMapping("/{id}/evaluation")
+    public ApiResponse<?> getEvaluation(
+            @PathVariable Long id
+    ){
+        return ApiResponse.ok(
+                "사용자 평가가 조회되었습니다.",
+                userService.getEvaluation(id)
         );
     }
+  
+    @GetMapping("/{id}/evaluation")
+    public ResponseEntity<ApiResponse<?> >getEvaluation(
+            @PathVariable Long id
+    ){
+        return ResponseEntity.ok(ApiResponse.ok(
+                "사용자 평가가 조회되었습니다.",
+                userService.getEvaluation(id)
+        ));
+    }
 }
-
