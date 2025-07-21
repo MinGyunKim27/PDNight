@@ -115,8 +115,6 @@ public class PostRepositoryQueryImpl implements PostRepositoryQuery{
         return PageableExecutionUtils.getPage(content, pageable, () -> Optional.ofNullable(count).orElse(0L));
     }
 
-public class PostRepositoryQueryImpl implements PostRepositoryQuery {
-	private final JPAQueryFactory queryFactory;
 
 	@Override
 	public Page<PostResponseDto> findPostDtosBySearch(

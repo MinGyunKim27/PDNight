@@ -42,7 +42,7 @@ public class UserController {
         PagedResponse<PostWithJoinStatusAndAppliedAtResponseDto> myLikedPost = userService.findMyConfirmedPosts(id,joinStatus, pageable);
         return ResponseEntity.ok(ApiResponse.ok("참여 신청한 게시글 목록이 조회되었습니다.",myLikedPost));
     }
-
+  
     @GetMapping("/my")
     public ResponseEntity<ApiResponse<?>> getMyProfile(
             HttpServletRequest request

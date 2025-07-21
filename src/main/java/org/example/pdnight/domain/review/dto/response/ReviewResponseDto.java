@@ -19,7 +19,7 @@ public class ReviewResponseDto {
     public ReviewResponseDto(Review review) {
         this.id = review.getId();
         this.postId = review.getPost().getId();
-        this.ratedUserId = review.getReviewer().getId();
+        this.ratedUserId = review.getRatedUser().getId();
         this.rate = review.getRate();
         this.comment = review.getComment();
         this.createdAt = review.getCreatedAt();
