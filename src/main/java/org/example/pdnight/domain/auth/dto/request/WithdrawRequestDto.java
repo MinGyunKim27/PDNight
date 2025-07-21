@@ -5,6 +5,6 @@ import lombok.Getter;
 
 @Getter
 public class WithdrawRequestDto {
-    @NotBlank
+    @NotBlank(message = "비밀번호를 작성해야 합니다.")
     private String password;
 }
