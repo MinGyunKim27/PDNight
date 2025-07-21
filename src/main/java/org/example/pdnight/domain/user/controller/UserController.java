@@ -7,7 +7,6 @@ import org.example.pdnight.domain.common.dto.ApiResponse;
 import org.example.pdnight.domain.common.dto.PagedResponse;
 import org.example.pdnight.domain.participant.enums.JoinStatus;
 import org.example.pdnight.domain.post.dto.response.PostResponseDto;
-import org.example.pdnight.domain.user.dto.request.ConfirmedPostRequestDto;
 import org.example.pdnight.domain.user.dto.response.PostWithJoinStatusAndAppliedAtResponseDto;
 import org.example.pdnight.domain.user.service.UserService;
 import org.springframework.data.domain.Pageable;
@@ -15,8 +14,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.example.pdnight.domain.user.dto.request.UserPasswordUpdateRequest;
 import org.example.pdnight.domain.user.dto.request.UserUpdateRequest;
-import org.example.pdnight.domain.user.service.UserService;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -25,7 +22,6 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
-
 
     @GetMapping("/my/likedPosts")
     public ResponseEntity<ApiResponse<PagedResponse<PostResponseDto>>> getMyLikedPosts(
@@ -45,7 +41,6 @@ public class UserController {
         PagedResponse<PostWithJoinStatusAndAppliedAtResponseDto> myLikedPost = userService.findMyConfirmedPosts(id,joinStatus, pageable);
         return ResponseEntity.ok(ApiResponse.ok("참여 신청한 게시글 목록이 조회되었습니다.",myLikedPost));
     }
-}
 
     @GetMapping("/my")
     public ResponseEntity<ApiResponse<?>> getMyProfile(
