@@ -98,7 +98,7 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public UserResponseDto getProfile(Long id, UserRequestDto request){
+    public UserResponseDto getProfile(Long id){
         // id로 유저 조회
         User user = userRepository.findById(id).orElseThrow(
                 ()-> new BaseException(ErrorCode.USER_NOT_FOUND));
