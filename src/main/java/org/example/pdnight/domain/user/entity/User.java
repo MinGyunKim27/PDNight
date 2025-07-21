@@ -1,5 +1,7 @@
 package org.example.pdnight.domain.user.entity;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -65,6 +67,9 @@ public class User extends Timestamped {
     private Long totalRate;
     private Long totalReviewer;
 
+    private Boolean isDeleted = false;
+    private LocalDateTime deletedAt;
+
     public void updateProfile(UserUpdateRequest request) {
         if (request.getEmail() != null) {
             this.email = request.getEmail();
@@ -98,4 +103,5 @@ public class User extends Timestamped {
     public void changePassword(String encodedPassword) {
         this.password = encodedPassword;
     }
+  
 }
