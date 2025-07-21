@@ -61,6 +61,8 @@ public class PostService {
 	public void deletePostById(Long userId, Long id) {
 		Post foundPost = getPostOrThrow(postRepository.findById(id));
 		validateAuthor(userId, foundPost);
+
+		foundPost.unlinkReviews();
 		postRepository.delete(foundPost);
 	}
 
