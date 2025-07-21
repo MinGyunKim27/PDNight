@@ -44,6 +44,7 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.ok("참여 신청한 게시글 목록이 조회되었습니다.",myLikedPost));
     }
 
+
     @GetMapping("/my")
     public ApiResponse<?> getMyProfile(
             HttpServletRequest request
