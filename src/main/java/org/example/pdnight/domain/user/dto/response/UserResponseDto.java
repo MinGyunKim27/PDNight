@@ -5,6 +5,8 @@ import org.example.pdnight.domain.common.enums.JobCategory;
 import org.example.pdnight.domain.common.enums.UserRole;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.user.entity.User;
+import org.example.pdnight.domain.user.enums.Region;
+
 import java.time.LocalDateTime;
 
 @Getter
@@ -20,8 +22,8 @@ public class UserResponseDto {
     private Gender gender;
     private Long age;
     private JobCategory jobCategory;
-    private String region;
-    private String workLocation;
+    private Region region;
+    private Region workLocation;
     private String comment;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -30,15 +32,15 @@ public class UserResponseDto {
         this.id = user.getId();
         this.email = user.getEmail();
         this.role = user.getRole();
-        this.hobbies = user.getHobby().getHobby();
-        this.techStacks = user.getTechStack().getTechStack();
+        this.hobbies = user.getHobby() != null ? user.getHobby().getHobby() : "";
+        this.techStacks = user.getTechStack() != null ? user.getTechStack().getTechStack() : "";
         this.name = user.getName();
         this.nickname = user.getNickname();
         this.gender = user.getGender();
         this.age = user.getAge();
         this.jobCategory = user.getJobCategory();
-        this.region = user.getRegion().getKoreanName();
-        this.workLocation = user.getWorkLocation().getKoreanName();
+        this.region = user.getRegion();
+        this.workLocation = user.getWorkLocation();
         this.comment = user.getComment();
         this.createdAt = user.getCreatedAt();
         this.updatedAt = user.getUpdatedAt();
