@@ -6,17 +6,12 @@ import org.example.pdnight.domain.participant.entity.PostParticipant;
 import org.example.pdnight.domain.participant.enums.JoinStatus;
 import org.example.pdnight.domain.participant.repository.ParticipantRepository;
 import org.example.pdnight.domain.post.entity.Post;
-import org.example.pdnight.domain.post.enums.PostStatus;
-import org.example.pdnight.domain.post.repository.PostRepository;
 import org.example.pdnight.domain.user.entity.User;
-import org.example.pdnight.domain.user.repository.UserRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -25,7 +20,6 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -33,13 +27,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class ParticipantServiceTest {
-
-    @Mock
-    private UserRepository userRepository;
-
-    @Mock
-    private PostRepository postRepository;
+class ParticipantServiceSuccessTest extends BaseParticipantTest {
 
     @Mock
     private ParticipantRepository participantRepository;
@@ -47,38 +35,13 @@ class ParticipantServiceTest {
     @InjectMocks
     private ParticipantService participantService;
 
-    private User mockUser;
-    private Post mockPost;
-
-    public static final Long USER_ID = 1L;
-    public static final Long POST_ID = 1L;
-
-    @BeforeEach
-    void setUp() {
-        // set mock User
-        mockUser = Mockito.mock(User.class);
-        lenient().when(mockUser.getId()).thenReturn(1L);
-
-        // set mock Post
-        mockPost = Mockito.mock(Post.class);
-        lenient().when(mockPost.getId()).thenReturn(1L);
-        lenient().when(mockPost.getStatus()).thenReturn(PostStatus.OPEN);
-
-        // get User and Post
-        lenient().when(userRepository.findById(USER_ID)).thenReturn(Optional.of(mockUser));
-        lenient().when(postRepository.findById(POST_ID)).thenReturn(Optional.of(mockPost));
-    }
-
     @Test
     @DisplayName("참여 신청 성공")
     void applyParticipantTest() {
         //given
-        // set mock PostParticipant
-        PostParticipant participant = Mockito.mock(PostParticipant.class);
-        lenient().when(participant.getStatus()).thenReturn(JoinStatus.PENDING);
-        lenient().when(participant.getUser()).thenReturn(mockUser);
-        lenient().when(participant.getPost()).thenReturn(mockPost);
-
+        User mockUser = getUser();
+        Post mockPost = getPost();
+        PostParticipant participant = getPostParticipant(mockUser, mockPost, JoinStatus.PENDING);
 
         //when
         when(participantRepository.findByUserAndPost(mockUser, mockPost)).thenReturn(Collections.emptyList());
@@ -99,12 +62,9 @@ class ParticipantServiceTest {
     @DisplayName("참여 신청 취소 성공")
     void deleteParticipantTest() {
         //given
-        // set mock PostParticipant
-        PostParticipant participant = Mockito.mock(PostParticipant.class);
-        lenient().when(participant.getStatus()).thenReturn(JoinStatus.PENDING);
-        lenient().when(participant.getUser()).thenReturn(mockUser);
-        lenient().when(participant.getPost()).thenReturn(mockPost);
-
+        User mockUser = getUser();
+        Post mockPost = getPost();
+        PostParticipant participant = getPostParticipant(mockUser, mockPost, JoinStatus.PENDING);
 
         //when
         when(participantRepository.findByUserAndPost(mockUser, mockPost))
@@ -134,6 +94,8 @@ class ParticipantServiceTest {
 
     private void changeStatusParticipant(String status) {
         //given
+        User mockUser = getUser();
+        Post mockPost = getPost();
         JoinStatus joinStatus = JoinStatus.of(status);
         PostParticipant participant = PostParticipant.create(mockPost, mockUser);
 
@@ -169,16 +131,13 @@ class ParticipantServiceTest {
 
     private void getParticipantList(String status) {
         //given
-        JoinStatus joinStatus = JoinStatus.of(status);
         int page = 1;
         int size = 5;
+        User mockUser = getUser();
+        Post mockPost = getPost();
+        JoinStatus joinStatus = JoinStatus.of(status);
         Pageable pageable = PageRequest.of(page, size);
-
-        // set mock PostParticipant
-        PostParticipant participant = Mockito.mock(PostParticipant.class);
-        lenient().when(participant.getStatus()).thenReturn(joinStatus);
-        lenient().when(participant.getUser()).thenReturn(mockUser);
-        lenient().when(participant.getPost()).thenReturn(mockPost);
+        PostParticipant participant = getPostParticipant(mockUser, mockPost, joinStatus);
 
         // get Page PostParticipant
         List<PostParticipant> participantList = Collections.singletonList(participant);
