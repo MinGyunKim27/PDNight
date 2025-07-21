@@ -21,7 +21,7 @@ public class TechStackService {
     public TechStackResponseDto createTechStack(TechStackRequestDto dto) {
         boolean exists = techStackRepository.existsTechStackByTechStack(dto.getTechStack());
         if (exists) {
-            throw new BaseException(ErrorCode.INVALID_INPUT);
+            throw new BaseException(ErrorCode.TECH_STACK_ALREADY_EXISTS);
         }
         TechStack techStack = new TechStack(dto.getTechStack());
         TechStack save = techStackRepository.save(techStack);
