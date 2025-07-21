@@ -31,7 +31,7 @@ public class UserController {
     @GetMapping("/my/confirmedPosts")
     public ResponseEntity<ApiResponse<PagedResponse<PostWithJoinStatusAndAppliedAtResponseDto>>> getMyConfirmedPosts(
             @RequestParam Long id,
-            @RequestParam JoinStatus joinStatus,
+            @RequestParam (required = false) JoinStatus joinStatus,
             @PageableDefault(size = 10,page = 0) Pageable pageable
     ){
         PagedResponse<PostWithJoinStatusAndAppliedAtResponseDto> myLikedPost = userService.findMyConfirmedPosts(id,joinStatus, pageable);
