@@ -11,7 +11,6 @@ import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.service.PostService;
 import org.example.pdnight.global.filter.CustomUserDetails;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -78,7 +77,7 @@ public class PostController {
 		PagedResponse<PostResponseDto> pagedResponse = PagedResponse.from(
 			postService.getPostDtosBySearch(pageable, maxParticipants, ageLimit, jobCategoryLimit, genderLimit));
 		return ResponseEntity.status(HttpStatus.OK)
-			.body(ApiResponse.ok("게시글 목록이 조회되었습니다.",pagedResponse));
+			.body(ApiResponse.ok("게시글 목록이 조회되었습니다.", pagedResponse));
 	}
 
 	@PatchMapping("/{id}")
