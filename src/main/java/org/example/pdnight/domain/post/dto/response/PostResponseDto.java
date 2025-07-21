@@ -89,7 +89,9 @@ public class PostResponseDto {
 				post.getMaxParticipants(),
 				post.getGenderLimit(),
 				post.getJobCategoryLimit(),
-				post.getAgeLimit());
+				post.getAgeLimit(),
+				post.getCreatedAt(),
+				post.getUpdatedAt());
 	}
 
 }
