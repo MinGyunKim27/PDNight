@@ -7,7 +7,9 @@ import org.example.pdnight.domain.participant.enums.JoinStatus;
 import org.example.pdnight.domain.post.dto.response.PostResponseDto;
 import org.example.pdnight.domain.post.entity.Post;
 import org.example.pdnight.domain.post.repository.PostRepositoryQuery;
+import org.example.pdnight.domain.post.repository.PostRepositoryQueryImpl;
 import org.example.pdnight.domain.user.dto.response.PostWithJoinStatusAndAppliedAtResponseDto;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import at.favre.lib.crypto.bcrypt.BCrypt;
@@ -29,7 +31,9 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UserService {
 
-    private final PostRepositoryQuery postRepositoryQuery;
+    private final PostRepositoryQueryImpl postRepositoryQuery;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public PagedResponse<PostResponseDto> findMyLikedPosts(Long userId, Pageable pageable){
         Page<Post> myLikePost = postRepositoryQuery.getMyLikePost(userId, pageable);
@@ -42,9 +46,6 @@ public class UserService {
         return PagedResponse.from(myLikePost);
     }
 
-
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
 
     public UserResponseDto getMyProfile(Long userId){
         // id로 유저 조회
