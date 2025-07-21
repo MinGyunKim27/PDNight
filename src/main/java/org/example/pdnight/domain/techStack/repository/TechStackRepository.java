@@ -5,5 +5,6 @@ import org.example.pdnight.domain.techStack.entity.TechStack;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface TechStackRepository extends JpaRepository<TechStack, Long> {
+    TechStack findByTechStack(String techStack);
     boolean existsTechStackByTechStack(@NotNull String techStack);
 }
