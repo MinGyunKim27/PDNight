@@ -74,4 +74,23 @@ public class Post extends Timestamped {
         return new Post(author, title, timeSlot, publicContent, privateContent, maxParticipants, genderLimit, jobCategoryLimit, ageLimit);
     }
 
+    //update 메서드 null 체크 후 아닌 값만 set
+    public void updatePostIfNotNull(String title, LocalDateTime timeSlot, String publicContent, String privateContent,
+        Integer maxParticipants, Gender genderLimit, JobCategory jobCategoryLimit, AgeLimit ageLimit)
+    {
+        if(title != null) this.title = title;
+        if(timeSlot != null) this.timeSlot = timeSlot;
+        if(publicContent != null) this.publicContent = publicContent;
+        if(privateContent != null) this.privateContent = privateContent;
+        if(maxParticipants != null && maxParticipants >= 1) this.maxParticipants = maxParticipants;
+        if(genderLimit != null) this.genderLimit = genderLimit;
+        if(jobCategoryLimit != null) this.jobCategoryLimit = jobCategoryLimit;
+        if(ageLimit != null) this.ageLimit = ageLimit;
+    }
+
+    //상태 변경 메서드
+    public void updateStatus(PostStatus status) {
+        this.status = status;
+    }
+
 }

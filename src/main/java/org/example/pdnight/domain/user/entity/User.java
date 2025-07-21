@@ -1,5 +1,7 @@
 package org.example.pdnight.domain.user.entity;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,6 +13,7 @@ import org.example.pdnight.domain.hobby.entity.Hobby;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.common.enums.JobCategory;
 import org.example.pdnight.domain.techStack.entity.TechStack;
+import org.example.pdnight.domain.user.dto.request.UserUpdateRequest;
 import org.example.pdnight.domain.user.enums.Region;
 
 import java.time.LocalDateTime;
@@ -60,7 +63,7 @@ public class User extends Timestamped {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "work_location")
-    private Region workLocation;
+    private Region workLocation = Region.PANGYO_DONG;
 
     private String comment;
 
@@ -92,4 +95,39 @@ public class User extends Timestamped {
         isDeleted = true;
         deletedAt = LocalDateTime.now();
     }
+  
+    public void updateProfile(UserUpdateRequest request) {
+        if (request.getEmail() != null) {
+            this.email = request.getEmail();
+        }
+        if (request.getRole() != null) {
+            this.role = UserRole.valueOf(request.getRole());
+        }
+        if (name != null) {
+            this.name = request.getName();
+        }
+        if (nickname != null) {
+            this.nickname = request.getNickname();
+        }
+        if (request.getGender() != null) {
+            this.gender = Gender.valueOf(request.getGender());
+        }
+        if (age != null) {
+            this.age = request.getAge();
+        }
+        if (jobCategory != null) {
+            this.jobCategory = JobCategory.valueOf(request.getJobCategory());
+        }
+        if (region != null) {
+            this.region = Region.valueOf(request.getRegion());
+        }
+        if (comment != null){
+            this.comment = request.getComment();
+        }
+    }
+
+    public void changePassword(String encodedPassword) {
+        this.password = encodedPassword;
+    }
+  
 }
