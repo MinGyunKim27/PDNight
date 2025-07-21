@@ -12,7 +12,7 @@ public class UserEvaluationResponse {
 
     public UserEvaluationResponse(User user) {
         this.id = user.getId();
-        this.rate = user.getTotalRate().floatValue();
+        this.rate = (float) user.getTotalRate() / user.getTotalReviewer();
         this.createdAt = user.getCreatedAt();
     }
 }
