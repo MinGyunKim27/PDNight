@@ -39,15 +39,17 @@ public class AuthService {
         // 취미, 기술 스택 입력은 db에 존재하는 값만 입력받는 조건
         Hobby hobby = null;
         String hobbyStr = null;
-        if (request.getHobby() != null) {
-            hobby = hobbyRepository.findByhobby(request.getHobby());
+        if (request.getHobbyId() != null) {
+            hobby = hobbyRepository.findById(request.getHobbyId())
+                    .orElseThrow(() -> new BaseException(ErrorCode.HOBBY_NOT_FOUND));
             hobbyStr = hobby.getHobby();
         }
 
         TechStack techStack = null;
         String techStackStr = null;
-        if (request.getTechStack() != null) {
-            techStack = techStackRepository.findByTechStack(request.getTechStack());
+        if (request.getTechStackId() != null) {
+            techStack = techStackRepository.findById(request.getTechStackId())
+                    .orElseThrow(() -> new BaseException(ErrorCode.TECH_STACK_NOT_FOUND));
             techStackStr = techStack.getTechStack();
         }
 

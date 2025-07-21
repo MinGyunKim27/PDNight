@@ -25,10 +25,10 @@ public class SignupRequestDto {
     private String nickname;
 
 //    @NotBlank(message = "취미를 작성해야 합니다.")
-    private String hobby;
+    private Long hobbyId;
 
 //    @NotBlank(message = "기술 스택을 작성해야 합니다.")
-    private String techStack;
+    private Long techStackId;
 
     @NotNull(message = "성별을 작성해야 합니다.")
     private Gender gender;
