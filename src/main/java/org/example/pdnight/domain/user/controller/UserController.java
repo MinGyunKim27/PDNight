@@ -46,12 +46,12 @@ public class UserController {
         PagedResponse<PostWithJoinStatusAndAppliedAtResponseDto> myLikedPost = userService.findMyConfirmedPosts(id,joinStatus, pageable);
         return ResponseEntity.ok(ApiResponse.ok("참여 신청한 게시글 목록이 조회되었습니다.",myLikedPost));
     }
-  
+
     @GetMapping("/my")
     public ResponseEntity<ApiResponse<?>> getMyProfile(
-            HttpServletRequest request
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ){
-        Long userId = (Long) request.getAttribute("userId");
+        Long userId = userDetails.getUserId();
         // 로그인 중인 아이디로 프로필 조회
         return ResponseEntity.ok(ApiResponse.ok(
                 "내 프로필이 조회되었습니다.",
@@ -61,10 +61,10 @@ public class UserController {
 
     @PatchMapping("/my/profile")
     public ResponseEntity<ApiResponse<?>> updateMyProfile(
-            HttpServletRequest request,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody UserUpdateRequest requestDto
     ){
-        Long userId = (Long) request.getAttribute("userId");
+        Long userId = userDetails.getUserId();
 
         return ResponseEntity.ok(ApiResponse.ok(
                 "프로필이 수정되었습니다.",
@@ -74,10 +74,10 @@ public class UserController {
 
     @PatchMapping("/my/password")
     public ResponseEntity<ApiResponse<?>> updatePassword(
-            HttpServletRequest request,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody UserPasswordUpdateRequest requestDto
     ){
-        Long userId = (Long) request.getAttribute("userId");
+        Long userId = userDetails.getUserId();
         userService.updatePassword(userId, requestDto);
 
         return ResponseEntity.ok(ApiResponse.ok(
@@ -97,17 +97,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}/evaluation")
-    public ApiResponse<?> getEvaluation(
-            @PathVariable Long id
-    ){
-        return ApiResponse.ok(
-                "사용자 평가가 조회되었습니다.",
-                userService.getEvaluation(id)
-        );
-    }
-  
-    @GetMapping("/{id}/evaluation")
-    public ResponseEntity<ApiResponse<?> >getEvaluation(
+    public ResponseEntity<ApiResponse<?>> getEvaluation(
             @PathVariable Long id
     ){
         return ResponseEntity.ok(ApiResponse.ok(
