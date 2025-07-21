@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.example.pdnight.domain.auth.dto.request.SignInRequestDto;
+import org.example.pdnight.domain.auth.dto.request.SignupRequestDto;
 import org.example.pdnight.domain.common.entity.Timestamped;
 import org.example.pdnight.domain.common.enums.UserRole;
 import org.example.pdnight.domain.hobby.entity.Hobby;
@@ -15,8 +15,6 @@ import org.example.pdnight.domain.common.enums.JobCategory;
 import org.example.pdnight.domain.techStack.entity.TechStack;
 import org.example.pdnight.domain.user.dto.request.UserUpdateRequest;
 import org.example.pdnight.domain.user.enums.Region;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
@@ -73,7 +71,7 @@ public class User extends Timestamped {
     private Boolean isDeleted = false;
     private LocalDateTime deletedAt;
 
-    public User(SignInRequestDto request, String encodePassword, Hobby hobby, TechStack techStack) {
+    public User(SignupRequestDto request, String encodePassword, Hobby hobby, TechStack techStack) {
         this.email = request.getEmail();
         this.password = encodePassword;
         this.role = UserRole.USER;
