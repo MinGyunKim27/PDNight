@@ -95,10 +95,6 @@ public class User extends Timestamped {
     }
   
     public void updateProfile(UserUpdateRequest request, Hobby hobby, TechStack techStack) {
-        if (request.getEmail() != null) {
-            this.email = request.getEmail();
-        }
-
         if (request.getName() != null) {
             this.name = request.getName();
         }
