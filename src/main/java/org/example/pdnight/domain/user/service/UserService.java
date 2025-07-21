@@ -11,6 +11,7 @@ import org.example.pdnight.domain.post.entity.Post;
 import org.example.pdnight.domain.post.repository.PostRepositoryQuery;
 import org.example.pdnight.domain.techStack.entity.TechStack;
 import org.example.pdnight.domain.techStack.repository.TechStackRepository;
+import org.example.pdnight.domain.post.repository.PostRepositoryQueryImpl;
 import org.example.pdnight.domain.user.dto.response.PostWithJoinStatusAndAppliedAtResponseDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,7 +26,6 @@ import org.example.pdnight.domain.user.dto.response.UserEvaluationResponse;
 import org.example.pdnight.domain.user.dto.response.UserResponseDto;
 import org.example.pdnight.domain.user.entity.User;
 import org.example.pdnight.domain.user.repository.UserRepository;
-import org.example.pdnight.global.config.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,9 +33,9 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UserService {
 
-    private final PostRepositoryQuery postRepositoryQuery;
     private final HobbyRepository hobbyRepository;
     private final TechStackRepository techStackRepository;
+    private final PostRepositoryQueryImpl postRepositoryQuery;
     private final UserRepository userRepository;
 
     public PagedResponse<PostResponseDto> findMyLikedPosts(Long userId, Pageable pageable){
