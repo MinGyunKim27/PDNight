@@ -66,15 +66,15 @@ public class PostService {
 	}
 
 	@Transactional(readOnly = true)
-	public PagedResponse<PostResponseDto> getPostDtosBySearch(
+	public Page<PostResponseDto> getPostDtosBySearch(
 		Pageable pageable,
 		Integer maxParticipants,
 		AgeLimit ageLimit,
 		JobCategory jobCategoryLimit,
 		Gender genderLimit
 	) {
-		return PagedResponse.from(postRepository.findPostDtosBySearch(pageable, maxParticipants,
-			ageLimit, jobCategoryLimit, genderLimit));
+		return postRepository.findPostDtosBySearch(pageable, maxParticipants,
+			ageLimit, jobCategoryLimit, genderLimit);
 	}
 
 	@Transactional

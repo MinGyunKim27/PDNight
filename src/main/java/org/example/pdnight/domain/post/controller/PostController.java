@@ -75,9 +75,10 @@ public class PostController {
 	) {
 		Pageable pageable = PageRequest.of(page, size);
 
+		PagedResponse<PostResponseDto> pagedResponse = PagedResponse.from(
+			postService.getPostDtosBySearch(pageable, maxParticipants, ageLimit, jobCategoryLimit, genderLimit));
 		return ResponseEntity.status(HttpStatus.OK)
-			.body(ApiResponse.ok("게시글 목록이 조회되었습니다.",
-				postService.getPostDtosBySearch(pageable, maxParticipants, ageLimit, jobCategoryLimit, genderLimit)));
+			.body(ApiResponse.ok("게시글 목록이 조회되었습니다.",pagedResponse));
 	}
 
 	@PatchMapping("/{id}")
