@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/hobby")
+@RequestMapping("/api/hobbies")
 @RequiredArgsConstructor
 public class HobbyController {
     private final HobbyService hobbyService;
@@ -29,7 +29,7 @@ public class HobbyController {
 
     @GetMapping
     private ResponseEntity<ApiResponse<List<HobbyResponse>>> searchHobby(
-            @RequestParam String searchHobby
+            @RequestParam (required = false)  String searchHobby
     ){
         System.out.println(searchHobby);
         List<HobbyResponse> hobbyResponses = hobbyService.searchHobby(searchHobby);
