@@ -1,6 +1,7 @@
 package org.example.pdnight.domain.common.enums;
 
-import org.example.pdnight.domain.common.exception.InvalidRequestException;
+import org.example.pdnight.domain.common.exception.BaseException;
+import org.springframework.http.HttpStatus;
 
 import java.util.Arrays;
 
@@ -9,11 +10,11 @@ public enum UserRole {
 
     public static UserRole of(String role) {
         if (role == null) {
-            throw new InvalidRequestException("UserRole은 null일 수 없습니다.");
+            throw new BaseException(HttpStatus.BAD_REQUEST,"UserRole은 null일 수 없습니다.");
         }
         return Arrays.stream(UserRole.values())
                 .filter(r -> r.name().equalsIgnoreCase(role))
                 .findFirst()
-                .orElseThrow(() -> new InvalidRequestException("유효하지 않은 UerRole"));
+                .orElseThrow(() -> new BaseException(HttpStatus.BAD_REQUEST,"유효하지 않은 UerRole"));
     }
 }

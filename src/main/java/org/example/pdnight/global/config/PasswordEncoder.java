@@ -1,4 +1,4 @@
-package org.example.pdnight.config;
+package org.example.pdnight.global.config;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Component;

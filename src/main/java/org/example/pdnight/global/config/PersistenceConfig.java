@@ -1,4 +1,4 @@
-package org.example.pdnight.config;
+package org.example.pdnight.global.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;

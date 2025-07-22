@@ -6,7 +6,7 @@ import java.util.List;
 
 
 public record PagedResponse<T> (
-        List<T> content,       // 현재 페이지에 포함된 데이터 리스트
+        List<T> contents,       // 현재 페이지에 포함된 데이터 리스트
         long totalElements,     // 전체 항목 수
         int totalPages,         // 전체 페이지 수
         int size,               // 페이지 크기
