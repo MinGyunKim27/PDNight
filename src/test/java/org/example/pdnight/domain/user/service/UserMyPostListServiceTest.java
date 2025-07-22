@@ -11,6 +11,7 @@ import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.repository.PostRepositoryQuery;
 import org.example.pdnight.domain.post.repository.PostRepositoryQueryImpl;
+import org.example.pdnight.domain.post.service.PostService;
 import org.example.pdnight.domain.user.entity.User;
 
 import org.example.pdnight.domain.user.dto.response.PostWithJoinStatusAndAppliedAtResponseDto;
@@ -32,10 +33,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
-class UserServiceTest {
+class PostServiceTest {
 
     @InjectMocks
-    private UserService userService;
+    private PostService postService;
 
     @Mock
     private PostRepositoryQueryImpl postRepositoryQuery;
@@ -58,7 +59,7 @@ class UserServiceTest {
         when(postRepositoryQuery.getMyLikePost(userId, pageable)).thenReturn(postPage);
 
         // when
-        PagedResponse<PostResponseDto> response = userService.findMyLikedPosts(userId, pageable);
+        PagedResponse<PostResponseDto> response = postService.findMyLikedPosts(userId, pageable);
 
         // then
         assertThat(response.contents()).hasSize(2);
@@ -81,7 +82,7 @@ class UserServiceTest {
 
         // when
         PagedResponse<PostWithJoinStatusAndAppliedAtResponseDto> response =
-                userService.findMyConfirmedPosts(userId, joinStatus, pageable);
+                postService.findMyConfirmedPosts(userId, joinStatus, pageable);
 
         // then
         assertThat(response.contents()).hasSize(2);
@@ -100,7 +101,7 @@ class UserServiceTest {
         when(postRepositoryQuery.getWrittenPost(userId, pageable)).thenReturn(page);
 
         // when
-        PagedResponse<PostResponseDto> response = userService.findMyWrittenPosts(userId, pageable);
+        PagedResponse<PostResponseDto> response = postService.findMyWrittenPosts(userId, pageable);
 
         // then
         assertThat(response.contents()).hasSize(2);

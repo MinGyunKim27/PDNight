@@ -2,9 +2,11 @@ package org.example.pdnight.domain.post.service;
 
 import java.util.Optional;
 
+import org.example.pdnight.domain.common.dto.PagedResponse;
 import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.enums.JobCategory;
 import org.example.pdnight.domain.common.exception.BaseException;
+import org.example.pdnight.domain.participant.enums.JoinStatus;
 import org.example.pdnight.domain.post.dto.request.PostRequestDto;
 import org.example.pdnight.domain.post.dto.request.PostStatusRequestDto;
 import org.example.pdnight.domain.post.dto.request.PostUpdateRequestDto;
@@ -14,6 +16,8 @@ import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.enums.PostStatus;
 import org.example.pdnight.domain.post.repository.PostRepository;
+import org.example.pdnight.domain.post.repository.PostRepositoryQueryImpl;
+import org.example.pdnight.domain.user.dto.response.PostWithJoinStatusAndAppliedAtResponseDto;
 import org.example.pdnight.domain.user.entity.User;
 import org.example.pdnight.domain.user.repository.UserRepository;
 import org.springframework.data.domain.Page;
@@ -28,6 +32,7 @@ import lombok.RequiredArgsConstructor;
 public class PostService {
 	private final PostRepository postRepository;
 	private final UserRepository userRepository;
+	private final PostRepositoryQueryImpl postRepositoryQuery;
 
 	@Transactional
 	public PostResponseDto createPost(Long userId, PostRequestDto request) {
@@ -107,6 +112,22 @@ public class PostService {
 		}
 
 		return new PostResponseDto(foundPost);
+	}
+
+	public PagedResponse<PostResponseDto> findMyLikedPosts(Long userId, Pageable pageable){
+		Page<Post> myLikePost = postRepositoryQuery.getMyLikePost(userId, pageable);
+		Page<PostResponseDto> postResponseDtos = myLikePost.map(PostResponseDto::toDto);
+		return PagedResponse.from(postResponseDtos);
+	}
+
+	public PagedResponse<PostWithJoinStatusAndAppliedAtResponseDto> findMyConfirmedPosts(Long userId, JoinStatus joinStatus, Pageable pageable) {
+		Page<PostWithJoinStatusAndAppliedAtResponseDto> myLikePost = postRepositoryQuery.getConfirmedPost(userId, joinStatus, pageable);
+		return PagedResponse.from(myLikePost);
+	}
+
+	public PagedResponse<PostResponseDto> findMyWrittenPosts(Long userId, Pageable pageable) {
+		Page<PostResponseDto> myLikePost = postRepositoryQuery.getWrittenPost(userId, pageable);
+		return PagedResponse.from(myLikePost);
 	}
 
 	//이하 헬퍼 메서드
