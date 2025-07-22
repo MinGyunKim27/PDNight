@@ -2,6 +2,7 @@ package org.example.pdnight.domain.user.service;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
 import org.example.pdnight.domain.common.exception.BaseException;
+import org.example.pdnight.domain.hobby.entity.Hobby;
 import org.example.pdnight.domain.hobby.repository.HobbyRepository;
 import org.example.pdnight.domain.techStack.repository.TechStackRepository;
 import org.example.pdnight.domain.user.dto.request.UserPasswordUpdateRequest;
@@ -14,12 +15,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -65,9 +68,26 @@ public class UserServiceTest {
     }
 
     @Test
-    void 내_프로필_수정_성공(){
+    void 내_프로필_수정_성공() {
+        // given
+        Long userId = 1L;
+        Long hobbyId = 1L;
+        Hobby hobby = new Hobby(hobbyId, "hobby");
+        User user = new User(userId, "Test");
 
+        UserUpdateRequest request = new UserUpdateRequest("닉네임", hobbyId);
 
+        when(hobbyRepository.findById(hobbyId)).thenReturn(Optional.of(hobby));
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userRepository.save(any(User.class))).thenReturn(user); // 저장 호출 시 반환
+
+        // when
+        UserResponseDto result = userService.updateMyProfile(userId, request);
+
+        // then
+        verify(userRepository).save(any(User.class)); // 저장 메서드 호출 확인
+        assertEquals("닉네임", result.getNickname());
+        assertEquals("hobby", result.getHobbies());
     }
 
     @Test
