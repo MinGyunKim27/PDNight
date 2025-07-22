@@ -15,12 +15,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.time.LocalDateTime;
 import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -75,7 +71,7 @@ public class UserServiceTest {
         Hobby hobby = new Hobby(hobbyId, "hobby");
         User user = new User(userId, "Test");
 
-        UserUpdateRequest request = new UserUpdateRequest("닉네임", hobbyId);
+        UserUpdateRequest request = new UserUpdateRequest("Test", hobbyId);
 
         when(hobbyRepository.findById(hobbyId)).thenReturn(Optional.of(hobby));
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
@@ -86,7 +82,7 @@ public class UserServiceTest {
 
         // then
         verify(userRepository).save(any(User.class)); // 저장 메서드 호출 확인
-        assertEquals("닉네임", result.getNickname());
+        assertEquals("Test", result.getName());
         assertEquals("hobby", result.getHobbies());
     }
 

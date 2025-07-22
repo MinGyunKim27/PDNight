@@ -112,6 +112,17 @@ public class User extends Timestamped {
         this.totalReviewer = totalReviewer;
     }
 
+    public User(String email, String name, String password) {
+        this.email = email;
+        this.name = name;
+        this.password = password;
+        this.role = UserRole.USER;
+        this.totalRate = 0L;
+        this.totalReviewer = 0L;
+        this.isDeleted = false;
+        this.deletedAt = null;
+    }
+
     public void softDelete() {
         isDeleted = true;
         deletedAt = LocalDateTime.now();
