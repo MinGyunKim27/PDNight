@@ -32,24 +32,7 @@ public class UserService {
 
     private final HobbyRepository hobbyRepository;
     private final TechStackRepository techStackRepository;
-    private final PostRepositoryQueryImpl postRepositoryQuery;
     private final UserRepository userRepository;
-
-    public PagedResponse<PostResponseDto> findMyLikedPosts(Long userId, Pageable pageable){
-        Page<Post> myLikePost = postRepositoryQuery.getMyLikePost(userId, pageable);
-        Page<PostResponseDto> postResponseDtos = myLikePost.map(PostResponseDto::toDto);
-        return PagedResponse.from(postResponseDtos);
-    }
-
-    public PagedResponse<PostWithJoinStatusAndAppliedAtResponseDto> findMyConfirmedPosts(Long userId, JoinStatus joinStatus, Pageable pageable) {
-        Page<PostWithJoinStatusAndAppliedAtResponseDto> myLikePost = postRepositoryQuery.getConfirmedPost(userId, joinStatus, pageable);
-        return PagedResponse.from(myLikePost);
-    }
-
-    public PagedResponse<PostResponseDto> findMyWrittenPosts(Long userId, Pageable pageable) {
-        Page<PostResponseDto> myLikePost = postRepositoryQuery.getWrittenPost(userId, pageable);
-        return PagedResponse.from(myLikePost);
-    }
 
     public UserResponseDto getMyProfile(Long userId){
         // id로 유저 조회

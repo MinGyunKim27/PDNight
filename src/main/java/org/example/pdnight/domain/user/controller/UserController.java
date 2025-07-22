@@ -7,6 +7,7 @@ import org.example.pdnight.domain.common.dto.ApiResponse;
 import org.example.pdnight.domain.common.dto.PagedResponse;
 import org.example.pdnight.domain.participant.enums.JoinStatus;
 import org.example.pdnight.domain.post.dto.response.PostResponseDto;
+import org.example.pdnight.domain.post.service.PostService;
 import org.example.pdnight.domain.user.dto.response.PostWithJoinStatusAndAppliedAtResponseDto;
 import org.example.pdnight.domain.user.service.UserService;
 import org.example.pdnight.global.filter.CustomUserDetails;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
+    private final PostService postService;
 
 
     @GetMapping("/my/likedPosts")
@@ -32,7 +34,7 @@ public class UserController {
             @PageableDefault(size = 10,page = 0) Pageable pageable
     ){
         Long id = userDetails.getUserId();
-        PagedResponse<PostResponseDto> myLikedPost = userService.findMyLikedPosts(id, pageable);
+        PagedResponse<PostResponseDto> myLikedPost = postService.findMyLikedPosts(id, pageable);
         return ResponseEntity.ok(ApiResponse.ok("내 좋아요 게시글 목록이 조회되었습니다.",myLikedPost));
     }
 
@@ -43,7 +45,7 @@ public class UserController {
             @PageableDefault(size = 10,page = 0) Pageable pageable
     ){
         Long id = userDetails.getUserId();
-        PagedResponse<PostWithJoinStatusAndAppliedAtResponseDto> myLikedPost = userService.findMyConfirmedPosts(id,joinStatus, pageable);
+        PagedResponse<PostWithJoinStatusAndAppliedAtResponseDto> myLikedPost = postService.findMyConfirmedPosts(id,joinStatus, pageable);
         return ResponseEntity.ok(ApiResponse.ok("참여 신청한 게시글 목록이 조회되었습니다.",myLikedPost));
     }
 
@@ -53,7 +55,7 @@ public class UserController {
             @PageableDefault(size = 10,page = 0) Pageable pageable
     ){
         Long id = userDetails.getUserId();
-        PagedResponse<PostResponseDto> myLikedPost = userService.findMyWrittenPosts(id, pageable);
+        PagedResponse<PostResponseDto> myLikedPost = postService.findMyWrittenPosts(id, pageable);
         return ResponseEntity.ok(ApiResponse.ok("내가 작성 한 게시물이 조회되었습니다.",myLikedPost));
     }
 

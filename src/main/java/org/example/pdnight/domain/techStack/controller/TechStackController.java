@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/techstack")
+@RequestMapping("/api/techStacks")
 @RequiredArgsConstructor
 public class TechStackController {
     public final TechStackService techStackService;
