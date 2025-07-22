@@ -17,11 +17,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -31,7 +29,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
-@Transactional
 class AuthControllerTest {
 
     @Autowired
@@ -50,7 +47,6 @@ class AuthControllerTest {
     private PasswordEncoder passwordEncoder;
 
     @Test
-    @Rollback
     @DisplayName("회원 가입 성공 테스트")
     void signInSuccess() throws Exception {
         //given
@@ -67,7 +63,6 @@ class AuthControllerTest {
     }
 
     @Test
-    @Rollback
     @DisplayName("로그인 성공 테스트")
     void loginSuccess() throws Exception {
         //given
@@ -87,7 +82,6 @@ class AuthControllerTest {
     }
 
     @Test
-    @Rollback
     @DisplayName("필터 테스트 - 토큰이 없는 경우 회원 탈퇴 실패")
     void filterTestNoToken() throws Exception {
         //given
@@ -103,7 +97,6 @@ class AuthControllerTest {
     }
 
     @Test
-    @Rollback
     @DisplayName("토큰이 있는 경우 회원 탈퇴 성공")
     void Withdraw() throws Exception {
         //given
