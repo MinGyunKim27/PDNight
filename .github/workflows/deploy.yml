@@ -1,0 +1,62 @@
+name: CI/CD Deploy
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+    types: [closed]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Grant permission to gradlew
+        run: chmod +x ./gradlew
+
+      - name: Run tests
+        run: ./gradlew build --no-daemon
+
+      - name: Upload JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: app
+          path: build/libs/*.jar
+  deploy:
+    needs: build
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download JAR
+        uses: actions/download-artifact@v4
+        with:
+          name: app
+
+      - name: Deploy to EC2
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_KEY }}
+          source: "*.jar"
+          target: "/home/ubuntu/app"
+
+      - name: Run app via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            bash /home/ubuntu/app/run-deploy.sh
