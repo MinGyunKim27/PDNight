@@ -36,6 +36,11 @@ public class JwtFilter implements Filter {
 
         String url = httpRequest.getRequestURI();
 
+        if (url.startsWith("/health")) {
+            chain.doFilter(request, response);
+            return;
+        }
+
         if (url.startsWith("/api/auth/signup") || url.startsWith("/api/auth/login")) {
             chain.doFilter(request, response);
             return;
