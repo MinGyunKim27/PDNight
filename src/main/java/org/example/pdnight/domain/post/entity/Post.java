@@ -56,6 +56,9 @@ public class Post extends Timestamped {
     @Enumerated(EnumType.STRING)
     private AgeLimit ageLimit;
 
+    @Column(nullable = false)
+    private Boolean isFirstCome = false;
+
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PostLike> postLikes = new ArrayList<>();

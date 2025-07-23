@@ -7,6 +7,7 @@ import org.example.pdnight.domain.post.dto.request.PostRequestDto;
 import org.example.pdnight.domain.post.dto.request.PostStatusRequestDto;
 import org.example.pdnight.domain.post.dto.request.PostUpdateRequestDto;
 import org.example.pdnight.domain.post.dto.response.PostResponseDto;
+import org.example.pdnight.domain.post.dto.response.PostResponseWithApplyStatusDto;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.service.PostService;
@@ -47,7 +48,7 @@ public class PostController {
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<ApiResponse<PostResponseDto>> getPostById(@PathVariable Long id) {
+	public ResponseEntity<ApiResponse<PostResponseWithApplyStatusDto>> getPostById(@PathVariable Long id) {
 		return ResponseEntity.status(HttpStatus.OK)
 			.body(ApiResponse.ok("게시글이 조회되었습니다.", postService.findOpenedPost(id)));
 	}
@@ -64,7 +65,7 @@ public class PostController {
 	}
 
 	@GetMapping
-	public ResponseEntity<ApiResponse<PagedResponse<PostResponseDto>>> searchPosts(
+	public ResponseEntity<ApiResponse<PagedResponse<PostResponseWithApplyStatusDto>>> searchPosts(
 		@RequestParam(defaultValue = "0") int page,
 		@RequestParam(defaultValue = "10") int size,
 		@RequestParam(defaultValue = "1") Integer maxParticipants,
@@ -74,7 +75,7 @@ public class PostController {
 	) {
 		Pageable pageable = PageRequest.of(page, size);
 
-		PagedResponse<PostResponseDto> pagedResponse = PagedResponse.from(
+		PagedResponse<PostResponseWithApplyStatusDto> pagedResponse = PagedResponse.from(
 			postService.getPostDtosBySearch(pageable, maxParticipants, ageLimit, jobCategoryLimit, genderLimit));
 		return ResponseEntity.status(HttpStatus.OK)
 			.body(ApiResponse.ok("게시글 목록이 조회되었습니다.", pagedResponse));
@@ -102,6 +103,21 @@ public class PostController {
 		PostResponseDto updatedPost = postService.changeStatus(userId, id, requestDto);
 		return ResponseEntity.status(HttpStatus.OK)
 			.body(ApiResponse.ok("게시글 상태가 수정되었습니다.", updatedPost));
+	}
+
+
+	//추천 게시물 조회
+	@GetMapping("/suggestedPosts")
+	public ResponseEntity<ApiResponse<PagedResponse<PostResponseWithApplyStatusDto>>> suggestedPosts(
+			@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "10") int size,
+			@AuthenticationPrincipal CustomUserDetails loginUser
+	) {
+		Pageable pageable = PageRequest.of(page, size);
+		Long userId = loginUser.getUserId();
+		PagedResponse<PostResponseWithApplyStatusDto> pagedResponse = postService.getSuggestedPosts(userId,pageable);
+		return ResponseEntity.status(HttpStatus.OK)
+				.body(ApiResponse.ok("게시글 목록이 조회되었습니다.", pagedResponse));
 	}
 
 }

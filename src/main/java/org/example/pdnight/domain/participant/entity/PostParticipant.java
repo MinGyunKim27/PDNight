@@ -39,6 +39,10 @@ public class PostParticipant extends Timestamped {
         return new PostParticipant(post, user, JoinStatus.PENDING);
     }
 
+    public static PostParticipant createIsFirst(Post post, User user) {
+        return new PostParticipant(post, user, JoinStatus.ACCEPTED);
+    }
+
     public void changeStatus(JoinStatus status) {
         this.status = status;
     }
