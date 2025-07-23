@@ -44,7 +44,7 @@ public class ParticipantServiceExceptionTest extends BaseParticipantTest {
         );
 
         //then
-        assertEquals(ErrorCode.CANNOT_PARTICIPANT_SELF.getMessage(), exception.getMessage());
+        assertEquals(ErrorCode.CANNOT_PARTICIPATE_SELF.getMessage(), exception.getMessage());
     }
 
     @Test
@@ -179,7 +179,7 @@ public class ParticipantServiceExceptionTest extends BaseParticipantTest {
         );
 
         //then
-        assertEquals(ErrorCode.NOT_PARTICIPANT.getMessage(), exception.getMessage());
+        assertEquals(ErrorCode.NOT_PARTICIPATED.getMessage(), exception.getMessage());
     }
 
     @Test

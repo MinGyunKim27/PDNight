@@ -19,6 +19,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.example.pdnight.domain.common.enums.ErrorCode.CANNOT_PARTICIPATE_POST;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -53,7 +55,7 @@ public class ParticipantService {
     private void validForCreateParticipant(User user, Post post) {
         // 신청 안됨 : 본인 게시글에 본인이 신청하는 경우
         if (post.getAuthor().equals(user)) {
-            throw new BaseException(ErrorCode.CANNOT_PARTICIPANT_SELF);
+            throw new BaseException(ErrorCode.CANNOT_PARTICIPATE_SELF);
         }
 
         // 신청 안됨 : 이미 신청함 - JoinStatus status 가 대기중 or 수락됨 인 경우
@@ -68,6 +70,7 @@ public class ParticipantService {
         }
     }
 
+
     @Transactional
     public ParticipantResponse applyParticipant(Long loginId, Long postId) {
         User user = getUser(loginId);
@@ -76,8 +79,23 @@ public class ParticipantService {
         // 신청 안되는지 확인
         validForCreateParticipant(user, post);
 
+        PostParticipant participant = null;
+
+        //선착순 포스트인 경우
+        if (post.getIsFirstCome()){
+            int count = participantRepository.countByPostAndStatus(post, JoinStatus.ACCEPTED);
+            if (count == post.getMaxParticipants()){
+                throw new BaseException(CANNOT_PARTICIPATE_POST);
+            }
+            else {
+                participant = PostParticipant.createIsFirst(post,user);
+            }
+        }
+        else {
+            participant = PostParticipant.create(post, user);
+        }
         // 정상 신청
-        PostParticipant participant = PostParticipant.create(post, user);
+
         participantRepository.save(participant);
 
         return ParticipantResponse.of(
@@ -120,7 +138,7 @@ public class ParticipantService {
 
         // 상태변경 안됨 : 신청 대기 상태가 아닐때
         if (pending == null) {
-            throw new BaseException(ErrorCode.NOT_PARTICIPANT);
+            throw new BaseException(ErrorCode.NOT_PARTICIPATED);
         }
 
         // 상태변경 안됨 : 대기 상태로 만들려고 할 때
@@ -132,7 +150,7 @@ public class ParticipantService {
         pending.changeStatus(joinStatus);
 
         // 게시글 인원이 꽉차게 되면 게시글 상태를 마감으로 변경 (CONFIRMED)
-        int participantSize = participantRepository.findByPostAndStatus(post, JoinStatus.ACCEPTED).size();
+        int participantSize = participantRepository.countByPostAndStatus(post, JoinStatus.ACCEPTED);
         if (post.getMaxParticipants().equals(participantSize)) {
             post.updateStatus(PostStatus.CONFIRMED);
         }

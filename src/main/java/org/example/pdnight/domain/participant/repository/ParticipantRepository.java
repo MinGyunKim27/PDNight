@@ -16,4 +16,6 @@ public interface ParticipantRepository extends JpaRepository<PostParticipant, Lo
     List<PostParticipant> findByPostAndStatus(Post post, JoinStatus status);
 
     Page<PostParticipant> findByPostAndStatus(Post post, JoinStatus status, Pageable pageable);
+
+    int countByPostAndStatus(Post post, JoinStatus joinStatus);
 }
