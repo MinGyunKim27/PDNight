@@ -31,9 +31,6 @@ public class UserServiceTest {
     @Mock
     private HobbyRepository hobbyRepository;
 
-    @Mock
-    private TechStackRepository techStackRepository;
-
     @InjectMocks
     private UserService userService;
 
@@ -95,30 +92,23 @@ public class UserServiceTest {
 
         when(hobbyRepository.findById(hobbyId)).thenReturn(Optional.empty());
 
-        // when & then
         assertThrows(BaseException.class, () -> userService.updateMyProfile(userId, request));
     }
 
     @Test
     void 비밀번호_수정_성공() {
-        // given
         Long userId = 1L;
         String oldPassword = "1234";
         String newPassword = "5678";
 
         // 실제 암호화된 비밀번호
         String hashedOldPassword = BCrypt.withDefaults().hashToString(10, oldPassword.toCharArray());
-
         User user = new User(userId, "Test", hashedOldPassword);
-
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-
         UserPasswordUpdateRequest request = new UserPasswordUpdateRequest(oldPassword, newPassword);
 
-        // when
         userService.updatePassword(userId, request);
 
-        // then
         verify(userRepository).save(user);
         assertNotEquals(hashedOldPassword, user.getPassword()); // 비밀번호 바뀌었는지 확인
     }
@@ -132,52 +122,41 @@ public class UserServiceTest {
         String newPassword = "5678";
 
         String hashedOldPassword = BCrypt.withDefaults().hashToString(10, oldPassword.toCharArray());
-
         User user = new User(userId, "Test", hashedOldPassword);
-
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-
         UserPasswordUpdateRequest request = new UserPasswordUpdateRequest(wrongPassword, newPassword);
 
-        // when & then
         assertThrows(BaseException.class, () -> userService.updatePassword(userId, request));
     }
 
     @Test
     void 비밀번호_수정_실패_유저_없음() {
-        // given
         Long userId = 1L;
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         UserPasswordUpdateRequest request = new UserPasswordUpdateRequest("1234", "5678");
 
-        // when & then
         assertThrows(BaseException.class, () -> userService.updatePassword(userId, request));
     }
 
     @Test
     void 사용자_평가_조회_성공() {
-        // given
         Long userId = 1L;
         User user = new User(userId, "Test", 45L, 9L);
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
-        // when
         UserEvaluationResponse result = userService.getEvaluation(userId);
 
-        // then
         assertEquals(userId, result.getId());
         assertEquals(5.0f, result.getRate());
     }
 
     @Test
     void 사용자_평가_조회_실패_유저_없음() {
-        // given
         Long userId = 1L;
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        // when & then
         assertThrows(BaseException.class, () -> userService.getEvaluation(userId));
     }
 }
