@@ -3,7 +3,9 @@ package org.example.pdnight.domain.user.dto.response;
 import java.time.LocalDateTime;
 
 import com.querydsl.core.annotations.QueryProjection;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.example.pdnight.domain.common.enums.JobCategory;
 import org.example.pdnight.domain.participant.enums.JoinStatus;
 import org.example.pdnight.domain.post.enums.AgeLimit;
@@ -11,21 +13,22 @@ import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.enums.PostStatus;
 
 @Getter
+@NoArgsConstructor
 public class PostWithJoinStatusAndAppliedAtResponseDto {
 
-    private final Long postId;
-    private final Long userId;
-    private final String title;
-    private final LocalDateTime timeslot;
-    private final String publicContent;
-    private final String privateContent;
-    private final PostStatus status;
-    private final Integer maxParticipants;
-    private final Gender genderLimit;
-    private final JobCategory jobCategoryLimit;
-    private final AgeLimit ageLimit;
-    private final JoinStatus joinStatus;
-    private final LocalDateTime appliedAt;
+    private Long postId;
+    private Long userId;
+    private String title;
+    private LocalDateTime timeslot;
+    private String publicContent;
+    private String privateContent;
+    private PostStatus status;
+    private Integer maxParticipants;
+    private Gender genderLimit;
+    private JobCategory jobCategoryLimit;
+    private AgeLimit ageLimit;
+    private JoinStatus joinStatus;
+    private LocalDateTime appliedAt;
 
     @QueryProjection
     public PostWithJoinStatusAndAppliedAtResponseDto(Long postId,
