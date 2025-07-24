@@ -9,7 +9,6 @@ import org.example.pdnight.domain.common.enums.JobCategory;
 import org.example.pdnight.domain.participant.entity.QPostParticipant;
 import org.example.pdnight.domain.participant.enums.JoinStatus;
 import org.example.pdnight.domain.post.dto.response.PostResponseDto;
-import org.example.pdnight.domain.post.dto.response.QPostResponseDto;
 import org.example.pdnight.domain.post.entity.Post;
 import org.example.pdnight.domain.post.entity.QPost;
 import org.example.pdnight.domain.post.enums.AgeLimit;
@@ -27,7 +26,9 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
+import static org.example.pdnight.domain.hobby.entity.QPostHobby.postHobby;
 import static org.example.pdnight.domain.post.entity.QPost.post;
+import static org.example.pdnight.domain.techStack.entity.QPostTech.postTech;
 
 @Repository
 @RequiredArgsConstructor
@@ -123,26 +124,10 @@ public class PostRepositoryQueryImpl implements PostRepositoryQuery {
             JobCategory jobCategoryLimit,
             Gender genderLimit
     ) {
-        List<PostResponseDto> contents = queryFactory
-                .select(new QPostResponseDto(
-                        post.id,
-                        post.author.id,
-                        post.title,
-                        post.timeSlot,
-                        post.publicContent,
-                        post.privateContent,
-                        post.status,
-                        post.maxParticipants,
-                        post.genderLimit,
-                        post.jobCategoryLimit,
-                        post.ageLimit,
-                        post.postHobbyList,
-                        post.postTechList,
-                        post.createdAt,
-                        post.updatedAt
-                ))
+        // 페이징 정보 따로 조회 : 조인이랑 같이하면 페이징 안됨
+        List<Long> postIds = queryFactory
+                .select(post.id)
                 .from(post)
-                .leftJoin(post.author)
                 .where(
                         post.maxParticipants.goe(maxParticipants),
                         post.status.eq(PostStatus.OPEN),
@@ -150,11 +135,27 @@ public class PostRepositoryQueryImpl implements PostRepositoryQuery {
                         jobCategoryLimitEq(jobCategoryLimit),
                         genderLimitEq(genderLimit)
                 )
-                .groupBy(post.id)
                 .orderBy(post.createdAt.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
+
+        // 조인으로 연관 엔티티 한꺼번에 조회
+        List<Post> posts = queryFactory
+                .selectFrom(post)
+                .leftJoin(post.author).fetchJoin()
+                .leftJoin(post.postHobbies, postHobby).fetchJoin()
+                .leftJoin(postHobby.hobby).fetchJoin()
+                .leftJoin(post.postTechs, postTech).fetchJoin()
+                .leftJoin(postTech.techStack).fetchJoin()
+                .where(post.id.in(postIds))
+                .orderBy(post.createdAt.desc())
+                .distinct()
+                .fetch();
+
+        List<PostResponseDto> contents = posts.stream()
+                .map(PostResponseDto::new)
+                .toList();
 
         //페이징 용 카운팅 쿼리
         Long total = Optional.ofNullable(

@@ -14,6 +14,7 @@ import org.example.pdnight.domain.techStack.entity.PostTech;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -48,11 +49,11 @@ public class PostResponseDto {
         this.genderLimit = post.getGenderLimit();
         this.jobCategoryLimit = post.getJobCategoryLimit();
         this.ageLimit = post.getAgeLimit();
-        this.hobbyList = post.getPostHobbyList()
+        this.hobbyList = post.getPostHobbies()
                 .stream()
                 .map(hobby -> hobby.getHobby().getHobby())
                 .toList();
-        this.techStackList = post.getPostTechList()
+        this.techStackList = post.getPostTechs()
                 .stream()
                 .map(tech -> tech.getTechStack().getTechStack())
                 .toList();
@@ -73,8 +74,8 @@ public class PostResponseDto {
             Gender genderLimit,
             JobCategory jobCategoryLimit,
             AgeLimit ageLimit,
-            List<PostHobby> hobbyList,
-            List<PostTech> techStackList,
+            Set<PostHobby> hobbyList,
+            Set<PostTech> techStackList,
             LocalDateTime createdAt,
             LocalDateTime updatedAt
     ) {
@@ -112,8 +113,8 @@ public class PostResponseDto {
                 post.getGenderLimit(),
                 post.getJobCategoryLimit(),
                 post.getAgeLimit(),
-                post.getPostHobbyList(),
-                post.getPostTechList(),
+                post.getPostHobbies(),
+                post.getPostTechs(),
                 post.getCreatedAt(),
                 post.getUpdatedAt());
     }

@@ -23,6 +23,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -53,16 +55,16 @@ public class AuthService {
         String encodePassword = passwordEncoder.encode(request.getPassword());
         User user = new User(request, encodePassword);
 
-        // List<Hobby> -> List<UserHobby>  /  List<TechStack> -> List<UserTech>
-        List<UserHobby> userHobbyList = hobbyList.stream()
+        // List<Hobby> -> Set<UserHobby>  /  List<TechStack> -> Set<UserTech>
+        Set<UserHobby> userHobbies = hobbyList.stream()
                 .map(hobby -> new UserHobby(user, hobby))
-                .toList();
-        List<UserTech> userTechList = techStackList.stream()
+                .collect(Collectors.toSet());
+        Set<UserTech> userTechs = techStackList.stream()
                 .map(techStack -> new UserTech(user, techStack))
-                .toList();
+                .collect(Collectors.toSet());
 
         // user 저장 : 취미, 기술 스택 저장
-        user.setHobbyAndTech(userHobbyList, userTechList);
+        user.setHobbyAndTech(userHobbies, userTechs);
         User saveUser = userRepository.save(user);
 
         return new SignupResponseDto(saveUser);

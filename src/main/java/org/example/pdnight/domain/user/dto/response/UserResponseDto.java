@@ -33,11 +33,11 @@ public class UserResponseDto {
         this.id = user.getId();
         this.email = user.getEmail();
         this.role = user.getRole();
-        this.hobbyList = user.getUserHobbyList()
+        this.hobbyList = user.getUserHobbies()
                 .stream()
                 .map(hobby -> hobby.getHobby().getHobby())
                 .toList();
-        this.techStackList = user.getUserTechList()
+        this.techStackList = user.getUserTechs()
                 .stream()
                 .map(tech -> tech.getTechStack().getTechStack())
                 .toList();

@@ -17,7 +17,9 @@ import org.example.pdnight.domain.user.entity.User;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "posts")
@@ -58,10 +60,10 @@ public class Post extends Timestamped {
     private AgeLimit ageLimit;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PostHobby> postHobbyList = new ArrayList<>();
+    private Set<PostHobby> postHobbies = new HashSet<>();
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PostTech> postTechList = new ArrayList<>();
+    private Set<PostTech> postTechs = new HashSet<>();
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PostLike> postLikes = new ArrayList<>();
@@ -86,9 +88,9 @@ public class Post extends Timestamped {
         this.ageLimit = ageLimit;
     }
 
-    public void setHobbyAndTech(List<PostHobby> postHobbyList, List<PostTech> postTechList) {
-        this.postHobbyList = postHobbyList;
-        this.postTechList = postTechList;
+    public void setHobbyAndTech(Set<PostHobby> postHobbies, Set<PostTech> postTechs) {
+        this.postHobbies = postHobbies;
+        this.postTechs = postTechs;
     }
 
     public static Post createPost(
@@ -102,7 +104,7 @@ public class Post extends Timestamped {
     public void updatePostIfNotNull(
             String title, LocalDateTime timeSlot, String publicContent, String privateContent,
             Integer maxParticipants, Gender genderLimit, JobCategory jobCategoryLimit, AgeLimit ageLimit,
-            List<PostHobby> postHobbyList, List<PostTech> postTechList
+            Set<PostHobby> postHobbies, Set<PostTech> postTechs
     ) {
         if (title != null) this.title = title;
         if (timeSlot != null) this.timeSlot = timeSlot;
@@ -112,13 +114,13 @@ public class Post extends Timestamped {
         if (genderLimit != null) this.genderLimit = genderLimit;
         if (jobCategoryLimit != null) this.jobCategoryLimit = jobCategoryLimit;
         if (ageLimit != null) this.ageLimit = ageLimit;
-        if (postHobbyList != null) {
-            this.postHobbyList.clear();
-            this.postHobbyList.addAll(postHobbyList);
+        if (postHobbies != null) {
+            this.postHobbies.clear();
+            this.postHobbies.addAll(postHobbies);
         }
-        if (postTechList != null) {
-            this.postTechList.clear();
-            this.postTechList.addAll(postTechList);
+        if (postTechs != null) {
+            this.postTechs.clear();
+            this.postTechs.addAll(postTechs);
         }
     }
 

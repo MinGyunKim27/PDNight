@@ -51,11 +51,11 @@ public class SignupResponseDto {
         this.role = UserRole.USER;
         this.name = user.getName();
         this.nickname = user.getNickname();
-        this.hobbyList = user.getUserHobbyList()
+        this.hobbyList = user.getUserHobbies()
                 .stream()
                 .map(hobby -> hobby.getHobby().getHobby())
                 .toList();
-        this.techStackList = user.getUserTechList()
+        this.techStackList = user.getUserTechs()
                 .stream()
                 .map(tech -> tech.getTechStack().getTechStack())
                 .toList();

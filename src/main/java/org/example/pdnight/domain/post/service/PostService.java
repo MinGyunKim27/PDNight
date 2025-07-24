@@ -30,9 +30,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -71,16 +70,16 @@ public class PostService {
                 request.getAgeLimit()
         );
 
-        // List<Hobby> -> List<PostHobby>  /  List<TechStack> -> List<PostTech>
-        List<PostHobby> postHobbyList = hobbyList.stream()
+        // List<Hobby> -> Set<PostHobby>  /  List<TechStack> -> Set<PostTech>
+        Set<PostHobby> postHobbies = hobbyList.stream()
                 .map(hobby -> new PostHobby(post, hobby))
-                .toList();
-        List<PostTech> postTechList = techStackList.stream()
+                .collect(Collectors.toSet());
+        Set<PostTech> postTechs = techStackList.stream()
                 .map(techStack -> new PostTech(post, techStack))
-                .toList();
+                .collect(Collectors.toSet());
 
         // post 저장 : 취미, 기술 스택 저장
-        post.setHobbyAndTech(postHobbyList, postTechList);
+        post.setHobbyAndTech(postHobbies, postTechs);
         Post savedPost = postRepository.save(post);
 
         return new PostResponseDto(savedPost);
@@ -119,21 +118,21 @@ public class PostService {
         Post foundPost = getPostOrThrow(postRepository.findById(id));
         validateAuthor(userId, foundPost);
 
-        // 취미 리스트 : DB 에서 있는거만 가져오기 -> List<UserHobby>
-        List<PostHobby> postHobbyList = new ArrayList<>();
+        // 취미 리스트 : DB 에서 있는거만 가져오기 -> Set<UserHobby>
+        Set<PostHobby> postHobbies = new HashSet<>();
         if (request.getHobbyIdList() != null && !request.getHobbyIdList().isEmpty()) {
-            postHobbyList = hobbyRepositoryQuery.findByIdList(request.getHobbyIdList())
+            postHobbies = hobbyRepositoryQuery.findByIdList(request.getHobbyIdList())
                     .stream()
                     .map(hobby -> new PostHobby(foundPost, hobby))
-                    .toList();
+                    .collect(Collectors.toSet());
         }
         // 기술 스택 리스트 : DB 에서 있는거만 가져오기 -> List<UserTech>
-        List<PostTech> postTechList = new ArrayList<>();
+        Set<PostTech> postTechs = new HashSet<>();
         if (request.getTechStackIdList() != null && !request.getTechStackIdList().isEmpty()) {
-            postTechList = techStackRepositoryQuery.findByIdList(request.getTechStackIdList())
+            postTechs = techStackRepositoryQuery.findByIdList(request.getTechStackIdList())
                     .stream()
                     .map(techStack -> new PostTech(foundPost, techStack))
-                    .toList();
+                    .collect(Collectors.toSet());
         }
 
         foundPost.updatePostIfNotNull(
@@ -145,8 +144,8 @@ public class PostService {
                 request.getGenderLimit(),
                 request.getJobCategoryLimit(),
                 request.getAgeLimit(),
-                postHobbyList,
-                postTechList
+                postHobbies,
+                postTechs
         );
 
         return new PostResponseDto(foundPost);

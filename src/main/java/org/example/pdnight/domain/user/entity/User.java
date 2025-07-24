@@ -15,8 +15,8 @@ import org.example.pdnight.domain.user.dto.request.UserUpdateRequest;
 import org.example.pdnight.domain.user.enums.Region;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -43,10 +43,10 @@ public class User extends Timestamped {
     private String nickname;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<UserHobby> userHobbyList = new ArrayList<>();
+    private Set<UserHobby> userHobbies = new HashSet<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<UserTech> userTechList = new ArrayList<>();
+    private Set<UserTech> userTechs = new HashSet<>();
 
     @Enumerated(EnumType.STRING)
     private Gender gender;
@@ -87,9 +87,9 @@ public class User extends Timestamped {
         this.totalReviewer = 0L;
     }
 
-    public void setHobbyAndTech(List<UserHobby> userHobbyList, List<UserTech> userTechList) {
-        this.userHobbyList = userHobbyList;
-        this.userTechList = userTechList;
+    public void setHobbyAndTech(Set<UserHobby> userHobbies, Set<UserTech> userTechs) {
+        this.userHobbies = userHobbies;
+        this.userTechs = userTechs;
     }
 
     public void softDelete() {
@@ -97,7 +97,7 @@ public class User extends Timestamped {
         deletedAt = LocalDateTime.now();
     }
 
-    public void updateProfile(UserUpdateRequest request, List<UserHobby> userHobbyList, List<UserTech> userTechList) {
+    public void updateProfile(UserUpdateRequest request, Set<UserHobby> userHobbies, Set<UserTech> userTechs) {
         if (request.getName() != null) {
             this.name = request.getName();
         }
@@ -119,13 +119,13 @@ public class User extends Timestamped {
         if (request.getComment() != null) {
             this.comment = request.getComment();
         }
-        if (userHobbyList != null) {
-            this.userHobbyList.clear();
-            this.userHobbyList.addAll(userHobbyList);
+        if (userHobbies != null) {
+            this.userHobbies.clear();
+            this.userHobbies.addAll(userHobbies);
         }
-        if (userTechList != null) {
-            this.userTechList.clear();
-            this.userTechList.addAll(userTechList);
+        if (userTechs != null) {
+            this.userTechs.clear();
+            this.userTechs.addAll(userTechs);
         }
     }
 

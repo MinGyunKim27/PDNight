@@ -18,8 +18,9 @@ import org.example.pdnight.domain.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,7 +32,7 @@ public class UserService {
 
     public UserResponseDto getMyProfile(Long userId){
         // id로 유저 조회
-        User user = userRepository.findById(userId)
+        User user = userRepository.findUserById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
         // UserResponseDto로 변환하여 반환
@@ -40,27 +41,27 @@ public class UserService {
 
     @Transactional
     public UserResponseDto updateMyProfile(Long userId, UserUpdateRequest request){
-        User user = userRepository.findById(userId)
+        User user = userRepository.findUserById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
-        // List<UserHobby> / List<UserTech> 생성 : DB 에서 있는거만 가져오기
-        List<UserHobby> userHobbyList = new ArrayList<>();
+        // Set<UserHobby> / Set<UserTech> 생성 : DB 에서 있는거만 가져오기
+        Set<UserHobby> userHobbies = new HashSet<>();
         if (request.getHobbyIdList() != null && !request.getHobbyIdList().isEmpty()) {
-            userHobbyList = hobbyRepositoryQuery.findByIdList(request.getHobbyIdList())
+            userHobbies = hobbyRepositoryQuery.findByIdList(request.getHobbyIdList())
                     .stream()
                     .map(hobby -> new UserHobby(user, hobby))
-                    .toList();
+                    .collect(Collectors.toSet());
         }
-        List<UserTech> userTechList = new ArrayList<>();
+        Set<UserTech> userTechs = new HashSet<>();
         if (request.getTechStackIdList() != null && !request.getTechStackIdList().isEmpty()) {
-            userTechList = techStackRepositoryQuery.findByIdList(request.getTechStackIdList())
+            userTechs = techStackRepositoryQuery.findByIdList(request.getTechStackIdList())
                     .stream()
                     .map(techStack -> new UserTech(user, techStack))
-                    .toList();
+                    .collect(Collectors.toSet());
         }
 
         // 수정 로직
-        user.updateProfile(request, userHobbyList, userTechList);
+        user.updateProfile(request, userHobbies, userTechs);
         userRepository.save(user);
 
         return new UserResponseDto(user);
@@ -87,7 +88,7 @@ public class UserService {
 
     public UserResponseDto getProfile(Long id){
         // id로 유저 조회
-        User user = userRepository.findById(id).orElseThrow(
+        User user = userRepository.findUserById(id).orElseThrow(
                 ()-> new BaseException(ErrorCode.USER_NOT_FOUND));
 
         // UserResponseDto로 변환하여 반환
