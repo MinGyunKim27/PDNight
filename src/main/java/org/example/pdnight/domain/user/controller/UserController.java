@@ -1,10 +1,10 @@
 package org.example.pdnight.domain.user.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.common.dto.ApiResponse;
 import org.example.pdnight.domain.common.dto.PagedResponse;
+import org.example.pdnight.domain.coupon.service.CouponService;
 import org.example.pdnight.domain.participant.enums.JoinStatus;
 import org.example.pdnight.domain.post.dto.response.PostResponseDto;
 import org.example.pdnight.domain.post.service.PostService;
@@ -19,6 +19,7 @@ import org.example.pdnight.domain.user.dto.request.UserUpdateRequest;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
@@ -26,6 +27,7 @@ public class UserController {
 
     private final UserService userService;
     private final PostService postService;
+    private final CouponService couponService;
 
 
     @GetMapping("/my/likedPosts")
@@ -116,5 +118,13 @@ public class UserController {
                 "사용자 평가가 조회되었습니다.",
                 userService.getEvaluation(id)
         ));
+    }
+
+    @GetMapping("/my/coupons")
+    public ResponseEntity<ApiResponse<?>> getMyCoupons(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PageableDefault(size = 10,page = 0) Pageable pageable
+    ) {
+        return ResponseEntity.ok(ApiResponse.ok("쿠폰이 조회되었습니다.", couponService.getValidCoupons(userDetails.getUserId(), pageable)));
     }
 }
