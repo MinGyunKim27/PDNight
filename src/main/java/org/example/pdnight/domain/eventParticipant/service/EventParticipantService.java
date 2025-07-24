@@ -3,7 +3,6 @@ package org.example.pdnight.domain.eventParticipant.service;
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.exception.BaseException;
-import org.example.pdnight.domain.event.dto.response.EventResponse;
 import org.example.pdnight.domain.event.entity.Event;
 import org.example.pdnight.domain.event.repository.EventRepository;
 import org.example.pdnight.domain.event.service.EventService;

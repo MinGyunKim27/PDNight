@@ -1,10 +1,9 @@
-package org.example.pdnight.domain.event.service;
+package org.example.pdnight.domain.eventParticipant.service;
 
 import org.example.pdnight.domain.event.entity.Event;
 import org.example.pdnight.domain.event.repository.EventRepository;
 import org.example.pdnight.domain.eventParticipant.entity.EventParticipant;
 import org.example.pdnight.domain.eventParticipant.repository.EventParticipantRepository;
-import org.example.pdnight.domain.eventParticipant.service.EventParticipantService;
 import org.example.pdnight.domain.user.entity.User;
 import org.example.pdnight.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.Test;
@@ -13,18 +12,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Optional;
-
 import static org.mockito.Mockito.*;
 
-@SpringBootTest
 @ExtendWith(MockitoExtension.class)
-class EventServiceTest {
-
-    @InjectMocks
-    private EventService eventService;
+class EventParticipantServiceTest {
 
     @Mock
     private EventRepository eventRepository;
@@ -34,7 +27,8 @@ class EventServiceTest {
 
     @Mock
     private UserRepository userRepository;
-    @Autowired
+
+    @InjectMocks
     private EventParticipantService eventParticipantService;
 
     @Test
