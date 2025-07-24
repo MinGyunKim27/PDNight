@@ -38,6 +38,11 @@ public class Event extends Timestamped {
         this.eventDate = eventDate;
     }
 
+    public Event(Long eventId, int i) {
+        this.id = eventId;
+        this.maxParticipants = i;
+    }
+
     public void updateEvent(String title, String content, Integer maxParticipants, LocalDateTime eventDate) {
         if(title != null) this.title = title;
         if(content != null) this.content = content;
