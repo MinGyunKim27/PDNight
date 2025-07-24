@@ -1,7 +1,6 @@
 package org.example.pdnight.domain.comment.repository;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.example.pdnight.domain.comment.entity.Comment;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,6 +10,10 @@ import org.springframework.data.repository.query.Param;
 
 public interface CommentRepository extends JpaRepository<Comment, Long> {
 	List<Comment> findByPostIdOrderByIdAsc(Long postId);
+
+	@Modifying
+	@Query("delete from Comment c where c.parent.id = :parentId")
+	void deleteAllByParentId(@Param("parentId") Long parentId);
 
 	//해당 게시글의 자식댓글 일괄 삭제
 	@Modifying

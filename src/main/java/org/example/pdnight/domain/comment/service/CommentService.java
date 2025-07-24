@@ -56,6 +56,8 @@ public class CommentService {
 		Comment foundComment = getCommentOrThrow(commentRepository.findById(id));
 		validateAuthorAndPost(authorId, postId, foundComment);
 
+		//부모 댓글 id 기준 자식댓글 일괄 삭제 메서드
+		commentRepository.deleteAllByParentId(id);
 		commentRepository.delete(foundComment);
 	}
 
