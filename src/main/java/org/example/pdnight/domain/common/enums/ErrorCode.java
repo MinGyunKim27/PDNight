@@ -65,7 +65,9 @@ public enum ErrorCode {
     TECH_STACK_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 기술 스택입니다."),
 
     // 쿠폰 관련 에러
-    COUPON_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 쿠폰입니다.")
+    COUPON_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 쿠폰입니다."),
+    COUPON_ALREADY_USED(HttpStatus.BAD_REQUEST, "이미 사용된 쿠폰입니다."),
+    COUPON_FORBIDDEN(HttpStatus.FORBIDDEN, "본인의 쿠폰만 사용할 수 있습니다.")
     ;
 
     private final HttpStatus status;// HTTP 상태 코드

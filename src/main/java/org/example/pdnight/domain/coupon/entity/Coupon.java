@@ -2,6 +2,8 @@ package org.example.pdnight.domain.coupon.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.example.pdnight.domain.common.enums.ErrorCode;
+import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.coupon.dto.request.UpdateCouponRequestDto;
 import org.example.pdnight.domain.user.entity.User;
 
@@ -44,5 +46,12 @@ public class Coupon {
         if (dto.getDeadlineAt() != null) {
             this.deadlineAt = dto.getDeadlineAt();
         }
+    }
+
+    public void use() {
+        if (this.isUsed) {
+            throw new BaseException(ErrorCode.COUPON_ALREADY_USED);
+        }
+        this.isUsed = true;
     }
 }
