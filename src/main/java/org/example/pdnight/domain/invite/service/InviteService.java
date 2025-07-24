@@ -13,6 +13,7 @@ import org.example.pdnight.domain.post.service.PostService;
 import org.example.pdnight.domain.user.entity.User;
 import org.example.pdnight.domain.user.service.UserService;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -54,12 +55,21 @@ public class InviteService {
         inviteRepository.delete(invite);
     }
 
-    public PagedResponse<InviteResponseDto> getMyInvited(Long userId) {
-        Page<InviteResponseDto> inviteResponseDtos = inviteRepositoryQuery.getMyInvited(userId);
-        return null;
+    //내가 초대 받은 목록 조회
+    public PagedResponse<InviteResponseDto> getMyInvited(Long userId, Pageable pageable) {
+        Page<InviteResponseDto> inviteResponseDtos = inviteRepositoryQuery.getMyInvited(userId, pageable);
+        return PagedResponse.from(inviteResponseDtos);
+    }
+
+    //내가 초대 한 목록 조회
+    public PagedResponse<InviteResponseDto> getMyInvite(Long userId, Pageable pageable) {
+        Page<InviteResponseDto> inviteResponseDtos = inviteRepositoryQuery.getMyInvite(userId, pageable);
+        return PagedResponse.from(inviteResponseDtos);
     }
 
     public void deleteAllByPostAndStatus(Post post,JoinStatus joinStatus){
         inviteRepository.deleteAllByPostAndStatus(post, joinStatus);
     };
+
+
 }

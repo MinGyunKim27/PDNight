@@ -13,6 +13,7 @@ import org.example.pdnight.domain.user.dto.response.PostWithJoinStatusAndApplied
 import org.example.pdnight.domain.user.service.UserService;
 import org.example.pdnight.global.filter.CustomUserDetails;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.example.pdnight.domain.user.dto.request.UserPasswordUpdateRequest;
@@ -136,14 +137,27 @@ public class UserController {
     //내 초대받은 목록 조회
     @GetMapping("/my/invited")
     public ResponseEntity<ApiResponse<?>> getMyInvited(
-            @AuthenticationPrincipal CustomUserDetails loggedInUser
+            @AuthenticationPrincipal CustomUserDetails loggedInUser,
+            @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
+            Pageable pageable
     ){
         Long userId = loggedInUser.getUserId();
-        PagedResponse<InviteResponseDto> inviteResponseDto = inviteService.getMyInvited(userId);
+        PagedResponse<InviteResponseDto> inviteResponseDto = inviteService.getMyInvited(userId,pageable);
 
         return ResponseEntity.ok(ApiResponse.ok("초대 받은 목록 조회가 완료되었습니다",inviteResponseDto));
     }
 
     //내가 보낸 초대 목록 조회
+    @GetMapping("/my/invite")
+    public ResponseEntity<ApiResponse<?>> getMyInvite(
+            @AuthenticationPrincipal CustomUserDetails loggedInUser,
+            @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
+            Pageable pageable
+    ){
+        Long userId = loggedInUser.getUserId();
+        PagedResponse<InviteResponseDto> inviteResponseDto = inviteService.getMyInvite(userId,pageable);
+
+        return ResponseEntity.ok(ApiResponse.ok("초대 받은 목록 조회가 완료되었습니다",inviteResponseDto));
+    }
 
 }

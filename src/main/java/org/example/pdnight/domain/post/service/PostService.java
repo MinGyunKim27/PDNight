@@ -35,7 +35,6 @@ public class PostService {
 	private final UserRepository userRepository;
 	private final PostRepositoryQuery PostRepositoryQuery;
 
-
 	//포스트 작성
 	@Transactional
 	public PostResponseDto createPost(Long userId, PostRequestDto request) {
