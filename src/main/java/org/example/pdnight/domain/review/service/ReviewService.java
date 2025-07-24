@@ -51,7 +51,7 @@ public class ReviewService {
         return new ReviewResponseDto(review);
     }
 
-    // 사용자의 리뷰 리스트 조회
+    // 사용자의 받은 리뷰 리스트 조회
     public PagedResponse<ReviewResponseDto> getReceivedReviewsByUser(Long userId, Pageable pageable) {
 
         User ratedUser = userRepository.findById(userId)
@@ -62,4 +62,13 @@ public class ReviewService {
         return PagedResponse.from(reviews.map(ReviewResponseDto::new));
     }
 
+    // 사용자의 작성한 리뷰 리스트 조회
+    public PagedResponse<ReviewResponseDto> getWrittenReviewsByUser(Long userId, Pageable pageable) {
+        User ratedUser = userRepository.findById(userId)
+                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+
+        Page<Review> reviews = reviewRepository.findByReviewer(ratedUser, pageable);
+
+        return PagedResponse.from(reviews.map(ReviewResponseDto::new));
+    }
 }

@@ -42,4 +42,26 @@ public class ReviewController {
 
         return ResponseEntity.ok(ApiResponse.ok("사용자가 받은 리뷰 리스트 조회 성공.",reviewService.getReceivedReviewsByUser(userId, pageable)));
     }
+
+    //내가 받은 리뷰 리스트 조회
+    @GetMapping("api/users/my/review")
+    public ResponseEntity<ApiResponse<?>> getMyReviews(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
+            Pageable pageable
+    ) {
+        Long myId = userDetails.getUserId();
+        return ResponseEntity.ok(ApiResponse.ok("사용자가 받은 리뷰 리스트 조회 성공.",reviewService.getReceivedReviewsByUser(myId, pageable)));
+    }
+
+    //내가 받은 리뷰 리스트 조회
+    @GetMapping("api/users/my/writtenReview")
+    public ResponseEntity<ApiResponse<?>> getMyWrittenReviews(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
+            Pageable pageable
+    ) {
+        Long myId = userDetails.getUserId();
+        return ResponseEntity.ok(ApiResponse.ok("사용자가 받은 리뷰 리스트 조회 성공.",reviewService.getWrittenReviewsByUser(myId, pageable)));
+    }
 }
