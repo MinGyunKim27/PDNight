@@ -25,6 +25,7 @@ public class CouponAdminService {
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
         Coupon coupon = new Coupon(user, dto.getCouponInfo(), dto.getDeadlineAt());
         couponRepository.save(coupon);
+        user.addCoupon(coupon);
         return new CouponResponseDto(coupon);
     }
 

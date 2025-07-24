@@ -1,6 +1,8 @@
 package org.example.pdnight.domain.user.entity;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -9,6 +11,7 @@ import lombok.NoArgsConstructor;
 import org.example.pdnight.domain.auth.dto.request.SignupRequestDto;
 import org.example.pdnight.domain.common.entity.Timestamped;
 import org.example.pdnight.domain.common.enums.UserRole;
+import org.example.pdnight.domain.coupon.entity.Coupon;
 import org.example.pdnight.domain.hobby.entity.Hobby;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.common.enums.JobCategory;
@@ -71,6 +74,9 @@ public class User extends Timestamped {
     private Boolean isDeleted = false;
     private LocalDateTime deletedAt;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Coupon> coupons = new ArrayList<>();
+
     public User(SignupRequestDto request, String encodePassword, Hobby hobby, TechStack techStack) {
         this.email = request.getEmail();
         this.password = encodePassword;
@@ -127,5 +133,8 @@ public class User extends Timestamped {
     public void changePassword(String encodedPassword) {
         this.password = encodedPassword;
     }
-  
+
+    public void addCoupon(Coupon coupon) {
+        this.coupons.add(coupon);
+    }
 }
