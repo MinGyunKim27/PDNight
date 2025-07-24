@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.pdnight.domain.common.entity.Timestamped;
+import org.example.pdnight.domain.invite.entity.Invite;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.common.enums.JobCategory;
@@ -55,6 +56,13 @@ public class Post extends Timestamped {
 
     @Enumerated(EnumType.STRING)
     private AgeLimit ageLimit;
+
+    // 게시물 삭제 되면 알아서 invite 삭제 되도록
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Invite> invites = new ArrayList<>();
+
+    @Column(nullable = false)
+    private Boolean isFirstCome = false;
 
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)

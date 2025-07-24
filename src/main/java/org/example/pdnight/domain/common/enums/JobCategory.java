@@ -18,5 +18,6 @@ public enum JobCategory {
     SYSTEM_ENGINEER,
     GAME_DEVELOPER,
     EMBEDDED_ENGINEER,
-    ETC // 기타
+    ETC, // 기타
+    ALL
 }

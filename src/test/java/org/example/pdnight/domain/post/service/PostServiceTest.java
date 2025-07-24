@@ -13,11 +13,13 @@ import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.post.dto.request.PostRequestDto;
 import org.example.pdnight.domain.post.dto.request.PostUpdateRequestDto;
 import org.example.pdnight.domain.post.dto.response.PostResponseDto;
+import org.example.pdnight.domain.post.dto.response.PostResponseWithApplyStatusDto;
 import org.example.pdnight.domain.post.entity.Post;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.enums.PostStatus;
 import org.example.pdnight.domain.post.repository.PostRepository;
+import org.example.pdnight.domain.post.repository.PostRepositoryQuery;
 import org.example.pdnight.domain.user.entity.User;
 import org.example.pdnight.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,6 +39,10 @@ import org.springframework.data.domain.Pageable;
 class PostServiceTest {
 	@Mock
 	private PostRepository postRepository;
+
+
+	@Mock
+	private PostRepositoryQuery postRepositoryQuery;
 
 	@Mock
 	private UserRepository userRepository;
@@ -103,7 +109,7 @@ class PostServiceTest {
 
 		//when
 		when(postRepository.findByIdAndStatus(postId, PostStatus.OPEN)).thenReturn(Optional.of(post));
-		PostResponseDto responseDto = postService.findOpenedPost(postId);
+		PostResponseWithApplyStatusDto responseDto = postService.findOpenedPost(postId);
 
 		//then
 		assertNotNull(responseDto);
@@ -210,11 +216,11 @@ class PostServiceTest {
 		JobCategory jobCategoryLimit = JobCategory.BACK_END_DEVELOPER;
 		Gender genderLimit = Gender.MALE;
 
-		PostResponseDto mockDto = new PostResponseDto(post);
+		PostResponseWithApplyStatusDto mockDto = new PostResponseWithApplyStatusDto();
 
-		Page<PostResponseDto> page = new PageImpl<>(List.of(mockDto), pageable, 1);
+		Page<PostResponseWithApplyStatusDto> page = new PageImpl<>(List.of(mockDto), pageable, 1);
 
-		when(postRepository.findPostDtosBySearch(
+		when(postRepositoryQuery.findPostDtosBySearch(
 			pageable,
 			maxParticipants,
 			ageLimit,
@@ -223,7 +229,7 @@ class PostServiceTest {
 		).thenReturn(page);
 
 		//when
-		Page<PostResponseDto> responseDtos = postService.getPostDtosBySearch(pageable, maxParticipants, ageLimit,
+		Page<PostResponseWithApplyStatusDto> responseDtos = postService.getPostDtosBySearch(pageable, maxParticipants, ageLimit,
 			jobCategoryLimit, genderLimit);
 
 		//then
@@ -241,9 +247,9 @@ class PostServiceTest {
 		JobCategory jobCategoryLimit = JobCategory.BACK_END_DEVELOPER;
 		Gender genderLimit = Gender.MALE;
 
-		Page<PostResponseDto> emptyPage = new PageImpl<>(List.of(), pageable, 0);
+		Page<PostResponseWithApplyStatusDto> emptyPage = new PageImpl<>(List.of(), pageable, 0);
 
-		when(postRepository.findPostDtosBySearch(
+		when(postRepositoryQuery.findPostDtosBySearch(
 			pageable,
 			maxParticipants,
 			ageLimit,
@@ -252,7 +258,7 @@ class PostServiceTest {
 		).thenReturn(emptyPage);
 
 		//when
-		Page<PostResponseDto> responseDtos = postService.getPostDtosBySearch(pageable, maxParticipants, ageLimit,
+		Page<PostResponseWithApplyStatusDto> responseDtos = postService.getPostDtosBySearch(pageable, maxParticipants, ageLimit,
 			jobCategoryLimit, genderLimit);
 
 		//then
