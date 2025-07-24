@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import org.example.pdnight.domain.auth.dto.request.SignupRequestDto;
 import org.example.pdnight.domain.common.entity.Timestamped;
 import org.example.pdnight.domain.common.enums.UserRole;
+import org.example.pdnight.domain.coupon.entity.Coupon;
 import org.example.pdnight.domain.hobby.entity.Hobby;
 import org.example.pdnight.domain.invite.entity.Invite;
 import org.example.pdnight.domain.post.enums.Gender;
@@ -81,6 +82,9 @@ public class User extends Timestamped {
 
     private Boolean isDeleted = false;
     private LocalDateTime deletedAt;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Coupon> coupons = new ArrayList<>();
 
     public User(Long id, String name) {
         this.id = id;
@@ -179,5 +183,8 @@ public class User extends Timestamped {
     public void changePassword(String encodedPassword) {
         this.password = encodedPassword;
     }
-  
+
+    public void addCoupon(Coupon coupon) {
+        this.coupons.add(coupon);
+    }
 }
