@@ -5,16 +5,17 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.pdnight.domain.common.entity.Timestamped;
+import org.example.pdnight.domain.common.enums.JobCategory;
+import org.example.pdnight.domain.hobby.entity.PostHobby;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
-import org.example.pdnight.domain.common.enums.JobCategory;
 import org.example.pdnight.domain.post.enums.PostStatus;
 import org.example.pdnight.domain.postLike.entity.PostLike;
 import org.example.pdnight.domain.review.entity.Review;
+import org.example.pdnight.domain.techStack.entity.PostTech;
 import org.example.pdnight.domain.user.entity.User;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,17 +57,23 @@ public class Post extends Timestamped {
     @Enumerated(EnumType.STRING)
     private AgeLimit ageLimit;
 
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PostHobby> postHobbyList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PostTech> postTechList = new ArrayList<>();
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PostLike> postLikes = new ArrayList<>();
 
-    @OneToMany(mappedBy = "post", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = false)
+    @OneToMany(mappedBy = "post", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<Review> reviews = new ArrayList<>();
 
 
-    private Post(User author, String title, LocalDateTime timeSlot, String publicContent, String privateContent,
-        Integer maxParticipants, Gender genderLimit, JobCategory jobCategoryLimit, AgeLimit ageLimit)
-    {
+    private Post(
+            User author, String title, LocalDateTime timeSlot, String publicContent, String privateContent,
+            Integer maxParticipants, Gender genderLimit, JobCategory jobCategoryLimit, AgeLimit ageLimit
+    ) {
         this.author = author;
         this.title = title;
         this.timeSlot = timeSlot;
@@ -79,24 +86,40 @@ public class Post extends Timestamped {
         this.ageLimit = ageLimit;
     }
 
-    public static Post createPost(User author, String title, LocalDateTime timeSlot, String publicContent, String privateContent,
-        Integer maxParticipants, Gender genderLimit, JobCategory jobCategoryLimit, AgeLimit ageLimit)
-    {
+    public void setHobbyAndTech(List<PostHobby> postHobbyList, List<PostTech> postTechList) {
+        this.postHobbyList = postHobbyList;
+        this.postTechList = postTechList;
+    }
+
+    public static Post createPost(
+            User author, String title, LocalDateTime timeSlot, String publicContent, String privateContent,
+            Integer maxParticipants, Gender genderLimit, JobCategory jobCategoryLimit, AgeLimit ageLimit
+    ) {
         return new Post(author, title, timeSlot, publicContent, privateContent, maxParticipants, genderLimit, jobCategoryLimit, ageLimit);
     }
 
     //update 메서드 null 체크 후 아닌 값만 set
-    public void updatePostIfNotNull(String title, LocalDateTime timeSlot, String publicContent, String privateContent,
-        Integer maxParticipants, Gender genderLimit, JobCategory jobCategoryLimit, AgeLimit ageLimit)
-    {
-        if(title != null) this.title = title;
-        if(timeSlot != null) this.timeSlot = timeSlot;
-        if(publicContent != null) this.publicContent = publicContent;
-        if(privateContent != null) this.privateContent = privateContent;
-        if(maxParticipants != null && maxParticipants >= 1) this.maxParticipants = maxParticipants;
-        if(genderLimit != null) this.genderLimit = genderLimit;
-        if(jobCategoryLimit != null) this.jobCategoryLimit = jobCategoryLimit;
-        if(ageLimit != null) this.ageLimit = ageLimit;
+    public void updatePostIfNotNull(
+            String title, LocalDateTime timeSlot, String publicContent, String privateContent,
+            Integer maxParticipants, Gender genderLimit, JobCategory jobCategoryLimit, AgeLimit ageLimit,
+            List<PostHobby> postHobbyList, List<PostTech> postTechList
+    ) {
+        if (title != null) this.title = title;
+        if (timeSlot != null) this.timeSlot = timeSlot;
+        if (publicContent != null) this.publicContent = publicContent;
+        if (privateContent != null) this.privateContent = privateContent;
+        if (maxParticipants != null && maxParticipants >= 1) this.maxParticipants = maxParticipants;
+        if (genderLimit != null) this.genderLimit = genderLimit;
+        if (jobCategoryLimit != null) this.jobCategoryLimit = jobCategoryLimit;
+        if (ageLimit != null) this.ageLimit = ageLimit;
+        if (postHobbyList != null) {
+            this.postHobbyList.clear();
+            this.postHobbyList.addAll(postHobbyList);
+        }
+        if (postTechList != null) {
+            this.postTechList.clear();
+            this.postTechList.addAll(postTechList);
+        }
     }
 
     //상태 변경 메서드
