@@ -95,6 +95,7 @@ public class CommentService {
 	}
 
 	//댓글 다건 조회 메서드 : 해당게시글의 댓글리스트
+	@Transactional(readOnly = true)
 	public PagedResponse<CommentResponseDto> getCommentsByPostId(Long postId, Pageable pageable) {
 		//파람값으로 넘어온 게시글이 존재하는지 확인
 		Post foundPost = getPostOrThrow(postRepository.findById(postId));
