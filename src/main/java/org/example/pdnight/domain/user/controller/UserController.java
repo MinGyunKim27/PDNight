@@ -10,7 +10,6 @@ import org.example.pdnight.domain.invite.dto.response.InviteResponseDto;
 import org.example.pdnight.domain.invite.service.InviteService;
 import org.example.pdnight.domain.post.dto.response.PostResponseWithApplyStatusDto;
 import org.example.pdnight.domain.coupon.service.CouponService;
-import org.example.pdnight.domain.participant.enums.JoinStatus;
 import org.example.pdnight.domain.post.dto.response.PostResponseDto;
 import org.example.pdnight.domain.post.service.PostService;
 import org.example.pdnight.domain.user.dto.response.PostWithJoinStatusAndAppliedAtResponseDto;
@@ -38,13 +37,13 @@ public class UserController {
 
     // 내 좋아요 게시글 목록 조회
     @GetMapping("/my/likedPosts")
-    public ResponseEntity<ApiResponse<PagedResponse<PostResponseDto>>> getMyLikedPosts(
+    public ResponseEntity<ApiResponse<PagedResponse<PostResponseWithApplyStatusDto>>> getMyLikedPosts(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PageableDefault(size = 10,page = 0) Pageable pageable
     ){
         Long id = userDetails.getUserId();
-        PagedResponse<PostResponseDto> myLikedPost = postService.findMyLikedPosts(id, pageable);
-        return ResponseEntity.ok(ApiResponse.ok("내 좋아요 게시글 목록이 조회되었습니다.",myLikedPost));
+        PagedResponse<PostResponseWithApplyStatusDto> myLikedPost = postService.findMyLikedPosts(id, pageable);
+        return ResponseEntity.ok(ApiResponse.ok("내 좋아요 게시글 목록이 조회되었습니다.", myLikedPost));
     }
 
     //내 신청/성사된 게시글 조회
