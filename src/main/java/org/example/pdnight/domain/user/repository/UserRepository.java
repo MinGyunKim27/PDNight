@@ -14,6 +14,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	//포스트 도메인에 사용할 임시 메서드 유저도메인에 해당 메서드 추가시 삭제
 	Optional<User> findByIdAndIsDeletedFalse(Long id);  
   
-  Optional<User> findByEmail(String email);
+    Optional<User> findByEmail(String email);
   
 }
