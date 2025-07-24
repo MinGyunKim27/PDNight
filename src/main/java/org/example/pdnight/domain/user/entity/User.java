@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import org.example.pdnight.domain.auth.dto.request.SignupRequestDto;
 import org.example.pdnight.domain.common.entity.Timestamped;
 import org.example.pdnight.domain.common.enums.UserRole;
+import org.example.pdnight.domain.follow.entity.Follow;
 import org.example.pdnight.domain.hobby.entity.Hobby;
 import org.example.pdnight.domain.invite.entity.Invite;
 import org.example.pdnight.domain.post.enums.Gender;
@@ -78,6 +79,14 @@ public class User extends Timestamped {
     //유저 삭제 하면 초대 알아서 삭제 되도록
     @OneToMany(mappedBy = "invitee", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Invite> receivedInvites = new ArrayList<>();
+
+    //유저 삭제하면 팔로우 알아서 삭제 되도록
+    @OneToMany(mappedBy = "follower",cascade = CascadeType.ALL,orphanRemoval = true)
+    private List<Follow> followList = new ArrayList<>();
+
+    //유저 삭제하면 팔로잉 알아서 삭제 되도록
+    @OneToMany(mappedBy = "following",cascade = CascadeType.ALL,orphanRemoval = true)
+    private List<Follow> followingList = new ArrayList<>();
 
     private Boolean isDeleted = false;
     private LocalDateTime deletedAt;
