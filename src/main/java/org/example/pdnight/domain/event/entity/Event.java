@@ -1,6 +1,7 @@
 package org.example.pdnight.domain.event.entity;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.pdnight.domain.common.entity.Timestamped;
@@ -27,4 +28,11 @@ public class Event extends Timestamped {
 
     @Column(nullable = false)
     private LocalDateTime eventDate;
+
+    public Event(String title, String content, Integer maxParticipants, LocalDateTime eventDate) {
+        this.title = title;
+        this.content = content;
+        this.maxParticipants = maxParticipants;
+        this.eventDate = eventDate;
+    }
 }
