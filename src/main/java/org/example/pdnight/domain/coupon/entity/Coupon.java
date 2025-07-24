@@ -52,6 +52,9 @@ public class Coupon {
         if (this.isUsed) {
             throw new BaseException(ErrorCode.COUPON_ALREADY_USED);
         }
+        if (this.deadlineAt != null && this.deadlineAt.isBefore(LocalDateTime.now())) {
+            throw new BaseException(ErrorCode.COUPON_EXPIRED);
+        }
         this.isUsed = true;
     }
 }

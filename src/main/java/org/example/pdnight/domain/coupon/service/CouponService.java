@@ -16,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class CouponService {
 
     private final CouponRepository couponRepository;
-    private final UserRepository userRepository;
 
     @Transactional
     public CouponResponseDto useCoupon(Long couponId, Long userId) {
