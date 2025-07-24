@@ -24,6 +24,7 @@ public class CommentService {
 	private final PostRepository postRepository;
 	private final UserRepository userRepository;
 
+	//댓글 생성 메서드
 	public CommentResponseDto createComment(Long postId, Long authorId, CommentRequestDto request) {
 		//댓글을 기입될 게시글과, 작성자를 찾아옴
 		Post foundPost = getPostOrThrow(postRepository.findById(postId));
@@ -34,6 +35,18 @@ public class CommentService {
 		Comment savedComment = commentRepository.save(comment);
 
 		return CommentResponseDto.from(savedComment);
+	}
+
+	//댓글 삭제 메서드
+	public void deleteCommentById(Long postId, Long authorId, Long id) {
+		//댓글을 기입될 게시글과, 작성자를 찾아옴 -> 없을 경우 예외 발생 -> 검증 로직
+		Post foundPost = getPostOrThrow(postRepository.findById(postId));
+		User foundUser = getUserOrThrow(userRepository.findByIdAndIsDeletedFalse(authorId));
+
+		Comment foundComment = getCommentOrThrow(commentRepository.findById(id));
+		validateAuthorAndPost(authorId, postId, foundComment);
+
+		commentRepository.delete(foundComment);
 	}
 
 	//이하 헬퍼 메서드
@@ -49,10 +62,16 @@ public class CommentService {
 		return user.orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 	}
 
-	private void validateAuthor(Long userId, Post post) {
-		if (!post.getAuthor().getId().equals(userId)) {
-			throw new BaseException(ErrorCode.POST_FORBIDDEN);
+	//댓글 검증 메서드
+	private void validateAuthorAndPost(Long userId, Long postId, Comment comment) {
+		if (!comment.getAuthor().getId().equals(userId)) {
+			throw new BaseException(ErrorCode.COMMENT_FORBIDDEN);
+		}
+
+		if (!comment.getPost().getId().equals(postId)) {
+			throw new BaseException(ErrorCode.POST_NOT_MATCHED);
 		}
 	}
+
 
 }
