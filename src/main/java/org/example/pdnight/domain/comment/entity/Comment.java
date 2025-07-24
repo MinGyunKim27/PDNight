@@ -85,4 +85,9 @@ public class Comment extends Timestamped {
 		return new Comment(post, author, content, parent);
 	}
 
+	//댓글 내용 수정 메서드
+	public void updateContent(String content) {
+		this.content = content;
+	}
+
 }
