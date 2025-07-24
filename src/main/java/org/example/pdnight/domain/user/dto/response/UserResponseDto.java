@@ -8,6 +8,7 @@ import org.example.pdnight.domain.user.entity.User;
 import org.example.pdnight.domain.user.enums.Region;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 public class UserResponseDto {
@@ -15,8 +16,8 @@ public class UserResponseDto {
     private Long id;
     private String email;
     private UserRole role;
-    private String hobbies;
-    private String techStacks;
+    private List<String> hobbyList;
+    private List<String> techStackList;
     private String name;
     private String nickname;
     private Gender gender;
@@ -32,8 +33,14 @@ public class UserResponseDto {
         this.id = user.getId();
         this.email = user.getEmail();
         this.role = user.getRole();
-        this.hobbies = user.getHobby() != null ? user.getHobby().getHobby() : "";
-        this.techStacks = user.getTechStack() != null ? user.getTechStack().getTechStack() : "";
+        this.hobbyList = user.getUserHobbyList()
+                .stream()
+                .map(hobby -> hobby.getHobby().getHobby())
+                .toList();
+        this.techStackList = user.getUserTechList()
+                .stream()
+                .map(tech -> tech.getTechStack().getTechStack())
+                .toList();
         this.name = user.getName();
         this.nickname = user.getNickname();
         this.gender = user.getGender();

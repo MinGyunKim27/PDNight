@@ -9,57 +9,63 @@ import org.example.pdnight.domain.auth.dto.response.SignupResponseDto;
 import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.hobby.entity.Hobby;
-import org.example.pdnight.domain.hobby.repository.HobbyRepository;
+import org.example.pdnight.domain.hobby.repository.HobbyRepositoryQuery;
 import org.example.pdnight.domain.techStack.entity.TechStack;
-import org.example.pdnight.domain.techStack.repository.TechStackRepository;
+import org.example.pdnight.domain.techStack.repository.TechStackRepositoryQuery;
 import org.example.pdnight.domain.user.entity.User;
+import org.example.pdnight.domain.hobby.entity.UserHobby;
+import org.example.pdnight.domain.techStack.entity.UserTech;
 import org.example.pdnight.domain.user.repository.UserRepository;
 import org.example.pdnight.global.config.PasswordEncoder;
 import org.example.pdnight.global.utils.JwtUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
 
     private final UserRepository userRepository;
-    private final HobbyRepository hobbyRepository;
-    private final TechStackRepository techStackRepository;
+    private final HobbyRepositoryQuery hobbyRepositoryQuery;
+    private final TechStackRepositoryQuery techStackRepositoryQuery;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
     @Transactional
     public SignupResponseDto signup(SignupRequestDto request) {
-
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new BaseException(ErrorCode.EMAIL_ALREADY_EXISTS);
         }
 
-        // 취미, 기술 스택 입력은 db에 존재하는 값만 입력받는 조건
-        Hobby hobby = null;
-        String hobbyStr = null;
-        if (request.getHobbyId() != null) {
-            hobby = hobbyRepository.findById(request.getHobbyId())
-                    .orElseThrow(() -> new BaseException(ErrorCode.HOBBY_NOT_FOUND));
-            hobbyStr = hobby.getHobby();
+        // List<Hobby> / List<TechStack> 생성 : DB 에서 있는거만 가져오기
+        List<Hobby> hobbyList = new ArrayList<>();
+        if (request.getHobbyIdList() != null && !request.getHobbyIdList().isEmpty()) {
+            hobbyList = hobbyRepositoryQuery.findByIdList(request.getHobbyIdList());
         }
-
-        TechStack techStack = null;
-        String techStackStr = null;
-        if (request.getTechStackId() != null) {
-            techStack = techStackRepository.findById(request.getTechStackId())
-                    .orElseThrow(() -> new BaseException(ErrorCode.TECH_STACK_NOT_FOUND));
-            techStackStr = techStack.getTechStack();
+        List<TechStack> techStackList = new ArrayList<>();
+        if (request.getTechStackIdList() != null && !request.getTechStackIdList().isEmpty()) {
+            techStackList = techStackRepositoryQuery.findByIdList(request.getTechStackIdList());
         }
 
         String encodePassword = passwordEncoder.encode(request.getPassword());
-        User user = new User(request, encodePassword, hobby, techStack);
+        User user = new User(request, encodePassword);
 
+        // List<Hobby> -> List<UserHobby>  /  List<TechStack> -> List<UserTech>
+        List<UserHobby> userHobbyList = hobbyList.stream()
+                .map(hobby -> new UserHobby(user, hobby))
+                .toList();
+        List<UserTech> userTechList = techStackList.stream()
+                .map(techStack -> new UserTech(user, techStack))
+                .toList();
+
+        // user 저장 : 취미, 기술 스택 저장
+        user.setHobbyAndTech(userHobbyList, userTechList);
         User saveUser = userRepository.save(user);
 
-        return new SignupResponseDto(saveUser, hobbyStr, techStackStr);
-
+        return new SignupResponseDto(saveUser);
     }
 
     @Transactional

@@ -2,10 +2,12 @@ package org.example.pdnight.domain.user.dto.request;
 
 import lombok.Getter;
 
+import java.util.List;
+
 @Getter
 public class UserUpdateRequest {
-    private Long hobbyId;
-    private Long techStackId;
+    private List<Long> hobbyIdList;
+    private List<Long> techStackIdList;
     private String name;
     private String nickname;
     private String gender;

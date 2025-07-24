@@ -2,18 +2,10 @@ package org.example.pdnight.domain.user.service;
 
 
 import lombok.RequiredArgsConstructor;
-import org.example.pdnight.domain.common.dto.PagedResponse;
-import org.example.pdnight.domain.hobby.entity.Hobby;
-import org.example.pdnight.domain.hobby.repository.HobbyRepository;
-import org.example.pdnight.domain.participant.enums.JoinStatus;
-import org.example.pdnight.domain.post.dto.response.PostResponseDto;
-import org.example.pdnight.domain.post.entity.Post;
-import org.example.pdnight.domain.techStack.entity.TechStack;
-import org.example.pdnight.domain.techStack.repository.TechStackRepository;
-import org.example.pdnight.domain.post.repository.PostRepositoryQueryImpl;
-import org.example.pdnight.domain.user.dto.response.PostWithJoinStatusAndAppliedAtResponseDto;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.example.pdnight.domain.hobby.repository.HobbyRepositoryQuery;
+import org.example.pdnight.domain.techStack.repository.TechStackRepositoryQuery;
+import org.example.pdnight.domain.hobby.entity.UserHobby;
+import org.example.pdnight.domain.techStack.entity.UserTech;
 import at.favre.lib.crypto.bcrypt.BCrypt;
 import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.exception.BaseException;
@@ -26,12 +18,15 @@ import org.example.pdnight.domain.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
-    private final HobbyRepository hobbyRepository;
-    private final TechStackRepository techStackRepository;
+    private final HobbyRepositoryQuery hobbyRepositoryQuery;
+    private final TechStackRepositoryQuery techStackRepositoryQuery;
     private final UserRepository userRepository;
 
     public UserResponseDto getMyProfile(Long userId){
@@ -45,26 +40,27 @@ public class UserService {
 
     @Transactional
     public UserResponseDto updateMyProfile(Long userId, UserUpdateRequest request){
-        Hobby hobby = null;
-        TechStack techStack = null;
-
-        if(request.getHobbyId() != null){
-            hobby = hobbyRepository.findById(request.getHobbyId()).orElseThrow(
-                    () -> new BaseException(ErrorCode.HOBBY_NOT_FOUND)
-            );
-        }
-
-        if(request.getTechStackId() != null){
-             techStack = techStackRepository.findById(request.getTechStackId()).orElseThrow(
-                    () -> new BaseException(ErrorCode.TECH_STACK_NOT_FOUND)
-            );
-        }
-
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
+        // List<UserHobby> / List<UserTech> 생성 : DB 에서 있는거만 가져오기
+        List<UserHobby> userHobbyList = new ArrayList<>();
+        if (request.getHobbyIdList() != null && !request.getHobbyIdList().isEmpty()) {
+            userHobbyList = hobbyRepositoryQuery.findByIdList(request.getHobbyIdList())
+                    .stream()
+                    .map(hobby -> new UserHobby(user, hobby))
+                    .toList();
+        }
+        List<UserTech> userTechList = new ArrayList<>();
+        if (request.getTechStackIdList() != null && !request.getTechStackIdList().isEmpty()) {
+            userTechList = techStackRepositoryQuery.findByIdList(request.getTechStackIdList())
+                    .stream()
+                    .map(techStack -> new UserTech(user, techStack))
+                    .toList();
+        }
+
         // 수정 로직
-        user.updateProfile(request, hobby, techStack);
+        user.updateProfile(request, userHobbyList, userTechList);
         userRepository.save(user);
 
         return new UserResponseDto(user);
