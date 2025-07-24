@@ -51,7 +51,7 @@ class EventParticipantServiceConcurrencyTest {
     }
 
     @Test
-    void 동시에_10명이_참가신청하면_5명만_신청된다() throws InterruptedException {
+    void 동시에_10명이_참가신청() throws InterruptedException {
         ExecutorService executor = Executors.newFixedThreadPool(THREAD_COUNT);
         CountDownLatch latch = new CountDownLatch(THREAD_COUNT);
 
