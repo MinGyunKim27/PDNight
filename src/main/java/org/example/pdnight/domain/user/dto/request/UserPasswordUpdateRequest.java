@@ -9,4 +9,9 @@ public class UserPasswordUpdateRequest {
     private String oldPassword ;
     @NotNull
     private String newPassword ;
+
+    public UserPasswordUpdateRequest(String oldPassword, String newPassword) {
+        this.oldPassword = oldPassword;
+        this.newPassword = newPassword;
+    }
 }

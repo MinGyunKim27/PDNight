@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import org.example.pdnight.domain.auth.dto.request.SignupRequestDto;
 import org.example.pdnight.domain.common.entity.Timestamped;
 import org.example.pdnight.domain.common.enums.UserRole;
+import org.example.pdnight.domain.coupon.entity.Coupon;
 import org.example.pdnight.domain.hobby.entity.Hobby;
 import org.example.pdnight.domain.invite.entity.Invite;
 import org.example.pdnight.domain.post.enums.Gender;
@@ -82,6 +83,19 @@ public class User extends Timestamped {
     private Boolean isDeleted = false;
     private LocalDateTime deletedAt;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Coupon> coupons = new ArrayList<>();
+
+    public User(Long id, String name) {
+        this.id = id;
+        this.name = name;
+        this.role = UserRole.USER;
+        this.totalRate = 0L;
+        this.totalReviewer = 0L;
+        this.isDeleted = false;
+        this.deletedAt = null;
+    }
+
     public User(SignupRequestDto request, String encodePassword, Hobby hobby, TechStack techStack) {
         this.email = request.getEmail();
         this.password = encodePassword;
@@ -98,6 +112,30 @@ public class User extends Timestamped {
         this.comment = request.getComment();
         this.totalRate = 0L;
         this.totalReviewer = 0L;
+    }
+
+    public User(Long id, String name, String hashedOldPassword) {
+        this.id = id;
+        this.name = name;
+        this.password = hashedOldPassword;
+    }
+
+    public User(Long userId, String name, Long totalRate, Long totalReviewer) {
+        this.id = userId;
+        this.name = name;
+        this.totalRate = totalRate;
+        this.totalReviewer = totalReviewer;
+    }
+
+    public User(String email, String name, String password) {
+        this.email = email;
+        this.name = name;
+        this.password = password;
+        this.role = UserRole.USER;
+        this.totalRate = 0L;
+        this.totalReviewer = 0L;
+        this.isDeleted = false;
+        this.deletedAt = null;
     }
 
     public void softDelete() {
@@ -142,5 +180,8 @@ public class User extends Timestamped {
     public void changePassword(String encodedPassword) {
         this.password = encodedPassword;
     }
-  
+
+    public void addCoupon(Coupon coupon) {
+        this.coupons.add(coupon);
+    }
 }
