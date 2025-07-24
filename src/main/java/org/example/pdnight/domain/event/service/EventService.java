@@ -3,6 +3,8 @@ package org.example.pdnight.domain.event.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.pdnight.domain.common.enums.ErrorCode;
+import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.event.dto.request.EventCreateRequest;
 import org.example.pdnight.domain.event.dto.response.EventResponse;
 import org.example.pdnight.domain.event.entity.Event;
@@ -26,6 +28,15 @@ public class EventService {
         );
 
         eventRepository.save(event);
+        return new EventResponse(event);
+    }
+
+    // 이벤트 조회
+    public EventResponse findEventById(Long id){
+        Event event = eventRepository.findById(id).orElseThrow(
+                () -> new BaseException(ErrorCode.EVENT_NOT_FOUNT)
+        );
+
         return new EventResponse(event);
     }
 }

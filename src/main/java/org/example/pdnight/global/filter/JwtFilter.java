@@ -59,7 +59,8 @@ public class JwtFilter implements Filter {
                 return;
             }
 
-            UserRole userRole = claims.get("Role", UserRole.class);
+            String roleStr = claims.get("userRole", String.class); // 문자열로 받기
+            UserRole userRole = UserRole.valueOf(roleStr); // 문자열 → enum 변환
 
             Long userId = Long.parseLong(claims.getSubject());
 
