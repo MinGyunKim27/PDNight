@@ -28,19 +28,30 @@ public enum ErrorCode {
     TASK_STATE_FLOW_ERROR(HttpStatus.BAD_REQUEST, "Task 상태 변경 흐름이 올바르지 않습니다."),
     POST_FORBIDDEN(HttpStatus.FORBIDDEN, "작성자만 접근할 수 있습니다."),
 
-    // 게시물 신청 관련 에러
-    CANNOT_PARTICIPANT_SELF(HttpStatus.BAD_REQUEST, "본인 게시글엔 신청할 수 없습니다."),
-    POST_ALREADY_PENDING(HttpStatus.CONFLICT, "이미 신청했습니다."),
-    POST_ALREADY_ACCEPTED(HttpStatus.CONFLICT, "이미 가입되어있습니다."),
-    CANNOT_CANCEL(HttpStatus.BAD_REQUEST, "취소할 수 없습니다."),
-    NOT_PARTICIPANT(HttpStatus.BAD_REQUEST, "신청되어있지 않습니다."),
-    NOT_CHANGE_PENDING(HttpStatus.BAD_REQUEST, "대기 상태로 만들 수 없습니다."),
-    NO_VIEWING_PERMISSION(HttpStatus.FORBIDDEN, "조회 권한이 없습니다."),
-    NO_UPDATE_PERMISSION(HttpStatus.FORBIDDEN, "수정 권한이 없습니다."),
-
     // 게시물 좋아요 관련 에러
     POSTLIKE_NOT_FOUND(HttpStatus.NOT_FOUND, "게시물 좋아요를 찾을 수 없습니다"),
     ALREADY_LIKED(HttpStatus.CONFLICT, "이미 좋아요를 누른 게시글입니다."),
+
+    // 게시물 신청 관련 에러
+    CANNOT_PARTICIPATE_SELF(HttpStatus.BAD_REQUEST, "본인 게시글엔 신청할 수 없습니다."),
+    POST_ALREADY_PENDING(HttpStatus.CONFLICT, "이미 신청했습니다."),
+    POST_ALREADY_ACCEPTED(HttpStatus.CONFLICT, "이미 가입되어있습니다."),
+    CANNOT_CANCEL(HttpStatus.BAD_REQUEST, "취소할 수 없습니다."),
+    NOT_PARTICIPATED(HttpStatus.BAD_REQUEST, "신청되어있지 않습니다."),
+    NOT_CHANGE_PENDING(HttpStatus.BAD_REQUEST, "대기 상태로 만들 수 없습니다."),
+    NO_VIEWING_PERMISSION(HttpStatus.FORBIDDEN, "조회 권한이 없습니다."),
+    NO_UPDATE_PERMISSION(HttpStatus.FORBIDDEN, "수정 권한이 없습니다."),
+    CANNOT_PARTICIPATE_POST(HttpStatus.FORBIDDEN,"참가 인원이 모두 찼습니다."),
+
+    // 게시물 신청 조건 불일치
+    AGE_LIMIT_NOT_SATISFIED(HttpStatus.FORBIDDEN, "요구하는 연령대 조건에 부합하지 않습니다."),
+    GENDER_LIMIT_NOT_SATISFIED(HttpStatus.FORBIDDEN, "요구하는 성별 조건에 부합하지 않습니다."),
+    JOB_CATEGORY_LIMIT_NOT_SATISFIED(HttpStatus.FORBIDDEN, "요구하는 직군 조건에 부합하지 않습니다."),
+
+    //초대 관련 에러
+    INVITE_ALREADY_EXISTS(HttpStatus.CONFLICT,"이미 초대 한 사람입니다."),
+    INVITE_NOT_FOUND(HttpStatus.NOT_FOUND,"초대가 존재하지 않습니다."),
+    INVITE_UNAUTHORIZED(HttpStatus.FORBIDDEN,"본인이 한 초대가 아닙니다."),
 
     // 사용자 리뷰 관련 에러
     CANNOT_REVIEW_SELF(HttpStatus.BAD_REQUEST, "리뷰 작성자는 본인을 평가할 수 없습니다."),
