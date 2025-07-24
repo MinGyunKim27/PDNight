@@ -66,9 +66,7 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.ok("내가 작성 한 게시물이 조회되었습니다.",myLikedPost));
     }
 
-
-    // 본인 프로필 조회
-    @GetMapping("/my")
+    @GetMapping("/my/profile")
     public ResponseEntity<ApiResponse<?>> getMyProfile(
             @AuthenticationPrincipal CustomUserDetails userDetails
     ){
