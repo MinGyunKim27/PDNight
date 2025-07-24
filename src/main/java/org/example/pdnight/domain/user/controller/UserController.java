@@ -121,6 +121,19 @@ public class UserController {
         ));
     }
 
+    //유저 검색
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse<?>> searchUsers(
+            @RequestParam String search,
+            @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
+            Pageable pageable
+    ){
+        return ResponseEntity.ok(ApiResponse.ok(
+                "유저 검색이 완료 되었습니다.",
+                userService.searchUsers(search,pageable)
+        ));
+    }
+
 
     //평가 조회
     @GetMapping("/{id}/evaluation")
