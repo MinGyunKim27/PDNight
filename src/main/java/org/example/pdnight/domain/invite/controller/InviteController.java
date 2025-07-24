@@ -7,7 +7,6 @@ import org.example.pdnight.domain.invite.service.InviteService;
 import org.example.pdnight.global.filter.CustomUserDetails;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -31,13 +30,14 @@ public class InviteController {
     }
 
     @DeleteMapping("/post/{postId}/users/{userId}/invite/{id}")
-    public ResponseEntity<?> deleteInvite(
+    public ResponseEntity<ApiResponse<?>> deleteInvite(
             @PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetails loginUser
-    ){
+    ) {
         Long loginUserId = loginUser.getUserId();
 
-        inviteService.deleteInvite(id,loginUserId);
-        return ResponseEntity.noContent().build();
+        inviteService.deleteInvite(id, loginUserId);
+        return ResponseEntity.ok(ApiResponse.ok("초대가 삭제되었습니다.", null));
     }
+
 }
