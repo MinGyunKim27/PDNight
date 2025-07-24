@@ -1,6 +1,8 @@
 package org.example.pdnight.domain.user.entity;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -10,6 +12,7 @@ import org.example.pdnight.domain.auth.dto.request.SignupRequestDto;
 import org.example.pdnight.domain.common.entity.Timestamped;
 import org.example.pdnight.domain.common.enums.UserRole;
 import org.example.pdnight.domain.hobby.entity.Hobby;
+import org.example.pdnight.domain.invite.entity.Invite;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.common.enums.JobCategory;
 import org.example.pdnight.domain.techStack.entity.TechStack;
@@ -67,6 +70,14 @@ public class User extends Timestamped {
 
     private Long totalRate;
     private Long totalReviewer;
+
+    //유저 삭제 하면 초대 알아서 삭제 되도록
+    @OneToMany(mappedBy = "inviter", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Invite> sentInvites = new ArrayList<>();
+
+    //유저 삭제 하면 초대 알아서 삭제 되도록
+    @OneToMany(mappedBy = "invitee", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Invite> receivedInvites = new ArrayList<>();
 
     private Boolean isDeleted = false;
     private LocalDateTime deletedAt;
