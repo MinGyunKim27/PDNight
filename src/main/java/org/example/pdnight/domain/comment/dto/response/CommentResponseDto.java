@@ -1,6 +1,8 @@
 package org.example.pdnight.domain.comment.dto.response;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.example.pdnight.domain.comment.entity.Comment;
 
@@ -23,6 +25,10 @@ public class CommentResponseDto {
 	private final LocalDateTime createdAt;
 	private final LocalDateTime updatedAt;
 
+	//리스트가 비어있으면 반환 안됨
+	@JsonInclude(JsonInclude.Include.NON_EMPTY)
+	private final List<CommentResponseDto> children = new ArrayList<>();
+
 	private CommentResponseDto(Comment comment) {
 		this.id = comment.getId();
 		this.postId = comment.getPost().getId();
@@ -35,6 +41,11 @@ public class CommentResponseDto {
 
 	public static CommentResponseDto from(Comment comment) {
 		return new CommentResponseDto(comment);
+	}
+
+	//댓글응답에 대댓글 추가 메서드
+	public void addChild(CommentResponseDto commentResponseDto) {
+		children.add(commentResponseDto);
 	}
 
 }
