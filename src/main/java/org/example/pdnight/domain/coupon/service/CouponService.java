@@ -26,7 +26,7 @@ public class CouponService {
                 .orElseThrow(() -> new BaseException(ErrorCode.COUPON_NOT_FOUND));
 
         if (!coupon.getUser().getId().equals(userId)) {
-            throw new BaseException(ErrorCode.COUPON_ALREADY_USED); // 본인 쿠폰만 사용 가능
+            throw new BaseException(ErrorCode.COUPON_FORBIDDEN); // 본인 쿠폰만 사용 가능
         }
 
         coupon.use(); // 쿠폰 사용 처리
