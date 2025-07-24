@@ -12,22 +12,11 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@PreAuthorize("hasRole('ADMIN')")
-@RequestMapping("/api/admin/events")
+@RequestMapping("/api/events")
 @RequiredArgsConstructor
 public class EventController {
 
     private final EventService eventService;
-
-    // 이벤트 생성
-    @PostMapping
-    public ResponseEntity<ApiResponse<?>> createEvent(
-            @RequestBody EventCreateRequest request
-    ){
-        return ResponseEntity.ok(
-                ApiResponse.ok("이벤트 생성 성공했습니다.", eventService.createEvent(request))
-        );
-    }
 
     // 이벤트 조회
     @GetMapping("/{id}")
@@ -36,27 +25,6 @@ public class EventController {
     ){
         return ResponseEntity.ok(
                 ApiResponse.ok("이벤트 조회 성공했습니다.", eventService.findEventById(id))
-        );
-    }
-
-    @PatchMapping("/{id}")
-    public ResponseEntity<ApiResponse<?>> updateEvent(
-            @PathVariable Long id,
-            @RequestBody EventCreateRequest request
-    ){
-        return ResponseEntity.ok(
-                ApiResponse.ok("이벤트 수정 성공했습니다", eventService.updateEvent(id, request))
-        );
-    }
-
-    // 이벤트 삭제
-    @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<?>> deleteEvent(
-            @PathVariable Long id
-    ){
-        eventService.deleteEventById(id);
-        return ResponseEntity.ok(
-                ApiResponse.ok("이벤트 삭제 성공했습니다.", null)
         );
     }
 }

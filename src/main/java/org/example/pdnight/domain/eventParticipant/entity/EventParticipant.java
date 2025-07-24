@@ -22,4 +22,9 @@ public class EventParticipant {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    public EventParticipant(Event event, User user) {
+        this.event = event;
+        this.user = user;
+    }
 }

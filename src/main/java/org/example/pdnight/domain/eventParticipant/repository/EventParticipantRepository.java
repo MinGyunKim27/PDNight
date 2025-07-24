@@ -1,4 +1,8 @@
 package org.example.pdnight.domain.eventParticipant.repository;
 
-public interface EventParticipantRepository {
+
+import org.example.pdnight.domain.eventParticipant.entity.EventParticipant;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface EventParticipantRepository extends JpaRepository<EventParticipant, Long> {
 }
