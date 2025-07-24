@@ -5,15 +5,8 @@ import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.common.dto.PagedResponse;
 import org.example.pdnight.domain.hobby.entity.Hobby;
 import org.example.pdnight.domain.hobby.repository.HobbyRepository;
-import org.example.pdnight.domain.participant.enums.JoinStatus;
-import org.example.pdnight.domain.post.dto.response.PostResponseDto;
-import org.example.pdnight.domain.post.entity.Post;
 import org.example.pdnight.domain.techStack.entity.TechStack;
 import org.example.pdnight.domain.techStack.repository.TechStackRepository;
-import org.example.pdnight.domain.post.repository.PostRepositoryQueryImpl;
-import org.example.pdnight.domain.user.dto.response.PostWithJoinStatusAndAppliedAtResponseDto;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import at.favre.lib.crypto.bcrypt.BCrypt;
 import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.exception.BaseException;
@@ -23,6 +16,9 @@ import org.example.pdnight.domain.user.dto.response.UserEvaluationResponse;
 import org.example.pdnight.domain.user.dto.response.UserResponseDto;
 import org.example.pdnight.domain.user.entity.User;
 import org.example.pdnight.domain.user.repository.UserRepository;
+import org.example.pdnight.domain.user.repository.UserRepositoryQuery;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +29,7 @@ public class UserService {
     private final HobbyRepository hobbyRepository;
     private final TechStackRepository techStackRepository;
     private final UserRepository userRepository;
+    private final UserRepositoryQuery userRepositoryQuery;
 
     public UserResponseDto getMyProfile(Long userId){
         // id로 유저 조회
@@ -105,5 +102,17 @@ public class UserService {
                 ()-> new BaseException(ErrorCode.USER_NOT_FOUND));
 
         return new UserEvaluationResponse(user);
+    }
+
+    public User getUserById(Long id){
+        return userRepository.findById(id).orElseThrow(
+                ()-> new BaseException(ErrorCode.USER_NOT_FOUND));
+    }
+
+    //유저 이름이나 닉네임이나 이메일로 검색
+    public PagedResponse<UserResponseDto> searchUsers(String search, Pageable pageable) {
+        Page<User> users = userRepositoryQuery.searchUsers(search,pageable);
+        Page<UserResponseDto> dtos = users.map(UserResponseDto::new);
+        return PagedResponse.from(dtos);
     }
 }

@@ -1,4 +1,4 @@
-package org.example.pdnight.domain.participant.enums;
+package org.example.pdnight.domain.common.enums;
 
 import org.example.pdnight.domain.common.exception.BaseException;
 import org.springframework.http.HttpStatus;

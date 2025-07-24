@@ -3,7 +3,7 @@ package org.example.pdnight.domain.participant.service;
 import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.participant.entity.PostParticipant;
-import org.example.pdnight.domain.participant.enums.JoinStatus;
+import org.example.pdnight.domain.common.enums.JoinStatus;
 import org.example.pdnight.domain.participant.repository.ParticipantRepository;
 import org.example.pdnight.domain.post.entity.Post;
 import org.example.pdnight.domain.user.entity.User;
@@ -44,7 +44,7 @@ public class ParticipantServiceExceptionTest extends BaseParticipantTest {
         );
 
         //then
-        assertEquals(ErrorCode.CANNOT_PARTICIPANT_SELF.getMessage(), exception.getMessage());
+        assertEquals(ErrorCode.CANNOT_PARTICIPATE_SELF.getMessage(), exception.getMessage());
     }
 
     @Test
@@ -179,7 +179,7 @@ public class ParticipantServiceExceptionTest extends BaseParticipantTest {
         );
 
         //then
-        assertEquals(ErrorCode.NOT_PARTICIPANT.getMessage(), exception.getMessage());
+        assertEquals(ErrorCode.NOT_PARTICIPATED.getMessage(), exception.getMessage());
     }
 
     @Test

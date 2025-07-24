@@ -1,7 +1,7 @@
 package org.example.pdnight.domain.participant.service;
 
 import org.example.pdnight.domain.participant.entity.PostParticipant;
-import org.example.pdnight.domain.participant.enums.JoinStatus;
+import org.example.pdnight.domain.common.enums.JoinStatus;
 import org.example.pdnight.domain.post.entity.Post;
 import org.example.pdnight.domain.post.enums.PostStatus;
 import org.example.pdnight.domain.post.repository.PostRepository;

@@ -2,17 +2,13 @@ package org.example.pdnight.domain.user.service;
 
 import org.example.pdnight.domain.common.dto.PagedResponse;
 import org.example.pdnight.domain.common.enums.JobCategory;
-import org.example.pdnight.domain.participant.entity.PostParticipant;
-import org.example.pdnight.domain.participant.enums.JoinStatus;
-import org.example.pdnight.domain.post.dto.request.PostRequestDto;
-import org.example.pdnight.domain.post.dto.response.PostResponseDto;
-import org.example.pdnight.domain.post.entity.Post;
+import org.example.pdnight.domain.common.enums.JoinStatus;
+import org.example.pdnight.domain.post.dto.response.PostResponseWithApplyStatusDto;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
-import org.example.pdnight.domain.post.repository.PostRepositoryQuery;
+import org.example.pdnight.domain.post.enums.PostStatus;
 import org.example.pdnight.domain.post.repository.PostRepositoryQueryImpl;
 import org.example.pdnight.domain.post.service.PostService;
-import org.example.pdnight.domain.user.entity.User;
 
 import org.example.pdnight.domain.user.dto.response.PostWithJoinStatusAndAppliedAtResponseDto;
 
@@ -47,24 +43,55 @@ class PostServiceTest {
         Long userId = 1L;
         Pageable pageable = PageRequest.of(0, 10);
 
-        User author = mock(User.class);  // 또는 직접 생성해도 됨
-        Post post1 = Post.createPost(author, "제목1", LocalDateTime.now(), "공개", "비공개", 4,
-                Gender.MALE, JobCategory.BACK_END_DEVELOPER, AgeLimit.AGE_20S);
-        Post post2 = Post.createPost(author, "제목2", LocalDateTime.now(), "공개", "비공개", 4,
-                Gender.MALE, JobCategory.BACK_END_DEVELOPER, AgeLimit.AGE_20S);
+        PostResponseWithApplyStatusDto post1 = new PostResponseWithApplyStatusDto(
+                1L,
+                2L,
+                "제목1",
+                LocalDateTime.now(),
+                "공개내용1",
+                "비공개내용1",
+                PostStatus.OPEN,
+                4,
+                Gender.MALE,
+                JobCategory.BACK_END_DEVELOPER,
+                AgeLimit.AGE_20S,
+                2L, // 신청자 수
+                1L, // 확정자 수
+                LocalDateTime.now(),
+                LocalDateTime.now()
+        );
 
-        List<Post> postList = List.of(post1, post2);
-        Page<Post> postPage = new PageImpl<>(postList);
+        PostResponseWithApplyStatusDto post2 = new PostResponseWithApplyStatusDto(
+                2L,
+                2L,
+                "제목2",
+                LocalDateTime.now(),
+                "공개내용2",
+                "비공개내용2",
+                PostStatus.OPEN,
+                4,
+                Gender.MALE,
+                JobCategory.BACK_END_DEVELOPER,
+                AgeLimit.AGE_20S,
+                3L,
+                2L,
+                LocalDateTime.now(),
+                LocalDateTime.now()
+        );
+
+        List<PostResponseWithApplyStatusDto> postList = List.of(post1, post2);
+        Page<PostResponseWithApplyStatusDto> postPage = new PageImpl<>(postList);
 
         when(postRepositoryQuery.getMyLikePost(userId, pageable)).thenReturn(postPage);
 
         // when
-        PagedResponse<PostResponseDto> response = postService.findMyLikedPosts(userId, pageable);
+        PagedResponse<PostResponseWithApplyStatusDto> response = postService.findMyLikedPosts(userId, pageable);
 
         // then
         assertThat(response.contents()).hasSize(2);
         verify(postRepositoryQuery).getMyLikePost(userId, pageable);
     }
+
 
 
     @Test
@@ -95,13 +122,13 @@ class PostServiceTest {
         Long userId = 1L;
         Pageable pageable = PageRequest.of(0, 10);
 
-        List<PostResponseDto> dtoList = List.of(new PostResponseDto(), new PostResponseDto());
-        Page<PostResponseDto> page = new PageImpl<>(dtoList);
+        List<PostResponseWithApplyStatusDto> dtoList = List.of(new PostResponseWithApplyStatusDto(), new PostResponseWithApplyStatusDto());
+        Page<PostResponseWithApplyStatusDto> page = new PageImpl<>(dtoList);
 
         when(postRepositoryQuery.getWrittenPost(userId, pageable)).thenReturn(page);
 
         // when
-        PagedResponse<PostResponseDto> response = postService.findMyWrittenPosts(userId, pageable);
+        PagedResponse<PostResponseWithApplyStatusDto> response = postService.findMyWrittenPosts(userId, pageable);
 
         // then
         assertThat(response.contents()).hasSize(2);
