@@ -2,6 +2,7 @@ package org.example.pdnight.domain.post.service;
 
 import java.util.Optional;
 
+import org.example.pdnight.domain.comment.repository.CommentRepository;
 import org.example.pdnight.domain.common.dto.PagedResponse;
 import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.enums.JobCategory;
@@ -34,6 +35,7 @@ public class PostService {
 	private final PostRepository postRepository;
 	private final UserRepository userRepository;
 	private final PostRepositoryQuery PostRepositoryQuery;
+	private final CommentRepository commentRepository;
 
 	//포스트 작성
 	@Transactional
@@ -69,6 +71,11 @@ public class PostService {
 		validateAuthor(userId, foundPost);
 
 		foundPost.unlinkReviews();
+
+		//자식 댓글들 먼저 일괄 삭제 외래키 제약 제거
+		commentRepository.deleteAllByChildrenPostId(id);
+		//postId 기준 댓글 일괄 삭제 메서드 외래키 제약 제거
+		commentRepository.deleteAllByPostId(id);
 		postRepository.delete(foundPost);
 	}
 
