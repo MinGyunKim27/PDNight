@@ -18,6 +18,7 @@ public class EventParticipantController {
 
     private final EventParticipantService eventParticipantService;
 
+    // 이벤트 참가 신청
     @PostMapping
     public ResponseEntity<ApiResponse<?>> addParticipant(
             @PathVariable Long id,

@@ -3,6 +3,7 @@ package org.example.pdnight.domain.event.controller;
 import org.example.pdnight.domain.common.dto.ApiResponse;
 import org.example.pdnight.domain.event.dto.request.EventCreateRequest;
 import org.example.pdnight.domain.event.service.EventService;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,18 @@ public class EventAdminController {
     ){
         return ResponseEntity.ok(
                 ApiResponse.ok("이벤트 생성 성공했습니다.", eventService.createEvent(request))
+        );
+    }
+
+    // 이벤트 리스트 조회
+    @GetMapping
+    public ResponseEntity<ApiResponse<?>> findEventById(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ){
+        Pageable pageable = Pageable.ofSize(size).withPage(page);
+        return ResponseEntity.ok(
+                ApiResponse.ok("이벤트 리스트 조회 성공했습니다.", eventService.findEventList(pageable))
         );
     }
 

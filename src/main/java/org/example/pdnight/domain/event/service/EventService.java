@@ -9,7 +9,12 @@ import org.example.pdnight.domain.event.dto.request.EventCreateRequest;
 import org.example.pdnight.domain.event.dto.response.EventResponse;
 import org.example.pdnight.domain.event.entity.Event;
 import org.example.pdnight.domain.event.repository.EventRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.List;
 
 @Slf4j
 @Service
@@ -32,6 +37,7 @@ public class EventService {
     }
 
     // 이벤트 조회
+    @Transactional()
     public EventResponse findEventById(Long id){
         Event event = eventRepository.findById(id).orElseThrow(
                 () -> new BaseException(ErrorCode.EVENT_NOT_FOUNT)
@@ -65,5 +71,10 @@ public class EventService {
                 () -> new BaseException(ErrorCode.EVENT_NOT_FOUNT)
         );
         eventRepository.delete(event);
+    }
+
+    public Page<EventResponse> findEventList(Pageable pageable) {
+         Page<Event> eventPage = eventRepository.findAll(pageable);
+         return eventPage.map(EventResponse::new);
     }
 }
