@@ -3,6 +3,7 @@ package org.example.pdnight.domain.eventParticipant.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.example.pdnight.domain.common.entity.Timestamped;
 import org.example.pdnight.domain.event.entity.Event;
 import org.example.pdnight.domain.user.entity.User;
 
@@ -10,7 +11,7 @@ import org.example.pdnight.domain.user.entity.User;
 @Table(name = "event_participants")
 @Getter
 @NoArgsConstructor
-public class EventParticipant {
+public class EventParticipant extends Timestamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
