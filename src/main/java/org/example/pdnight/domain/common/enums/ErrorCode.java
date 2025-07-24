@@ -62,7 +62,10 @@ public enum ErrorCode {
 
     //기술 스택 관련 오류
     TECH_STACK_ALREADY_EXISTS(HttpStatus.CONFLICT,"이미 존재하는 기술 스택입니다"),
-    TECH_STACK_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 기술 스택입니다.")
+    TECH_STACK_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 기술 스택입니다."),
+
+    // 쿠폰 관련 에러
+    COUPON_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 쿠폰입니다.")
     ;
 
     private final HttpStatus status;// HTTP 상태 코드
