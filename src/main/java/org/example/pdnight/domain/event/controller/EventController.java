@@ -38,4 +38,14 @@ public class EventController {
                 ApiResponse.ok("이벤트 조회 성공했습니다.", eventService.findEventById(id))
         );
     }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<ApiResponse<?>> updateEvent(
+            @PathVariable Long id,
+            @RequestBody EventCreateRequest request
+    ){
+        return ResponseEntity.ok(
+                ApiResponse.ok("이벤트 수정 성공했습니다", eventService.updateEvent(id, request))
+        );
+    }
 }

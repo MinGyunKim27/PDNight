@@ -39,4 +39,22 @@ public class EventService {
 
         return new EventResponse(event);
     }
+
+    // 이벤트 수정
+    @Transactional
+    public EventResponse updateEvent(Long id, EventCreateRequest request){
+        Event event = eventRepository.findById(id).orElseThrow(
+                () -> new BaseException(ErrorCode.EVENT_NOT_FOUNT)
+        );
+
+        event.updateEvent(
+                request.getTitle(),
+                request.getContent(),
+                request.getMaxParticipants(),
+                request.getEventDate()
+        );
+
+        eventRepository.save(event);
+        return new EventResponse(event);
+    }
 }
