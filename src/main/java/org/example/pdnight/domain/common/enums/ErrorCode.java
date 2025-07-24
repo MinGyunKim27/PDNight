@@ -59,6 +59,9 @@ public enum ErrorCode {
 
     // 댓글 관련 에러 (400 Bad Request,  404 NOT_FOUND)
     COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "댓글을 찾을 수 없습니다"),
+    COMMENT_FORBIDDEN(HttpStatus.FORBIDDEN, "작성자만 접근할 수 있습니다."),
+    POST_NOT_MATCHED(HttpStatus.CONFLICT, "댓글이 해당 게시글에 속하지 않습니다."),
+    INVALID_COMMENT_DEPTH(HttpStatus.BAD_REQUEST, "대댓글에는 대댓글을 달 수 없습니다."),
 
     // 입력값 검증 에러 (400 Bad Request)
     INVALID_INPUT(HttpStatus.BAD_REQUEST, "입력값이 올바르지 않습니다"),
