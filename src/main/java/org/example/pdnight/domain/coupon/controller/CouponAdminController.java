@@ -27,10 +27,10 @@ public class CouponAdminController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<CouponResponseDto>> getCoupon(@PathVariable Long id) {
-        return ResponseEntity.ok(ApiResponse.ok("쿠폰이 수정되었습니다.", couponAdminService.getCoupon(id)));
+        return ResponseEntity.ok(ApiResponse.ok("쿠폰이 조회되었습니다.", couponAdminService.getCoupon(id)));
     }
 
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<ApiResponse<CouponResponseDto>> updateCoupon(@PathVariable Long id, @RequestBody UpdateCouponRequestDto dto) {
         return ResponseEntity.ok(ApiResponse.ok("쿠폰이 수정되었습니다.", couponAdminService.updateCoupon(id, dto)));
     }
