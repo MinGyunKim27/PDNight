@@ -71,4 +71,19 @@ public class CommentController {
 			.body(ApiResponse.ok("댓글이 수정되었습니다.", response));
 	}
 
+	//대댓글 생성 메서드
+	@PostMapping("/{id}/comments")
+	public ResponseEntity<ApiResponse<CommentResponseDto>> saveChildComment(
+		@PathVariable Long postId,
+		@PathVariable Long id,
+		@AuthenticationPrincipal CustomUserDetails loginUser,
+		@Valid @RequestBody CommentRequestDto request
+	) {
+		Long authorId = loginUser.getUserId();
+		CommentResponseDto response = commentService.createChildComment(postId, id, authorId, request);
+
+		return ResponseEntity.status(HttpStatus.CREATED)
+			.body(ApiResponse.ok("대댓글이 등록되었습니다.", response));
+	}
+
 }

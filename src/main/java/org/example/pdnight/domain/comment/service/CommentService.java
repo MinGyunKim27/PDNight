@@ -74,6 +74,21 @@ public class CommentService {
 		return CommentResponseDto.from(foundComment);
 	}
 
+	//대댓글 생성 메서드
+	public CommentResponseDto createChildComment(Long postId, Long id, Long authorId, CommentRequestDto request) {
+		//댓글을 기입될 게시글과, 작성자를 찾아옴 -> 없을 경우 예외 발생 -> 검증 로직
+		Post foundPost = getPostOrThrow(postRepository.findById(postId));
+		User foundUser = getUserOrThrow(userRepository.findByIdAndIsDeletedFalse(authorId));
+
+		Comment foundComment = getCommentOrThrow(commentRepository.findById(id));
+
+		//대댓글 엔티티 생성 및 저장
+		Comment childComment = Comment.createChild(foundPost, foundUser, request.getContent(), foundComment);
+		Comment savedChildComment = commentRepository.save(childComment);
+
+		return CommentResponseDto.from(savedChildComment);
+	}
+
 	//이하 헬퍼 메서드
 	private Comment getCommentOrThrow(Optional<Comment> comment) {
 		return comment.orElseThrow(() -> new BaseException(ErrorCode.COMMENT_NOT_FOUND));
@@ -97,6 +112,5 @@ public class CommentService {
 			throw new BaseException(ErrorCode.POST_NOT_MATCHED);
 		}
 	}
-
 
 }

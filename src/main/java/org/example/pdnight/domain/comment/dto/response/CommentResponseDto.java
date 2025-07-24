@@ -16,11 +16,12 @@ public class CommentResponseDto {
 	private final Long postId;
 	private final Long authorId;
 	private final String content;
-	private final LocalDateTime createdAt;
-	private final LocalDateTime updatedAt;
 
 	//대댓글일 경우에만 기입
 	private final Long parentId;
+
+	private final LocalDateTime createdAt;
+	private final LocalDateTime updatedAt;
 
 	private CommentResponseDto(Comment comment) {
 		this.id = comment.getId();
