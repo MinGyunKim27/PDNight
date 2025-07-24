@@ -48,4 +48,15 @@ public class EventController {
                 ApiResponse.ok("이벤트 수정 성공했습니다", eventService.updateEvent(id, request))
         );
     }
+
+    // 이벤트 삭제
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<?>> deleteEvent(
+            @PathVariable Long id
+    ){
+        eventService.deleteEventById(id);
+        return ResponseEntity.ok(
+                ApiResponse.ok("이벤트 삭제 성공했습니다.", null)
+        );
+    }
 }

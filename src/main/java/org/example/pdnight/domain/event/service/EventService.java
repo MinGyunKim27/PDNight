@@ -57,4 +57,13 @@ public class EventService {
         eventRepository.save(event);
         return new EventResponse(event);
     }
+
+    // 이벤트 삭제
+    @Transactional
+    public void deleteEventById(Long id){
+        Event event = eventRepository.findById(id).orElseThrow(
+                () -> new BaseException(ErrorCode.EVENT_NOT_FOUNT)
+        );
+        eventRepository.delete(event);
+    }
 }
