@@ -13,4 +13,7 @@ public interface EventParticipantRepository extends JpaRepository<EventParticipa
 
     @Query("SELECT ep FROM EventParticipant ep JOIN FETCH ep.user WHERE ep.event.id = :eventId")
     Page<EventParticipant> findByEventIdWithUser(@Param("eventId") Long eventId, Pageable pageable);
+
+    @Query("SELECT COUNT(ep) FROM EventParticipant ep WHERE ep.event.id = :eventId")
+    int getEventParticipantByEventId(Long eventId);
 }

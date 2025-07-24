@@ -67,7 +67,8 @@ public enum ErrorCode {
 
     // 이벤트 관련 오류
     EVENT_NOT_FOUNT(HttpStatus.NOT_FOUND, "존재하지 않는 이벤트입니다."),
-    EVENT_ALREADY_PENDING(HttpStatus.CONFLICT, "이미 신청한 이벤트입니다.")
+    EVENT_ALREADY_PENDING(HttpStatus.CONFLICT, "이미 신청한 이벤트입니다."),
+    EVENT_PARTICIPANT_FULL(HttpStatus.CONFLICT, "신청 마감되었습니다.")
     ;
 
     private final HttpStatus status;// HTTP 상태 코드

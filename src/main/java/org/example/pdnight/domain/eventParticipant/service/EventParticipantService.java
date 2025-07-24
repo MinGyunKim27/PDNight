@@ -24,6 +24,7 @@ public class EventParticipantService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
 
+    // 참가 신청
     public void addParticipant(Long eventId, Long userId){
         // 이미 참가 신청한 유저이면 실패
         if(eventParticipantRepository.existsByEventIdAndUserId(eventId, userId)){
@@ -36,6 +37,11 @@ public class EventParticipantService {
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new BaseException(ErrorCode.USER_NOT_FOUND)
         );
+
+        int participantsCount = eventParticipantRepository.getEventParticipantByEventId(eventId);
+        if(participantsCount >= event.getMaxParticipants()){
+            throw new BaseException(ErrorCode.EVENT_PARTICIPANT_FULL);
+        }
 
         EventParticipant eventParticipant = new EventParticipant(event, user);
         eventParticipantRepository.save(eventParticipant);
