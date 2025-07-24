@@ -17,6 +17,7 @@ public class CouponService {
 
     private final CouponRepository couponRepository;
 
+    // 쿠폰사용
     @Transactional
     public CouponResponseDto useCoupon(Long couponId, Long userId) {
         Coupon coupon = couponRepository.findById(couponId)

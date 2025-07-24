@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class CouponController {
     private final CouponService couponService;
 
+    // 쿠폰사용
     @PatchMapping("/{id}")
     public ResponseEntity<ApiResponse<CouponResponseDto>> useCoupon(
             @PathVariable Long id,
