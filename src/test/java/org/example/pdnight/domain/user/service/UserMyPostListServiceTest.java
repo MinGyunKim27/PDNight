@@ -2,19 +2,13 @@ package org.example.pdnight.domain.user.service;
 
 import org.example.pdnight.domain.common.dto.PagedResponse;
 import org.example.pdnight.domain.common.enums.JobCategory;
-import org.example.pdnight.domain.participant.entity.PostParticipant;
-import org.example.pdnight.domain.participant.enums.JoinStatus;
-import org.example.pdnight.domain.post.dto.request.PostRequestDto;
-import org.example.pdnight.domain.post.dto.response.PostResponseDto;
+import org.example.pdnight.domain.common.enums.JoinStatus;
 import org.example.pdnight.domain.post.dto.response.PostResponseWithApplyStatusDto;
-import org.example.pdnight.domain.post.entity.Post;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.enums.PostStatus;
-import org.example.pdnight.domain.post.repository.PostRepositoryQuery;
 import org.example.pdnight.domain.post.repository.PostRepositoryQueryImpl;
 import org.example.pdnight.domain.post.service.PostService;
-import org.example.pdnight.domain.user.entity.User;
 
 import org.example.pdnight.domain.user.dto.response.PostWithJoinStatusAndAppliedAtResponseDto;
 

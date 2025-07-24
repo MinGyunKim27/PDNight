@@ -5,9 +5,10 @@ import org.example.pdnight.domain.common.dto.PagedResponse;
 import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.enums.JobCategory;
 import org.example.pdnight.domain.common.exception.BaseException;
+import org.example.pdnight.domain.invite.service.InviteService;
 import org.example.pdnight.domain.participant.dto.response.ParticipantResponse;
 import org.example.pdnight.domain.participant.entity.PostParticipant;
-import org.example.pdnight.domain.participant.enums.JoinStatus;
+import org.example.pdnight.domain.common.enums.JoinStatus;
 import org.example.pdnight.domain.participant.repository.ParticipantRepository;
 import org.example.pdnight.domain.post.entity.Post;
 import org.example.pdnight.domain.post.enums.AgeLimit;
@@ -22,8 +23,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-
 import static org.example.pdnight.domain.common.enums.ErrorCode.CANNOT_PARTICIPATE_POST;
 
 @Service
@@ -34,7 +33,9 @@ public class ParticipantService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final ParticipantRepository participantRepository;
+    private final InviteService inviteService;
 
+    // 참가 요건 확인
     private void validForCreateParticipant(User user, Post post) {
         // 신청 안됨 : 본인 게시글에 본인이 신청하는 경우
         if (post.getAuthor().equals(user)) {
@@ -70,6 +71,7 @@ public class ParticipantService {
     }
 
 
+    //참가 신청
     @Transactional
     public ParticipantResponse applyParticipant(Long loginId, Long postId) {
         User user = getUser(loginId);
@@ -88,6 +90,12 @@ public class ParticipantService {
             }
             else {
                 participant = PostParticipant.createIsFirst(post,user);
+
+                //참가 이후에 maxParticipants 수를 만족 했을 때
+                if(count+1 ==post.getMaxParticipants()){
+                    post.updateStatus(PostStatus.CONFIRMED);
+                    inviteService.deleteAllByPostAndStatus(post,JoinStatus.PENDING);
+                }
             }
         }
         else {
@@ -106,6 +114,7 @@ public class ParticipantService {
         );
     }
 
+    //참가 취소
     @Transactional
     public void deleteParticipant(Long loginId, Long postId) {
         User user = getUser(loginId);
@@ -122,6 +131,7 @@ public class ParticipantService {
         participantRepository.delete(pending);
     }
 
+    //참가 확정(작성자)
     @Transactional
     public ParticipantResponse changeStatusParticipant(Long authorId, Long userId, Long postId, String status) {
         User user = getUser(userId);
@@ -152,6 +162,7 @@ public class ParticipantService {
         int participantSize = participantRepository.countByPostAndStatus(post, JoinStatus.ACCEPTED);
         if (post.getMaxParticipants().equals(participantSize)) {
             post.updateStatus(PostStatus.CONFIRMED);
+            inviteService.deleteAllByPostAndStatus(post,JoinStatus.PENDING);
         }
 
         return ParticipantResponse.of(
@@ -163,6 +174,7 @@ public class ParticipantService {
         );
     }
 
+    //본인이 작성한 게시글 신청자 목록 조회
     public PagedResponse<ParticipantResponse> getParticipantListByPending(Long authorId, Long postId, int page, int size) {
         Post post = getPost(postId);
         // 신청자 조회 안됨 : 게시글이 본인것이 아님
@@ -181,6 +193,7 @@ public class ParticipantService {
         )));
     }
 
+    //수락한 참가자 조회
     public PagedResponse<ParticipantResponse> getParticipantListByAccepted(Long loginId, Long postId, int page, int size) {
         User user = getUser(loginId);
         Post post = getPost(postId);

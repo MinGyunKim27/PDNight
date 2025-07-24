@@ -48,6 +48,10 @@ public enum ErrorCode {
     GENDER_LIMIT_NOT_SATISFIED(HttpStatus.FORBIDDEN, "요구하는 성별 조건에 부합하지 않습니다."),
     JOB_CATEGORY_LIMIT_NOT_SATISFIED(HttpStatus.FORBIDDEN, "요구하는 직군 조건에 부합하지 않습니다."),
 
+    //초대 관련 에러
+    INVITE_ALREADY_EXISTS(HttpStatus.CONFLICT,"이미 초대 한 사람입니다."),
+    INVITE_NOT_FOUND(HttpStatus.NOT_FOUND,"초대가 존재하지 않습니다."),
+    INVITE_UNAUTHORIZED(HttpStatus.FORBIDDEN,"본인이 한 초대가 아닙니다."),
 
     // 사용자 리뷰 관련 에러
     CANNOT_REVIEW_SELF(HttpStatus.BAD_REQUEST, "리뷰 작성자는 본인을 평가할 수 없습니다."),

@@ -3,7 +3,7 @@ package org.example.pdnight.domain.post.repository.QueryDslHelper;
 import com.querydsl.core.types.Expression;
 import com.querydsl.jpa.JPAExpressions;
 import org.example.pdnight.domain.participant.entity.QPostParticipant;
-import org.example.pdnight.domain.participant.enums.JoinStatus;
+import org.example.pdnight.domain.common.enums.JoinStatus;
 import org.example.pdnight.domain.post.entity.QPost;
 
 public class QuerydslExpressionHelper {

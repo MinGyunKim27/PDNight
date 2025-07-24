@@ -2,23 +2,16 @@ package org.example.pdnight.domain.post.repository;
 
 import com.querydsl.core.BooleanBuilder;
 
-import static org.example.pdnight.domain.post.entity.QPost.post;
-
 import java.util.List;
 import java.util.Optional;
 
-import com.querydsl.core.types.dsl.BooleanExpression;
-
-import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.participant.entity.QPostParticipant;
-import org.example.pdnight.domain.participant.enums.JoinStatus;
+import org.example.pdnight.domain.common.enums.JoinStatus;
 import org.example.pdnight.domain.post.dto.response.PostResponseWithApplyStatusDto;
-import org.example.pdnight.domain.post.dto.response.QPostResponseDto;
 import org.example.pdnight.domain.post.dto.response.QPostResponseWithApplyStatusDto;
-import org.example.pdnight.domain.post.entity.Post;
 import org.example.pdnight.domain.post.entity.QPost;
 import org.example.pdnight.domain.post.repository.QueryDslHelper.QuerydslExpressionHelper;
 import org.example.pdnight.domain.postLike.entity.QPostLike;
@@ -26,7 +19,6 @@ import org.example.pdnight.domain.user.dto.response.PostWithJoinStatusAndApplied
 import org.example.pdnight.domain.user.dto.response.QPostWithJoinStatusAndAppliedAtResponseDto;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.example.pdnight.domain.common.enums.JobCategory;
-import org.example.pdnight.domain.post.dto.response.PostResponseDto;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.enums.PostStatus;

@@ -1,12 +1,12 @@
 package org.example.pdnight.domain.user.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.common.dto.ApiResponse;
 import org.example.pdnight.domain.common.dto.PagedResponse;
-import org.example.pdnight.domain.participant.enums.JoinStatus;
-import org.example.pdnight.domain.post.dto.response.PostResponseDto;
+import org.example.pdnight.domain.common.enums.JoinStatus;
+import org.example.pdnight.domain.invite.dto.response.InviteResponseDto;
+import org.example.pdnight.domain.invite.service.InviteService;
 import org.example.pdnight.domain.post.dto.response.PostResponseWithApplyStatusDto;
 import org.example.pdnight.domain.post.service.PostService;
 import org.example.pdnight.domain.user.dto.response.PostWithJoinStatusAndAppliedAtResponseDto;
@@ -27,10 +27,12 @@ public class UserController {
 
     private final UserService userService;
     private final PostService postService;
+    private final InviteService inviteService;
 
 
+    // 내 좋아요 게시글 목록 조회
     @GetMapping("/my/likedPosts")
-    public ResponseEntity<ApiResponse<PagedResponse<PostResponseWithApplyStatusDto>>> getMyLikedPosts(
+    public ResponseEntity<ApiResponse<?>> getMyLikedPosts(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PageableDefault(size = 10,page = 0) Pageable pageable
     ){
@@ -39,8 +41,9 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.ok("내 좋아요 게시글 목록이 조회되었습니다.",myLikedPost));
     }
 
+    //내 신청/성사된 게시글 조회
     @GetMapping("/my/confirmedPosts")
-    public ResponseEntity<ApiResponse<PagedResponse<PostWithJoinStatusAndAppliedAtResponseDto>>> getMyConfirmedPosts(
+    public ResponseEntity<ApiResponse<?>> getMyConfirmedPosts(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam (required = false) JoinStatus joinStatus,
             @PageableDefault(size = 10,page = 0) Pageable pageable
@@ -50,8 +53,10 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.ok("참여 신청한 게시글 목록이 조회되었습니다.",myLikedPost));
     }
 
+
+    // 내가 작성한 게시글 조회
     @GetMapping("/my/writtenPosts")
-    public ResponseEntity<ApiResponse<PagedResponse<PostResponseWithApplyStatusDto>>> getMyWrittenPosts(
+    public ResponseEntity<ApiResponse<?>> getMyWrittenPosts(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PageableDefault(size = 10,page = 0) Pageable pageable
     ){
@@ -60,6 +65,8 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.ok("내가 작성 한 게시물이 조회되었습니다.",myLikedPost));
     }
 
+
+    // 본인 프로필 조회
     @GetMapping("/my")
     public ResponseEntity<ApiResponse<?>> getMyProfile(
             @AuthenticationPrincipal CustomUserDetails userDetails
@@ -72,6 +79,7 @@ public class UserController {
         ));
     }
 
+    // 본인 프로필 수정
     @PatchMapping("/my/profile")
     public ResponseEntity<ApiResponse<?>> updateMyProfile(
             @AuthenticationPrincipal CustomUserDetails userDetails,
@@ -85,6 +93,7 @@ public class UserController {
         ));
     }
 
+    // 비밀번호 변경
     @PatchMapping("/my/password")
     public ResponseEntity<ApiResponse<?>> updatePassword(
             @AuthenticationPrincipal CustomUserDetails userDetails,
@@ -99,6 +108,8 @@ public class UserController {
         ));
     }
 
+
+    // 유저 프로필 조회
     @GetMapping("/{id}/profile")
     public ResponseEntity<ApiResponse<?>> getProfile(
             @PathVariable Long id
@@ -109,6 +120,8 @@ public class UserController {
         ));
     }
 
+
+    //평가 조회
     @GetMapping("/{id}/evaluation")
     public ResponseEntity<ApiResponse<?>> getEvaluation(
             @PathVariable Long id
@@ -119,5 +132,18 @@ public class UserController {
         ));
     }
 
+    // -------------------- 내 초대 API -----------------------------------------//
+    //내 초대받은 목록 조회
+    @GetMapping("/my/invited")
+    public ResponseEntity<ApiResponse<?>> getMyInvited(
+            @AuthenticationPrincipal CustomUserDetails loggedInUser
+    ){
+        Long userId = loggedInUser.getUserId();
+        PagedResponse<InviteResponseDto> inviteResponseDto = inviteService.getMyInvited(userId);
+
+        return ResponseEntity.ok(ApiResponse.ok("초대 받은 목록 조회가 완료되었습니다",inviteResponseDto));
+    }
+
+    //내가 보낸 초대 목록 조회
 
 }
