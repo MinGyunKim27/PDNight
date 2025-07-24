@@ -35,11 +35,21 @@ public class JwtFilter implements Filter {
         HttpServletResponse httpResponse = (HttpServletResponse) response;
 
         String url = httpRequest.getRequestURI();
+        System.out.println(url);
 
-        if (url.startsWith("/api/auth/signup") || url.startsWith("/api/auth/login")) {
+        if (url.startsWith("/webjars/") || url.startsWith("/css/") || url.startsWith("/js/") || url.startsWith("/images/")) {
             chain.doFilter(request, response);
             return;
         }
+
+        if (url.startsWith("/api/auth/signup") || url.startsWith("/api/auth/login") || url.startsWith("/login")
+                || url.startsWith("/ws-stomp") || url.startsWith("/chat/")
+        ) {
+            chain.doFilter(request, response);
+            return;
+        }
+
+
 
         String bearerJwt = httpRequest.getHeader("Authorization");
 

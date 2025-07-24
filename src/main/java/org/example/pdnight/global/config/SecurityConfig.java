@@ -29,6 +29,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/signup").permitAll()
                         .requestMatchers("/api/auth/login").permitAll()
+                        .requestMatchers("/login").permitAll()
+                        .requestMatchers("/webjars/**", "/css/**", "/js/**", "/images/**" ).permitAll()
+                        .requestMatchers("/ws-stomp/**").permitAll()
+                        .requestMatchers(("/chat/**")).permitAll()
                         .anyRequest().authenticated()
                 )
                 .build();
