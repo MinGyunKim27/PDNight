@@ -21,6 +21,11 @@ public class EventParticipantService {
     private final UserRepository userRepository;
 
     public void addParticipant(Long eventId, Long userId){
+        // 이미 참가 신청한 유저이면 실패
+        if(eventParticipantRepository.existsByEventIdAndUserId(eventId, userId)){
+            throw new BaseException(ErrorCode.EVENT_ALREADY_PENDING);
+        }
+
         Event event = eventRepository.findById(eventId).orElseThrow(
                 () -> new BaseException(ErrorCode.EVENT_NOT_FOUNT)
         );
