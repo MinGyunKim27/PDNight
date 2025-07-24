@@ -1,27 +1,46 @@
 package org.example.pdnight.domain.post.repository;
 
 import com.querydsl.core.BooleanBuilder;
+
+import java.util.List;
+import java.util.Optional;
+
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.common.enums.JobCategory;
 import org.example.pdnight.domain.participant.entity.QPostParticipant;
+import org.example.pdnight.domain.common.enums.JoinStatus;
+import org.example.pdnight.domain.post.dto.response.PostResponseDto;
+import org.example.pdnight.domain.post.dto.response.PostResponseWithApplyStatusDto;
+import org.example.pdnight.domain.post.dto.response.QPostResponseWithApplyStatusDto;
 import org.example.pdnight.domain.participant.enums.JoinStatus;
 import org.example.pdnight.domain.post.dto.response.PostResponseDto;
 import org.example.pdnight.domain.post.entity.Post;
+import org.example.pdnight.domain.post.entity.Post;
 import org.example.pdnight.domain.post.entity.QPost;
+import org.example.pdnight.domain.post.repository.QueryDslHelper.QuerydslExpressionHelper;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.enums.PostStatus;
 import org.example.pdnight.domain.postLike.entity.QPostLike;
 import org.example.pdnight.domain.user.dto.response.PostWithJoinStatusAndAppliedAtResponseDto;
 import org.example.pdnight.domain.user.dto.response.QPostWithJoinStatusAndAppliedAtResponseDto;
+import org.springframework.data.support.PageableExecutionUtils;
+import org.example.pdnight.domain.common.enums.JobCategory;
+import org.example.pdnight.domain.post.enums.AgeLimit;
+import org.example.pdnight.domain.post.enums.Gender;
+import org.example.pdnight.domain.post.enums.PostStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
+
+import static org.example.pdnight.domain.hobby.entity.QPostHobby.postHobby;
+import static org.example.pdnight.domain.post.entity.QPost.post;
+import static org.example.pdnight.domain.techStack.entity.QPostTech.postTech;
 
 import java.util.List;
 import java.util.Optional;
@@ -35,35 +54,120 @@ import static org.example.pdnight.domain.techStack.entity.QPostTech.postTech;
 public class PostRepositoryQueryImpl implements PostRepositoryQuery {
     private final JPAQueryFactory queryFactory;
 
-    public Page<Post> getMyLikePost(Long userId, Pageable pageable) {
-        QPost post = QPost.post;
-        QPostLike postLike = QPostLike.postLike;
+	@Override
+	public Page<PostResponseWithApplyStatusDto> getOpenedPosts(Long userId, Pageable pageable) {
+		QPost post = QPost.post;
 
-        BooleanBuilder builder = new BooleanBuilder();
-        builder.and(post.status.ne(PostStatus.CLOSED));
-        builder.and(postLike.user.id.eq(userId));
+		List<PostResponseWithApplyStatusDto> results = queryFactory
+				.select(new QPostResponseWithApplyStatusDto(
+						post.id,
+						post.author.id,
+						post.title,
+						post.timeSlot,
+						post.publicContent,
+						post.privateContent,
+						post.status,
+						post.maxParticipants,
+						post.genderLimit,
+						post.jobCategoryLimit,
+						post.ageLimit,
+						QuerydslExpressionHelper.participantCount(post),
+						QuerydslExpressionHelper.acceptedParticipantCount(post),
+						post.createdAt,
+						post.updatedAt
+				))
+				.from(post)
+				.where(post.status.eq(PostStatus.OPEN)) // OPEN 상태 필터링
+				.offset(pageable.getOffset())
+				.limit(pageable.getPageSize())
+				.fetch();
 
-        List<Post> content = queryFactory
-                .select(post)
-                .from(post)
-                .join(postLike).on(postLike.post.eq(post))
-                .where(builder)
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
+		Long count = queryFactory
+				.select(post.count())
+				.from(post)
+				.where(post.status.eq(PostStatus.OPEN))
+				.fetchOne();
 
-        Long count = queryFactory
-                .select(post.count())
-                .from(post)
-                .join(postLike).on(postLike.post.eq(post))
-                .where(postLike.user.id.eq(userId))
-                .fetchOne();
+		return PageableExecutionUtils.getPage(results, pageable, () -> Optional.ofNullable(count).orElse(0L));
+	}
 
-        return PageableExecutionUtils.getPage(content, pageable, () -> Optional.ofNullable(count).orElse(0L));
-    }
+	@Override
+	public PostResponseWithApplyStatusDto getOpenedPostById(Long postId) {
+		QPost post = QPost.post;
 
-    @Override
-    public Page<PostWithJoinStatusAndAppliedAtResponseDto> getConfirmedPost(Long userId, JoinStatus joinStatus, Pageable pageable) {
+		return queryFactory
+				.select(new QPostResponseWithApplyStatusDto(
+						post.id,
+						post.author.id,
+						post.title,
+						post.timeSlot,
+						post.publicContent,
+						post.privateContent,
+						post.status,
+						post.maxParticipants,
+						post.genderLimit,
+						post.jobCategoryLimit,
+						post.ageLimit,
+						QuerydslExpressionHelper.participantCount(post),
+						QuerydslExpressionHelper.acceptedParticipantCount(post),
+						post.createdAt,
+						post.updatedAt
+				))
+				.from(post)
+				.where(post.id.eq(postId)
+						.and(post.status.eq(PostStatus.OPEN))) // OPEN 상태만 조회
+				.fetchOne();
+	}
+
+
+
+	@Override
+	public Page<PostResponseWithApplyStatusDto> getMyLikePost(Long userId, Pageable pageable) {
+		QPost post = QPost.post;
+		QPostLike postLike = QPostLike.postLike;
+
+		BooleanBuilder builder = new BooleanBuilder();
+		builder.and(post.status.ne(PostStatus.CLOSED));
+		builder.and(postLike.user.id.eq(userId));
+
+		List<PostResponseWithApplyStatusDto> content = queryFactory
+				.select(new QPostResponseWithApplyStatusDto(
+						post.id,
+						post.author.id,
+						post.title,
+						post.timeSlot,
+						post.publicContent,
+						post.privateContent,
+						post.status,
+						post.maxParticipants,
+						post.genderLimit,
+						post.jobCategoryLimit,
+						post.ageLimit,
+						QuerydslExpressionHelper.participantCount(post),
+						QuerydslExpressionHelper.acceptedParticipantCount(post),
+						post.createdAt,
+						post.updatedAt
+				))
+				.from(post)
+				.join(postLike).on(postLike.post.eq(post))
+				.where(builder)
+				.offset(pageable.getOffset())
+				.limit(pageable.getPageSize())
+				.fetch();
+
+		Long count = queryFactory
+				.select(post.count())
+				.from(post)
+				.join(postLike).on(postLike.post.eq(post))
+				.where(builder)
+				.fetchOne();
+
+		return PageableExecutionUtils.getPage(content, pageable, () -> Optional.ofNullable(count).orElse(0L));
+	}
+
+
+	@Override
+    public Page<PostWithJoinStatusAndAppliedAtResponseDto> getConfirmedPost(Long userId,JoinStatus joinStatus,Pageable pageable) {
         QPost post = QPost.post;
         QPostParticipant postParticipant = QPostParticipant.postParticipant;
 
@@ -116,29 +220,46 @@ public class PostRepositoryQueryImpl implements PostRepositoryQuery {
     }
 
 
-    @Override
-    public Page<PostResponseDto> findPostDtosBySearch(
-            Pageable pageable,
-            Integer maxParticipants,
-            AgeLimit ageLimit,
-            JobCategory jobCategoryLimit,
-            Gender genderLimit
-    ) {
-        // 페이징 정보 따로 조회 : 조인이랑 같이하면 페이징 안됨
+	@Override
+	public Page<PostResponseWithApplyStatusDto> findPostDtosBySearch(
+			Pageable pageable,
+			Integer maxParticipants,
+			AgeLimit ageLimit,
+			JobCategory jobCategoryLimit,
+			Gender genderLimit
+	) {
+		QPost post = QPost.post;
+
+		// 조건 누적용 BooleanBuilder
+		BooleanBuilder builder = new BooleanBuilder();
+
+		// 무조건 포함되는 조건
+		builder.and(post.status.eq(PostStatus.OPEN));
+
+		// nullable 조건 추가
+		if (maxParticipants != null) {
+			builder.and(post.maxParticipants.goe(maxParticipants));
+		}
+		if (ageLimit != null) {
+			builder.and(post.ageLimit.eq(ageLimit));
+		}
+		if (jobCategoryLimit != null) {
+			builder.and(post.jobCategoryLimit.eq(jobCategoryLimit));
+		}
+		if (genderLimit != null) {
+			builder.and(post.genderLimit.eq(genderLimit));
+		}
+
         List<Long> postIds = queryFactory
                 .select(post.id)
-                .from(post)
-                .where(
-                        post.maxParticipants.goe(maxParticipants),
-                        post.status.eq(PostStatus.OPEN),
-                        ageLimitEq(ageLimit),
-                        jobCategoryLimitEq(jobCategoryLimit),
-                        genderLimitEq(genderLimit)
-                )
-                .orderBy(post.createdAt.desc())
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
+				.from(post)
+				.leftJoin(post.author)
+				.where(builder)
+				.groupBy(post.id)
+				.orderBy(post.createdAt.desc())
+				.offset(pageable.getOffset())
+				.limit(pageable.getPageSize())
+				.fetch();
 
         // 조인으로 연관 엔티티 한꺼번에 조회
         List<Post> posts = queryFactory
@@ -154,84 +275,107 @@ public class PostRepositoryQueryImpl implements PostRepositoryQuery {
                 .fetch();
 
         List<PostResponseDto> contents = posts.stream()
-                .map(PostResponseDto::new)
+                .map(PostResponseWithApplyStatusDto::new)
                 .toList();
 
-        //페이징 용 카운팅 쿼리
-        Long total = Optional.ofNullable(
-                queryFactory
-                        .select(post.id.countDistinct())
-                        .from(post)
-                        .leftJoin(post.author)
-                        .where(
-                                post.maxParticipants.goe(maxParticipants),
-                                post.status.eq(PostStatus.OPEN),
-                                ageLimitEq(ageLimit),
-                                jobCategoryLimitEq(jobCategoryLimit),
-                                genderLimitEq(genderLimit)
-                        )
-                        .fetchOne()
-        ).orElse(0L);
+		Long total = Optional.ofNullable(
+				queryFactory
+						.select(post.countDistinct())
+						.from(post)
+						.leftJoin(post.author)
+						.where(builder)
+						.fetchOne()
+		).orElse(0L);
+
+		return new PageImpl<>(contents, pageable, total);
+	}
 
 
-        return new PageImpl<>(contents, pageable, total);
-    }
+	@Override
+	public Page<PostResponseWithApplyStatusDto> getWrittenPost(
+			Long userId,
+			Pageable pageable) {
+		QPost post = QPost.post;
 
-    @Override
-    public Page<PostResponseDto> getWrittenPost(
-            Long userId,
-            Pageable pageable) {
-        QPost post1 = post;
+		BooleanBuilder builder = new BooleanBuilder();
 
-        BooleanBuilder builder = new BooleanBuilder();
+		builder.and(post.author.id.eq(userId));
+		builder.and(post.status.ne(PostStatus.CLOSED));
 
-        builder.and(post1.author.id.eq(userId));
-        builder.and(post1.status.ne(PostStatus.CLOSED));
+		List<PostResponseWithApplyStatusDto> writtenPost = queryFactory
+				.select(new QPostResponseWithApplyStatusDto(
+						post.id,
+						post.author.id,
+						post.title,
+						post.timeSlot,
+						post.publicContent,
+						post.privateContent,
+						post.status,
+						post.maxParticipants,
+						post.genderLimit,
+						post.jobCategoryLimit,
+						post.ageLimit,
+						QuerydslExpressionHelper.participantCount(post),
+						QuerydslExpressionHelper.acceptedParticipantCount(post),
+						post.createdAt,
+						post.updatedAt
+				))
+				.from(post)
+				.where(builder)
+				.offset(pageable.getOffset())
+				.limit(pageable.getPageSize())
+				.fetch();
 
-        List<PostResponseDto> writtenPost = queryFactory.select(Projections.constructor(
-                        PostResponseDto.class,
-                        post.id,
-                        post.author.id,
-                        post.title,
-                        post.timeSlot,
-                        post.publicContent,
-                        post.privateContent,
-                        post.status,
-                        post.maxParticipants,
-                        post.genderLimit,
-                        post.jobCategoryLimit,
-                        post.ageLimit,
-                        post.createdAt,
-                        post.updatedAt))
-                .from(post1)
-                .where(builder)
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
+		Long count = queryFactory
+				.select(post.count())
+				.from(post)
+				.where(
+						builder
+				)
+				.fetchOne();
 
-        Long count = queryFactory
-                .select(post.count())
-                .from(post)
-                .where(
-                        builder
-                )
-                .fetchOne();
+		return PageableExecutionUtils.getPage(writtenPost,pageable,() ->Optional.ofNullable(count).orElse(0L));
+	}
 
-        return PageableExecutionUtils.getPage(writtenPost, pageable, () -> Optional.ofNullable(count).orElse(0L));
-    }
+	@Override
+	public Page<PostResponseWithApplyStatusDto> getSuggestedPost(Long userId, Pageable pageable) {
+		QPost post = QPost.post;
+		QPostLike like = QPostLike.postLike;
 
-    //이하 헬퍼메서드
-    private BooleanExpression ageLimitEq(AgeLimit ageLimit) {
-        return ageLimit != null ? post.ageLimit.eq(ageLimit) : null;
-    }
+		List<PostResponseWithApplyStatusDto> writtenPost = queryFactory
+				.select(new QPostResponseWithApplyStatusDto(
+						post.id,
+						post.author.id,
+						post.title,
+						post.timeSlot,
+						post.publicContent,
+						post.privateContent,
+						post.status,
+						post.maxParticipants,
+						post.genderLimit,
+						post.jobCategoryLimit,
+						post.ageLimit,
+						QuerydslExpressionHelper.participantCount(post),
+						QuerydslExpressionHelper.acceptedParticipantCount(post),
+						post.createdAt,
+						post.updatedAt
+				))
+				.from(post)
+				.leftJoin(like).on(like.post.eq(post)) // 좋아요 조인
+				.groupBy(post.id)
+				.where(like.user.id.eq(userId))
+				.orderBy(like.count().desc()) // 좋아요 수 내림차순 정렬
+				.offset(pageable.getOffset())
+				.limit(pageable.getPageSize())
+				.fetch();
 
-    private BooleanExpression jobCategoryLimitEq(JobCategory jobCategoryLimit) {
-        return jobCategoryLimit != null ? post.jobCategoryLimit.eq(jobCategoryLimit) : null;
-    }
+		Long count = queryFactory
+				.select(post.countDistinct())
+				.from(post)
+				.leftJoin(like).on(like.post.eq(post))
+				.where(like.user.id.eq(userId))
+				.fetchOne();
 
-    private BooleanExpression genderLimitEq(Gender genderLimit) {
-        return genderLimit != null ? post.genderLimit.eq(genderLimit) : null;
-    }
-
-
+		return PageableExecutionUtils.getPage(writtenPost, pageable, () -> Optional.ofNullable(count).orElse(0L));
+	}
 }

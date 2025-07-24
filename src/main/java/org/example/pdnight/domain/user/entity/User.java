@@ -1,5 +1,9 @@
 package org.example.pdnight.domain.user.entity;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,6 +12,8 @@ import org.example.pdnight.domain.auth.dto.request.SignupRequestDto;
 import org.example.pdnight.domain.common.entity.Timestamped;
 import org.example.pdnight.domain.common.enums.JobCategory;
 import org.example.pdnight.domain.common.enums.UserRole;
+import org.example.pdnight.domain.hobby.entity.Hobby;
+import org.example.pdnight.domain.invite.entity.Invite;
 import org.example.pdnight.domain.hobby.entity.UserHobby;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.techStack.entity.UserTech;
@@ -68,8 +74,26 @@ public class User extends Timestamped {
     private Long totalRate;
     private Long totalReviewer;
 
+    //유저 삭제 하면 초대 알아서 삭제 되도록
+    @OneToMany(mappedBy = "inviter", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Invite> sentInvites = new ArrayList<>();
+
+    //유저 삭제 하면 초대 알아서 삭제 되도록
+    @OneToMany(mappedBy = "invitee", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Invite> receivedInvites = new ArrayList<>();
+
     private Boolean isDeleted = false;
     private LocalDateTime deletedAt;
+
+    public User(Long id, String name) {
+        this.id = id;
+        this.name = name;
+        this.role = UserRole.USER;
+        this.totalRate = 0L;
+        this.totalReviewer = 0L;
+        this.isDeleted = false;
+        this.deletedAt = null;
+    }
 
     public User(SignupRequestDto request, String encodePassword) {
         this.email = request.getEmail();
@@ -78,13 +102,37 @@ public class User extends Timestamped {
         this.name = request.getName();
         this.nickname = request.getNickname();
         this.gender = request.getGender();
-        this.age = request.getAge();
+        this.age =  request.getAge();
         this.jobCategory = request.getJobCategory();
         this.region = request.getRegion();
         this.workLocation = request.getWorkLocation();
         this.comment = request.getComment();
         this.totalRate = 0L;
         this.totalReviewer = 0L;
+    }
+
+    public User(Long id, String name, String hashedOldPassword) {
+        this.id = id;
+        this.name = name;
+        this.password = hashedOldPassword;
+    }
+
+    public User(Long userId, String name, Long totalRate, Long totalReviewer) {
+        this.id = userId;
+        this.name = name;
+        this.totalRate = totalRate;
+        this.totalReviewer = totalReviewer;
+    }
+
+    public User(String email, String name, String password) {
+        this.email = email;
+        this.name = name;
+        this.password = password;
+        this.role = UserRole.USER;
+        this.totalRate = 0L;
+        this.totalReviewer = 0L;
+        this.isDeleted = false;
+        this.deletedAt = null;
     }
 
     public void setHobbyAndTech(Set<UserHobby> userHobbies, Set<UserTech> userTechs) {
@@ -116,7 +164,7 @@ public class User extends Timestamped {
         if (request.getRegion() != null) {
             this.region = Region.valueOf(request.getRegion());
         }
-        if (request.getComment() != null) {
+        if (request.getComment() != null){
             this.comment = request.getComment();
         }
         if (userHobbies != null) {

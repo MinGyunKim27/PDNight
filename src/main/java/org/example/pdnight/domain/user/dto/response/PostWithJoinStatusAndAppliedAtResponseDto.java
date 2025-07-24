@@ -3,11 +3,10 @@ package org.example.pdnight.domain.user.dto.response;
 import java.time.LocalDateTime;
 
 import com.querydsl.core.annotations.QueryProjection;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.pdnight.domain.common.enums.JobCategory;
-import org.example.pdnight.domain.participant.enums.JoinStatus;
+import org.example.pdnight.domain.common.enums.JoinStatus;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.enums.PostStatus;
