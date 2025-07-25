@@ -1,5 +1,6 @@
 package org.example.pdnight.domain.postLike.controller;
 
+import jakarta.validation.constraints.Null;
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.common.dto.ApiResponse;
 import org.example.pdnight.domain.postLike.dto.response.PostLikeResponse;
@@ -28,7 +29,7 @@ public class PostLikeController {
     }
 
     @DeleteMapping
-    public ResponseEntity<ApiResponse<Void>> removeLike(
+    public ResponseEntity<ApiResponse<Null>> removeLike(
             @PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {

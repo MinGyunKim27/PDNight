@@ -2,6 +2,8 @@ package org.example.pdnight.domain.eventParticipant.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.common.dto.ApiResponse;
+import org.example.pdnight.domain.common.dto.PagedResponse;
+import org.example.pdnight.domain.eventParticipant.dto.response.EventParticipantResponse;
 import org.example.pdnight.domain.eventParticipant.service.EventParticipantService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +19,7 @@ public class EventParticipantAdminController {
     private final EventParticipantService eventParticipantService;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<?>> getEventParticipants(
+    public ResponseEntity<ApiResponse<PagedResponse<EventParticipantResponse>>> getEventParticipants(
             @PathVariable Long id,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size

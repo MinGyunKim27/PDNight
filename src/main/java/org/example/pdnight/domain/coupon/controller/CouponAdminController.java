@@ -1,6 +1,7 @@
 package org.example.pdnight.domain.coupon.controller;
 
 
+import jakarta.validation.constraints.Null;
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.common.dto.ApiResponse;
 import org.example.pdnight.domain.coupon.dto.request.CouponRequestDto;
@@ -39,7 +40,7 @@ public class CouponAdminController {
 
     // 쿠폰 삭제
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteCoupon(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Null>> deleteCoupon(@PathVariable Long id) {
         couponAdminService.deleteCoupon(id);
         return ResponseEntity.ok(ApiResponse.ok("쿠폰이 삭제되었습니다.", null));
     }
