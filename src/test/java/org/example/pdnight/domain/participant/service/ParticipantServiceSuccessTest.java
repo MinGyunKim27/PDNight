@@ -40,7 +40,7 @@ class ParticipantServiceSuccessTest extends BaseParticipantTest {
     void applyParticipantTest() {
         //given
         User user = getUser(2L);
-        Post post = getPost(getUser(1L), 1L);
+        Post post = getPost(getUser(1L));
         PostParticipant participant = getPostParticipant(user, post, JoinStatus.PENDING);
 
         //when
@@ -62,7 +62,7 @@ class ParticipantServiceSuccessTest extends BaseParticipantTest {
     void deleteParticipantTest() {
         //given
         User user = getUser(2L);
-        Post post = getPost(getUser(1L), 1L);
+        Post post = getPost(getUser(1L));
         PostParticipant participant = getPostParticipant(user, post, JoinStatus.PENDING);
 
         //when
@@ -92,7 +92,7 @@ class ParticipantServiceSuccessTest extends BaseParticipantTest {
     private void changeStatusParticipant(String status) {
         //given
         User user = getUser(2L);
-        Post post = getPost(getUser(1L), 1L);
+        Post post = getPost(getUser(1L));
         JoinStatus joinStatus = JoinStatus.of(status);
         PostParticipant participant = PostParticipant.create(post, user);
 
@@ -117,7 +117,7 @@ class ParticipantServiceSuccessTest extends BaseParticipantTest {
         int page = 1;
         int size = 5;
         User user = getUser(2L);
-        Post post = getPost(getUser(1L), 1L);
+        Post post = getPost(getUser(1L));
         JoinStatus joinStatus = JoinStatus.PENDING;
         Pageable pageable = PageRequest.of(page, size);
         PostParticipant participant = getPostParticipant(user, post, joinStatus);
@@ -154,7 +154,7 @@ class ParticipantServiceSuccessTest extends BaseParticipantTest {
         int page = 1;
         int size = 5;
         User user = getUser(2L);
-        Post post = getPost(getUser(1L), 1L);
+        Post post = getPost(getUser(1L));
         JoinStatus joinStatus = JoinStatus.ACCEPTED;
         Pageable pageable = PageRequest.of(page, size);
         PostParticipant participant = getPostParticipant(user, post, joinStatus);
@@ -190,7 +190,7 @@ class ParticipantServiceSuccessTest extends BaseParticipantTest {
         int page = 1;
         int size = 5;
         User user = getUser(2L);
-        Post post = getPost(getUser(1L), 1L);
+        Post post = getPost(getUser(1L));
         JoinStatus joinStatus = JoinStatus.ACCEPTED;
         Pageable pageable = PageRequest.of(page, size);
         PostParticipant participant = getPostParticipant(user, post, joinStatus);

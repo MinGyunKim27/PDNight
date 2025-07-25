@@ -31,7 +31,7 @@ public class BaseParticipantTest {
     protected User getUser(Long userId) {
         User mockUser = Mockito.mock(User.class);
         lenient().when(mockUser.getId()).thenReturn(userId);
-        lenient().when(mockUser.getAge()).thenReturn(25L); // ✅ AgeLimit.AGE_20S
+        lenient().when(mockUser.getAge()).thenReturn(25L); // AgeLimit.AGE_20S
         lenient().when(mockUser.getGender()).thenReturn(Gender.MALE);
         lenient().when(mockUser.getJobCategory()).thenReturn(JobCategory.DATA_SCIENTIST);
 
@@ -39,18 +39,18 @@ public class BaseParticipantTest {
         return mockUser;
     }
 
-    protected Post getPost(User user, Long postId) {
+    protected Post getPost(User user) {
         Post mockPost = Mockito.mock(Post.class);
-        lenient().when(mockPost.getId()).thenReturn(postId);
+        lenient().when(mockPost.getId()).thenReturn(1L);
         lenient().when(mockPost.getAuthor()).thenReturn(user);
-        lenient().when(mockPost.getAgeLimit()).thenReturn(AgeLimit.AGE_20S); // ✅ 유저 조건과 일치
-        lenient().when(mockPost.getGenderLimit()).thenReturn(Gender.ALL);    // ✅ 통과 가능
-        lenient().when(mockPost.getJobCategoryLimit()).thenReturn(JobCategory.ALL); // ✅ 통과 가능
+        lenient().when(mockPost.getAgeLimit()).thenReturn(AgeLimit.AGE_20S); // 유저 조건과 일치
+        lenient().when(mockPost.getGenderLimit()).thenReturn(Gender.ALL);    // 통과 가능
+        lenient().when(mockPost.getJobCategoryLimit()).thenReturn(JobCategory.ALL); // 통과 가능
         lenient().when(mockPost.getMaxParticipants()).thenReturn(5);
         lenient().when(mockPost.getIsFirstCome()).thenReturn(false); // 일반 게시글
 
-        lenient().when(postRepository.findById(postId)).thenReturn(Optional.of(mockPost));
-        lenient().when(postRepository.findByIdAndStatus(postId, PostStatus.OPEN)).thenReturn(Optional.of(mockPost));
+        lenient().when(postRepository.findById(1L)).thenReturn(Optional.of(mockPost));
+        lenient().when(postRepository.findByIdAndStatus(1L, PostStatus.OPEN)).thenReturn(Optional.of(mockPost));
         return mockPost;
     }
 
