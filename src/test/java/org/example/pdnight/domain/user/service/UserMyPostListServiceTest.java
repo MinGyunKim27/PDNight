@@ -4,14 +4,12 @@ import org.example.pdnight.domain.common.dto.PagedResponse;
 import org.example.pdnight.domain.common.enums.JobCategory;
 import org.example.pdnight.domain.common.enums.JoinStatus;
 import org.example.pdnight.domain.post.dto.response.PostResponseWithApplyStatusDto;
+import org.example.pdnight.domain.post.dto.response.PostWithJoinStatusAndAppliedAtResponseDto;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.enums.PostStatus;
 import org.example.pdnight.domain.post.repository.PostRepositoryQueryImpl;
 import org.example.pdnight.domain.post.service.PostService;
-
-import org.example.pdnight.domain.user.dto.response.PostWithJoinStatusAndAppliedAtResponseDto;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -22,11 +20,12 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
-
 import java.time.LocalDateTime;
 import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class PostServiceTest {
@@ -93,7 +92,6 @@ class PostServiceTest {
     }
 
 
-
     @Test
     void findMyConfirmedPosts_정상조회() {
         // given
@@ -135,4 +133,3 @@ class PostServiceTest {
         verify(postRepositoryQuery).getWrittenPost(userId, pageable);
     }
 }
-

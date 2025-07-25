@@ -15,4 +15,10 @@ public class UserUpdateRequest {
     private String jobCategory;
     private String region;
     private String comment;
+
+    // 테스트 실행용
+    public UserUpdateRequest(String name, List<Long> hobbyIdList) {
+        this.name = name;
+        this.hobbyIdList = hobbyIdList;
+    }
 }
