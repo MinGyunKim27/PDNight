@@ -13,6 +13,7 @@ import org.example.pdnight.domain.eventParticipant.entity.EventParticipant;
 import org.example.pdnight.domain.eventParticipant.repository.EventParticipantRepository;
 import org.example.pdnight.domain.user.entity.User;
 import org.example.pdnight.domain.user.repository.UserRepository;
+import org.example.pdnight.global.aop.DistributedLock;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -30,7 +31,11 @@ public class EventParticipantService {
 
     // 참가 신청
     @Transactional
-    @Around("@annotation(distributedLock)")
+    @DistributedLock(
+            key = "#eventId",
+            timeoutMs = 3000,
+            intervalMs = 50
+    )
     public void addParticipant(Long eventId, Long userId){
         // 이미 참가 신청한 유저이면 실패
         if(eventParticipantRepository.existsByEventIdAndUserId(eventId, userId)){
@@ -44,6 +49,7 @@ public class EventParticipantService {
                 () -> new BaseException(ErrorCode.USER_NOT_FOUND)
         );
 
+        // 신청 인원 확인
         int participantsCount = eventParticipantRepository.getEventParticipantByEventId(eventId);
         if(participantsCount >= event.getMaxParticipants()){
             throw new BaseException(ErrorCode.EVENT_PARTICIPANT_FULL);

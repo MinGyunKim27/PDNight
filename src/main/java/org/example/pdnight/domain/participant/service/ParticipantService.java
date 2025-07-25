@@ -74,8 +74,12 @@ public class ParticipantService {
 
 
     //참가 신청
-    @Transactional(rollbackFor = BaseException.class)
-    @DistributedLock(key = "postId")
+    @Transactional
+    @DistributedLock(
+            key = "#postId",
+            timeoutMs = 3000,
+            intervalMs = 100
+    )
     public ParticipantResponse applyParticipant(Long loginId, Long postId) {
         User user = getUser(loginId);
         Post post = getPostWithOpen(postId);
@@ -119,6 +123,11 @@ public class ParticipantService {
 
     //참가 취소
     @Transactional
+    @DistributedLock(
+            key = "#postId",
+            timeoutMs = 3000,
+            intervalMs = 50
+    )
     public void deleteParticipant(Long loginId, Long postId) {
         User user = getUser(loginId);
         Post post = getPostWithOpen(postId);
