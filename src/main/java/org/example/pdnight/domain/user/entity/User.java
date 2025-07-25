@@ -8,6 +8,8 @@ import org.example.pdnight.domain.auth.dto.request.SignupRequestDto;
 import org.example.pdnight.domain.common.entity.Timestamped;
 import org.example.pdnight.domain.common.enums.JobCategory;
 import org.example.pdnight.domain.common.enums.UserRole;
+import org.example.pdnight.domain.coupon.entity.Coupon;
+import org.example.pdnight.domain.follow.entity.Follow;
 import org.example.pdnight.domain.hobby.entity.UserHobby;
 import org.example.pdnight.domain.invite.entity.Invite;
 import org.example.pdnight.domain.post.enums.Gender;
@@ -79,8 +81,19 @@ public class User extends Timestamped {
     @OneToMany(mappedBy = "invitee", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Invite> receivedInvites = new ArrayList<>();
 
+    //유저 삭제하면 팔로우 알아서 삭제 되도록
+    @OneToMany(mappedBy = "follower", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Follow> followList = new ArrayList<>();
+
+    //유저 삭제하면 팔로잉 알아서 삭제 되도록
+    @OneToMany(mappedBy = "following", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Follow> followingList = new ArrayList<>();
+
     private Boolean isDeleted = false;
     private LocalDateTime deletedAt;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Coupon> coupons = new ArrayList<>();
 
     public User(Long id, String name) {
         this.id = id;
@@ -132,6 +145,13 @@ public class User extends Timestamped {
         this.deletedAt = null;
     }
 
+    //어드민 생성 메서드
+    public static User createAdmin(String email, String name, String password) {
+        User admin = new User(email, name, password);
+        admin.role = UserRole.ADMIN;
+        return admin;
+    }
+
     public void setHobbyAndTech(Set<UserHobby> userHobbies, Set<UserTech> userTechs) {
         this.userHobbies = userHobbies;
         this.userTechs = userTechs;
@@ -174,8 +194,16 @@ public class User extends Timestamped {
         }
     }
 
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
     public void changePassword(String encodedPassword) {
         this.password = encodedPassword;
+    }
+
+    public void addCoupon(Coupon coupon) {
+        this.coupons.add(coupon);
     }
 
 }

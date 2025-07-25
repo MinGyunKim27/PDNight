@@ -5,6 +5,9 @@ import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.common.dto.ApiResponse;
 import org.example.pdnight.domain.common.dto.PagedResponse;
 import org.example.pdnight.domain.common.enums.JoinStatus;
+import org.example.pdnight.domain.coupon.service.CouponService;
+import org.example.pdnight.domain.follow.dto.response.FollowingResponseDto;
+import org.example.pdnight.domain.follow.service.FollowService;
 import org.example.pdnight.domain.invite.dto.response.InviteResponseDto;
 import org.example.pdnight.domain.invite.service.InviteService;
 import org.example.pdnight.domain.post.dto.response.PostResponseWithApplyStatusDto;
@@ -14,6 +17,7 @@ import org.example.pdnight.domain.user.dto.request.UserPasswordUpdateRequest;
 import org.example.pdnight.domain.user.dto.request.UserUpdateRequest;
 import org.example.pdnight.domain.user.service.UserService;
 import org.example.pdnight.global.filter.CustomUserDetails;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -29,6 +33,8 @@ public class UserController {
     private final UserService userService;
     private final PostService postService;
     private final InviteService inviteService;
+    private final FollowService followService;
+    private final CouponService couponService;
 
 
     // 내 좋아요 게시글 목록 조회
@@ -144,6 +150,20 @@ public class UserController {
         ));
     }
 
+    //내 팔로잉 목록 조회
+    @GetMapping("/my/following")
+    public ResponseEntity<ApiResponse<?>> getFollowings(
+            @AuthenticationPrincipal CustomUserDetails loggedInUser,
+            @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
+            Pageable pageable
+    ) {
+        Long myId = loggedInUser.getUserId();
+        Page<FollowingResponseDto> followings = followService.getFollowings(myId, pageable);
+        PagedResponse<FollowingResponseDto> dtoPagedResponse = PagedResponse.from(followings);
+
+        return ResponseEntity.ok(ApiResponse.ok("팔로잉 목록 조회가 완료되었습니다.", dtoPagedResponse));
+    }
+
     // -------------------- 내 초대 API -----------------------------------------//
     //내 초대받은 목록 조회
     @GetMapping("/my/invited")
@@ -171,4 +191,12 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.ok("초대 받은 목록 조회가 완료되었습니다", inviteResponseDto));
     }
 
+    // 내 쿠폰목록 조회
+    @GetMapping("/my/coupons")
+    public ResponseEntity<ApiResponse<?>> getMyCoupons(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PageableDefault(size = 10, page = 0) Pageable pageable
+    ) {
+        return ResponseEntity.ok(ApiResponse.ok("쿠폰이 조회되었습니다.", couponService.getValidCoupons(userDetails.getUserId(), pageable)));
+    }
 }

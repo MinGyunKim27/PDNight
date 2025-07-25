@@ -59,6 +59,9 @@ public enum ErrorCode {
 
     // 댓글 관련 에러 (400 Bad Request,  404 NOT_FOUND)
     COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "댓글을 찾을 수 없습니다"),
+    COMMENT_FORBIDDEN(HttpStatus.FORBIDDEN, "작성자만 접근할 수 있습니다."),
+    POST_NOT_MATCHED(HttpStatus.CONFLICT, "댓글이 해당 게시글에 속하지 않습니다."),
+    INVALID_COMMENT_DEPTH(HttpStatus.BAD_REQUEST, "대댓글에는 대댓글을 달 수 없습니다."),
 
     // 입력값 검증 에러 (400 Bad Request)
     INVALID_INPUT(HttpStatus.BAD_REQUEST, "입력값이 올바르지 않습니다"),
@@ -75,13 +78,24 @@ public enum ErrorCode {
     TECH_STACK_ALREADY_EXISTS(HttpStatus.CONFLICT,"이미 존재하는 기술 스택입니다"),
     TECH_STACK_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 기술 스택입니다."),
 
-
     // 이벤트 관련 오류
     EVENT_NOT_FOUNT(HttpStatus.NOT_FOUND, "존재하지 않는 이벤트입니다."),
     EVENT_ALREADY_PENDING(HttpStatus.CONFLICT, "이미 신청한 이벤트입니다."),
-    EVENT_PARTICIPANT_FULL(HttpStatus.CONFLICT, "신청 마감되었습니다.")
+    EVENT_PARTICIPANT_FULL(HttpStatus.CONFLICT, "신청 마감되었습니다."),
+
+    // 쿠폰 관련 에러
+    COUPON_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 쿠폰입니다."),
+    COUPON_ALREADY_USED(HttpStatus.BAD_REQUEST, "이미 사용된 쿠폰입니다."),
+    COUPON_EXPIRED(HttpStatus.BAD_REQUEST, "만료된 쿠폰입니다."),
+    COUPON_FORBIDDEN(HttpStatus.FORBIDDEN, "본인의 쿠폰만 사용할 수 있습니다.")
     ;
 
+    //팔로우 관련 오류
+    INVALID_FOLLOW_SELF(HttpStatus.BAD_REQUEST,"자기 자신을 팔로우 할 수 없습니다"),
+    ALREADY_FOLLOWING(HttpStatus.CONFLICT,"팔로우를 이미 하고 있습니다!"),
+    INVALID_UNFOLLOW_SELF(HttpStatus.BAD_REQUEST,"자기 자신을 팔로우 할 수 없습니다"),
+    NOT_FOLLOWING(HttpStatus.BAD_REQUEST,"팔로우 중이 아닙니다.")
+    ;
     private final HttpStatus status;// HTTP 상태 코드
     private final String message;// 에러 메시지
 }
