@@ -4,11 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.common.dto.PagedResponse;
 import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.enums.JobCategory;
+import org.example.pdnight.domain.common.enums.JoinStatus;
 import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.invite.service.InviteService;
 import org.example.pdnight.domain.participant.dto.response.ParticipantResponse;
 import org.example.pdnight.domain.participant.entity.PostParticipant;
-import org.example.pdnight.domain.common.enums.JoinStatus;
 import org.example.pdnight.domain.participant.repository.ParticipantRepository;
 import org.example.pdnight.domain.post.entity.Post;
 import org.example.pdnight.domain.post.enums.AgeLimit;
@@ -80,32 +80,30 @@ public class ParticipantService {
         // 신청 안되는지 확인
         validForCreateParticipant(user, post);
 
-        PostParticipant participant = null;
+        PostParticipant participant;
 
         //선착순 포스트인 경우
-        if (post.getIsFirstCome()){
+        if (post.getIsFirstCome()) {
             int count = participantRepository.countByPostAndStatus(post, JoinStatus.ACCEPTED);
-            if (count == post.getMaxParticipants()){
+            if (count == post.getMaxParticipants()) {
                 throw new BaseException(CANNOT_PARTICIPATE_POST);
-            }
-            else {
-                participant = PostParticipant.createIsFirst(post,user);
+            } else {
+                participant = PostParticipant.createIsFirst(post, user);
 
                 //참가 이후에 maxParticipants 수를 만족 했을 때
-                if(count+1 ==post.getMaxParticipants()){
+                if (count + 1 == post.getMaxParticipants()) {
                     post.updateStatus(PostStatus.CONFIRMED);
-                    inviteService.deleteAllByPostAndStatus(post,JoinStatus.PENDING);
+                    inviteService.deleteAllByPostAndStatus(post, JoinStatus.PENDING);
                 }
             }
-        }
-        else {
+        } else {
             participant = PostParticipant.create(post, user);
         }
         // 정상 신청
 
         participantRepository.save(participant);
 
-        return ParticipantResponse.of(
+        return ParticipantResponse.from(
                 loginId,
                 postId,
                 participant.getStatus(),
@@ -162,10 +160,10 @@ public class ParticipantService {
         int participantSize = participantRepository.countByPostAndStatus(post, JoinStatus.ACCEPTED);
         if (post.getMaxParticipants().equals(participantSize)) {
             post.updateStatus(PostStatus.CONFIRMED);
-            inviteService.deleteAllByPostAndStatus(post,JoinStatus.PENDING);
+            inviteService.deleteAllByPostAndStatus(post, JoinStatus.PENDING);
         }
 
-        return ParticipantResponse.of(
+        return ParticipantResponse.from(
                 userId,
                 postId,
                 pending.getStatus(),
@@ -184,7 +182,7 @@ public class ParticipantService {
         Pageable pageable = PageRequest.of(page, size);
         Page<PostParticipant> postParticipant = participantRepository.findByPostAndStatus(post, JoinStatus.PENDING, pageable);
 
-        return PagedResponse.from(postParticipant.map(p -> ParticipantResponse.of(
+        return PagedResponse.from(postParticipant.map(p -> ParticipantResponse.from(
                 p.getUser().getId(),
                 p.getPost().getId(),
                 p.getStatus(),
@@ -204,7 +202,7 @@ public class ParticipantService {
         Pageable pageable = PageRequest.of(page, size);
         Page<PostParticipant> postParticipant = participantRepository.findByPostAndStatus(post, JoinStatus.ACCEPTED, pageable);
 
-        return PagedResponse.from(postParticipant.map(p -> ParticipantResponse.of(
+        return PagedResponse.from(postParticipant.map(p -> ParticipantResponse.from(
                 p.getUser().getId(),
                 p.getPost().getId(),
                 p.getStatus(),

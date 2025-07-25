@@ -19,9 +19,9 @@ public class FollowController {
     @PostMapping
     public ResponseEntity<ApiResponse<?>> follow(
             @PathVariable Long userId,
-            @AuthenticationPrincipal CustomUserDetails loggedInUser
+            @AuthenticationPrincipal CustomUserDetails loginUser
     ){
-        FollowResponseDto follow = followService.follow(userId,loggedInUser.getUserId());
+        FollowResponseDto follow = followService.follow(userId,loginUser.getUserId());
         return ResponseEntity.ok(ApiResponse.ok("팔로우 했습니다.",follow));
     }
 
@@ -31,7 +31,6 @@ public class FollowController {
             @PathVariable Long userId,
             @AuthenticationPrincipal CustomUserDetails loggedInUser
     ){
-
         followService.unfollow(userId,loggedInUser.getUserId());
         return ResponseEntity.ok(ApiResponse.ok("언팔로우 했습니다.",null));
     }

@@ -64,4 +64,8 @@ public class SignupResponseDto {
         this.createdAt = user.getCreatedAt();
         this.updateAt = user.getUpdatedAt();
     }
+
+    public static SignupResponseDto from(User user) {
+        return new SignupResponseDto(user);
+    }
 }

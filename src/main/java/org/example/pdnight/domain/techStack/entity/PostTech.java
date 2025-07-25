@@ -29,4 +29,8 @@ public class PostTech {
         this.post = post;
         this.techStack = techStack;
     }
+
+    public static PostTech from(Post post, TechStack techStack) {
+        return new PostTech(post, techStack);
+    }
 }

@@ -53,14 +53,9 @@ public class PostService {
         User foundUser = getUserOrThrow(userRepository.findByIdAndIsDeletedFalse(userId));
 
         // List<Hobby> / List<TechStack> 생성 : DB 에서 있는거만 가져오기
-        List<Hobby> hobbyList = new ArrayList<>();
-        if (request.getHobbyIdList() != null && !request.getHobbyIdList().isEmpty()) {
-            hobbyList = hobbyRepositoryQuery.findByIdList(request.getHobbyIdList());
-        }
-        List<TechStack> techStackList = new ArrayList<>();
-        if (request.getTechStackIdList() != null && !request.getTechStackIdList().isEmpty()) {
-            techStackList = techStackRepositoryQuery.findByIdList(request.getTechStackIdList());
-        }
+        List<Hobby> hobbyList = getHobbyList(request);
+
+        List<TechStack> techStackList = getTechStackList(request);
 
         Post post = Post.createPost(
                 foundUser,
@@ -75,17 +70,14 @@ public class PostService {
         );
 
         // List<Hobby> -> Set<PostHobby>  /  List<TechStack> -> Set<PostTech>
-        Set<PostHobby> postHobbies = hobbyList.stream()
-                .map(hobby -> new PostHobby(post, hobby))
-                .collect(Collectors.toSet());
-        Set<PostTech> postTechs = techStackList.stream()
-                .map(techStack -> new PostTech(post, techStack))
-                .collect(Collectors.toSet());
+        Set<PostHobby> postHobbies = getPostHobbySet(hobbyList, post);
+
+        Set<PostTech> postTechs = getPostTechSet(techStackList, post);
 
         // post 저장 : 취미, 기술 스택 저장
         post.setHobbyAndTech(postHobbies, postTechs);
         Post savedPost = postRepository.save(post);
-        return new PostCreateAndUpdateResponseDto(savedPost);
+        return PostCreateAndUpdateResponseDto.from(savedPost);
     }
 
     //조회는 상태값 "OPEN" 인 게시글만 가능
@@ -96,7 +88,7 @@ public class PostService {
 
     @Transactional
     public void deletePostById(Long userId, Long id) {
-        Post foundPost = getPostOrThrow(postRepository.findById(id));
+        Post foundPost = getPostById(id);
         validateAuthor(userId, foundPost);
 
         foundPost.unlinkReviews();
@@ -123,25 +115,14 @@ public class PostService {
 
     @Transactional
     public PostCreateAndUpdateResponseDto updatePostDetails(Long userId, Long id, PostUpdateRequestDto request) {
-        Post foundPost = getPostOrThrow(postRepository.findById(id));
+        Post foundPost = getPostById(id);
         validateAuthor(userId, foundPost);
 
         // 취미 리스트 : DB 에서 있는거만 가져오기 -> Set<UserHobby>
-        Set<PostHobby> postHobbies = new HashSet<>();
-        if (request.getHobbyIdList() != null && !request.getHobbyIdList().isEmpty()) {
-            postHobbies = hobbyRepositoryQuery.findByIdList(request.getHobbyIdList())
-                    .stream()
-                    .map(hobby -> new PostHobby(foundPost, hobby))
-                    .collect(Collectors.toSet());
-        }
+        Set<PostHobby> postHobbies = getUserHobbyByIdList(request.getHobbyIdList(), foundPost);
+
         // 기술 스택 리스트 : DB 에서 있는거만 가져오기 -> List<UserTech>
-        Set<PostTech> postTechs = new HashSet<>();
-        if (request.getTechStackIdList() != null && !request.getTechStackIdList().isEmpty()) {
-            postTechs = techStackRepositoryQuery.findByIdList(request.getTechStackIdList())
-                    .stream()
-                    .map(techStack -> new PostTech(foundPost, techStack))
-                    .collect(Collectors.toSet());
-        }
+        Set<PostTech> postTechs = getUserTechByIdList(request.getTechStackIdList(), foundPost);
 
         foundPost.updatePostIfNotNull(
                 request.getTitle(),
@@ -156,13 +137,13 @@ public class PostService {
                 postTechs
         );
 
-        return new PostCreateAndUpdateResponseDto(foundPost);
+        return PostCreateAndUpdateResponseDto.from(foundPost);
     }
 
     @Transactional
     public PostResponseDto changeStatus(Long userId, Long id, PostStatusRequestDto request) {
         //상태값 변경은 어떤 상태라도 불러와서 수정
-        Post foundPost = getPostOrThrow(postRepository.findById(id));
+        Post foundPost = getPostById(id);
         validateAuthor(userId, foundPost);
 
         //변동사항 있을시에만 업데이트
@@ -170,47 +151,107 @@ public class PostService {
             foundPost.updateStatus(request.getStatus());
         }
 
-        return new PostResponseDto(foundPost);
+        return PostResponseDto.from(foundPost);
     }
 
+    // 내가 좋아요 누른 게시물 조회
     public PagedResponse<PostResponseWithApplyStatusDto> findMyLikedPosts(Long userId, Pageable pageable) {
         Page<PostResponseWithApplyStatusDto> myLikePost = PostRepositoryQuery.getMyLikePost(userId, pageable);
         return PagedResponse.from(myLikePost);
     }
 
+    // 내 성사된/ 신청한 게시물 조회
     public PagedResponse<PostWithJoinStatusAndAppliedAtResponseDto> findMyConfirmedPosts(Long userId, JoinStatus joinStatus, Pageable pageable) {
         Page<PostWithJoinStatusAndAppliedAtResponseDto> myLikePost = PostRepositoryQuery.getConfirmedPost(userId, joinStatus, pageable);
         return PagedResponse.from(myLikePost);
     }
 
+    //내 작성 게시물 조회
     public PagedResponse<PostResponseWithApplyStatusDto> findMyWrittenPosts(Long userId, Pageable pageable) {
         Page<PostResponseWithApplyStatusDto> myLikePost = PostRepositoryQuery.getWrittenPost(userId, pageable);
         return PagedResponse.from(myLikePost);
     }
 
+    //추천 게시물 조회
     public PagedResponse<PostResponseWithApplyStatusDto> getSuggestedPosts(Long id, Pageable pageable) {
         Page<PostResponseWithApplyStatusDto> suggestedPost = PostRepositoryQuery.getSuggestedPost(id, pageable);
         return PagedResponse.from(suggestedPost);
     }
 
+
+    // ----------------------------------- HELPER 메서드 ------------------------------------------------------ //
+    // -- HELPER 메서드 -- //
+    // get
+
     public Post getPostById(Long id) {
-        Optional<Post> byIdAndStatus = postRepository.findByIdAndStatus(id, PostStatus.OPEN);
-        return getPostOrThrow(byIdAndStatus);
+        return postRepository.findByIdAndStatus(id, PostStatus.OPEN)
+                .orElseThrow(() -> new BaseException(ErrorCode.POST_NOT_FOUND));
     }
 
-    //이하 헬퍼 메서드
-    private Post getPostOrThrow(Optional<Post> post) {
-        return post.orElseThrow(() -> new BaseException(ErrorCode.POST_NOT_FOUND));
-    }
 
     private User getUserOrThrow(Optional<User> user) {
         return user.orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
     }
 
+    // validate
     private void validateAuthor(Long userId, Post post) {
         if (!post.getAuthor().getId().equals(userId)) {
             throw new BaseException(ErrorCode.POST_FORBIDDEN);
         }
+    }
+
+    private Set<PostHobby> getPostHobbySet(List<Hobby> hobbyList, Post post) {
+        return hobbyList.stream()
+                .map(hobby -> new PostHobby(post, hobby))
+                .collect(Collectors.toSet());
+    }
+
+    private Set<PostTech> getPostTechSet(List<TechStack> techStackList, Post post) {
+        return techStackList.stream()
+                .map(techStack -> new PostTech(post, techStack))
+                .collect(Collectors.toSet());
+    }
+
+    private List<Hobby> getHobbyList(PostRequestDto request) {
+        List<Hobby> hobbyList = new ArrayList<>();
+        if (request.getHobbyIdList() != null && !request.getHobbyIdList().isEmpty()) {
+            hobbyList = hobbyRepositoryQuery.findByIdList(request.getHobbyIdList());
+        }
+        return hobbyList;
+    }
+
+    private List<TechStack> getTechStackList(PostRequestDto request) {
+        List<TechStack> techStackList = new ArrayList<>();
+        if (request.getTechStackIdList() != null && !request.getTechStackIdList().isEmpty()) {
+            techStackList = techStackRepositoryQuery.findByIdList(request.getTechStackIdList());
+        }
+        return techStackList;
+    }
+
+    // ----------- 중간 테이블 용 Helper 메서드 --------------------------//
+
+
+    private Set<PostTech> getUserTechByIdList(List<Long> ids, Post post) {
+        Set<PostTech> postTechs = new HashSet<>();
+        if (ids != null && !ids.isEmpty()) {
+            postTechs = techStackRepositoryQuery.findByIdList(ids)
+                    .stream()
+                    .map(techStack -> PostTech.from(post, techStack))
+                    .collect(Collectors.toSet());
+        }
+
+        return postTechs;
+    }
+
+    private Set<PostHobby> getUserHobbyByIdList(List<Long> ids, Post post) {
+        Set<PostHobby> postHobbies = new HashSet<>();
+        if (ids != null && !ids.isEmpty()) {
+            postHobbies = hobbyRepositoryQuery.findByIdList(ids)
+                    .stream()
+                    .map(hobby -> PostHobby.create(post, hobby))
+                    .collect(Collectors.toSet());
+        }
+        return postHobbies;
     }
 
 

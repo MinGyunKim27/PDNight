@@ -17,20 +17,18 @@ import java.time.LocalDateTime;
 @Service
 @RequiredArgsConstructor
 public class CouponService {
+
     private final CouponRepository couponRepository;
 
     // 쿠폰사용
     @Transactional
     public CouponResponseDto useCoupon(Long couponId, Long userId) {
-        Coupon coupon = couponRepository.findById(couponId)
-                .orElseThrow(() -> new BaseException(ErrorCode.COUPON_NOT_FOUND));
+        Coupon coupon = getCouponById(couponId);
 
-        if (!coupon.getUser().getId().equals(userId)) {
-            throw new BaseException(ErrorCode.COUPON_FORBIDDEN); // 본인 쿠폰만 사용 가능
-        }
+        validateUseCoupon(userId, coupon);
 
         coupon.use(); // 쿠폰 사용 처리
-        return new CouponResponseDto(coupon);
+        return CouponResponseDto.from(coupon);
     }
 
     //  보유한 사용가능한 쿠폰 조회
@@ -38,6 +36,22 @@ public class CouponService {
     public PagedResponse<CouponResponseDto> getValidCoupons(Long userId, Pageable pageable) {
         LocalDateTime now = LocalDateTime.now();
         return PagedResponse.from(couponRepository.findByUserIdAndIsUsedFalseAndValidDeadline(userId, now, pageable)
-                .map(CouponResponseDto::new));
+                .map(CouponResponseDto::from));
     }
+
+
+    // ----------------------------------- HELPER 메서드 ------------------------------------------------------ //
+    // get
+    private Coupon getCouponById(Long couponId) {
+        return couponRepository.findById(couponId)
+                .orElseThrow(() -> new BaseException(ErrorCode.COUPON_NOT_FOUND));
+    }
+
+    // validate
+    private void validateUseCoupon(Long userId, Coupon coupon) {
+        if (!coupon.getUser().getId().equals(userId)) {
+            throw new BaseException(ErrorCode.COUPON_FORBIDDEN); // 본인 쿠폰만 사용 가능
+        }
+    }
+
 }

@@ -29,4 +29,8 @@ public class UserHobby {
         this.user = user;
         this.hobby = hobby;
     }
+
+    public static UserHobby create(User user, Hobby hobby) {
+        return new UserHobby(user, hobby);
+    }
 }

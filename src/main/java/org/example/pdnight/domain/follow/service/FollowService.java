@@ -3,13 +3,13 @@ package org.example.pdnight.domain.follow.service;
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.exception.BaseException;
+import org.example.pdnight.domain.common.helper.GetHelper;
 import org.example.pdnight.domain.follow.dto.response.FollowResponseDto;
 import org.example.pdnight.domain.follow.dto.response.FollowingResponseDto;
 import org.example.pdnight.domain.follow.entity.Follow;
 import org.example.pdnight.domain.follow.repository.FollowRepository;
 import org.example.pdnight.domain.follow.repository.FollowRepositoryQuery;
 import org.example.pdnight.domain.user.entity.User;
-import org.example.pdnight.domain.user.service.UserService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -20,49 +20,64 @@ import static org.example.pdnight.domain.common.enums.ErrorCode.*;
 @Service
 @RequiredArgsConstructor
 public class FollowService {
+
     private final FollowRepository followRepository;
     private final FollowRepositoryQuery followRepositoryQuery;
-    private final UserService userService;
+    private final GetHelper helper;
 
     //팔로우
-    public FollowResponseDto follow(Long userId, Long loggedInUserId) {
-        if (userId.equals(loggedInUserId)) {
-            throw new BaseException(INVALID_FOLLOW_SELF); // 자기 자신 팔로우 방지
-        }
+    public FollowResponseDto follow(Long userId, Long loginId) {
+        // 자기 자신 팔로우 방지
+        validateIsSelfFollow(userId, loginId, INVALID_FOLLOW_SELF);
 
-        User following = userService.getUserById(userId);
-        User follower = userService.getUserById(loggedInUserId);
+        User following = helper.getUserById(userId);
+        User follower = helper.getUserById(loginId);
 
-        boolean alreadyFollowing = followRepository.existsByFollowerAndFollowing(follower, following);
-        if (alreadyFollowing) {
-            throw new BaseException(ALREADY_FOLLOWING); // 중복 팔로우 방지
-        }
+        // 중복 팔로우 방지
+        validateExistFollowing(follower, following);
 
-        Follow follow = Follow.create(follower,following);
+        Follow follow = Follow.create(follower, following);
         followRepository.save(follow);
 
-        return FollowResponseDto.toDto(follow);
+        return FollowResponseDto.from(follow);
     }
 
     //언팔로우
     @Transactional
-    public void unfollow(Long userId, Long loggedInUserId) {
-        if (userId.equals(loggedInUserId)) {
-            throw new BaseException(INVALID_UNFOLLOW_SELF); // 자기 자신 언팔 방지
-        }
+    public void unfollow(Long userId, Long loginId) {
+        // 자기 자신 언팔 방지
+        validateIsSelfFollow(userId, loginId, INVALID_UNFOLLOW_SELF);
 
-        User following = userService.getUserById(userId);
-        User follower = userService.getUserById(loggedInUserId);
+        User following = helper.getUserById(userId);
+        User follower = helper.getUserById(loginId);
 
-        Follow follow = followRepository.findByFollowerAndFollowing(follower, following)
-                .orElseThrow(() -> new BaseException(NOT_FOLLOWING)); //팔로우 중이 아님
+        //팔로우 중이 아님
+        Follow follow = getFollow(follower, following);
 
         followRepository.delete(follow);
     }
 
-    public Page<FollowingResponseDto> getFollowings(Long myId, Pageable pageable){
-        return followRepositoryQuery.findFollowingsByUserId(myId,pageable);
+    public Page<FollowingResponseDto> getFollowings(Long myId, Pageable pageable) {
+        return followRepositoryQuery.findFollowingsByUserId(myId, pageable);
     }
 
+    // ----------------------------------- HELPER 메서드 ------------------------------------------------------ //
+    // get
+    private Follow getFollow(User follower, User following) {
+        return followRepository.findByFollowerAndFollowing(follower, following)
+                .orElseThrow(() -> new BaseException(NOT_FOLLOWING));
+    }
+    // validate
+    private void validateExistFollowing(User follower, User following) {
+        boolean alreadyFollowing = followRepository.existsByFollowerAndFollowing(follower, following);
+        if (alreadyFollowing) {
+            throw new BaseException(ALREADY_FOLLOWING);
+        }
+    }
 
+    private void validateIsSelfFollow(Long userId, Long loginId, ErrorCode invalidFollowSelf) {
+        if (userId.equals(loginId)) {
+            throw new BaseException(invalidFollowSelf);
+        }
+    }
 }

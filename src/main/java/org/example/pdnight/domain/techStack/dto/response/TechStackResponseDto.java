@@ -13,7 +13,7 @@ public class TechStackResponseDto {
     private Long id;
     private String techStack;
 
-    public static TechStackResponseDto of(TechStack techStack){
+    public static TechStackResponseDto from(TechStack techStack){
         return new TechStackResponseDto(techStack.getId(),techStack.getTechStack());
     }
 }

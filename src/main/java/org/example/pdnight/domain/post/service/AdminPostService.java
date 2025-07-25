@@ -24,8 +24,10 @@ public class AdminPostService {
         postRepository.delete(foundPost);
     }
 
-    //이하 헬퍼 메서드
+    // -- HELPER 메서드 -- //
+    // get
     private Post getPostOrThrow(Optional<Post> post) {
         return post.orElseThrow(() -> new BaseException(ErrorCode.POST_NOT_FOUND));
     }
+    // validate
 }

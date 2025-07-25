@@ -21,20 +21,25 @@ public class HobbyService {
     private final HobbyRepositoryQuery hobbyRepositoryQuery;
 
     public HobbyResponse createHobby(HobbyRequest dto){
-        Boolean exists = hobbyRepository.existsHobbiesByHobby(dto.getHobby());
-
-        if (exists){
-            throw new BaseException(ErrorCode.HOBBY_ALREADY_EXISTS);
-        }
+        validateExistHobby(dto.getHobby());
 
         Hobby hobby = new Hobby(dto.getHobby());
 
         Hobby save = hobbyRepository.save(hobby);
-        return HobbyResponse.of(save);
+        return HobbyResponse.from(save);
     }
 
     public List<HobbyResponse> searchHobby(String searchHobby){
         List<Hobby> hobbies = hobbyRepositoryQuery.searchHobby(searchHobby);
-        return hobbies.stream().map(HobbyResponse::of).toList();
+        return hobbies.stream().map(HobbyResponse::from).toList();
+    }
+
+    // ----------------------------------- HELPER 메서드 ------------------------------------------------------ //
+    // validate
+    private void validateExistHobby(String hobby) {
+        Boolean exists = hobbyRepository.existsHobbiesByHobby(hobby);
+        if (exists){
+            throw new BaseException(ErrorCode.HOBBY_ALREADY_EXISTS);
+        }
     }
 }
