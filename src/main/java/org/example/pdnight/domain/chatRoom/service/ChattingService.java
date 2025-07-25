@@ -2,9 +2,9 @@ package org.example.pdnight.domain.chatRoom.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.chatRoom.dto.ChatMessageDto;
+import org.example.pdnight.domain.chatRoom.entity.ChatMessage;
+import org.example.pdnight.domain.chatRoom.entity.ChatParticipant;
 import org.example.pdnight.domain.chatRoom.entity.ChatRoom;
-import org.example.pdnight.domain.chatRoom.entity.ChatRoomParticipant;
-import org.example.pdnight.domain.chatRoom.entity.Chatting;
 import org.example.pdnight.domain.chatRoom.repository.ChatRoomParticipantRepository;
 import org.example.pdnight.domain.chatRoom.repository.ChatRoomRepository;
 import org.example.pdnight.domain.chatRoom.repository.ChattingRepository;
@@ -47,15 +47,15 @@ public class ChattingService {
     public void registration(Post post) {
         ChatRoom chatRoom = chatRoomRepository.findByPostId(post.getId());
         if(!chatRoomParticipantRepository.existsByChatRoomAndUserId(chatRoom, post.getAuthor().getId())) {
-            ChatRoomParticipant chatRoomAuth = new ChatRoomParticipant(chatRoom, post.getAuthor().getId());
+            ChatParticipant chatRoomAuth = new ChatParticipant(chatRoom, post.getAuthor().getId());
             chatRoomParticipantRepository.save(chatRoomAuth);
         }
 
         List<PostParticipant> participants = participantRepository.findByPostAndStatus(post, JoinStatus.ACCEPTED);
         for(PostParticipant participant : participants) {
             if(!chatRoomParticipantRepository.existsByChatRoomAndUserId(chatRoom, participant.getUser().getId())) {
-                ChatRoomParticipant chatRoomParticipant = new ChatRoomParticipant(chatRoom, participant.getUser().getId());
-                chatRoomParticipantRepository.save(chatRoomParticipant);
+                ChatParticipant chatParticipant = new ChatParticipant(chatRoom, participant.getUser().getId());
+                chatRoomParticipantRepository.save(chatParticipant);
             }
         }
     }
@@ -73,7 +73,7 @@ public class ChattingService {
 
     // 채팅방 기록 출력
     public List<ChatMessageDto> messageRecord(String roomId) {
-        List<Chatting> messages = chattingRepository.findByRoomId(roomId);
+        List<ChatMessage> messages = chattingRepository.findByRoomId(roomId);
         return messages.stream().map(ChatMessageDto::new).toList();
     }
 

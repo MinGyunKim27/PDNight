@@ -5,7 +5,8 @@ import lombok.Getter;
 
 @Getter
 @Entity
-public class ChatRoomParticipant {
+@Table(name = "chat_participants")
+public class ChatParticipant {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -16,12 +17,12 @@ public class ChatRoomParticipant {
 
     private Long userId;
 
-    public ChatRoomParticipant(ChatRoom chatRoom, Long id) {
+    public ChatParticipant(ChatRoom chatRoom, Long id) {
         this.chatRoom = chatRoom;
         this.userId =id;
     }
 
-    public ChatRoomParticipant() {
+    public ChatParticipant() {
 
     }
 }

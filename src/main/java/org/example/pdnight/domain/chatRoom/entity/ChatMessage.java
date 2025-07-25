@@ -1,9 +1,6 @@
 package org.example.pdnight.domain.chatRoom.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Getter;
 import org.example.pdnight.domain.chatRoom.dto.ChatMessageDto;
 import org.example.pdnight.domain.chatRoom.enums.MessageType;
@@ -12,7 +9,8 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
-public class Chatting {
+@Table(name = "chat_messages")
+public class ChatMessage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -27,7 +25,7 @@ public class Chatting {
 
     private LocalDateTime sentAt;
 
-    public Chatting(ChatMessageDto roomMessage) {
+    public ChatMessage(ChatMessageDto roomMessage) {
         this.roomId = roomMessage.getRoomId();
         this.sender = roomMessage.getSender();
         this.message = roomMessage.getMessage();
@@ -35,7 +33,7 @@ public class Chatting {
         sentAt = LocalDateTime.now();
     }
 
-    public Chatting() {
+    public ChatMessage() {
 
     }
 }
