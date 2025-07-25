@@ -117,6 +117,7 @@ class CommentServiceTest {
 
 		String content = "댓글내용";
 		Comment comment = Comment.create(mockPost, mockUser, content);
+		ReflectionTestUtils.setField(comment,"id", 1L);
 
 		when(postRepository.findById(postId)).thenReturn(Optional.of(mockPost));
 		when(userRepository.findByIdAndIsDeletedFalse(authorId)).thenReturn(Optional.of(mockUser));
@@ -128,6 +129,7 @@ class CommentServiceTest {
 		verify(postRepository).findById(postId);
 		verify(userRepository).findByIdAndIsDeletedFalse(authorId);
 		verify(commentRepository).findById(commentId);
+		verify(commentRepository).deleteAllByParentId(comment.getId());
 		verify(commentRepository).delete(comment);
 	}
 
