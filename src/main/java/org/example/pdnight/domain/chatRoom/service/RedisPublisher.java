@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 public class RedisPublisher {
     private final RedisTemplate<String, Object> redisTemplate;
 
+    // 메시지를 발행
     public void publish(ChannelTopic topic, ChatMessageDto message) {
         redisTemplate.convertAndSend(topic.getTopic(), message);
     }

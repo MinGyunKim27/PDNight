@@ -93,6 +93,7 @@
             this.roomId = localStorage.getItem("wschat.roomId");
             this.sender = localStorage.getItem("wschat.sender");
             this.fetchRoomInfo();
+            this.fetchChatHistory();
             this.connectWS();
         },
         updated() {
@@ -103,6 +104,24 @@
             });
         },
         methods: {
+            fetchChatHistory() {
+                axios.get(`/chat/record`, {
+                    params: {
+                        roomId: this.roomId
+                    }
+                }).then(res => {
+                    res.data.forEach(msg => {
+                        this.messages.push({
+                            id: Date.now() + Math.random(), // 임시 고유값
+                            sender: msg.messageType === 'ENTER' ? '[알림]' : msg.sender,
+                            message: msg.message
+                        });
+                    });
+                }).catch(err => {
+                    console.error("채팅 내역 불러오기 실패", err);
+                });
+            },
+
             fetchRoomInfo() {
                 axios.get("/chat/room/" + this.roomId)
                     .then(res => {
@@ -135,14 +154,14 @@
             recvMessage(recv) {
                 this.messages.push({
                     id: Date.now() + Math.random(),
-                    sender: recv.type === 'ENTER' ? '[알림]' : recv.sender,
+                    sender: recv.messageType === 'ENTER' ? '[알림]' : recv.sender,
                     message: recv.message
                 });
             },
             sendMessage() {
                 if (!this.message.trim()) return;
                 ws.send("/pub/chat/message", {}, JSON.stringify({
-                    type: 'TALK',
+                    messageType: 'TALK',
                     roomId: this.roomId,
                     sender: this.sender,
                     message: this.message

@@ -1,10 +1,13 @@
 package org.example.pdnight.domain.chatRoom.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.pdnight.domain.chatRoom.dto.ChatMessageDto;
 import org.example.pdnight.domain.chatRoom.entity.ChatRoom;
 import org.example.pdnight.domain.chatRoom.entity.ChatRoomParticipant;
+import org.example.pdnight.domain.chatRoom.entity.Chatting;
 import org.example.pdnight.domain.chatRoom.repository.ChatRoomParticipantRepository;
 import org.example.pdnight.domain.chatRoom.repository.ChatRoomRepository;
+import org.example.pdnight.domain.chatRoom.repository.ChattingRepository;
 import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.participant.entity.PostParticipant;
@@ -24,6 +27,7 @@ public class ChattingService {
     private final ChatRoomParticipantRepository chatRoomParticipantRepository;
     private final PostRepository postRepository;
     private final ParticipantRepository participantRepository;
+    private final ChattingRepository chattingRepository;
 
     // 게시글 채팅방이 생성되었는지 확인
     public Boolean checkPostChatRoom(Long postId) {
@@ -66,4 +70,11 @@ public class ChattingService {
         }
         return "채팅방에 참여 되었습니다.";
     }
+
+    // 채팅방 기록 출력
+    public List<ChatMessageDto> messageRecord(String roomId) {
+        List<Chatting> messages = chattingRepository.findByRoomId(roomId);
+        return messages.stream().map(ChatMessageDto::new).toList();
+    }
+
 }
