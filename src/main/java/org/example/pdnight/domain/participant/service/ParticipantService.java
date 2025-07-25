@@ -75,42 +75,38 @@ public class ParticipantService {
 
     //참가 신청
     @Transactional
-    @DistributedLock(
-            key = "#postId",
-            timeoutMs = 3000,
-            intervalMs = 100
-    )
+    @DistributedLock(key = "#postId", timeoutMs = 3000, intervalMs = 100)
     public ParticipantResponse applyParticipant(Long loginId, Long postId) {
         User user = getUser(loginId);
         Post post = getPostWithOpen(postId);
 
-        // 신청 안되는지 확인
         validForCreateParticipant(user, post);
 
-        PostParticipant participant = null;
+        PostParticipant participant;
 
-        //선착순 포스트인 경우
-        if (post.getIsFirstCome()){
+        if (post.getIsFirstCome()) {
             int count = participantRepository.countByPostAndStatus(post, JoinStatus.ACCEPTED);
-            if (count == post.getMaxParticipants()){
+            if (count >= post.getMaxParticipants()) {
                 throw new BaseException(CANNOT_PARTICIPATE_POST);
             }
-            else {
-                participant = PostParticipant.createIsFirst(post,user);
 
-                //참가 이후에 maxParticipants 수를 만족 했을 때
-                if(count+1 ==post.getMaxParticipants()){
-                    post.updateStatus(PostStatus.CONFIRMED);
-                    inviteService.deleteAllByPostAndStatus(post,JoinStatus.PENDING);
-                }
+            participant = PostParticipant.createIsFirst(post, user);
+            participantRepository.save(participant); // SAVE 먼저
+
+            // save 후 다시 count해서 정확하게 확인
+            int afterCount = participantRepository.countByPostAndStatus(post, JoinStatus.ACCEPTED);
+            if (afterCount > post.getMaxParticipants()) {
+                throw new BaseException(CANNOT_PARTICIPATE_POST); // 초과 시 롤백
             }
-        }
-        else {
-            participant = PostParticipant.create(post, user);
-        }
-        // 정상 신청
 
-        participantRepository.save(participant);
+            if (afterCount == post.getMaxParticipants()) {
+                post.updateStatus(PostStatus.CONFIRMED);
+                inviteService.deleteAllByPostAndStatus(post, JoinStatus.PENDING);
+            }
+        } else {
+            participant = PostParticipant.create(post, user);
+            participantRepository.save(participant);
+        }
 
         return ParticipantResponse.of(
                 loginId,
@@ -120,6 +116,7 @@ public class ParticipantService {
                 participant.getUpdatedAt()
         );
     }
+
 
     //참가 취소
     @Transactional
@@ -145,6 +142,11 @@ public class ParticipantService {
 
     //참가 확정(작성자)
     @Transactional
+    @DistributedLock(
+            key = "#postId",
+            timeoutMs = 3000,
+            intervalMs = 100
+    )
     public ParticipantResponse changeStatusParticipant(Long authorId, Long userId, Long postId, String status) {
         User user = getUser(userId);
         Post post = getPostWithOpen(postId);

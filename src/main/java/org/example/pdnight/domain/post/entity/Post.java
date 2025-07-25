@@ -2,6 +2,7 @@ package org.example.pdnight.domain.post.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.pdnight.domain.common.entity.Timestamped;
@@ -87,10 +88,33 @@ public class Post extends Timestamped {
         this.ageLimit = ageLimit;
     }
 
+    private Post(User author, String title, LocalDateTime timeSlot, String publicContent, String privateContent,
+                 Integer maxParticipants, Gender genderLimit, JobCategory jobCategoryLimit, AgeLimit ageLimit, Boolean isFirstCome, PostStatus status)
+    {
+        this.author = author;
+        this.title = title;
+        this.timeSlot = timeSlot;
+        this.publicContent = publicContent;
+        this.privateContent = privateContent;
+        this.status = PostStatus.OPEN;
+        this.maxParticipants = maxParticipants;
+        this.genderLimit = genderLimit;
+        this.jobCategoryLimit = jobCategoryLimit;
+        this.ageLimit = ageLimit;
+        this.isFirstCome = isFirstCome;
+        this.status = status;
+    }
+
     public static Post createPost(User author, String title, LocalDateTime timeSlot, String publicContent, String privateContent,
         Integer maxParticipants, Gender genderLimit, JobCategory jobCategoryLimit, AgeLimit ageLimit)
     {
         return new Post(author, title, timeSlot, publicContent, privateContent, maxParticipants, genderLimit, jobCategoryLimit, ageLimit);
+    }
+
+    public static Post createPost(User author, String title, LocalDateTime timeSlot, String publicContent, String privateContent,
+                                  Integer maxParticipants, Gender genderLimit, JobCategory jobCategoryLimit, AgeLimit ageLimit, Boolean isFirstCome, PostStatus status)
+    {
+        return new Post(author, title, timeSlot, publicContent, privateContent, maxParticipants, genderLimit, jobCategoryLimit, ageLimit, isFirstCome, status);
     }
 
     //update 메서드 null 체크 후 아닌 값만 set
