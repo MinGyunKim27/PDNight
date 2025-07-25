@@ -1,0 +1,78 @@
+version: '3.8'
+
+services:
+  k6:
+    image: grafana/k6
+    networks:
+      - k6-network
+      - pdnight-net
+    volumes:
+      - ./k6-scripts:/scripts
+    environment:
+      - K6_WEB_DASHBOARD=true
+    ports:
+      - "5665:5665"
+    depends_on:
+      pdnight-app:
+        # 스프링 애플리케이션의 health check가 성공할 때까지 대기
+        # 참고로 스프링 애플리케이션(app)에도 health check 설정이 되어있어야함.
+        condition: service_healthy
+    working_dir: /scripts
+    command: run /scripts/script.js
+
+  pdnight-app:
+    container_name: pdnight-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+#      REDIS_HOST: ${REDIS_HOST}
+#      REDIS_PORT: ${REDIS_PORT}
+    depends_on:
+      - mysql
+#      - redis
+    networks:
+      - pdnight-net
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mysql:
+    container_name: mysql
+    image: mysql:8.0
+    restart: always
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      MYSQL_DATABASE: "PDNight"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - pdnight-net
+
+#  redis:
+#    container_name: redis
+#    image: redis:6.2
+#    restart: always
+#    ports:
+#      - "6379:6379"
+#    networks:
+#      - pdnight-net
+
+networks:
+  k6-network:
+    driver: bridge
+  pdnight-net:
+    driver: bridge
+
+volumes:
+  mysql-data:
