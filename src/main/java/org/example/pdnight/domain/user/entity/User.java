@@ -1,9 +1,5 @@
 package org.example.pdnight.domain.user.entity;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,16 +8,17 @@ import org.example.pdnight.domain.auth.dto.request.SignupRequestDto;
 import org.example.pdnight.domain.common.entity.Timestamped;
 import org.example.pdnight.domain.common.enums.JobCategory;
 import org.example.pdnight.domain.common.enums.UserRole;
-import org.example.pdnight.domain.hobby.entity.Hobby;
-import org.example.pdnight.domain.invite.entity.Invite;
 import org.example.pdnight.domain.hobby.entity.UserHobby;
+import org.example.pdnight.domain.invite.entity.Invite;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.techStack.entity.UserTech;
 import org.example.pdnight.domain.user.dto.request.UserUpdateRequest;
 import org.example.pdnight.domain.user.enums.Region;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -102,7 +99,7 @@ public class User extends Timestamped {
         this.name = request.getName();
         this.nickname = request.getNickname();
         this.gender = request.getGender();
-        this.age =  request.getAge();
+        this.age = request.getAge();
         this.jobCategory = request.getJobCategory();
         this.region = request.getRegion();
         this.workLocation = request.getWorkLocation();
@@ -164,7 +161,7 @@ public class User extends Timestamped {
         if (request.getRegion() != null) {
             this.region = Region.valueOf(request.getRegion());
         }
-        if (request.getComment() != null){
+        if (request.getComment() != null) {
             this.comment = request.getComment();
         }
         if (userHobbies != null) {

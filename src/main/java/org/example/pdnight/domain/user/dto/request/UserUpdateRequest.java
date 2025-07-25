@@ -15,9 +15,4 @@ public class UserUpdateRequest {
     private String jobCategory;
     private String region;
     private String comment;
-
-    public UserUpdateRequest(String name, Long hobbyId) {
-        this.name = name;
-        this.hobbyId = hobbyId;
-    }
 }

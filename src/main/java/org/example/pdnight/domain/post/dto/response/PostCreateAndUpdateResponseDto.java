@@ -1,23 +1,25 @@
 package org.example.pdnight.domain.post.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.querydsl.core.annotations.QueryProjection;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.pdnight.domain.common.enums.JobCategory;
+import org.example.pdnight.domain.hobby.entity.PostHobby;
 import org.example.pdnight.domain.post.entity.Post;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.enums.PostStatus;
+import org.example.pdnight.domain.techStack.entity.PostTech;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
+import java.util.Set;
 
 @Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @NoArgsConstructor(force = true)
-public class PostResponseWithApplyStatusDto {
+public class PostCreateAndUpdateResponseDto {
+
     private final Long postId;
     private final Long authorId;
     private final String title;
@@ -29,14 +31,12 @@ public class PostResponseWithApplyStatusDto {
     private final Gender genderLimit;
     private final JobCategory jobCategoryLimit;
     private final AgeLimit ageLimit;
-    private List<String> hobbyList;
-    private List<String> techStackList;
-    private final Long appliedCount;
-    private final Long confirmedCount;
+    private final List<String> hobbyList;
+    private final List<String> techStackList;
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
 
-    public PostResponseWithApplyStatusDto(Post post, Long appliedCount, Long confirmedCount) {
+    public PostCreateAndUpdateResponseDto(Post post) {
         this.postId = post.getId();
         this.authorId = post.getAuthor().getId();
         this.title = post.getTitle();
@@ -46,6 +46,8 @@ public class PostResponseWithApplyStatusDto {
         this.status = post.getStatus();
         this.maxParticipants = post.getMaxParticipants();
         this.genderLimit = post.getGenderLimit();
+        this.jobCategoryLimit = post.getJobCategoryLimit();
+        this.ageLimit = post.getAgeLimit();
         this.hobbyList = post.getPostHobbies()
                 .stream()
                 .map(hobby -> hobby.getHobby().getHobby())
@@ -54,16 +56,11 @@ public class PostResponseWithApplyStatusDto {
                 .stream()
                 .map(tech -> tech.getTechStack().getTechStack())
                 .toList();
-        this.jobCategoryLimit = post.getJobCategoryLimit();
-        this.ageLimit = post.getAgeLimit();
         this.createdAt = post.getCreatedAt();
         this.updatedAt = post.getUpdatedAt();
-        this.appliedCount = appliedCount;
-        this.confirmedCount = confirmedCount;
     }
 
-    @QueryProjection
-    public PostResponseWithApplyStatusDto(
+    public PostCreateAndUpdateResponseDto(
             Long id,
             Long authorId,
             String title,
@@ -75,8 +72,8 @@ public class PostResponseWithApplyStatusDto {
             Gender genderLimit,
             JobCategory jobCategoryLimit,
             AgeLimit ageLimit,
-            Long appliedCount,
-            Long confirmedCount,
+            Set<PostHobby> hobbyList,
+            Set<PostTech> techStackList,
             LocalDateTime createdAt,
             LocalDateTime updatedAt
     ) {
@@ -91,15 +88,33 @@ public class PostResponseWithApplyStatusDto {
         this.genderLimit = genderLimit;
         this.jobCategoryLimit = jobCategoryLimit;
         this.ageLimit = ageLimit;
-        this.appliedCount = appliedCount;
-        this.confirmedCount = confirmedCount;
+        this.hobbyList = hobbyList.stream()
+                .map(hobby -> hobby.getHobby().getHobby())
+                .toList();
+        this.techStackList = techStackList.stream()
+                .map(tech -> tech.getTechStack().getTechStack())
+                .toList();
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
 
-    public void setHobbyAndTech(List<String> hobbyList, List<String> techStackList) {
-        this.hobbyList = hobbyList;
-        this.techStackList = techStackList;
+    public static PostCreateAndUpdateResponseDto toDto(Post post) {
+        return new PostCreateAndUpdateResponseDto(
+                post.getId(),
+                post.getAuthor().getId(),
+                post.getTitle(),
+                post.getTimeSlot(),
+                post.getPublicContent(),
+                post.getPrivateContent(),
+                post.getStatus(),
+                post.getMaxParticipants(),
+                post.getGenderLimit(),
+                post.getJobCategoryLimit(),
+                post.getAgeLimit(),
+                post.getPostHobbies(),
+                post.getPostTechs(),
+                post.getCreatedAt(),
+                post.getUpdatedAt());
     }
 
 }

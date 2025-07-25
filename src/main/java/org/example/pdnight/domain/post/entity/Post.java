@@ -5,9 +5,9 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.pdnight.domain.common.entity.Timestamped;
-import org.example.pdnight.domain.invite.entity.Invite;
 import org.example.pdnight.domain.common.enums.JobCategory;
 import org.example.pdnight.domain.hobby.entity.PostHobby;
+import org.example.pdnight.domain.invite.entity.Invite;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.enums.PostStatus;
@@ -96,16 +96,16 @@ public class Post extends Timestamped {
         this.ageLimit = ageLimit;
     }
 
-    public void setHobbyAndTech(Set<PostHobby> postHobbies, Set<PostTech> postTechs) {
-        this.postHobbies = postHobbies;
-        this.postTechs = postTechs;
-    }
-
     public static Post createPost(
             User author, String title, LocalDateTime timeSlot, String publicContent, String privateContent,
             Integer maxParticipants, Gender genderLimit, JobCategory jobCategoryLimit, AgeLimit ageLimit
     ) {
         return new Post(author, title, timeSlot, publicContent, privateContent, maxParticipants, genderLimit, jobCategoryLimit, ageLimit);
+    }
+
+    public void setHobbyAndTech(Set<PostHobby> postHobbies, Set<PostTech> postTechs) {
+        this.postHobbies = postHobbies;
+        this.postTechs = postTechs;
     }
 
     //update 메서드 null 체크 후 아닌 값만 set
@@ -136,7 +136,6 @@ public class Post extends Timestamped {
     public void updateStatus(PostStatus status) {
         this.status = status;
     }
-
 
     public void addLike(PostLike postLike) {
         this.postLikes.add(postLike);

@@ -9,12 +9,12 @@ import org.example.pdnight.domain.auth.dto.response.SignupResponseDto;
 import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.hobby.entity.Hobby;
+import org.example.pdnight.domain.hobby.entity.UserHobby;
 import org.example.pdnight.domain.hobby.repository.HobbyRepositoryQuery;
 import org.example.pdnight.domain.techStack.entity.TechStack;
+import org.example.pdnight.domain.techStack.entity.UserTech;
 import org.example.pdnight.domain.techStack.repository.TechStackRepositoryQuery;
 import org.example.pdnight.domain.user.entity.User;
-import org.example.pdnight.domain.hobby.entity.UserHobby;
-import org.example.pdnight.domain.techStack.entity.UserTech;
 import org.example.pdnight.domain.user.repository.UserRepository;
 import org.example.pdnight.global.config.PasswordEncoder;
 import org.example.pdnight.global.utils.JwtUtil;
@@ -75,11 +75,11 @@ public class AuthService {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
-        if(user.getIsDeleted()) {
+        if (user.getIsDeleted()) {
             throw new BaseException(ErrorCode.USER_DEACTIVATED);
         }
 
-        if(!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new BaseException(ErrorCode.INVALID_PASSWORD);
         }
 
@@ -96,11 +96,11 @@ public class AuthService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
-        if(user.getIsDeleted()) {
+        if (user.getIsDeleted()) {
             throw new BaseException(ErrorCode.USER_DEACTIVATED);
         }
 
-        if(!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new BaseException(ErrorCode.INVALID_PASSWORD);
         }
 

@@ -6,9 +6,9 @@ import lombok.Getter;
 @Getter
 public class UserPasswordUpdateRequest {
     @NotNull
-    private String oldPassword ;
+    private String oldPassword;
     @NotNull
-    private String newPassword ;
+    private String newPassword;
 
     public UserPasswordUpdateRequest(String oldPassword, String newPassword) {
         this.oldPassword = oldPassword;

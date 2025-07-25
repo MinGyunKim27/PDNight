@@ -22,10 +22,6 @@ public class SignupResponseDto {
 
     private String nickname;
 
-    private String hobby;
-
-    private String techStack;
-
     private List<String> hobbyList;
 
     private List<String> techStackList;
