@@ -9,6 +9,8 @@ import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.user.enums.Region;
 import org.example.pdnight.global.annotation.ValidEmailPattern;
 
+import java.util.List;
+
 @Getter
 @Builder
 public class SignupRequestDto {
@@ -25,10 +27,10 @@ public class SignupRequestDto {
     private String nickname;
 
 //    @NotBlank(message = "취미를 작성해야 합니다.")
-    private Long hobbyId;
+    private List<Long> hobbyIdList;
 
 //    @NotBlank(message = "기술 스택을 작성해야 합니다.")
-    private Long techStackId;
+    private List<Long> techStackIdList;
 
     @NotNull(message = "성별을 작성해야 합니다.")
     private Gender gender;

@@ -2,10 +2,12 @@ package org.example.pdnight.domain.user.dto.request;
 
 import lombok.Getter;
 
+import java.util.List;
+
 @Getter
 public class UserUpdateRequest {
-    private Long hobbyId;
-    private Long techStackId;
+    private List<Long> hobbyIdList;
+    private List<Long> techStackIdList;
     private String name;
     private String nickname;
     private String gender;
@@ -14,8 +16,9 @@ public class UserUpdateRequest {
     private String region;
     private String comment;
 
-    public UserUpdateRequest(String name, Long hobbyId) {
+    // 테스트 실행용
+    public UserUpdateRequest(String name, List<Long> hobbyIdList) {
         this.name = name;
-        this.hobbyId = hobbyId;
+        this.hobbyIdList = hobbyIdList;
     }
 }

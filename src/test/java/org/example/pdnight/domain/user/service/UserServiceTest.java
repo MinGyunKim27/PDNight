@@ -4,7 +4,6 @@ import at.favre.lib.crypto.bcrypt.BCrypt;
 import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.hobby.entity.Hobby;
 import org.example.pdnight.domain.hobby.repository.HobbyRepository;
-import org.example.pdnight.domain.techStack.repository.TechStackRepository;
 import org.example.pdnight.domain.user.dto.request.UserPasswordUpdateRequest;
 import org.example.pdnight.domain.user.dto.request.UserUpdateRequest;
 import org.example.pdnight.domain.user.dto.response.UserEvaluationResponse;
@@ -16,7 +15,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.List;
 import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -66,9 +68,11 @@ public class UserServiceTest {
         Long userId = 1L;
         Long hobbyId = 1L;
         Hobby hobby = new Hobby(hobbyId, "hobby");
+        List<Long> hobbyIdList = List.of(1L);
+        List<String> hobbyList = List.of("hobby");
         User user = new User(userId, "Test");
 
-        UserUpdateRequest request = new UserUpdateRequest("Test", hobbyId);
+        UserUpdateRequest request = new UserUpdateRequest("Test", hobbyIdList);
 
         when(hobbyRepository.findById(hobbyId)).thenReturn(Optional.of(hobby));
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
@@ -80,15 +84,16 @@ public class UserServiceTest {
         // then
         verify(userRepository).save(any(User.class)); // 저장 메서드 호출 확인
         assertEquals("Test", result.getName());
-        assertEquals("hobby", result.getHobbies());
+        assertEquals(hobbyList, result.getHobbyList());
     }
 
     @Test
-    void 내_프로필_수정_실패_없는_취미(){
+    void 내_프로필_수정_실패_없는_취미() {
         // given
         Long userId = 1L;
         Long hobbyId = 999L; // 존재하지 않는 ID
-        UserUpdateRequest request = new UserUpdateRequest("닉네임", hobbyId);
+        List<Long> hobbyIdList = List.of(1L);
+        UserUpdateRequest request = new UserUpdateRequest("닉네임", hobbyIdList);
 
         when(hobbyRepository.findById(hobbyId)).thenReturn(Optional.empty());
 
