@@ -1,6 +1,7 @@
 package org.example.pdnight.domain.participant.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.pdnight.domain.chatRoom.service.ChattingService;
 import org.example.pdnight.domain.common.dto.PagedResponse;
 import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.exception.BaseException;
@@ -27,6 +28,7 @@ public class ParticipantService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final ParticipantRepository participantRepository;
+    private final ChattingService chattingService;
 
     private User getUser(Long userId) {
         return userRepository.findById(userId)
@@ -135,6 +137,11 @@ public class ParticipantService {
         int participantSize = participantRepository.findByPostAndStatus(post, JoinStatus.ACCEPTED).size();
         if (post.getMaxParticipants().equals(participantSize)) {
             post.updateStatus(PostStatus.CONFIRMED);
+            // 채팅방 생성
+            if (!chattingService.checkPostChatRoom(postId)) {
+                chattingService.createFromPost(postId);
+            }
+            chattingService.registration(post);
         }
 
         return ParticipantResponse.of(

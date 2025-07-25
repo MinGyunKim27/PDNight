@@ -13,8 +13,15 @@ public class ChatRoom {
 
     private String chatRoomName;
 
+    private Long postId;
+
     public ChatRoom(String name) {
         chatRoomName = name;
+    }
+
+    public ChatRoom(String name, Long postId) {
+        chatRoomName = name;
+        this.postId = postId;
     }
 
     public ChatRoom() {

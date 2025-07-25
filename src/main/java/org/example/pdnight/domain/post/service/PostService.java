@@ -2,6 +2,8 @@ package org.example.pdnight.domain.post.service;
 
 import java.util.Optional;
 
+import org.example.pdnight.domain.chatRoom.entity.ChatRoom;
+import org.example.pdnight.domain.chatRoom.service.ChattingService;
 import org.example.pdnight.domain.common.dto.PagedResponse;
 import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.enums.JobCategory;
@@ -30,121 +32,131 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class PostService {
-	private final PostRepository postRepository;
-	private final UserRepository userRepository;
-	private final PostRepositoryQueryImpl postRepositoryQuery;
+    private final PostRepository postRepository;
+    private final UserRepository userRepository;
+    private final PostRepositoryQueryImpl postRepositoryQuery;
+    private final ChattingService chattingService;
 
-	@Transactional
-	public PostResponseDto createPost(Long userId, PostRequestDto request) {
-		//임시 메서드 User 도메인 작업에 따라 변동될 것
-		User foundUser = getUserOrThrow(userRepository.findByIdAndIsDeletedFalse(userId));
+    @Transactional
+    public PostResponseDto createPost(Long userId, PostRequestDto request) {
+        //임시 메서드 User 도메인 작업에 따라 변동될 것
+        User foundUser = getUserOrThrow(userRepository.findByIdAndIsDeletedFalse(userId));
 
-		Post post = Post.createPost(
-			foundUser,
-			request.getTitle(),
-			request.getTimeSlot(),
-			request.getPublicContent(),
-			request.getPrivateContent(),
-			request.getMaxParticipants(),
-			request.getGenderLimit(),
-			request.getJobCategoryLimit(),
-			request.getAgeLimit()
-		);
+        Post post = Post.createPost(
+                foundUser,
+                request.getTitle(),
+                request.getTimeSlot(),
+                request.getPublicContent(),
+                request.getPrivateContent(),
+                request.getMaxParticipants(),
+                request.getGenderLimit(),
+                request.getJobCategoryLimit(),
+                request.getAgeLimit()
+        );
 
-		Post savedPost = postRepository.save(post);
-		return new PostResponseDto(savedPost);
-	}
+        Post savedPost = postRepository.save(post);
+        return new PostResponseDto(savedPost);
+    }
 
-	//조회는 상태값 "OPEN" 인 게시글만 가능
-	@Transactional(readOnly = true)
-	public PostResponseDto findOpenedPost(Long id) {
-		Post foundPost = getPostOrThrow(postRepository.findByIdAndStatus(id, PostStatus.OPEN));
-		return new PostResponseDto(foundPost);
-	}
+    //조회는 상태값 "OPEN" 인 게시글만 가능
+    @Transactional(readOnly = true)
+    public PostResponseDto findOpenedPost(Long id) {
+        Post foundPost = getPostOrThrow(postRepository.findByIdAndStatus(id, PostStatus.OPEN));
+        return new PostResponseDto(foundPost);
+    }
 
-	@Transactional
-	public void deletePostById(Long userId, Long id) {
-		Post foundPost = getPostOrThrow(postRepository.findById(id));
-		validateAuthor(userId, foundPost);
+    @Transactional
+    public void deletePostById(Long userId, Long id) {
+        Post foundPost = getPostOrThrow(postRepository.findById(id));
+        validateAuthor(userId, foundPost);
 
-		foundPost.unlinkReviews();
-		postRepository.delete(foundPost);
-	}
+        foundPost.unlinkReviews();
+        postRepository.delete(foundPost);
+    }
 
-	@Transactional(readOnly = true)
-	public Page<PostResponseDto> getPostDtosBySearch(
-		Pageable pageable,
-		Integer maxParticipants,
-		AgeLimit ageLimit,
-		JobCategory jobCategoryLimit,
-		Gender genderLimit
-	) {
-		return postRepository.findPostDtosBySearch(pageable, maxParticipants,
-			ageLimit, jobCategoryLimit, genderLimit);
-	}
+    @Transactional(readOnly = true)
+    public Page<PostResponseDto> getPostDtosBySearch(
+            Pageable pageable,
+            Integer maxParticipants,
+            AgeLimit ageLimit,
+            JobCategory jobCategoryLimit,
+            Gender genderLimit
+    ) {
+        return postRepository.findPostDtosBySearch(pageable, maxParticipants,
+                ageLimit, jobCategoryLimit, genderLimit);
+    }
 
-	@Transactional
-	public PostResponseDto updatePostDetails(Long userId, Long id, PostUpdateRequestDto request) {
-		Post foundPost = getPostOrThrow(postRepository.findById(id));
-		validateAuthor(userId, foundPost);
+    @Transactional
+    public PostResponseDto updatePostDetails(Long userId, Long id, PostUpdateRequestDto request) {
+        Post foundPost = getPostOrThrow(postRepository.findById(id));
+        validateAuthor(userId, foundPost);
 
-		foundPost.updatePostIfNotNull(
-			request.getTitle(),
-			request.getTimeSlot(),
-			request.getPublicContent(),
-			request.getPrivateContent(),
-			request.getMaxParticipants(),
-			request.getGenderLimit(),
-			request.getJobCategoryLimit(),
-			request.getAgeLimit()
-		);
+        foundPost.updatePostIfNotNull(
+                request.getTitle(),
+                request.getTimeSlot(),
+                request.getPublicContent(),
+                request.getPrivateContent(),
+                request.getMaxParticipants(),
+                request.getGenderLimit(),
+                request.getJobCategoryLimit(),
+                request.getAgeLimit()
+        );
 
-		return new PostResponseDto(foundPost);
-	}
+        return new PostResponseDto(foundPost);
+    }
 
-	@Transactional
-	public PostResponseDto changeStatus(Long userId, Long id, PostStatusRequestDto request) {
-		//상태값 변경은 어떤 상태라도 불러와서 수정
-		Post foundPost = getPostOrThrow(postRepository.findById(id));
-		validateAuthor(userId, foundPost);
+    @Transactional
+    public PostResponseDto changeStatus(Long userId, Long id, PostStatusRequestDto request) {
+        //상태값 변경은 어떤 상태라도 불러와서 수정
+        Post foundPost = getPostOrThrow(postRepository.findById(id));
+        validateAuthor(userId, foundPost);
 
-		//변동사항 있을시에만 업데이트
-		if(!foundPost.getStatus().equals(request.getStatus())){
-			foundPost.updateStatus(request.getStatus());
-		}
+        //변동사항 있을시에만 업데이트
+        if (!foundPost.getStatus().equals(request.getStatus())) {
+            foundPost.updateStatus(request.getStatus());
+            //모임 성사로 변경시 채팅방 생성
+            if (request.getStatus().equals(PostStatus.CONFIRMED)) {
+                // 게시글로 생성된 채팅방이 없는 경우 생성
+                if (!chattingService.checkPostChatRoom(foundPost.getId())) {
+                    chattingService.createFromPost(foundPost.getId());
+                }
+                chattingService.registration(foundPost);
 
-		return new PostResponseDto(foundPost);
-	}
+            }
+        }
 
-	public PagedResponse<PostResponseDto> findMyLikedPosts(Long userId, Pageable pageable){
-		Page<Post> myLikePost = postRepositoryQuery.getMyLikePost(userId, pageable);
-		Page<PostResponseDto> postResponseDtos = myLikePost.map(PostResponseDto::toDto);
-		return PagedResponse.from(postResponseDtos);
-	}
+        return new PostResponseDto(foundPost);
+    }
 
-	public PagedResponse<PostWithJoinStatusAndAppliedAtResponseDto> findMyConfirmedPosts(Long userId, JoinStatus joinStatus, Pageable pageable) {
-		Page<PostWithJoinStatusAndAppliedAtResponseDto> myLikePost = postRepositoryQuery.getConfirmedPost(userId, joinStatus, pageable);
-		return PagedResponse.from(myLikePost);
-	}
+    public PagedResponse<PostResponseDto> findMyLikedPosts(Long userId, Pageable pageable) {
+        Page<Post> myLikePost = postRepositoryQuery.getMyLikePost(userId, pageable);
+        Page<PostResponseDto> postResponseDtos = myLikePost.map(PostResponseDto::toDto);
+        return PagedResponse.from(postResponseDtos);
+    }
 
-	public PagedResponse<PostResponseDto> findMyWrittenPosts(Long userId, Pageable pageable) {
-		Page<PostResponseDto> myLikePost = postRepositoryQuery.getWrittenPost(userId, pageable);
-		return PagedResponse.from(myLikePost);
-	}
+    public PagedResponse<PostWithJoinStatusAndAppliedAtResponseDto> findMyConfirmedPosts(Long userId, JoinStatus joinStatus, Pageable pageable) {
+        Page<PostWithJoinStatusAndAppliedAtResponseDto> myLikePost = postRepositoryQuery.getConfirmedPost(userId, joinStatus, pageable);
+        return PagedResponse.from(myLikePost);
+    }
 
-	//이하 헬퍼 메서드
-	private Post getPostOrThrow(Optional<Post> post) {
-		return post.orElseThrow(() -> new BaseException(ErrorCode.POST_NOT_FOUND));
-	}
+    public PagedResponse<PostResponseDto> findMyWrittenPosts(Long userId, Pageable pageable) {
+        Page<PostResponseDto> myLikePost = postRepositoryQuery.getWrittenPost(userId, pageable);
+        return PagedResponse.from(myLikePost);
+    }
 
-	private User getUserOrThrow(Optional<User> user) {
-		return user.orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
-	}
+    //이하 헬퍼 메서드
+    private Post getPostOrThrow(Optional<Post> post) {
+        return post.orElseThrow(() -> new BaseException(ErrorCode.POST_NOT_FOUND));
+    }
 
-	private void validateAuthor(Long userId, Post post) {
-		if (!post.getAuthor().getId().equals(userId)) {
-			throw new BaseException(ErrorCode.POST_FORBIDDEN);
-		}
-	}
+    private User getUserOrThrow(Optional<User> user) {
+        return user.orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+    }
+
+    private void validateAuthor(Long userId, Post post) {
+        if (!post.getAuthor().getId().equals(userId)) {
+            throw new BaseException(ErrorCode.POST_FORBIDDEN);
+        }
+    }
 
 }

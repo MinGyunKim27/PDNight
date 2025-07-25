@@ -5,4 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 
 public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
+    Boolean existsByPostId(Long postId);
+
+    ChatRoom findByPostId(Long id);
 }
