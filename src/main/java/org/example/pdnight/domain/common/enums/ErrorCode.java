@@ -78,7 +78,6 @@ public enum ErrorCode {
     TECH_STACK_ALREADY_EXISTS(HttpStatus.CONFLICT,"이미 존재하는 기술 스택입니다"),
     TECH_STACK_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 기술 스택입니다."),
 
-
     // 이벤트 관련 오류
     EVENT_NOT_FOUNT(HttpStatus.NOT_FOUND, "존재하지 않는 이벤트입니다."),
     EVENT_ALREADY_PENDING(HttpStatus.CONFLICT, "이미 신청한 이벤트입니다."),
@@ -91,6 +90,12 @@ public enum ErrorCode {
     COUPON_FORBIDDEN(HttpStatus.FORBIDDEN, "본인의 쿠폰만 사용할 수 있습니다.")
     ;
 
+    //팔로우 관련 오류
+    INVALID_FOLLOW_SELF(HttpStatus.BAD_REQUEST,"자기 자신을 팔로우 할 수 없습니다"),
+    ALREADY_FOLLOWING(HttpStatus.CONFLICT,"팔로우를 이미 하고 있습니다!"),
+    INVALID_UNFOLLOW_SELF(HttpStatus.BAD_REQUEST,"자기 자신을 팔로우 할 수 없습니다"),
+    NOT_FOLLOWING(HttpStatus.BAD_REQUEST,"팔로우 중이 아닙니다.")
+    ;
     private final HttpStatus status;// HTTP 상태 코드
     private final String message;// 에러 메시지
 }
