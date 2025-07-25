@@ -22,6 +22,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/posts")
 @RequiredArgsConstructor
@@ -63,12 +65,17 @@ public class PostController {
             @RequestParam(defaultValue = "1") Integer maxParticipants,
             @RequestParam(required = false) AgeLimit ageLimit,
             @RequestParam(required = false) JobCategory jobCategoryLimit,
-            @RequestParam(required = false) Gender genderLimit
+            @RequestParam(required = false) Gender genderLimit,
+            @RequestParam(required = false) List<Long> hobbyIdList,
+            @RequestParam(required = false) List<Long> techStackIdList
     ) {
         Pageable pageable = PageRequest.of(page, size);
 
         PagedResponse<PostResponseWithApplyStatusDto> pagedResponse = PagedResponse.from(
-                postService.getPostDtosBySearch(pageable, maxParticipants, ageLimit, jobCategoryLimit, genderLimit));
+                postService.getPostDtosBySearch(
+                        pageable, maxParticipants, ageLimit, jobCategoryLimit, genderLimit,
+                        hobbyIdList, techStackIdList
+                ));
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.ok("게시글 목록이 조회되었습니다.", pagedResponse));
     }

@@ -142,7 +142,9 @@ public class PostRepositoryQueryImpl implements PostRepositoryQuery {
             Integer maxParticipants,
             AgeLimit ageLimit,
             JobCategory jobCategoryLimit,
-            Gender genderLimit
+            Gender genderLimit,
+            List<Long> hobbyIds,
+            List<Long> techStackIds
     ) {
         // 조건 누적용 BooleanBuilder
         BooleanBuilder builder = new BooleanBuilder();
@@ -161,11 +163,21 @@ public class PostRepositoryQueryImpl implements PostRepositoryQuery {
         if (genderLimit != null) {
             builder.and(post.genderLimit.eq(genderLimit));
         }
+        if (hobbyIds != null && !hobbyIds.isEmpty()) {
+            builder.and(QuerydslExpressionHelper.isHaveHobby(post, hobbyIds));
+        }
+        if (techStackIds != null && !techStackIds.isEmpty()) {
+            builder.and(QuerydslExpressionHelper.isHaveTechStack(post, techStackIds));
+        }
 
         List<PostResponseWithApplyStatusDto> contents = queryFactory
                 .select(postResponseDtoProjection())
                 .from(post)
                 .leftJoin(post.author)
+                .leftJoin(post.postHobbies, postHobby)
+                .leftJoin(postHobby.hobby, hobby1)
+                .leftJoin(post.postTechs, postTech)
+                .leftJoin(postTech.techStack, techStack1)
                 .where(builder)
                 .groupBy(post.id)
                 .orderBy(post.createdAt.desc())
@@ -181,6 +193,10 @@ public class PostRepositoryQueryImpl implements PostRepositoryQuery {
                         .select(post.countDistinct())
                         .from(post)
                         .leftJoin(post.author)
+                        .leftJoin(post.postHobbies, postHobby)
+                        .leftJoin(postHobby.hobby, hobby1)
+                        .leftJoin(post.postTechs, postTech)
+                        .leftJoin(postTech.techStack, techStack1)
                         .where(builder)
                         .fetchOne()
         ).orElse(0L);
