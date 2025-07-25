@@ -127,6 +127,13 @@ public class User extends Timestamped {
         this.password = hashedOldPassword;
     }
 
+    //테스트용
+    public User(Long id) {
+        this.id = id;
+        this.role = UserRole.USER;
+    }
+
+
     public User(Long userId, String name, Long totalRate, Long totalReviewer) {
         this.id = userId;
         this.name = name;
