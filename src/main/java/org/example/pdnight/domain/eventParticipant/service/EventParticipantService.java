@@ -1,6 +1,8 @@
 package org.example.pdnight.domain.eventParticipant.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.aspectj.lang.annotation.Around;
 import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.event.entity.Event;
@@ -14,6 +16,8 @@ import org.example.pdnight.domain.user.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 
 @Service
 @RequiredArgsConstructor
@@ -22,8 +26,11 @@ public class EventParticipantService {
     private final EventParticipantRepository eventParticipantRepository;
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
+    private final RedissonClient redissonClient;
 
     // 참가 신청
+    @Transactional
+    @Around("@annotation(distributedLock)")
     public void addParticipant(Long eventId, Long userId){
         // 이미 참가 신청한 유저이면 실패
         if(eventParticipantRepository.existsByEventIdAndUserId(eventId, userId)){
