@@ -1,13 +1,16 @@
 package org.example.pdnight.domain.event.controller;
 
+import jakarta.validation.constraints.Null;
+import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.common.dto.ApiResponse;
+import org.example.pdnight.domain.common.dto.PagedResponse;
 import org.example.pdnight.domain.event.dto.request.EventCreateRequest;
+import org.example.pdnight.domain.event.dto.response.EventResponse;
 import org.example.pdnight.domain.event.service.EventService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @PreAuthorize("hasRole('ADMIN')")
@@ -19,7 +22,7 @@ public class EventAdminController {
 
     // 이벤트 생성
     @PostMapping
-    public ResponseEntity<ApiResponse<?>> createEvent(
+    public ResponseEntity<ApiResponse<EventResponse>> createEvent(
             @RequestBody EventCreateRequest request
     ){
         return ResponseEntity.ok(
@@ -29,7 +32,7 @@ public class EventAdminController {
 
     // 이벤트 리스트 조회
     @GetMapping
-    public ResponseEntity<ApiResponse<?>> findEventById(
+    public ResponseEntity<ApiResponse<PagedResponse<EventResponse>>> findEventById(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ){
@@ -41,7 +44,7 @@ public class EventAdminController {
 
     // 이벤트 조회
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<?>> findEventById(
+    public ResponseEntity<ApiResponse<EventResponse>> findEventById(
             @PathVariable Long id
     ){
         return ResponseEntity.ok(
@@ -50,7 +53,7 @@ public class EventAdminController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<ApiResponse<?>> updateEvent(
+    public ResponseEntity<ApiResponse<EventResponse>> updateEvent(
             @PathVariable Long id,
             @RequestBody EventCreateRequest request
     ){
@@ -61,7 +64,7 @@ public class EventAdminController {
 
     // 이벤트 삭제
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<?>> deleteEvent(
+    public ResponseEntity<ApiResponse<Null>> deleteEvent(
             @PathVariable Long id
     ){
         eventService.deleteEventById(id);

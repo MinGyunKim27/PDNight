@@ -1,6 +1,7 @@
 package org.example.pdnight.domain.post.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Null;
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.common.dto.ApiResponse;
 import org.example.pdnight.domain.common.dto.PagedResponse;
@@ -46,7 +47,7 @@ public class PostController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deletePost(
+    public ResponseEntity<ApiResponse<Null>> deletePost(
             @PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetails loginUser
     ) {

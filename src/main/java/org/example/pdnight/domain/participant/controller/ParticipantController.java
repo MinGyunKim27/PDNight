@@ -1,5 +1,6 @@
 package org.example.pdnight.domain.participant.controller;
 
+import jakarta.validation.constraints.Null;
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.common.dto.ApiResponse;
 import org.example.pdnight.domain.common.dto.PagedResponse;
@@ -29,7 +30,7 @@ public class ParticipantController {
     }
 
     @DeleteMapping("/api/posts/{postId}/participate")
-    public ResponseEntity<ApiResponse<Void>> deleteParticipant(
+    public ResponseEntity<ApiResponse<Null>> deleteParticipant(
             @AuthenticationPrincipal CustomUserDetails loginUser,
             @PathVariable Long postId
     ) {

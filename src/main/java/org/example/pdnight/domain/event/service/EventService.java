@@ -1,5 +1,6 @@
 package org.example.pdnight.domain.event.service;
 
+import org.example.pdnight.domain.common.dto.PagedResponse;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,9 +44,9 @@ public class EventService {
     }
 
     @Transactional(readOnly = true)
-    public Page<EventResponse> findEventList(Pageable pageable) {
+    public PagedResponse<EventResponse> findEventList(Pageable pageable) {
         Page<Event> eventPage = eventRepository.findAll(pageable);
-        return eventPage.map(EventResponse::from);
+        return PagedResponse.from(eventPage.map(EventResponse::from));
     }
 
     // 이벤트 수정

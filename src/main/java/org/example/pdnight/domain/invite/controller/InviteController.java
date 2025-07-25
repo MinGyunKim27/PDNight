@@ -1,5 +1,6 @@
 package org.example.pdnight.domain.invite.controller;
 
+import jakarta.validation.constraints.Null;
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.common.dto.ApiResponse;
 import org.example.pdnight.domain.invite.dto.response.InviteResponseDto;
@@ -26,11 +27,11 @@ public class InviteController {
         Long loginUserId = loginUser.getUserId();
         InviteResponseDto responseDto = inviteService.createInvite(postId,userId,loginUserId);
         URI location = URI.create("/api/posts/" + postId);
-        return ResponseEntity.created(location).body(ApiResponse.ok("초대가 완료되었습니다.",responseDto));
+        return ResponseEntity.created(location).body(ApiResponse.ok("초대가 완료되었습니다.", responseDto));
     }
 
     @DeleteMapping("/post/{postId}/users/{userId}/invite/{id}")
-    public ResponseEntity<ApiResponse<?>> deleteInvite(
+    public ResponseEntity<ApiResponse<Null>> deleteInvite(
             @PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetails loginUser
     ) {
