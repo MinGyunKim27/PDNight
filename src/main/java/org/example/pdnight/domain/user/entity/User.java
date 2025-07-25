@@ -147,6 +147,13 @@ public class User extends Timestamped {
         this.deletedAt = null;
     }
 
+    //어드민 생성 메서드
+    public static User createAdmin(String email, String name, String password) {
+        User admin = new User(email, name, password);
+        admin.role = UserRole.ADMIN;
+        return admin;
+    }
+
     public void softDelete() {
         isDeleted = true;
         deletedAt = LocalDateTime.now();
