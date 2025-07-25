@@ -122,7 +122,7 @@ public class PostService {
     }
 
     @Transactional
-    public PostResponseDto updatePostDetails(Long userId, Long id, PostUpdateRequestDto request) {
+    public PostCreateAndUpdateResponseDto updatePostDetails(Long userId, Long id, PostUpdateRequestDto request) {
         Post foundPost = getPostOrThrow(postRepository.findById(id));
         validateAuthor(userId, foundPost);
 
