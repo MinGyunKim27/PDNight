@@ -14,7 +14,7 @@ import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
-public class UserRepositoryQueryImpl implements  UserRepositoryQuery{
+public class UserRepositoryQueryImpl implements UserRepositoryQuery {
     private final JPAQueryFactory queryFactory;
 
     @Override
