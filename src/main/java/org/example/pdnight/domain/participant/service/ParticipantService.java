@@ -75,7 +75,11 @@ public class ParticipantService {
 
     //참가 신청
     @Transactional
-    @DistributedLock(key = "#postId", timeoutMs = 3000, intervalMs = 100)
+    @DistributedLock(
+            key = "#postId",
+            timeoutMs = 5000,
+            intervalMs = 100
+    )
     public ParticipantResponse applyParticipant(Long loginId, Long postId) {
         User user = getUser(loginId);
         Post post = getPostWithOpen(postId);
@@ -91,9 +95,9 @@ public class ParticipantService {
             }
 
             participant = PostParticipant.createIsFirst(post, user);
-            participantRepository.save(participant); // SAVE 먼저
+            participantRepository.save(participant);
+            participantRepository.flush(); // DB에 강제로 반영
 
-            // save 후 다시 count해서 정확하게 확인
             int afterCount = participantRepository.countByPostAndStatus(post, JoinStatus.ACCEPTED);
             if (afterCount > post.getMaxParticipants()) {
                 throw new BaseException(CANNOT_PARTICIPATE_POST); // 초과 시 롤백
