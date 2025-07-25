@@ -21,7 +21,6 @@ public class AdminCommentController {
 	private final AdminCommentService adminCommentService;
 
 	@DeleteMapping("/{id}")
-	@PreAuthorize("hasRole('ADMIN')") // ADMIN 권한 확인
 	public ResponseEntity<ApiResponse<Void>> deleteComment(
 		@PathVariable Long postId,
 		@PathVariable Long id,
