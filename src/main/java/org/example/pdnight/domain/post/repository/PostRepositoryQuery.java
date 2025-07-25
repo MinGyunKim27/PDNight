@@ -9,6 +9,8 @@ import org.example.pdnight.domain.post.enums.Gender;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 public interface PostRepositoryQuery {
 
     PostResponseWithApplyStatusDto getOpenedPostById(Long postId);
@@ -23,7 +25,9 @@ public interface PostRepositoryQuery {
             Integer maxParticipants,
             AgeLimit ageLimit,
             JobCategory jobCategoryLimit,
-            Gender genderLimit
+            Gender genderLimit,
+            List<Long> hobbyList,
+            List<Long> techStackList
     );
 
     Page<PostResponseWithApplyStatusDto> getWrittenPost(Long userId, Pageable pageable);

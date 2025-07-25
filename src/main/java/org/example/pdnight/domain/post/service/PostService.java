@@ -107,10 +107,12 @@ public class PostService {
             Integer maxParticipants,
             AgeLimit ageLimit,
             JobCategory jobCategoryLimit,
-            Gender genderLimit
+            Gender genderLimit,
+            List<Long> hobbyIdList,
+            List<Long> techStackIdList
     ) {
         return PostRepositoryQuery.findPostDtosBySearch(pageable, maxParticipants,
-                ageLimit, jobCategoryLimit, genderLimit);
+                ageLimit, jobCategoryLimit, genderLimit, hobbyIdList, techStackIdList);
     }
 
     @Transactional
