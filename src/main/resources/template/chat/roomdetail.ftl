@@ -118,7 +118,7 @@
 
                     // 입장 메시지
                     ws.send("/pub/chat/message", {}, JSON.stringify({
-                        type: 'ENTER',
+                        messageType: 'ENTER',
                         roomId: this.roomId,
                         sender: this.sender
                     }));
