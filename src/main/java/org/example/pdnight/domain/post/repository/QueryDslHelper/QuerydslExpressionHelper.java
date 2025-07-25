@@ -46,12 +46,6 @@ public class QuerydslExpressionHelper {
                 .where(postTech.post.id.eq(post.id)
                         .and(postTech.techStack.id.in(techStackIds)))
                 .eq((long) techStackIds.size());
-//        return JPAExpressions
-//                .select(postTech.post.countDistinct())
-//                .from(postTech)
-//                .where(postTech.post.eq(post)
-//                        .and(postTech.techStack.id.in(techStackIds)))
-//                .eq((long) techStackIds.size());
     }
 
 }
