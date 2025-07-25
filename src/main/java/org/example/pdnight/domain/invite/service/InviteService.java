@@ -4,14 +4,13 @@ import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.common.dto.PagedResponse;
 import org.example.pdnight.domain.common.enums.JoinStatus;
 import org.example.pdnight.domain.common.exception.BaseException;
+import org.example.pdnight.domain.common.helper.GetHelper;
 import org.example.pdnight.domain.invite.dto.response.InviteResponseDto;
 import org.example.pdnight.domain.invite.entity.Invite;
 import org.example.pdnight.domain.invite.repository.InviteRepository;
 import org.example.pdnight.domain.invite.repository.InviteRepositoryQuery;
 import org.example.pdnight.domain.post.entity.Post;
-import org.example.pdnight.domain.post.service.PostService;
 import org.example.pdnight.domain.user.entity.User;
-import org.example.pdnight.domain.user.service.UserService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -25,32 +24,24 @@ import static org.example.pdnight.domain.common.enums.ErrorCode.*;
 public class InviteService {
     private final InviteRepository inviteRepository;
     private final InviteRepositoryQuery inviteRepositoryQuery;
-    private final PostService postService;
-    private final UserService userService;
+    private final GetHelper helper;
 
-    public InviteResponseDto createInvite(Long postId, Long userId,Long loginUserId) {
-        Post postById = postService.getPostById(postId);
-        User inviteeById = userService.getUserById(userId);
-        User me = userService.getUserById(loginUserId);
+    public InviteResponseDto createInvite(Long postId, Long userId, Long loginUserId) {
+        Post postById = helper.getPostById(postId);
+        User inviteeById = helper.getUserById(userId);
+        User me = helper.getUserById(loginUserId);
 
-        Boolean inviteExists = inviteRepository.existsByPostIdAndInviteeIdAndInviterId(postId,userId,loginUserId);
-
-        if (inviteExists){
-            throw new BaseException(INVITE_ALREADY_EXISTS);
-        }
-        Invite invite = Invite.create(me, inviteeById,postById);
+        validateExistInvite(postId, userId, loginUserId);
+        Invite invite = Invite.create(me, inviteeById, postById);
 
         inviteRepository.save(invite);
-        return new InviteResponseDto(invite);
+        return InviteResponseDto.from(invite);
     }
 
     public void deleteInvite(Long inviteId, Long loginUserId) {
-        Invite invite = inviteRepository.findById(inviteId).orElseThrow(
-                () ->new BaseException(INVITE_NOT_FOUND));
+        Invite invite = getInviteById(inviteId);
 
-        if (!Objects.equals(invite.getInviter().getId(), loginUserId)) {
-            throw new BaseException(INVITE_UNAUTHORIZED);
-        }
+        validateMyInvite(loginUserId, invite);
 
         inviteRepository.delete(invite);
     }
@@ -67,9 +58,28 @@ public class InviteService {
         return PagedResponse.from(inviteResponseDtos);
     }
 
-    public void deleteAllByPostAndStatus(Post post,JoinStatus joinStatus){
+    public void deleteAllByPostAndStatus(Post post, JoinStatus joinStatus) {
         inviteRepository.deleteAllByPostAndStatus(post, joinStatus);
-    };
+    }
 
+    // -- HELPER 메서드 -- //
+    // get
+    private Invite getInviteById(Long id) {
+        return inviteRepository.findById(id)
+                .orElseThrow(() -> new BaseException(INVITE_NOT_FOUND));
+    }
 
+    // validate
+    private void validateExistInvite(Long postId, Long userId, Long loginUserId) {
+        Boolean inviteExists = inviteRepository.existsByPostIdAndInviteeIdAndInviterId(postId, userId, loginUserId);
+        if (inviteExists) {
+            throw new BaseException(INVITE_ALREADY_EXISTS);
+        }
+    }
+
+    private void validateMyInvite(Long loginUserId, Invite invite) {
+        if (!Objects.equals(invite.getInviter().getId(), loginUserId)) {
+            throw new BaseException(INVITE_UNAUTHORIZED);
+        }
+    }
 }

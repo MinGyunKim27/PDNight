@@ -98,7 +98,7 @@ public class PostCreateAndUpdateResponseDto {
         this.updatedAt = updatedAt;
     }
 
-    public static PostCreateAndUpdateResponseDto toDto(Post post) {
+    public static PostCreateAndUpdateResponseDto from(Post post) {
         return new PostCreateAndUpdateResponseDto(
                 post.getId(),
                 post.getAuthor().getId(),

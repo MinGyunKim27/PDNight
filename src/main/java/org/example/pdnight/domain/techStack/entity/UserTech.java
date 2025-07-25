@@ -29,4 +29,8 @@ public class UserTech {
         this.user = user;
         this.techStack = techStack;
     }
+
+    public static UserTech create(User user, TechStack techStack) {
+        return new UserTech(user, techStack);
+    }
 }

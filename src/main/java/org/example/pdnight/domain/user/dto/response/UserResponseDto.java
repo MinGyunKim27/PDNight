@@ -52,4 +52,8 @@ public class UserResponseDto {
         this.createdAt = user.getCreatedAt();
         this.updatedAt = user.getUpdatedAt();
     }
+
+    public static UserResponseDto from(User user) {
+        return new UserResponseDto(user);
+    }
 }

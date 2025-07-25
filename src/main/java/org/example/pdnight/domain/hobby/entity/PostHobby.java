@@ -29,4 +29,8 @@ public class PostHobby {
         this.post = post;
         this.hobby = hobby;
     }
+
+    public static PostHobby create(Post post, Hobby hobby) {
+        return new PostHobby(post, hobby);
+    }
 }

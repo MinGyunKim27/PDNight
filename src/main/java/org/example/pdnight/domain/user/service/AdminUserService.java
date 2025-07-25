@@ -16,32 +16,48 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class AdminUserService {
+
     private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
     public PagedResponse<UserResponseDto> getAllUsers(Pageable pageable) {
+
         Page<User> users = userRepository.findAll(pageable);
 
-        return PagedResponse.from(users.map(UserResponseDto::new));
+        return PagedResponse.from(users.map(UserResponseDto::from));
     }
 
     @Transactional
     public UserResponseDto updateNickname(Long userId, UserNicknameUpdateDto dto) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+
+        User user = getUserById(userId);
+
         user.updateNickname(dto.getNickname());
+
         return new UserResponseDto(user);
     }
 
     @Transactional
     public void deleteUser(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
+        User user = getUserById(userId);
+
+        validateIsDeleted(user);
+
+        user.softDelete();
+    }
+
+    // ----------------------------------- HELPER 메서드 ------------------------------------------------------ //
+    // get
+    private User getUserById(Long id) {
+        return userRepository.findById(id).orElseThrow(
+                () -> new BaseException(ErrorCode.USER_NOT_FOUND));
+    }
+
+    // validate
+    private void validateIsDeleted(User user){
         if(user.getIsDeleted()) {
             throw new BaseException(ErrorCode.USER_DEACTIVATED);
         }
-
-        user.softDelete();
     }
 }

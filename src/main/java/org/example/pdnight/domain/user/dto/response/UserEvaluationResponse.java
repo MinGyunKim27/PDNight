@@ -16,4 +16,8 @@ public class UserEvaluationResponse {
         this.rate = (float) user.getTotalRate() / user.getTotalReviewer();
         this.createdAt = user.getCreatedAt();
     }
+
+    public static UserEvaluationResponse from(User user) {
+        return new UserEvaluationResponse(user);
+    }
 }

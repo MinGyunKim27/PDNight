@@ -1,6 +1,6 @@
 package org.example.pdnight.domain.event.service;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.pdnight.domain.common.enums.ErrorCode;
@@ -12,14 +12,12 @@ import org.example.pdnight.domain.event.repository.EventRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
-
-import java.util.List;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class EventService {
+
     private final EventRepository eventRepository;
 
     // 이벤트 생성
@@ -33,25 +31,27 @@ public class EventService {
         );
 
         eventRepository.save(event);
-        return new EventResponse(event);
+        return EventResponse.from(event);
     }
 
     // 이벤트 조회
-    @Transactional()
+    @Transactional(readOnly = true)
     public EventResponse findEventById(Long id){
-        Event event = eventRepository.findById(id).orElseThrow(
-                () -> new BaseException(ErrorCode.EVENT_NOT_FOUNT)
-        );
+        Event event = getEventById(id);
 
         return new EventResponse(event);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<EventResponse> findEventList(Pageable pageable) {
+        Page<Event> eventPage = eventRepository.findAll(pageable);
+        return eventPage.map(EventResponse::from);
     }
 
     // 이벤트 수정
     @Transactional
     public EventResponse updateEvent(Long id, EventCreateRequest request){
-        Event event = eventRepository.findById(id).orElseThrow(
-                () -> new BaseException(ErrorCode.EVENT_NOT_FOUNT)
-        );
+        Event event = getEventById(id);
 
         event.updateEvent(
                 request.getTitle(),
@@ -61,20 +61,22 @@ public class EventService {
         );
 
         eventRepository.save(event);
-        return new EventResponse(event);
+        return EventResponse.from(event);
     }
 
     // 이벤트 삭제
     @Transactional
     public void deleteEventById(Long id){
-        Event event = eventRepository.findById(id).orElseThrow(
-                () -> new BaseException(ErrorCode.EVENT_NOT_FOUNT)
-        );
+        Event event = getEventById(id);
         eventRepository.delete(event);
     }
 
-    public Page<EventResponse> findEventList(Pageable pageable) {
-         Page<Event> eventPage = eventRepository.findAll(pageable);
-         return eventPage.map(EventResponse::new);
+
+    // ----------------------------------- HELPER 메서드 ------------------------------------------------------ //
+    // get
+    private Event getEventById(Long id) {
+        return eventRepository.findById(id).orElseThrow(
+                () -> new BaseException(ErrorCode.EVENT_NOT_FOUNT)
+        );
     }
 }

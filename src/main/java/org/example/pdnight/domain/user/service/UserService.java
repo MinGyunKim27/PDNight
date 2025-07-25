@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -36,54 +37,36 @@ public class UserService {
     private final UserRepositoryQuery userRepositoryQuery;
 
     public UserResponseDto getMyProfile(Long userId) {
+
         // id로 유저 조회
-        User user = userRepository.findUserById(userId)
-                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+        User user = getUserById(userId);
 
         // UserResponseDto로 변환하여 반환
-        return new UserResponseDto(user);
+        return UserResponseDto.from(user);
     }
 
     @Transactional
     public UserResponseDto updateMyProfile(Long userId, UserUpdateRequest request) {
-        User user = userRepository.findUserById(userId)
-                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+        User user = getUserById(userId);
 
         // Set<UserHobby> / Set<UserTech> 생성 : DB 에서 있는거만 가져오기
-        Set<UserHobby> userHobbies = new HashSet<>();
-        if (request.getHobbyIdList() != null && !request.getHobbyIdList().isEmpty()) {
-            userHobbies = hobbyRepositoryQuery.findByIdList(request.getHobbyIdList())
-                    .stream()
-                    .map(hobby -> new UserHobby(user, hobby))
-                    .collect(Collectors.toSet());
-        }
-        Set<UserTech> userTechs = new HashSet<>();
-        if (request.getTechStackIdList() != null && !request.getTechStackIdList().isEmpty()) {
-            userTechs = techStackRepositoryQuery.findByIdList(request.getTechStackIdList())
-                    .stream()
-                    .map(techStack -> new UserTech(user, techStack))
-                    .collect(Collectors.toSet());
-        }
+        Set<UserHobby> userHobbies = getUserHobbyByIdList(request.getHobbyIdList(), user);
+
+        Set<UserTech> userTechs = getUserTechByIdList(request.getTechStackIdList(), user);
 
         // 수정 로직
         user.updateProfile(request, userHobbies, userTechs);
         userRepository.save(user);
 
-        return new UserResponseDto(user);
+        return UserResponseDto.from(user);
     }
 
     @Transactional
     public void updatePassword(Long userId, UserPasswordUpdateRequest request) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+        User user = getUserById(userId);
 
         // 비밀번호 검증
-        boolean match = BCrypt.verifyer()
-                .verify(request.getOldPassword().toCharArray(), user.getPassword())
-                .verified;
-        if (!match) {
-            throw new BaseException(ErrorCode.INVALID_PASSWORD);
-        }
+        validatePassword(request.getOldPassword(), user);
 
         // 비밀번호 암호화
         String encodedPassword = BCrypt.withDefaults().hashToString(10, request.getNewPassword().toCharArray());
@@ -91,33 +74,69 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public UserResponseDto getProfile(Long id) {
+    public UserResponseDto getProfile(Long userId) {
         // id로 유저 조회
-        User user = userRepository.findUserById(id).orElseThrow(
-                () -> new BaseException(ErrorCode.USER_NOT_FOUND));
+        User user = getUserById(userId);
 
         // UserResponseDto로 변환하여 반환
-        return new UserResponseDto(user);
+        return UserResponseDto.from(user);
 
     }
 
-    public UserEvaluationResponse getEvaluation(Long id) {
+    public UserEvaluationResponse getEvaluation(Long userId) {
         // id로 유저 조회
-        User user = userRepository.findById(id).orElseThrow(
-                () -> new BaseException(ErrorCode.USER_NOT_FOUND));
+        User user = getUserById(userId);
 
-        return new UserEvaluationResponse(user);
-    }
-
-    public User getUserById(Long id) {
-        return userRepository.findById(id).orElseThrow(
-                () -> new BaseException(ErrorCode.USER_NOT_FOUND));
+        return UserEvaluationResponse.from(user);
     }
 
     //유저 이름이나 닉네임이나 이메일로 검색
     public PagedResponse<UserResponseDto> searchUsers(String search, Pageable pageable) {
         Page<User> users = userRepositoryQuery.searchUsers(search, pageable);
-        Page<UserResponseDto> dtos = users.map(UserResponseDto::new);
+        Page<UserResponseDto> dtos = users.map(UserResponseDto::from);
         return PagedResponse.from(dtos);
     }
+
+
+    // ----------------------------------- HELPER 메서드 ------------------------------------------------------ //
+    // get
+    private User getUserById(Long id) {
+        return userRepository.findById(id).orElseThrow(
+                () -> new BaseException(ErrorCode.USER_NOT_FOUND));
+    }
+
+
+    private void validatePassword(String old, User user) {
+        boolean verified = BCrypt.verifyer()
+                .verify(old.toCharArray(), user.getPassword())
+                .verified;
+        if (!verified) {
+            throw new BaseException(ErrorCode.INVALID_PASSWORD);
+        }
+    }
+
+    private Set<UserTech> getUserTechByIdList(List<Long> ids, User user) {
+        Set<UserTech> userTechs = new HashSet<>();
+
+        if (ids != null && !ids.isEmpty()) {
+            userTechs = techStackRepositoryQuery.findByIdList(ids)
+                    .stream()
+                    .map(techStack -> UserTech.create(user, techStack))
+                    .collect(Collectors.toSet());
+        }
+        return userTechs;
+    }
+
+    private Set<UserHobby> getUserHobbyByIdList(List<Long> ids, User user) {
+        Set<UserHobby> userHobbies = new HashSet<>();
+
+        if (ids != null && !ids.isEmpty()) {
+            userHobbies = hobbyRepositoryQuery.findByIdList(ids)
+                    .stream()
+                    .map(hobby -> UserHobby.create(user, hobby))
+                    .collect(Collectors.toSet());
+        }
+        return userHobbies;
+    }
+
 }

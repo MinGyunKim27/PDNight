@@ -26,4 +26,8 @@ public class ReviewResponseDto {
         this.updatedAt = review.getUpdatedAt();
     }
 
+    public static ReviewResponseDto from(Review review) {
+        return new ReviewResponseDto(review);
+    }
+
 }
