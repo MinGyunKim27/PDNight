@@ -44,8 +44,7 @@ export function setup() {
 }
 
 export default function (users) {
-    const baseUrls = ['http://localhost:8080', 'http://localhost:8081'];
-    const baseUrl = baseUrls[Math.floor(Math.random() * baseUrls.length)];
+    const baseUrl = 'http://localhost:8080';
     const index = (__VU - 1) % users.length;
     const user = users[index];
 
