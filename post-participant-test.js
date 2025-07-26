@@ -10,11 +10,11 @@ export let options = {
 // 커스텀 카운터 메트릭
 export let success = new Counter('participants_success');
 export let conflict = new Counter('participants_conflict');
-export let notFound = new Counter('participants_not_found');
+export let notFound = new Counter('post_not_found');
 export let fail = new Counter('participants_fail');
 
 export function setup() {
-    const baseUrl = 'http://localhost:8080';
+    const baseUrl = 'http://localhost';
     const users = [];
 
     for (let i = 1; i <= 200; i++) {
@@ -35,7 +35,7 @@ export function setup() {
         }
 
         if (token) {
-            users.push({ token, userId: i });
+            users.push({ token, id: i });
         } else {
             console.error(`Login failed for user${i}, status: ${res.status}`);
         }
@@ -45,7 +45,7 @@ export function setup() {
 }
 
 export default function (users) {
-    const baseUrl = 'http://localhost:8080';
+    const baseUrl = 'http://localhost';
     const index = (__VU - 1) % users.length;
     const user = users[index];
 

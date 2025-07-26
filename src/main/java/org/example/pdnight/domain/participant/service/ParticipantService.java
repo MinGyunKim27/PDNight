@@ -25,6 +25,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 import static org.example.pdnight.domain.common.enums.ErrorCode.CANNOT_PARTICIPATE_POST;
 
 @Service
@@ -78,7 +80,7 @@ public class ParticipantService {
     @DistributedLock(
             key = "#postId",
             timeoutMs = 5000,
-            intervalMs = 100
+            leaseTimeMs = 3000 // 락 유지 시간
     )
     public ParticipantResponse applyParticipant(Long loginId, Long postId) {
         User user = getUser(loginId);
@@ -90,27 +92,23 @@ public class ParticipantService {
 
         if (post.getIsFirstCome()) {
             int count = participantRepository.countByPostAndStatus(post, JoinStatus.ACCEPTED);
-            if (count >= post.getMaxParticipants()) {
+
+            if (count == post.getMaxParticipants()) {
                 throw new BaseException(CANNOT_PARTICIPATE_POST);
-            }
+            } else {
+                participant = PostParticipant.createIsFirst(post, user);
 
-            participant = PostParticipant.createIsFirst(post, user);
-            participantRepository.save(participant);
-            participantRepository.flush(); // DB에 강제로 반영
-
-            int afterCount = participantRepository.countByPostAndStatus(post, JoinStatus.ACCEPTED);
-            if (afterCount > post.getMaxParticipants()) {
-                throw new BaseException(CANNOT_PARTICIPATE_POST); // 초과 시 롤백
-            }
-
-            if (afterCount == post.getMaxParticipants()) {
-                post.updateStatus(PostStatus.CONFIRMED);
-                inviteService.deleteAllByPostAndStatus(post, JoinStatus.PENDING);
+                if (count + 1 == post.getMaxParticipants()) {
+                    post.updateStatus(PostStatus.CONFIRMED);
+                    inviteService.deleteAllByPostAndStatus(post, JoinStatus.PENDING);
+                }
             }
         } else {
             participant = PostParticipant.create(post, user);
-            participantRepository.save(participant);
         }
+
+        // 정상 신청
+        participantRepository.save(participant);
 
         return ParticipantResponse.of(
                 loginId,
@@ -126,8 +124,8 @@ public class ParticipantService {
     @Transactional
     @DistributedLock(
             key = "#postId",
-            timeoutMs = 3000,
-            intervalMs = 50
+            timeoutMs = 5000,
+            leaseTimeMs = 3000
     )
     public void deleteParticipant(Long loginId, Long postId) {
         User user = getUser(loginId);
@@ -148,8 +146,8 @@ public class ParticipantService {
     @Transactional
     @DistributedLock(
             key = "#postId",
-            timeoutMs = 3000,
-            intervalMs = 100
+            timeoutMs = 5000,
+            leaseTimeMs = 3000
     )
     public ParticipantResponse changeStatusParticipant(Long authorId, Long userId, Long postId, String status) {
         User user = getUser(userId);

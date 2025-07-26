@@ -33,8 +33,8 @@ public class EventParticipantService {
     @Transactional
     @DistributedLock(
             key = "#eventId",
-            timeoutMs = 3000,
-            intervalMs = 50
+            timeoutMs = 5000,
+            leaseTimeMs = 3000 // 락 유지 시간
     )
     public void addParticipant(Long eventId, Long userId){
         // 이미 참가 신청한 유저이면 실패
@@ -50,8 +50,8 @@ public class EventParticipantService {
         );
 
         // 신청 인원 확인
-        int participantsCount = eventParticipantRepository.getEventParticipantByEventId(eventId);
-        if(participantsCount >= event.getMaxParticipants()){
+        int participantsCount = eventParticipantRepository.getEventParticipantByEventIdwithLock(eventId);
+        if(participantsCount == event.getMaxParticipants()){
             throw new BaseException(ErrorCode.EVENT_PARTICIPANT_FULL);
         }
 

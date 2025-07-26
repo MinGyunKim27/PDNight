@@ -8,8 +8,9 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface DistributedLock {
-    String key();                    // "postId" 또는 "eventId" 등 파라미터명
+    String key();
     long timeoutMs() default 3000L;
+    long leaseTimeMs() default 3000;
     int maxAttempts() default 5;
     long intervalMs() default 50L;
 }

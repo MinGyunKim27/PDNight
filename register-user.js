@@ -31,7 +31,7 @@ export default function () {
         },
     };
 
-    const res = http.post('http://localhost:8080/api/auth/signup', payload, params);
+    const res = http.post('http://localhost/api/auth/signup', payload, params);
 
     const success = check(res, {
         '회원가입 성공 (201)': (r) => r.status === 201,
