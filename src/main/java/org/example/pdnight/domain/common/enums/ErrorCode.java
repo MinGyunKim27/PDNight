@@ -97,7 +97,8 @@ public enum ErrorCode {
     NOT_FOLLOWING(HttpStatus.BAD_REQUEST,"팔로우 중이 아닙니다."),
 
     // lock 관련 에러
-    LOCK_TIMEOUT(HttpStatus.REQUEST_TIMEOUT, "시간 초과입니다.")
+    LOCK_TIMEOUT(HttpStatus.REQUEST_TIMEOUT, "시간 초과입니다."),
+    LOCK_GET_FAILED(HttpStatus.BAD_REQUEST, "락 획득에 실패했습니다.")
 
     ;
     private final HttpStatus status;// HTTP 상태 코드
