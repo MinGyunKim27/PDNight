@@ -1,11 +1,32 @@
 version: '3.8'
 
 services:
-  app:
-    container_name: pdnight-app
+  redis:
+    image: redis:6
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - spring-net
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-container
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - spring-net
+
+  app1:
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: app1-container
     ports:
       - "8080:8080"
     environment:
@@ -19,33 +40,30 @@ services:
       - mysql
       - redis
     networks:
-      - pdnight-net
+      - spring-net
 
-  mysql:
-    container_name: mysql
-    image: mysql:8.0
-    restart: always
+  app2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: app2-container
     ports:
-      - "3307:3306"
+      - "8081:8080"
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-    volumes:
-      - mysql-data:/var/lib/mysql
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+    depends_on:
+      - mysql
+      - redis
     networks:
-      - pdnight-net
-
-  redis:
-    container_name: redis
-    image: redis:6.2
-    restart: always
-    ports:
-      - "6379:6379"
-    networks:
-      - pdnight-net
+      - spring-net
 
 networks:
-  pdnight-net:
+  spring-net:
 
 volumes:
   mysql-data:

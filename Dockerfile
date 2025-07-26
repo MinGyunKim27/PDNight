@@ -4,4 +4,4 @@ LABEL authors="viva"
 ARG JAR_FILE=build/libs/*-SNAPSHOT.jar
 COPY ${JAR_FILE} /jwt-filter-again.jar
 
-ENTRYPOINT ["java", "-Dspring.profiles.active=default", "-jar", "/jwt-filter-again.jar"]
+ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=default", "/jwt-filter-again.jar"]
