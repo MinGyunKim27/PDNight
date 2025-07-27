@@ -10,7 +10,6 @@ import org.example.pdnight.domain.auth.dto.response.SignupResponseDto;
 import org.example.pdnight.domain.auth.service.AuthService;
 import org.example.pdnight.domain.common.dto.ApiResponse;
 import org.example.pdnight.global.filter.CustomUserDetails;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -30,12 +29,10 @@ public class AuthController {
                 .body(ApiResponse.ok("회원가입 되었습니다.", user));
     }
 
-
     @PostMapping("/api/auth/login")
     private ResponseEntity<ApiResponse<LoginResponseDto>> login(@Valid @RequestBody LoginRequestDto request) {
         LoginResponseDto token = authService.login(request);
         return ResponseEntity.ok()
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token.getToken())
                 .body(ApiResponse.ok("로그인 되었습니다.", token));
     }
 
