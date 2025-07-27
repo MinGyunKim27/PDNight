@@ -1,5 +1,6 @@
 package org.example.pdnight.domain.auth.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.auth.dto.request.LoginRequestDto;
@@ -10,6 +11,7 @@ import org.example.pdnight.domain.auth.dto.response.SignupResponseDto;
 import org.example.pdnight.domain.auth.service.AuthService;
 import org.example.pdnight.domain.common.dto.ApiResponse;
 import org.example.pdnight.global.filter.CustomUserDetails;
+import org.example.pdnight.global.utils.JwtUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 public class AuthController {
 
     private final AuthService authService;
+    private final JwtUtil jwtUtil;
 
     @PostMapping("/api/auth/signup")
     private ResponseEntity<ApiResponse<SignupResponseDto>> signup(@Valid @RequestBody SignupRequestDto request) {
@@ -38,9 +41,10 @@ public class AuthController {
     }
 
     @PostMapping("/api/auth/logout")
-    private ResponseEntity<ApiResponse<Void>> logout(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        Long userId = userDetails.getUserId();
-        authService.logout(userId);
+    private ResponseEntity<ApiResponse<Void>> logout(HttpServletRequest request) {
+        String bearerJwt = request.getHeader("Authorization");
+        String token = jwtUtil.substringToken(bearerJwt);
+        authService.logout(token);
         return ResponseEntity.ok(ApiResponse.ok("로그아웃 되었습니다.", null));
     }
 

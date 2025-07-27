@@ -10,7 +10,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.pdnight.domain.common.enums.UserRole;
+import org.example.pdnight.global.constant.CacheName;
 import org.example.pdnight.global.utils.JwtUtil;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -23,6 +25,7 @@ import java.io.IOException;
 public class JwtFilter implements Filter {
 
     private final JwtUtil jwtUtil;
+    private final RedisTemplate<String, String> redisTemplate;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -52,6 +55,13 @@ public class JwtFilter implements Filter {
         String jwt = jwtUtil.substringToken(bearerJwt);
 
         try {
+            Boolean isBlacklisted = redisTemplate.opsForSet().isMember(CacheName.BLACKLIST_TOKEN, jwt);
+            if (Boolean.TRUE.equals(isBlacklisted)) {
+                log.error("블랙리스트에 추가된 토큰입니다.");
+                sendError(httpResponse, 400,"블랙리스트에 추가된 토큰입니다.");
+                return;
+            }
+
             Claims claims = jwtUtil.extractClaims(jwt);
             if (claims == null) {
                 log.error("잘못된 JWT 토큰입니다.");

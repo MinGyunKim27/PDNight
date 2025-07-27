@@ -7,4 +7,6 @@ public class CacheName {
     public static final String WRITTEN_POST = "WRITTEN_POST";     // 내가 작성한 게시물
     public static final String SUGGESTED_POST = "SUGGESTED_POST"; // 추천 게시물
     public static final String ONE_POST = "ONE_POST";             // 단건 게시물
+
+    public static final String BLACKLIST_TOKEN = "BLACKLIST_TOKEN"; // 토큰 블랙리스트
 }
