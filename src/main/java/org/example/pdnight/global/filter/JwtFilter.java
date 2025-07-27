@@ -35,7 +35,6 @@ public class JwtFilter implements Filter {
         HttpServletResponse httpResponse = (HttpServletResponse) response;
 
         String url = httpRequest.getRequestURI();
-        System.out.println(url);
 
         if (url.startsWith("/webjars/") || url.startsWith("/css/") || url.startsWith("/js/") || url.startsWith("/images/")) {
             chain.doFilter(request, response);
@@ -43,19 +42,17 @@ public class JwtFilter implements Filter {
         }
 
         if (url.startsWith("/api/auth/signup") || url.startsWith("/api/auth/login") || url.startsWith("/login")
-                || url.startsWith("/ws-stomp") || url.startsWith("/chat/")
+                || url.startsWith("/ws-stomp") || url.startsWith("/chat/view") || url.startsWith("/chat/view/enter/")
         ) {
             chain.doFilter(request, response);
             return;
         }
 
-
-
         String bearerJwt = httpRequest.getHeader("Authorization");
 
         if (bearerJwt == null || !bearerJwt.startsWith("Bearer ")) {
             log.error("JWT 토큰이 필요합니다.");
-            sendError(httpResponse, 400,"JWT 토큰이 필요합니다.");
+            sendError(httpResponse, 400, "JWT 토큰이 필요합니다.");
             return;
         }
 
@@ -65,17 +62,18 @@ public class JwtFilter implements Filter {
             Claims claims = jwtUtil.extractClaims(jwt);
             if (claims == null) {
                 log.error("잘못된 JWT 토큰입니다.");
-                sendError(httpResponse, 400,"잘못된 JWT 토큰입니다.");
+                sendError(httpResponse, 400, "잘못된 JWT 토큰입니다.");
                 return;
             }
 
             UserRole userRole = claims.get("Role", UserRole.class);
+            Object userNickname = claims.get("userNickname");
 
             Long userId = Long.parseLong(claims.getSubject());
 
             CustomUserDetails userDetails = new CustomUserDetails(
                     userId,
-                    "",
+                    (String) userNickname,
                     "",
                     userRole);
 
@@ -86,16 +84,16 @@ public class JwtFilter implements Filter {
             chain.doFilter(request, response);
         } catch (SecurityException | MalformedJwtException e) {
             log.error("유효하지 않는 JWT 서명 입니다.", e);
-            sendError(httpResponse, 401,"유효하지 않는 JWT 서명입니다.");
+            sendError(httpResponse, 401, "유효하지 않는 JWT 서명입니다.");
         } catch (ExpiredJwtException e) {
             log.error("만료된 JWT token 입니다.", e);
-            sendError(httpResponse, 401,"만료된 JWT 토큰입니다.");
+            sendError(httpResponse, 401, "만료된 JWT 토큰입니다.");
         } catch (UnsupportedJwtException e) {
             log.error("지원되지 않는 JWT 토큰 입니다.", e);
-            sendError(httpResponse, 400,"지원되지 않는 JWT 토큰입니다.");
+            sendError(httpResponse, 400, "지원되지 않는 JWT 토큰입니다.");
         } catch (Exception e) {
             log.error("Internal server error", e);
-            sendError(httpResponse, 500,"Internal server error.");
+            sendError(httpResponse, 500, "Internal server error.");
         }
     }
 

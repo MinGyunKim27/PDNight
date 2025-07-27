@@ -26,4 +26,12 @@ public class ChatRoom {
 
     public ChatRoom() {
     }
+
+    public static ChatRoom create(String name) {
+        return new ChatRoom(name);
+    }
+
+    public static ChatRoom createFromPost(String name, Long postId) {
+        return new ChatRoom(name, postId);
+    }
 }

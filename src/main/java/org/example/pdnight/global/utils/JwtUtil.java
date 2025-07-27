@@ -30,19 +30,20 @@ public class JwtUtil {
         key = Keys.hmacShaKeyFor(bytes);
     }
 
-    public String createToken(Long userId, UserRole userRole) {
+    public String createToken(Long userId, UserRole userRole, String nickname) {
         Date date = new Date();
 
         return Jwts.builder()
-                        .setSubject(String.valueOf(userId))
-                        .claim("userRole", userRole)
-                        .setExpiration(new Date(date.getTime() + TOKEN_TIME))
-                        .setIssuedAt(date)
-                        .signWith(key, signatureAlgorithm)
-                        .compact();
+                .setSubject(String.valueOf(userId))
+                .claim("userRole", userRole)
+                .claim("userNickname", nickname)
+                .setExpiration(new Date(date.getTime() + TOKEN_TIME))
+                .setIssuedAt(date)
+                .signWith(key, signatureAlgorithm)
+                .compact();
     }
 
-    public String substringToken(String tokenValue){
+    public String substringToken(String tokenValue) {
         if (StringUtils.hasText(tokenValue) && tokenValue.startsWith(BEARER_PREFIX)) {
             return tokenValue.substring(7);
         }

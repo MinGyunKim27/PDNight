@@ -67,15 +67,15 @@ public class AuthService {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
-        if(user.getIsDeleted()) {
+        if (user.getIsDeleted()) {
             throw new BaseException(ErrorCode.USER_DEACTIVATED);
         }
 
-        if(!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new BaseException(ErrorCode.INVALID_PASSWORD);
         }
 
-        String token = jwtUtil.createToken(user.getId(), user.getRole());
+        String token = jwtUtil.createToken(user.getId(), user.getRole(), user.getNickname());
         return new LoginResponseDto(token);
     }
 
@@ -88,11 +88,11 @@ public class AuthService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
-        if(user.getIsDeleted()) {
+        if (user.getIsDeleted()) {
             throw new BaseException(ErrorCode.USER_DEACTIVATED);
         }
 
-        if(!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new BaseException(ErrorCode.INVALID_PASSWORD);
         }
 

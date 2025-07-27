@@ -19,10 +19,13 @@ public class ChatParticipant {
 
     public ChatParticipant(ChatRoom chatRoom, Long id) {
         this.chatRoom = chatRoom;
-        this.userId =id;
+        this.userId = id;
     }
 
     public ChatParticipant() {
+    }
 
+    public static ChatParticipant from(ChatRoom chatRoom, Long id) {
+        return new ChatParticipant(chatRoom, id);
     }
 }

@@ -51,7 +51,9 @@
             padding: 0.5rem 1rem;
         }
 
-        [v-cloak] { display: none; }
+        [v-cloak] {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -70,12 +72,17 @@
 
     <!-- 입력창 (고정 하단) -->
     <div class="chat-input">
-        <input v-model="message" @keypress.enter="sendMessage" placeholder="메시지를 입력하세요" />
+        <input v-model="message" @keypress.enter="sendMessage" placeholder="메시지를 입력하세요"/>
         <button @click="sendMessage">보내기</button>
     </div>
 </div>
 
 <script>
+    const token = localStorage.getItem('jwtToken');
+    if (token) {
+        axios.defaults.headers.common['Authorization'] = 'Bearer ' + token;
+    }
+
     let sock = new SockJS("/ws-stomp");
     let ws = Stomp.over(sock);
     let reconnect = 0;
@@ -92,9 +99,18 @@
         created() {
             this.roomId = localStorage.getItem("wschat.roomId");
             this.sender = localStorage.getItem("wschat.sender");
-            this.fetchRoomInfo();
-            this.fetchChatHistory();
-            this.connectWS();
+            // 1) 채팅방 참여자 목록에 본인 등록 API 호출
+            axios.get(`/chatRoom/enter/${roomId}`)
+                .then(() => {
+                    // 참여자 등록 완료 후 다른 초기화 작업 진행
+                    this.fetchRoomInfo();
+                    this.fetchChatHistory();
+                    this.connectWS();
+                })
+                .catch(err => {
+                    alert("참가 불가능한 채팅방입니다.");
+                    window.location.href = '/chat/view';
+                });
         },
         updated() {
             // 메시지 업데이트 시 자동 스크롤

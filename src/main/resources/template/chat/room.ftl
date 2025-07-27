@@ -26,6 +26,11 @@
 </div>
 
 <script>
+    const token = localStorage.getItem('jwtToken');
+    if (token) {
+        axios.defaults.headers.common['Authorization'] = 'Bearer ' + token;
+    }
+
     new Vue({
         el: '#app',
         data: {
@@ -37,7 +42,7 @@
         },
         methods: {
             fetchRooms() {
-                axios.get('/chat/rooms')
+                axios.get('/chat/list')
                     .then(response => {
                         this.chatrooms = response.data;
                     });
@@ -45,18 +50,26 @@
             createRoom() {
                 if (this.newRoomName.trim() === '') return;
                 axios.post('/chat/room', null, {
-                    params: { name: this.newRoomName }
+                    params: {name: this.newRoomName}
                 }).then(() => {
                     this.newRoomName = '';
                     this.fetchRooms();
                 });
             },
-            enterRoom(roomId) {
-                const sender = prompt("대화명을 입력해주세요.");
-                if (sender && sender.trim() !== "") {
-                    localStorage.setItem("wschat.sender", sender);
-                    localStorage.setItem("wschat.roomId", roomId);
-                    window.location.href = "/chat/room/enter/" + roomId;
+            async enterRoom(roomId) {
+                try {
+                    const response = await axios.get('/chat/enter/me');
+                    const sender = response.data.username;
+                    if (sender && sender.trim() !== "") {
+                        localStorage.setItem("wschat.sender", sender);
+                        localStorage.setItem("wschat.roomId", roomId);
+                        window.location.href = "/chat/view/enter/" + roomId;
+                    } else {
+                        alert("닉네임을 불러올 수 없습니다.");
+                    }
+                } catch (error) {
+                    console.error("닉네임 불러오기 실패", error);
+                    alert("닉네임 불러오기 실패");
                 }
             }
         }

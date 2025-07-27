@@ -36,4 +36,8 @@ public class ChatMessage {
     public ChatMessage() {
 
     }
+
+    public static ChatMessage from(ChatMessageDto roomMessage) {
+        return new ChatMessage(roomMessage);
+    }
 }
