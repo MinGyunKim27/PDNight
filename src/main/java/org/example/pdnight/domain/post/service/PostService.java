@@ -2,7 +2,6 @@ package org.example.pdnight.domain.post.service;
 
 import java.util.Optional;
 
-import org.example.pdnight.domain.chatRoom.entity.ChatRoom;
 import org.example.pdnight.domain.chatRoom.service.ChattingService;
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.comment.repository.CommentRepository;
@@ -49,6 +48,7 @@ public class PostService {
     private final CommentRepository commentRepository;
     private final HobbyRepositoryQuery hobbyRepositoryQuery;
     private final TechStackRepositoryQuery techStackRepositoryQuery;
+    private final ChattingService chattingService;
 
     //포스트 작성
     @Transactional

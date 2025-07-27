@@ -26,7 +26,8 @@ public class RedisSubscriber implements MessageListener {
         try{
             String publishMessage = (String) redisTemplate.getStringSerializer().deserialize(message.getBody());
             ChatMessageDto roomMessage = objectMapper.readValue(publishMessage, ChatMessageDto.class);
-            ChatMessage chatMessage = new ChatMessage(roomMessage);
+            ChatMessage chatMessage = ChatMessage.from(roomMessage);
+            // 전송할 메시지 저장
             chattingRepository.save(chatMessage);
 
             // 채팅방 접속한 클라이언트에게 메시지 전송

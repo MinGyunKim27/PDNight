@@ -80,7 +80,6 @@ public enum ErrorCode {
 
     CHAT_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 채팅방입니다."),
     CHAT_ROOM_NOT_PARTICIPANT(HttpStatus.FORBIDDEN, "참가 불가능한 채팅방입니다."),
-    TECH_STACK_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 기술 스택입니다."),
 
     // 이벤트 관련 오류
     EVENT_NOT_FOUNT(HttpStatus.NOT_FOUND, "존재하지 않는 이벤트입니다."),

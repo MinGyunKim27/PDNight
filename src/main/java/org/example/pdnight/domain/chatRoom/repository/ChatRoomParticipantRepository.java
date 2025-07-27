@@ -7,6 +7,4 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ChatRoomParticipantRepository extends JpaRepository<ChatParticipant, Long> {
     boolean existsByChatRoomAndUserId(ChatRoom chatRoom, Long userId);
-
-    boolean existsByIdAndUserId(Long id, Long userId);
 }

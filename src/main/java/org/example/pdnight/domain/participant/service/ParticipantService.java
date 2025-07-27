@@ -35,6 +35,7 @@ public class ParticipantService {
     private final UserRepository userRepository;
     private final ParticipantRepository participantRepository;
     private final InviteService inviteService;
+    private final ChattingService chattingService;
 
     // 참가 요건 확인
     private void validForCreateParticipant(User user, Post post) {

@@ -11,9 +11,9 @@ import org.example.pdnight.domain.chatRoom.repository.ChatRoomRedisRepository;
 import org.example.pdnight.domain.chatRoom.repository.ChatRoomRepository;
 import org.example.pdnight.domain.chatRoom.repository.ChattingRepository;
 import org.example.pdnight.domain.common.enums.ErrorCode;
+import org.example.pdnight.domain.common.enums.JoinStatus;
 import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.participant.entity.PostParticipant;
-import org.example.pdnight.domain.participant.enums.JoinStatus;
 import org.example.pdnight.domain.participant.repository.ParticipantRepository;
 import org.example.pdnight.domain.post.entity.Post;
 import org.example.pdnight.domain.post.repository.PostRepository;
@@ -58,20 +58,11 @@ public class ChattingService {
     public void registration(Post post) {
         ChatRoom chatRoom = chatRoomRepository.findByPostId(post.getId());
         // 게시글 작성자 등록
-        if (!chatRoomParticipantRepository.existsByChatRoomAndUserId(chatRoom, post.getAuthor().getId())) {
-            ChatParticipant chatRoomAuth = ChatParticipant.from(chatRoom, post.getAuthor().getId());
-            chatRoomParticipantRepository.save(chatRoomAuth);
-        }
+        postAuthorRegistration(chatRoom, post.getAuthor().getId());
 
         // 참여자 등록
         List<PostParticipant> participants = participantRepository.findByPostAndStatus(post, JoinStatus.ACCEPTED);
-        for (PostParticipant participant : participants) {
-            // 채팅방에 참여되지 않은 경우 등록
-            if (!chatRoomParticipantRepository.existsByChatRoomAndUserId(chatRoom, participant.getUser().getId())) {
-                ChatParticipant chatParticipant = ChatParticipant.from(chatRoom, participant.getUser().getId());
-                chatRoomParticipantRepository.save(chatParticipant);
-            }
-        }
+        postParticipantRegistration(chatRoom, participants);
     }
 
     // 채팅방 목록 조회
@@ -101,25 +92,52 @@ public class ChattingService {
     // 게시글 채팅방 참여시 채팅방 참여자인지 확인
     public String chatRoomEnter(Long userId, Long chatRoomId) {
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).orElseThrow(() -> new BaseException(ErrorCode.CHAT_ROOM_NOT_FOUND));
-
-        if (chatRoom.getPostId() != null) {
-            if (!chatRoomParticipantRepository.existsByIdAndUserId(chatRoom.getId(), userId)) {
-                throw new BaseException(ErrorCode.CHAT_ROOM_NOT_PARTICIPANT);
-            }
-        } else {
-            return "오픈 채팅방에 참여 되었습니다.";
-        }
-        return "채팅방에 참여 되었습니다.";
+        return validatedChatRoomEnter(chatRoom, userId);
     }
 
     // 메시지 보내기
     public void sendMessage(ChatMessageDto message) {
         ChannelTopic topic = chatRoomRedisRepository.getTopic(message.getRoomId());
+        topic = getOrSubscribeTopic(topic, message);
+        redisPublisher.publish(topic, message);
+    }
+
+
+    // -- HELPER 메서드 -- //
+
+    private void postAuthorRegistration(ChatRoom chatRoom, Long authorId) {
+        if (!chatRoomParticipantRepository.existsByChatRoomAndUserId(chatRoom, authorId)) {
+            ChatParticipant chatRoomAuth = ChatParticipant.from(chatRoom, authorId);
+            chatRoomParticipantRepository.save(chatRoomAuth);
+        }
+    }
+
+    private void postParticipantRegistration(ChatRoom chatRoom, List<PostParticipant> participants) {
+        for (PostParticipant participant : participants) {
+            // 채팅방에 참여되지 않은 경우 등록
+            if (!chatRoomParticipantRepository.existsByChatRoomAndUserId(chatRoom, participant.getUser().getId())) {
+                ChatParticipant chatParticipant = ChatParticipant.from(chatRoom, participant.getUser().getId());
+                chatRoomParticipantRepository.save(chatParticipant);
+            }
+        }
+    }
+
+    private String validatedChatRoomEnter(ChatRoom chatRoom, Long userId) {
+        if (chatRoom.getPostId() != null) {
+            if (!chatRoomParticipantRepository.existsByChatRoomAndUserId(chatRoom, userId)) {
+                throw new BaseException(ErrorCode.CHAT_ROOM_NOT_PARTICIPANT);
+            }
+            return "게시글 채팅방에 참여 되었습니다.";
+        }
+        return "오픈 채팅방에 참여 되었습니다.";
+    }
+
+    private ChannelTopic getOrSubscribeTopic(ChannelTopic topic, ChatMessageDto message) {
+        // 토픽이 없으면 구독 등록 후 다시 가져오기
         if (topic == null) {
-            // 토픽이 없으면 구독 등록 후 다시 가져오기
             chatRoomRedisRepository.enterChatRoom(message.getRoomId());
             topic = chatRoomRedisRepository.getTopic(message.getRoomId());
         }
-        redisPublisher.publish(topic, message);
+        return topic;
     }
 }
