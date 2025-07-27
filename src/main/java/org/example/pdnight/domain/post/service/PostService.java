@@ -3,6 +3,7 @@ package org.example.pdnight.domain.post.service;
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.comment.repository.CommentRepository;
 import org.example.pdnight.domain.common.dto.PagedResponse;
+import org.example.pdnight.global.constant.CacheName;
 import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.enums.JobCategory;
 import org.example.pdnight.domain.common.enums.JoinStatus;
@@ -28,6 +29,8 @@ import org.example.pdnight.domain.techStack.entity.TechStack;
 import org.example.pdnight.domain.techStack.repository.TechStackRepositoryQuery;
 import org.example.pdnight.domain.user.entity.User;
 import org.example.pdnight.domain.user.repository.UserRepository;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -47,6 +50,7 @@ public class PostService {
     private final TechStackRepositoryQuery techStackRepositoryQuery;
 
     //포스트 작성
+    @CacheEvict(value = CacheName.SEARCH_POST, allEntries = true)
     @Transactional
     public PostCreateAndUpdateResponseDto createPost(Long userId, PostRequestDto request) {
         //임시 메서드 User 도메인 작업에 따라 변동될 것
@@ -86,6 +90,7 @@ public class PostService {
         return PostRepositoryQuery.getOpenedPostById(id);
     }
 
+    @CacheEvict(value = CacheName.SEARCH_POST, allEntries = true)
     @Transactional
     public void deletePostById(Long userId, Long id) {
         Post foundPost = getPostById(id);
@@ -101,8 +106,12 @@ public class PostService {
     }
 
     //게시물 조건 검색
+    @Cacheable(
+            value = CacheName.SEARCH_POST,
+            key = "{#pageable.pageNumber, #pageable.pageSize, #maxParticipants, #ageLimit, #jobCategoryLimit, #genderLimit, #hobbyIdList, #techStackIdList}"
+    )
     @Transactional(readOnly = true)
-    public Page<PostResponseWithApplyStatusDto> getPostDtosBySearch(
+    public PagedResponse<PostResponseWithApplyStatusDto> getPostDtosBySearch(
             Pageable pageable,
             Integer maxParticipants,
             AgeLimit ageLimit,
@@ -111,10 +120,13 @@ public class PostService {
             List<Long> hobbyIdList,
             List<Long> techStackIdList
     ) {
-        return PostRepositoryQuery.findPostDtosBySearch(pageable, maxParticipants,
+
+        Page<PostResponseWithApplyStatusDto> postDtosBySearch = PostRepositoryQuery.findPostDtosBySearch(pageable, maxParticipants,
                 ageLimit, jobCategoryLimit, genderLimit, hobbyIdList, techStackIdList);
+        return PagedResponse.from(postDtosBySearch);
     }
 
+    @CacheEvict(value = CacheName.SEARCH_POST, allEntries = true)
     @Transactional
     public PostCreateAndUpdateResponseDto updatePostDetails(Long userId, Long id, PostUpdateRequestDto request) {
         Post foundPost = getPostById(id);
@@ -142,6 +154,7 @@ public class PostService {
         return PostCreateAndUpdateResponseDto.from(foundPost);
     }
 
+    @CacheEvict(value = CacheName.SEARCH_POST, allEntries = true)
     @Transactional
     public PostResponseDto changeStatus(Long userId, Long id, PostStatusRequestDto request) {
         //상태값 변경은 어떤 상태라도 불러와서 수정
@@ -164,14 +177,14 @@ public class PostService {
 
     // 내 성사된/ 신청한 게시물 조회
     public PagedResponse<PostWithJoinStatusAndAppliedAtResponseDto> findMyConfirmedPosts(Long userId, JoinStatus joinStatus, Pageable pageable) {
-        Page<PostWithJoinStatusAndAppliedAtResponseDto> myLikePost = PostRepositoryQuery.getConfirmedPost(userId, joinStatus, pageable);
-        return PagedResponse.from(myLikePost);
+        Page<PostWithJoinStatusAndAppliedAtResponseDto> myConfirmedPost = PostRepositoryQuery.getConfirmedPost(userId, joinStatus, pageable);
+        return PagedResponse.from(myConfirmedPost);
     }
 
     //내 작성 게시물 조회
     public PagedResponse<PostResponseWithApplyStatusDto> findMyWrittenPosts(Long userId, Pageable pageable) {
-        Page<PostResponseWithApplyStatusDto> myLikePost = PostRepositoryQuery.getWrittenPost(userId, pageable);
-        return PagedResponse.from(myLikePost);
+        Page<PostResponseWithApplyStatusDto> myWrittenPost = PostRepositoryQuery.getWrittenPost(userId, pageable);
+        return PagedResponse.from(myWrittenPost);
     }
 
     //추천 게시물 조회
