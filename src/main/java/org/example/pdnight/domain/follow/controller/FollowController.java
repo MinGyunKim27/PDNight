@@ -17,17 +17,17 @@ public class FollowController {
 
     //팔로우
     @PostMapping
-    public ResponseEntity<ApiResponse<?>> follow(
+    public ResponseEntity<ApiResponse<FollowResponseDto>> follow(
             @PathVariable Long userId,
             @AuthenticationPrincipal CustomUserDetails loginUser
     ){
         FollowResponseDto follow = followService.follow(userId,loginUser.getUserId());
-        return ResponseEntity.ok(ApiResponse.ok("팔로우 했습니다.",follow));
+        return ResponseEntity.ok(ApiResponse.ok("팔로우 했습니다.", follow));
     }
 
     //언팔로우
     @DeleteMapping
-    public ResponseEntity<ApiResponse<?>> unfollow(
+    public ResponseEntity<ApiResponse<Void>> unfollow(
             @PathVariable Long userId,
             @AuthenticationPrincipal CustomUserDetails loggedInUser
     ){

@@ -26,8 +26,8 @@ public class GlobalExceptionHandler {
      * @return 공통응답객체를 통한 일괄적인 응답형식
      */
     @ExceptionHandler(BaseException.class)
-    public ResponseEntity<ApiResponse<?>> handlePlannerException(BaseException e) {
-        ApiResponse<?> response = ApiResponse.error(e.getMessage());
+    public ResponseEntity<ApiResponse<Void>> handlePlannerException(BaseException e) {
+        ApiResponse<Void> response = ApiResponse.error(e.getMessage());
         log.error("커스텀 예외처리 발생", e);
         return new ResponseEntity<>(response, e.getStatus());
     }
@@ -40,7 +40,7 @@ public class GlobalExceptionHandler {
      * 첫 번째 예외메세지만 반환
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse<?>> handleValidationExceptions(MethodArgumentNotValidException ex){
+    public ResponseEntity<ApiResponse<Void>> handleValidationExceptions(MethodArgumentNotValidException ex){
 
         String message = ex.getBindingResult()
                 .getFieldErrors()
@@ -49,7 +49,7 @@ public class GlobalExceptionHandler {
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .orElse("유효성 검사에 실패했습니다");
 
-        ApiResponse<?> response = ApiResponse.error(message);
+        ApiResponse<Void> response = ApiResponse.error(message);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
@@ -61,8 +61,8 @@ public class GlobalExceptionHandler {
      * @return 공통응답객체를 통한 일괄적인 응답형식  (HTTP 400 Bad Request)
      */
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ApiResponse<?>> handleIllegalArgumentException(IllegalArgumentException e) {
-        ApiResponse<?> response = ApiResponse.error("잘못된 요청 형식입니다.");
+    public ResponseEntity<ApiResponse<Void>> handleIllegalArgumentException(IllegalArgumentException e) {
+        ApiResponse<Void> response = ApiResponse.error("잘못된 요청 형식입니다.");
         log.error("잘못된 요청 형식 발생 ", e);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
@@ -75,8 +75,8 @@ public class GlobalExceptionHandler {
      * @return 공통응답객체를 통한 일괄적인 응답형식
      */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse<?>> handleException(Exception e) {
-        ApiResponse<?> response = ApiResponse.error("처리 중 오류가 발생했습니다");
+    public ResponseEntity<ApiResponse<Void>> handleException(Exception e) {
+        ApiResponse<Void> response = ApiResponse.error("처리 중 오류가 발생했습니다");
         log.error("서버오류 발생", e);
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }

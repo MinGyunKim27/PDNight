@@ -20,7 +20,7 @@ public class EventParticipantController {
 
     // 이벤트 참가 신청
     @PostMapping
-    public ResponseEntity<ApiResponse<?>> addParticipant(
+    public ResponseEntity<ApiResponse<Void>> addParticipant(
             @PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetails loginUser
     ){
