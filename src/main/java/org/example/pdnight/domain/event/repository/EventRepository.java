@@ -10,7 +10,4 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 public interface EventRepository extends JpaRepository<Event, Long>{
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("SELECT e FROM Event e WHERE e.id = :id")
-    Optional<Event> findByIdWithLock(@Param("id") Long id);
 }

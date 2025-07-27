@@ -49,9 +49,9 @@ export default function (users) {
     const index = (__VU - 1) % users.length;
     const user = users[index];
 
-    const res = http.post(`${baseUrl}/api/posts/1/participate`, JSON.stringify({
+    const res = http.post(`${baseUrl}/api/posts/2/participate`, JSON.stringify({
         userId: user.id,
-        postId: 1,
+        postId: 2,
     }), {
         headers: {
             'Content-Type': 'application/json',
