@@ -17,6 +17,8 @@ import org.example.pdnight.domain.post.enums.PostStatus;
 import org.example.pdnight.domain.post.repository.PostRepository;
 import org.example.pdnight.domain.user.entity.User;
 import org.example.pdnight.domain.user.repository.UserRepository;
+import org.example.pdnight.global.constant.CacheName;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -72,6 +74,7 @@ public class ParticipantService {
 
 
     //참가 신청
+    @CacheEvict(value = CacheName.CONFIRMED_POST, allEntries = true)
     @Transactional
     public ParticipantResponse applyParticipant(Long loginId, Long postId) {
         User user = getUser(loginId);
@@ -130,6 +133,7 @@ public class ParticipantService {
     }
 
     //참가 확정(작성자)
+    @CacheEvict(value = CacheName.CONFIRMED_POST, allEntries = true)
     @Transactional
     public ParticipantResponse changeStatusParticipant(Long authorId, Long userId, Long postId, String status) {
         User user = getUser(userId);
