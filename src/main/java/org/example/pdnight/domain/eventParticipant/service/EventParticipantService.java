@@ -2,12 +2,10 @@ package org.example.pdnight.domain.eventParticipant.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.aspectj.lang.annotation.Around;
 import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.event.entity.Event;
 import org.example.pdnight.domain.event.repository.EventRepository;
-import org.example.pdnight.domain.event.service.EventService;
 import org.example.pdnight.domain.eventParticipant.dto.response.EventParticipantResponse;
 import org.example.pdnight.domain.eventParticipant.entity.EventParticipant;
 import org.example.pdnight.domain.eventParticipant.repository.EventParticipantRepository;
@@ -17,7 +15,6 @@ import org.example.pdnight.global.aop.DistributedLock;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 
 @Service
@@ -50,7 +47,7 @@ public class EventParticipantService {
         );
 
         // 신청 인원 확인
-        int participantsCount = eventParticipantRepository.getEventParticipantByEventIdwithLock(eventId);
+        int participantsCount = eventParticipantRepository.getEventParticipantByEventIdWithLock(eventId);
         if(participantsCount == event.getMaxParticipants()){
             throw new BaseException(ErrorCode.EVENT_PARTICIPANT_FULL);
         }
@@ -65,7 +62,7 @@ public class EventParticipantService {
                 () -> new BaseException(ErrorCode.EVENT_NOT_FOUNT)
         );
 
-        Page<EventParticipant> eventPage = eventParticipantRepository.findByEventIdWithUser(eventId, pageable);
+        Page<EventParticipant> eventPage = eventParticipantRepository.findByEventWithUser(event, pageable);
         return eventPage.map(EventParticipantResponse::new);
     }
 }

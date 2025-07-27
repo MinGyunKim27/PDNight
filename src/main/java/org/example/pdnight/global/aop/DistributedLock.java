@@ -11,6 +11,5 @@ public @interface DistributedLock {
     String key();
     long timeoutMs() default 3000L;
     long leaseTimeMs() default 3000;
-    int maxAttempts() default 5;
     long intervalMs() default 50L;
 }

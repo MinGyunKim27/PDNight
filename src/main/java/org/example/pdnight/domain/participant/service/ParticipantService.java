@@ -1,7 +1,6 @@
 package org.example.pdnight.domain.participant.service;
 
 import lombok.RequiredArgsConstructor;
-import org.aspectj.lang.annotation.Around;
 import org.example.pdnight.domain.common.dto.PagedResponse;
 import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.enums.JobCategory;
@@ -24,9 +23,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-
 import static org.example.pdnight.domain.common.enums.ErrorCode.CANNOT_PARTICIPATE_POST;
 
 @Service

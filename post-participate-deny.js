@@ -16,15 +16,10 @@ export let cancelError = new Counter('cancel_error');
 export let rejectError = new Counter('reject_error');
 export let concurrencyIssue = new Counter('concurrency_issue');
 
-const baseUrl = 'http://localhost';
+const baseUrl = 'http://localhost:8081';
 const postId = 2; // postId를 2로 변경
 
 export function setup() {
-    console.log('🔍 먼저 2번 포스트 상태와 실제 PENDING 신청자들을 확인해주세요:');
-    console.log('   SELECT status FROM posts WHERE id = 2;');
-    console.log('   SELECT user_id FROM posts_participants WHERE post_id = 2 AND status = "PENDING";');
-    console.log('');
-
     const users = [];
 
     // 실제 2번 포스트에 PENDING 상태로 신청한 유저들의 ID를 여기에 입력
@@ -52,9 +47,9 @@ export function setup() {
 
         if (token) {
             users.push({ token, id: userId });
-            console.log(`✅ User${userId} 로그인 성공`);
+            console.log(`User${userId} 로그인 성공`);
         } else {
-            console.error(`❌ Login failed for user${userId}, status: ${res.status}`);
+            console.error(`Login failed for user${userId}, status: ${res.status}`);
         }
     }
 
@@ -75,12 +70,12 @@ export function setup() {
     }
 
     if (authorToken) {
-        console.log('✅ Author(user201) 로그인 성공');
+        console.log('Author(user201) 로그인 성공');
     } else {
-        console.error(`❌ Author login failed, status: ${authorRes.status}, body: ${authorRes.body}`);
+        console.error(`Author login failed, status: ${authorRes.status}, body: ${authorRes.body}`);
     }
 
-    console.log(`🚀 Setup 완료 - 총 ${users.length}명의 유저 토큰 준비됨`);
+    console.log(`Setup 완료 - 총 ${users.length}명의 유저 토큰 준비됨`);
 
     return {
         users: users,
@@ -90,12 +85,12 @@ export function setup() {
 
 export default function (data) {
     if (!data.users || data.users.length === 0) {
-        console.error('❌ 사용 가능한 유저가 없습니다');
+        console.error('사용 가능한 유저가 없습니다');
         return;
     }
 
     if (!data.authorToken) {
-        console.error('❌ 작성자 토큰이 없습니다');
+        console.error('작성자 토큰이 없습니다');
         return;
     }
 
@@ -104,7 +99,7 @@ export default function (data) {
     const userId = randomUser.id;
     const userToken = randomUser.token;
 
-    console.log(`🎯 Testing with user ID: ${userId}`);
+    console.log(`Testing with user ID: ${userId}`);
 
     // 동시 요청을 위한 시작 시간 동기화
     const startTime = Date.now();
@@ -165,22 +160,22 @@ export default function (data) {
                 if (response.status === 200 || response.status === 204) {
                     successCancel.add(1);
                     cancelSuccess = true;
-                    console.log(`✅ [${timestamp}ms] User ${userId} 취소 성공`);
+                    console.log(`[${timestamp}ms] User ${userId} 취소 성공`);
                 } else if (response.status === 409) {
                     cancelConflict.add(1);
-                    console.log(`⚠️ [${timestamp}ms] User ${userId} 취소 실패 (409 - CANNOT_CANCEL)`);
+                    console.log(`[${timestamp}ms] User ${userId} 취소 실패 (409 - CANNOT_CANCEL)`);
                 } else if (response.status === 404) {
                     cancelConflict.add(1);
-                    console.log(`⚠️ [${timestamp}ms] User ${userId} 취소 실패 (404 - 이미 없음)`);
+                    console.log(`[${timestamp}ms] User ${userId} 취소 실패 (404 - 이미 없음)`);
                 } else if (response.status === 400) {
                     cancelConflict.add(1);
-                    console.log(`⚠️ [${timestamp}ms] User ${userId} 취소 실패 (400 - 신청되어있지 않음)`);
+                    console.log(`[${timestamp}ms] User ${userId} 취소 실패 (400 - 신청되어있지 않음)`);
                 } else if (response.status === 400) {
                     rejectConflict.add(1);
-                    console.log(`⚠️ [${timestamp}ms] User ${userId} 거절 실패 (400 - 신청되어있지 않음)`);
+                    console.log(`[${timestamp}ms] User ${userId} 거절 실패 (400 - 신청되어있지 않음)`);
                 } else {
                     cancelError.add(1);
-                    console.log(`❌ [${timestamp}ms] User ${userId} 취소 에러: ${response.status}, body: ${response.body}`);
+                    console.log(`[${timestamp}ms] User ${userId} 취소 에러: ${response.status}, body: ${response.body}`);
                 }
 
                 check(response, {
@@ -191,16 +186,16 @@ export default function (data) {
                 if (response.status === 200 || response.status === 201) {
                     successReject.add(1);
                     rejectSuccess = true;
-                    console.log(`✅ [${timestamp}ms] User ${userId} 거절 성공`);
+                    console.log(`[${timestamp}ms] User ${userId} 거절 성공`);
                 } else if (response.status === 409) {
                     rejectConflict.add(1);
-                    console.log(`⚠️ [${timestamp}ms] User ${userId} 거절 실패 (409 - 이미 처리됨)`);
+                    console.log(`[${timestamp}ms] User ${userId} 거절 실패 (409 - 이미 처리됨)`);
                 } else if (response.status === 404) {
                     rejectConflict.add(1);
-                    console.log(`⚠️ [${timestamp}ms] User ${userId} 거절 실패 (404 - 참가자 없음)`);
+                    console.log(`[${timestamp}ms] User ${userId} 거절 실패 (404 - 참가자 없음)`);
                 } else {
                     rejectError.add(1);
-                    console.log(`❌ [${timestamp}ms] User ${userId} 거절 에러: ${response.status}, body: ${response.body}`);
+                    console.log(`[${timestamp}ms] User ${userId} 거절 에러: ${response.status}, body: ${response.body}`);
                 }
 
                 check(response, {
@@ -222,19 +217,19 @@ export default function (data) {
 }
 
 export function teardown(data) {
-    console.log('\n=== 🎯 동시성 테스트 결과 ===');
+    console.log('\n===  동시성 테스트 결과 ===');
     console.log(`취소 성공: ${successCancel ? successCancel.count : 0}`);
     console.log(`거절 성공: ${successReject ? successReject.count : 0}`);
     console.log(`취소 충돌 (409/404): ${cancelConflict ? cancelConflict.count : 0}`);
     console.log(`거절 충돌 (409/404): ${rejectConflict ? rejectConflict.count : 0}`);
     console.log(`취소 에러: ${cancelError ? cancelError.count : 0}`);
     console.log(`거절 에러: ${rejectError ? rejectError.count : 0}`);
-    console.log(`🚨 동시성 문제 발생 횟수: ${concurrencyIssue ? concurrencyIssue.count : 0}`);
+    console.log(` 동시성 문제 발생 횟수: ${concurrencyIssue ? concurrencyIssue.count : 0}`);
 
     const concurrencyCount = concurrencyIssue ? concurrencyIssue.count : 0;
     if (concurrencyCount > 0) {
-        console.log('\n❌ 분산락이 제대로 작동하지 않았습니다!');
+        console.log('\n 분산락이 제대로 작동하지 않았습니다!');
     } else {
-        console.log('\n✅ 분산락이 정상적으로 동시성을 제어했습니다!');
+        console.log('\n 분산락이 정상적으로 동시성을 제어했습니다!');
     }
 }

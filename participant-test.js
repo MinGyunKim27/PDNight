@@ -13,7 +13,7 @@ export let conflict = new Counter('participants_conflict');
 export let fail = new Counter('participants_fail');
 
 export function setup() {
-    const baseUrl = 'http://localhost';
+    const baseUrl = 'http://localhost:8080';
     const users = [];
 
     for (let i = 1; i <= 200; i++) {
@@ -44,7 +44,7 @@ export function setup() {
 }
 
 export default function (users) {
-    const baseUrl = 'http://localhost';
+    const baseUrl = 'http://localhost:8080';
     const index = (__VU - 1) % users.length;
     const user = users[index];
 
@@ -71,6 +71,4 @@ export default function (users) {
     check(res, {
         '응답 코드가 200 또는 409': (r) => r.status === 200 || r.status === 409,
     });
-
-    // sleep(0.3);
 }

@@ -74,6 +74,4 @@ export default function (users) {
     check(res, {
         '응답 코드가 201 또는 409': (r) => r.status === 200 || r.status === 201 || r.status === 409,
     });
-
-    // sleep(0.3);
 }
