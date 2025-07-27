@@ -1,7 +1,6 @@
 package org.example.pdnight.domain.user.controller;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Null;
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.common.dto.ApiResponse;
 import org.example.pdnight.domain.common.dto.PagedResponse;
@@ -104,7 +103,7 @@ public class UserController {
 
     // 비밀번호 변경
     @PatchMapping("/my/password")
-    public ResponseEntity<ApiResponse<Null>> updatePassword(
+    public ResponseEntity<ApiResponse<Void>> updatePassword(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody UserPasswordUpdateRequest requestDto
     ) {

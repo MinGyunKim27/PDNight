@@ -1,6 +1,5 @@
 package org.example.pdnight.domain.user.controller;
 
-import jakarta.validation.constraints.Null;
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.common.dto.ApiResponse;
 import org.example.pdnight.domain.common.dto.PagedResponse;
@@ -30,7 +29,7 @@ public class AdminUserController {
     }
 
     @DeleteMapping("/users/{id}")
-    public ResponseEntity<ApiResponse<Null>> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable Long id) {
         adminUserService.deleteUser(id);
         return ResponseEntity.ok(ApiResponse.ok("회원탈퇴 시켰습니다.", null));
     }

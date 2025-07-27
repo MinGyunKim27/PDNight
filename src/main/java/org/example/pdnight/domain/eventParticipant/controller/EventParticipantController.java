@@ -1,6 +1,5 @@
 package org.example.pdnight.domain.eventParticipant.controller;
 
-import jakarta.validation.constraints.Null;
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.common.dto.ApiResponse;
 import org.example.pdnight.domain.eventParticipant.service.EventParticipantService;
@@ -21,7 +20,7 @@ public class EventParticipantController {
 
     // 이벤트 참가 신청
     @PostMapping
-    public ResponseEntity<ApiResponse<Null>> addParticipant(
+    public ResponseEntity<ApiResponse<Void>> addParticipant(
             @PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetails loginUser
     ){

@@ -1,6 +1,5 @@
 package org.example.pdnight.domain.comment.controller;
 
-import jakarta.validation.constraints.Null;
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.comment.service.AdminCommentService;
 import org.example.pdnight.domain.common.dto.ApiResponse;
@@ -20,7 +19,7 @@ public class AdminCommentController {
 	private final AdminCommentService adminCommentService;
 
 	@DeleteMapping("/{id}")
-	public ResponseEntity<ApiResponse<Null>> deleteComment(
+	public ResponseEntity<ApiResponse<Void>> deleteComment(
 		@PathVariable Long postId,
 		@PathVariable Long id,
 		@AuthenticationPrincipal CustomUserDetails loginUser

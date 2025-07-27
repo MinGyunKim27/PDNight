@@ -1,6 +1,5 @@
 package org.example.pdnight.domain.invite.controller;
 
-import jakarta.validation.constraints.Null;
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.common.dto.ApiResponse;
 import org.example.pdnight.domain.invite.dto.response.InviteResponseDto;
@@ -31,7 +30,7 @@ public class InviteController {
     }
 
     @DeleteMapping("/post/{postId}/users/{userId}/invite/{id}")
-    public ResponseEntity<ApiResponse<Null>> deleteInvite(
+    public ResponseEntity<ApiResponse<Void>> deleteInvite(
             @PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetails loginUser
     ) {

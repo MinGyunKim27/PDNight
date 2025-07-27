@@ -1,6 +1,5 @@
 package org.example.pdnight.domain.event.controller;
 
-import jakarta.validation.constraints.Null;
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.common.dto.ApiResponse;
 import org.example.pdnight.domain.common.dto.PagedResponse;
@@ -64,7 +63,7 @@ public class EventAdminController {
 
     // 이벤트 삭제
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Null>> deleteEvent(
+    public ResponseEntity<ApiResponse<Void>> deleteEvent(
             @PathVariable Long id
     ){
         eventService.deleteEventById(id);

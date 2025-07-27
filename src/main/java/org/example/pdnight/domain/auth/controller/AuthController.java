@@ -1,7 +1,6 @@
 package org.example.pdnight.domain.auth.controller;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Null;
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.auth.dto.request.LoginRequestDto;
 import org.example.pdnight.domain.auth.dto.request.SignupRequestDto;
@@ -39,14 +38,14 @@ public class AuthController {
     }
 
     @PostMapping("/api/auth/logout")
-    private ResponseEntity<ApiResponse<Null>> logout(@AuthenticationPrincipal CustomUserDetails userDetails) {
+    private ResponseEntity<ApiResponse<Void>> logout(@AuthenticationPrincipal CustomUserDetails userDetails) {
         Long userId = userDetails.getUserId();
         authService.logout(userId);
         return ResponseEntity.ok(ApiResponse.ok("로그아웃 되었습니다.", null));
     }
 
     @DeleteMapping("/api/auth/withdraw")
-    private ResponseEntity<ApiResponse<Null>> withdraw(@Valid @RequestBody WithdrawRequestDto request,
+    private ResponseEntity<ApiResponse<Void>> withdraw(@Valid @RequestBody WithdrawRequestDto request,
                                                        @AuthenticationPrincipal CustomUserDetails userDetails) {
         Long userId = userDetails.getUserId();
         authService.withdraw(userId, request);

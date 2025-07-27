@@ -1,6 +1,5 @@
 package org.example.pdnight.domain.follow.controller;
 
-import jakarta.validation.constraints.Null;
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.common.dto.ApiResponse;
 import org.example.pdnight.domain.follow.dto.response.FollowResponseDto;
@@ -28,7 +27,7 @@ public class FollowController {
 
     //언팔로우
     @DeleteMapping
-    public ResponseEntity<ApiResponse<Null>> unfollow(
+    public ResponseEntity<ApiResponse<Void>> unfollow(
             @PathVariable Long userId,
             @AuthenticationPrincipal CustomUserDetails loggedInUser
     ){

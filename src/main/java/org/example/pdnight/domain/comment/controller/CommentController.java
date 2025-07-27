@@ -1,7 +1,6 @@
 package org.example.pdnight.domain.comment.controller;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Null;
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.comment.dto.request.CommentRequestDto;
 import org.example.pdnight.domain.comment.dto.response.CommentResponseDto;
@@ -39,7 +38,7 @@ public class CommentController {
 
 	//댓글 삭제 메서드
 	@DeleteMapping("/{id}")
-	public ResponseEntity<ApiResponse<Null>> deleteComment(
+	public ResponseEntity<ApiResponse<Void>> deleteComment(
 		@PathVariable Long postId,
 		@PathVariable Long id,
 		@AuthenticationPrincipal CustomUserDetails loginUser
