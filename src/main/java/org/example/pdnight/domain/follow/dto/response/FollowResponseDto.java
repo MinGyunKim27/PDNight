@@ -10,7 +10,7 @@ public class FollowResponseDto {
     private Long id;
     private Long following_id;
 
-    public static FollowResponseDto toDto(Follow follow){
+    public static FollowResponseDto from(Follow follow){
         return new FollowResponseDto(follow.getId(),follow.getFollowing().getId());
     }
 }

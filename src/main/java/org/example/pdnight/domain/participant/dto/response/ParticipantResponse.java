@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Builder
-@AllArgsConstructor(staticName = "of")
+@AllArgsConstructor(staticName = "from")
 public class ParticipantResponse {
 
     private Long userId;

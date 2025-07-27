@@ -19,4 +19,8 @@ public class CouponResponseDto {
         this.isUsed = coupon.isUsed();
         this.deadlineAt = coupon.getDeadlineAt();
     }
+
+    public static CouponResponseDto from(Coupon coupon) {
+        return new CouponResponseDto(coupon);
+    }
 }

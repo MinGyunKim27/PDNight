@@ -12,7 +12,7 @@ import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
-public class TechStackRepositoryQueryImpl implements TechStackRepositoryQuery{
+public class TechStackRepositoryQueryImpl implements TechStackRepositoryQuery {
 
     private final JPAQueryFactory queryFactory;
 
@@ -21,14 +21,20 @@ public class TechStackRepositoryQueryImpl implements TechStackRepositoryQuery{
         QTechStack qTechStack = QTechStack.techStack1;
         BooleanBuilder booleanBuilder = new BooleanBuilder();
 
-        if (StringUtils.hasText(techStack)){
+        if (StringUtils.hasText(techStack)) {
             booleanBuilder.and(qTechStack.techStack.contains(techStack));
         }
 
-        return queryFactory
-                .select(qTechStack)
-                .from(qTechStack)
+        return queryFactory.selectFrom(qTechStack)
                 .where(booleanBuilder)
+                .fetch();
+    }
+
+    @Override
+    public List<TechStack> findByIdList(List<Long> ids) {
+        QTechStack qTechStack = QTechStack.techStack1;
+        return queryFactory.selectFrom(qTechStack)
+                .where(qTechStack.id.in(ids))
                 .fetch();
     }
 

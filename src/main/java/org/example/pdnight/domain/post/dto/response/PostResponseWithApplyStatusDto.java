@@ -11,6 +11,7 @@ import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.enums.PostStatus;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 @Getter
@@ -28,12 +29,14 @@ public class PostResponseWithApplyStatusDto {
     private final Gender genderLimit;
     private final JobCategory jobCategoryLimit;
     private final AgeLimit ageLimit;
+    private List<String> hobbyList;
+    private List<String> techStackList;
     private final Long appliedCount;
     private final Long confirmedCount;
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
 
-    public PostResponseWithApplyStatusDto(Post post, Long appliedCount, Long confirmedCount, Long appliedCount1, Long confirmedCount1) {
+    public PostResponseWithApplyStatusDto(Post post, Long appliedCount, Long confirmedCount) {
         this.postId = post.getId();
         this.authorId = post.getAuthor().getId();
         this.title = post.getTitle();
@@ -43,6 +46,14 @@ public class PostResponseWithApplyStatusDto {
         this.status = post.getStatus();
         this.maxParticipants = post.getMaxParticipants();
         this.genderLimit = post.getGenderLimit();
+        this.hobbyList = post.getPostHobbies()
+                .stream()
+                .map(hobby -> hobby.getHobby().getHobby())
+                .toList();
+        this.techStackList = post.getPostTechs()
+                .stream()
+                .map(tech -> tech.getTechStack().getTechStack())
+                .toList();
         this.jobCategoryLimit = post.getJobCategoryLimit();
         this.ageLimit = post.getAgeLimit();
         this.createdAt = post.getCreatedAt();
@@ -63,7 +74,9 @@ public class PostResponseWithApplyStatusDto {
             Integer maxParticipants,
             Gender genderLimit,
             JobCategory jobCategoryLimit,
-            AgeLimit ageLimit, Long appliedCount, Long confirmedCount,
+            AgeLimit ageLimit,
+            Long appliedCount,
+            Long confirmedCount,
             LocalDateTime createdAt,
             LocalDateTime updatedAt
     ) {
@@ -84,20 +97,9 @@ public class PostResponseWithApplyStatusDto {
         this.updatedAt = updatedAt;
     }
 
-    public static PostResponseDto toDto(Post post){
-        return new PostResponseDto(
-                post.getId(),
-                post.getAuthor().getId(),
-                post.getTitle(),
-                post.getTimeSlot(),
-                post.getPublicContent(),
-                post.getPrivateContent(),
-                post.getStatus(),
-                post.getMaxParticipants(),
-                post.getGenderLimit(),
-                post.getJobCategoryLimit(),
-                post.getAgeLimit(),
-                post.getCreatedAt(),
-                post.getUpdatedAt());
+    public void setHobbyAndTech(List<String> hobbyList, List<String> techStackList) {
+        this.hobbyList = hobbyList;
+        this.techStackList = techStackList;
     }
+
 }

@@ -33,4 +33,8 @@ public class PostLike extends Timestamped {
         this.post = post;
         this.user = user;
     }
+
+    public static PostLike create(Post post, User user) {
+        return new PostLike(post, user);
+    }
 }

@@ -25,4 +25,8 @@ public class EventParticipantResponse {
         this.createdAt = eventParticipant.getCreatedAt();
         this.updatedAt = eventParticipant.getUpdatedAt();
     }
+
+    public static EventParticipantResponse from(EventParticipant eventParticipant) {
+        return new EventParticipantResponse(eventParticipant);
+    }
 }

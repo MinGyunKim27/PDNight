@@ -8,4 +8,6 @@ import java.util.List;
 @Repository
 public interface HobbyRepositoryQuery {
     List<Hobby> searchHobby(String searchHobby);
+
+    List<Hobby> findByIdList(List<Long> ids);
 }

@@ -12,7 +12,7 @@ public class HobbyResponse {
     private Long id;
     private String hobby;
 
-    public static HobbyResponse of(Hobby hobby){
+    public static HobbyResponse from(Hobby hobby){
         return new HobbyResponse(hobby.getId(),hobby.getHobby());
     }
 }

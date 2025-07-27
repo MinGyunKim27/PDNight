@@ -4,11 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.common.dto.PagedResponse;
 import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.enums.JobCategory;
+import org.example.pdnight.domain.common.enums.JoinStatus;
 import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.invite.service.InviteService;
 import org.example.pdnight.domain.participant.dto.response.ParticipantResponse;
 import org.example.pdnight.domain.participant.entity.PostParticipant;
-import org.example.pdnight.domain.common.enums.JoinStatus;
 import org.example.pdnight.domain.participant.repository.ParticipantRepository;
 import org.example.pdnight.domain.post.entity.Post;
 import org.example.pdnight.domain.post.enums.AgeLimit;
@@ -86,15 +86,16 @@ public class ParticipantService {
 
         PostParticipant participant;
 
-        if (post.getIsFirstCome()) {
+        //선착순 포스트인 경우
+        if (post.getIsFirstCome()){
             int count = participantRepository.countByPostAndStatus(post, JoinStatus.ACCEPTED);
-
-            if (count == post.getMaxParticipants()) {
+            if (count == post.getMaxParticipants()){
                 throw new BaseException(CANNOT_PARTICIPATE_POST);
             } else {
                 participant = PostParticipant.createIsFirst(post, user);
 
-                if (count + 1 == post.getMaxParticipants()) {
+                //참가 이후에 maxParticipants 수를 만족 했을 때
+                if(count+1 ==post.getMaxParticipants()){
                     post.updateStatus(PostStatus.CONFIRMED);
                     inviteService.deleteAllByPostAndStatus(post, JoinStatus.PENDING);
                 }

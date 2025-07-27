@@ -27,4 +27,8 @@ public class EventResponse {
         this.createdAt = event.getCreatedAt();
         this.updatedAt = event.getUpdatedAt();
     }
+
+    public static EventResponse from(Event event) {
+        return new EventResponse(event);
+    }
 }
