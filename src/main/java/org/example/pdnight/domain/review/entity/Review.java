@@ -50,6 +50,10 @@ public class Review extends Timestamped {
         this.comment = dto.getComment();
     }
 
+    public static Review create(User reviewer,User ratedUser, Post post, ReviewRequestDto dto) {
+        return new Review(reviewer,ratedUser,post,dto);
+    }
+
     public void removePost() {
         this.post = null;
     }

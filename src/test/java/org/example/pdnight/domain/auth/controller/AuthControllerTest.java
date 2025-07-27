@@ -138,7 +138,7 @@ class AuthControllerTest {
     }
     private User createUser(SignupRequestDto request){
         String encode = passwordEncoder.encode(request.getPassword());
-        User user = new User(request, encode, null, null);
+        User user = new User(request, encode);
         return userRepository.save(user);
     }
 }

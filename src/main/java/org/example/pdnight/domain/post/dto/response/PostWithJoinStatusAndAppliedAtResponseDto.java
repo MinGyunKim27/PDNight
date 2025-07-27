@@ -1,16 +1,15 @@
-package org.example.pdnight.domain.user.dto.response;
-
-import java.time.LocalDateTime;
+package org.example.pdnight.domain.post.dto.response;
 
 import com.querydsl.core.annotations.QueryProjection;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.pdnight.domain.common.enums.JobCategory;
-import org.example.pdnight.domain.participant.enums.JoinStatus;
+import org.example.pdnight.domain.common.enums.JoinStatus;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.enums.PostStatus;
+
+import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor
@@ -31,19 +30,21 @@ public class PostWithJoinStatusAndAppliedAtResponseDto {
     private LocalDateTime appliedAt;
 
     @QueryProjection
-    public PostWithJoinStatusAndAppliedAtResponseDto(Long postId,
-                                     Long userId,
-                                     String title,
-                                     LocalDateTime timeslot,
-                                     String publicContent,
-                                     String privateContent,
-                                     PostStatus status,
-                                     Integer maxParticipants,
-                                     Gender genderLimit,
-                                     JobCategory jobCategoryLimit,
-                                     AgeLimit ageLimit,
-                                     JoinStatus joinStatus,
-                                     LocalDateTime appliedAt) {
+    public PostWithJoinStatusAndAppliedAtResponseDto(
+            Long postId,
+            Long userId,
+            String title,
+            LocalDateTime timeslot,
+            String publicContent,
+            String privateContent,
+            PostStatus status,
+            Integer maxParticipants,
+            Gender genderLimit,
+            JobCategory jobCategoryLimit,
+            AgeLimit ageLimit,
+            JoinStatus joinStatus,
+            LocalDateTime appliedAt
+    ) {
         this.postId = postId;
         this.userId = userId;
         this.title = title;
@@ -56,7 +57,6 @@ public class PostWithJoinStatusAndAppliedAtResponseDto {
         this.jobCategoryLimit = jobCategoryLimit;
         this.ageLimit = ageLimit;
         this.joinStatus = joinStatus;
-        this.appliedAt =  appliedAt;
+        this.appliedAt = appliedAt;
     }
 }
-
