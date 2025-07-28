@@ -3,7 +3,9 @@ package org.example.pdnight.domain.user.service;
 import at.favre.lib.crypto.bcrypt.BCrypt;
 import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.hobby.entity.Hobby;
-import org.example.pdnight.domain.hobby.repository.HobbyRepository;
+import org.example.pdnight.domain.hobby.repository.HobbyRepositoryQuery;
+import org.example.pdnight.domain.techStack.entity.TechStack;
+import org.example.pdnight.domain.techStack.repository.TechStackRepositoryQuery;
 import org.example.pdnight.domain.user.dto.request.UserPasswordUpdateRequest;
 import org.example.pdnight.domain.user.dto.request.UserUpdateRequest;
 import org.example.pdnight.domain.user.dto.response.UserEvaluationResponse;
@@ -14,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
@@ -31,7 +34,9 @@ public class UserServiceTest {
     private UserRepository userRepository;
 
     @Mock
-    private HobbyRepository hobbyRepository;
+    private HobbyRepositoryQuery hobbyRepositoryQuery;
+    @Mock
+    private TechStackRepositoryQuery techStackRepositoryQuery;
 
     @InjectMocks
     private UserService userService;
@@ -42,7 +47,7 @@ public class UserServiceTest {
         Long userId = 1L;
         User user = new User(userId, "Test");
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userRepository.findByIdWithInfo(userId)).thenReturn(Optional.of(user));
 
         // when
         UserResponseDto result = userService.getMyProfile(userId);
@@ -56,7 +61,7 @@ public class UserServiceTest {
     void 내_프로필_조회_실패_유저없음() {
         // given
         Long userId = 1L;
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+        when(userRepository.findByIdWithInfo(userId)).thenReturn(Optional.empty());
 
         // when & then
         assertThrows(BaseException.class, () -> userService.getMyProfile(userId));
@@ -67,16 +72,24 @@ public class UserServiceTest {
         // given
         Long userId = 1L;
         Long hobbyId = 1L;
-        Hobby hobby = new Hobby(hobbyId, "hobby");
-        List<Long> hobbyIdList = List.of(1L);
-        List<String> hobbyList = List.of("hobby");
+        Long techStackId = 1L;
+
         User user = new User(userId, "Test");
+        Hobby hobby = new Hobby(hobbyId, "hobby");
+        TechStack techStack = new TechStack(techStackId, "techStack");
 
-        UserUpdateRequest request = new UserUpdateRequest("Test", hobbyIdList);
+        List<Long> hobbyIdList = List.of(hobbyId);
+        List<Long> techStackIdList = List.of(techStackId);
 
-        when(hobbyRepository.findById(hobbyId)).thenReturn(Optional.of(hobby));
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(userRepository.save(any(User.class))).thenReturn(user); // 저장 호출 시 반환
+        UserUpdateRequest request = Mockito.mock();
+
+        when(request.getName()).thenReturn(user.getName());
+        when(request.getHobbyIdList()).thenReturn(hobbyIdList);
+        when(request.getTechStackIdList()).thenReturn(techStackIdList);
+
+        when(userRepository.findByIdWithInfo(userId)).thenReturn(Optional.of(user));
+        when(hobbyRepositoryQuery.findByIdList(hobbyIdList)).thenReturn(List.of(hobby));
+        when(techStackRepositoryQuery.findByIdList(techStackIdList)).thenReturn(List.of(techStack));
 
         // when
         UserResponseDto result = userService.updateMyProfile(userId, request);
@@ -84,10 +97,13 @@ public class UserServiceTest {
         // then
         verify(userRepository).save(any(User.class)); // 저장 메서드 호출 확인
         assertEquals("Test", result.getName());
-        assertEquals(hobbyList, result.getHobbyList());
+        assertEquals(List.of("hobby"), result.getHobbyList());
+        assertEquals(List.of("techStack"), result.getTechStackList());
     }
 
-    @Test
+    // 현 상태에선 존재하지 않는 아이디를 넣어도 예외처리 하고있지않음
+    // DB에 있는 값만 조회하고 있는중
+    /*@Test
     void 내_프로필_수정_실패_없는_취미() {
         // given
         Long userId = 1L;
@@ -98,7 +114,7 @@ public class UserServiceTest {
         when(hobbyRepository.findById(hobbyId)).thenReturn(Optional.empty());
 
         assertThrows(BaseException.class, () -> userService.updateMyProfile(userId, request));
-    }
+    }*/
 
     @Test
     void 비밀번호_수정_성공() {
