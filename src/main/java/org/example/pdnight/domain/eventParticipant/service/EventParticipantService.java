@@ -54,7 +54,10 @@ public class EventParticipantService {
 
     // 참가 신청 유저 목록 조회
     public PagedResponse<EventParticipantResponse> findEventParticipantList(Long eventId, Pageable pageable) {
-        Page<EventParticipant> eventPage = eventParticipantRepository.findByEventIdWithUser(eventId, pageable);
+        Event event = eventRepository.findById(eventId).orElseThrow(
+                () -> new BaseException(ErrorCode.EVENT_NOT_FOUNT)
+        );
+        Page<EventParticipant> eventPage = eventParticipantRepository.findByEventWithUser(event, pageable);
         return PagedResponse.from(eventPage.map(EventParticipantResponse::from));
     }
 
