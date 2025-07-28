@@ -27,9 +27,9 @@ public class InviteService {
     private final GetHelper helper;
 
     public InviteResponseDto createInvite(Long postId, Long userId, Long loginUserId) {
-        Post postById = helper.getPostById(postId);
-        User inviteeById = helper.getUserById(userId);
-        User me = helper.getUserById(loginUserId);
+        Post postById = helper.getPostByIdOrElseThrow(postId);
+        User inviteeById = helper.getUserByIdOrElseThrow(userId);
+        User me = helper.getUserByIdOrElseThrow(loginUserId);
 
         validateExistInvite(postId, userId, loginUserId);
         Invite invite = Invite.create(me, inviteeById, postById);

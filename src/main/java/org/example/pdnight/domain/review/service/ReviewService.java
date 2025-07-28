@@ -6,13 +6,11 @@ import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.common.helper.GetHelper;
 import org.example.pdnight.domain.post.entity.Post;
-import org.example.pdnight.domain.post.repository.PostRepository;
 import org.example.pdnight.domain.review.dto.request.ReviewRequestDto;
 import org.example.pdnight.domain.review.dto.response.ReviewResponseDto;
 import org.example.pdnight.domain.review.entity.Review;
 import org.example.pdnight.domain.review.repository.ReviewRepository;
 import org.example.pdnight.domain.user.entity.User;
-import org.example.pdnight.domain.user.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -32,9 +30,9 @@ public class ReviewService {
         //본인이 본인을 매길 수 없음
         verifyAuthorize(userId, ratedUserId);
 
-        User reviewer = helper.getUserById(userId);
-        User ratedUser = helper.getUserById(ratedUserId);
-        Post post = helper.getPostById(postId);
+        User reviewer = helper.getUserByIdOrElseThrow(userId);
+        User ratedUser = helper.getUserByIdOrElseThrow(ratedUserId);
+        Post post = helper.getPostByIdOrElseThrow(postId);
 
         // 존재 여부 판단
         validateExists(reviewer, ratedUser, post);
@@ -50,7 +48,7 @@ public class ReviewService {
     // 사용자의 받은 리뷰 리스트 조회
     public PagedResponse<ReviewResponseDto> getReceivedReviewsByUser(Long userId, Pageable pageable) {
 
-        User ratedUser = helper.getUserById(userId);
+        User ratedUser = helper.getUserByIdOrElseThrow(userId);
 
         Page<Review> reviews = reviewRepository.findByRatedUser(ratedUser, pageable);
 
@@ -60,7 +58,7 @@ public class ReviewService {
     // 사용자의 작성한 리뷰 리스트 조회
     public PagedResponse<ReviewResponseDto> getWrittenReviewsByUser(Long userId, Pageable pageable) {
 
-        User ratedUser = helper.getUserById(userId);
+        User ratedUser = helper.getUserByIdOrElseThrow(userId);
 
         Page<Review> reviews = reviewRepository.findByReviewer(ratedUser, pageable);
 

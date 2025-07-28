@@ -23,8 +23,10 @@ public class CouponAdminService {
     // 쿠폰생성
     @Transactional
     public CouponResponseDto createCoupon(CouponRequestDto dto) {
-        User user = helper.getUserById(dto.getUserId());
-        Coupon coupon = Coupon.create(user, dto.getCouponInfo(), dto.getDeadlineAt());
+
+        User user = helper.getUserByIdOrElseThrow(dto.getUserId());
+        Coupon coupon = new Coupon(user, dto.getCouponInfo(), dto.getDeadlineAt());
+
 
         couponRepository.save(coupon);
         user.addCoupon(coupon); // 양방향 연관관계 리스트에 쿠폰 추가

@@ -20,7 +20,6 @@ import org.example.pdnight.domain.post.dto.response.PostWithJoinStatusAndApplied
 import org.example.pdnight.domain.post.entity.Post;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
-import org.example.pdnight.domain.post.enums.PostStatus;
 import org.example.pdnight.domain.post.repository.PostRepository;
 import org.example.pdnight.domain.post.repository.PostRepositoryQuery;
 import org.example.pdnight.domain.techStack.entity.PostTech;
@@ -33,15 +32,19 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class PostService {
+
     private final PostRepository postRepository;
     private final UserRepository userRepository;
-    private final PostRepositoryQuery PostRepositoryQuery;
+    private final PostRepositoryQuery postRepositoryQuery;
     private final CommentRepository commentRepository;
     private final HobbyRepositoryQuery hobbyRepositoryQuery;
     private final TechStackRepositoryQuery techStackRepositoryQuery;
@@ -50,7 +53,7 @@ public class PostService {
     @Transactional
     public PostCreateAndUpdateResponseDto createPost(Long userId, PostRequestDto request) {
         //임시 메서드 User 도메인 작업에 따라 변동될 것
-        User foundUser = getUserOrThrow(userRepository.findByIdAndIsDeletedFalse(userId));
+        User foundUser = getUserById(userId);
 
         // List<Hobby> / List<TechStack> 생성 : DB 에서 있는거만 가져오기
         List<Hobby> hobbyList = getHobbyList(request);
@@ -83,12 +86,12 @@ public class PostService {
     //조회는 상태값 "OPEN" 인 게시글만 가능
     @Transactional(readOnly = true)
     public PostResponseWithApplyStatusDto findOpenedPost(Long id) {
-        return PostRepositoryQuery.getOpenedPostById(id);
+        return postRepositoryQuery.getOpenedPostById(id);
     }
 
     @Transactional
     public void deletePostById(Long userId, Long id) {
-        Post foundPost = getPostById(id);
+        Post foundPost = getPostByIdOrElseThrow(id);
         validateAuthor(userId, foundPost);
 
         foundPost.unlinkReviews();
@@ -111,13 +114,13 @@ public class PostService {
             List<Long> hobbyIdList,
             List<Long> techStackIdList
     ) {
-        return PostRepositoryQuery.findPostDtosBySearch(pageable, maxParticipants,
+        return postRepositoryQuery.findPostDtosBySearch(pageable, maxParticipants,
                 ageLimit, jobCategoryLimit, genderLimit, hobbyIdList, techStackIdList);
     }
 
     @Transactional
     public PostCreateAndUpdateResponseDto updatePostDetails(Long userId, Long id, PostUpdateRequestDto request) {
-        Post foundPost = getPostById(id);
+        Post foundPost = getPostByIdOrElseThrow(id);
         validateAuthor(userId, foundPost);
 
         // 취미 리스트 : DB 에서 있는거만 가져오기 -> Set<UserHobby>
@@ -145,7 +148,7 @@ public class PostService {
     @Transactional
     public PostResponseDto changeStatus(Long userId, Long id, PostStatusRequestDto request) {
         //상태값 변경은 어떤 상태라도 불러와서 수정
-        Post foundPost = getPostById(id);
+        Post foundPost = getPostByIdWithoutStatusLimit(id);
         validateAuthor(userId, foundPost);
 
         //변동사항 있을시에만 업데이트
@@ -158,25 +161,25 @@ public class PostService {
 
     // 내가 좋아요 누른 게시물 조회
     public PagedResponse<PostResponseWithApplyStatusDto> findMyLikedPosts(Long userId, Pageable pageable) {
-        Page<PostResponseWithApplyStatusDto> myLikePost = PostRepositoryQuery.getMyLikePost(userId, pageable);
+        Page<PostResponseWithApplyStatusDto> myLikePost = postRepositoryQuery.getMyLikePost(userId, pageable);
         return PagedResponse.from(myLikePost);
     }
 
     // 내 성사된/ 신청한 게시물 조회
     public PagedResponse<PostWithJoinStatusAndAppliedAtResponseDto> findMyConfirmedPosts(Long userId, JoinStatus joinStatus, Pageable pageable) {
-        Page<PostWithJoinStatusAndAppliedAtResponseDto> myLikePost = PostRepositoryQuery.getConfirmedPost(userId, joinStatus, pageable);
+        Page<PostWithJoinStatusAndAppliedAtResponseDto> myLikePost = postRepositoryQuery.getConfirmedPost(userId, joinStatus, pageable);
         return PagedResponse.from(myLikePost);
     }
 
     //내 작성 게시물 조회
     public PagedResponse<PostResponseWithApplyStatusDto> findMyWrittenPosts(Long userId, Pageable pageable) {
-        Page<PostResponseWithApplyStatusDto> myLikePost = PostRepositoryQuery.getWrittenPost(userId, pageable);
+        Page<PostResponseWithApplyStatusDto> myLikePost = postRepositoryQuery.getWrittenPost(userId, pageable);
         return PagedResponse.from(myLikePost);
     }
 
     //추천 게시물 조회
     public PagedResponse<PostResponseWithApplyStatusDto> getSuggestedPosts(Long id, Pageable pageable) {
-        Page<PostResponseWithApplyStatusDto> suggestedPost = PostRepositoryQuery.getSuggestedPost(id, pageable);
+        Page<PostResponseWithApplyStatusDto> suggestedPost = postRepositoryQuery.getSuggestedPost(id, pageable);
         return PagedResponse.from(suggestedPost);
     }
 
@@ -185,18 +188,24 @@ public class PostService {
     // -- HELPER 메서드 -- //
     // get
 
-    public Post getPostById(Long id) {
-        return postRepository.findByIdAndStatus(id, PostStatus.OPEN)
+    public Post getPostByIdOrElseThrow(Long id) {
+        return postRepositoryQuery.getPostByIdNotClose(id)
+                .orElseThrow(() -> new BaseException(ErrorCode.POST_NOT_FOUND));
+    }
+
+    public Post getPostByIdWithoutStatusLimit(Long id) {
+        return postRepository.findPostById(id)
                 .orElseThrow(() -> new BaseException(ErrorCode.POST_NOT_FOUND));
     }
 
 
-    private User getUserOrThrow(Optional<User> user) {
-        return user.orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+    private User getUserById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
     }
 
     // validate
-    private void validateAuthor(Long userId, Post post) {
+    void validateAuthor(Long userId, Post post) {
         if (!post.getAuthor().getId().equals(userId)) {
             throw new BaseException(ErrorCode.POST_FORBIDDEN);
         }

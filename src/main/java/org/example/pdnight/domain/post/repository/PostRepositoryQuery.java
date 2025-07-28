@@ -4,16 +4,21 @@ import org.example.pdnight.domain.common.enums.JobCategory;
 import org.example.pdnight.domain.common.enums.JoinStatus;
 import org.example.pdnight.domain.post.dto.response.PostResponseWithApplyStatusDto;
 import org.example.pdnight.domain.post.dto.response.PostWithJoinStatusAndAppliedAtResponseDto;
+import org.example.pdnight.domain.post.entity.Post;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface PostRepositoryQuery {
 
     PostResponseWithApplyStatusDto getOpenedPostById(Long postId);
+
+    // 게시글 단건 조회
+    Optional<Post> getPostByIdNotClose(Long postId);
 
     Page<PostResponseWithApplyStatusDto> getMyLikePost(Long userId, Pageable pageable);
 
