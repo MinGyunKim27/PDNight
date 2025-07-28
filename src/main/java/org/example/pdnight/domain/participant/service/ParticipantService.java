@@ -107,7 +107,7 @@ public class ParticipantService {
         // 정상 신청
         participantRepository.save(participant);
 
-        return ParticipantResponse.of(
+        return ParticipantResponse.from(
                 loginId,
                 postId,
                 participant.getStatus(),
@@ -178,7 +178,7 @@ public class ParticipantService {
             inviteService.deleteAllByPostAndStatus(post,JoinStatus.PENDING);
         }
 
-        return ParticipantResponse.of(
+        return ParticipantResponse.from(
                 userId,
                 postId,
                 pending.getStatus(),
@@ -197,7 +197,7 @@ public class ParticipantService {
         Pageable pageable = PageRequest.of(page, size);
         Page<PostParticipant> postParticipant = participantRepository.findByPostAndStatus(post, JoinStatus.PENDING, pageable);
 
-        return PagedResponse.from(postParticipant.map(p -> ParticipantResponse.of(
+        return PagedResponse.from(postParticipant.map(p -> ParticipantResponse.from(
                 p.getUser().getId(),
                 p.getPost().getId(),
                 p.getStatus(),
@@ -217,7 +217,7 @@ public class ParticipantService {
         Pageable pageable = PageRequest.of(page, size);
         Page<PostParticipant> postParticipant = participantRepository.findByPostAndStatus(post, JoinStatus.ACCEPTED, pageable);
 
-        return PagedResponse.from(postParticipant.map(p -> ParticipantResponse.of(
+        return PagedResponse.from(postParticipant.map(p -> ParticipantResponse.from(
                 p.getUser().getId(),
                 p.getPost().getId(),
                 p.getStatus(),
