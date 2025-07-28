@@ -13,7 +13,7 @@ export let conflict = new Counter('participants_conflict');
 export let fail = new Counter('participants_fail');
 
 export function setup() {
-    const baseUrl = 'http://localhost:8080';
+    const baseUrl = 'http://localhost';
     const users = [];
 
     for (let i = 1; i <= 200; i++) {
@@ -44,7 +44,7 @@ export function setup() {
 }
 
 export default function (users) {
-    const baseUrl = 'http://localhost:8080';
+    const baseUrl = 'http://localhost';
     const index = (__VU - 1) % users.length;
     const user = users[index];
 
