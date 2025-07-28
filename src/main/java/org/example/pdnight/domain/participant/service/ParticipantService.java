@@ -19,6 +19,8 @@ import org.example.pdnight.domain.post.repository.PostRepository;
 import org.example.pdnight.domain.user.entity.User;
 import org.example.pdnight.domain.user.repository.UserRepository;
 import org.example.pdnight.global.aop.DistributedLock;
+import org.example.pdnight.global.constant.CacheName;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -40,6 +42,7 @@ public class ParticipantService {
 
     //참가 신청
     @Transactional
+    @CacheEvict(value = CacheName.CONFIRMED_POST, allEntries = true)
     @DistributedLock(
             key = "#postId",
             timeoutMs = 5000
@@ -53,6 +56,7 @@ public class ParticipantService {
 
         //선착순 포스트인 경우
         PostParticipant participant = isFirstProcess(post, user);
+
 
         // 정상 신청
         participantRepository.save(participant);
@@ -89,6 +93,7 @@ public class ParticipantService {
 
     //참가 확정(작성자)
     @Transactional
+    @CacheEvict(value = CacheName.CONFIRMED_POST, allEntries = true)
     @DistributedLock(
             key = "#postId",
             timeoutMs = 5000
