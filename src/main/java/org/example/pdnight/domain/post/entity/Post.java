@@ -2,7 +2,6 @@ package org.example.pdnight.domain.post.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -100,8 +99,7 @@ public class Post extends Timestamped {
     }
 
     private Post(User author, String title, LocalDateTime timeSlot, String publicContent, String privateContent,
-                 Integer maxParticipants, Gender genderLimit, JobCategory jobCategoryLimit, AgeLimit ageLimit, Boolean isFirstCome, PostStatus status)
-    {
+                 Integer maxParticipants, Gender genderLimit, JobCategory jobCategoryLimit, AgeLimit ageLimit, Boolean isFirstCome, PostStatus status) {
         this.author = author;
         this.title = title;
         this.timeSlot = timeSlot;
@@ -124,8 +122,7 @@ public class Post extends Timestamped {
     }
 
     public static Post createPost(User author, String title, LocalDateTime timeSlot, String publicContent, String privateContent,
-                                  Integer maxParticipants, Gender genderLimit, JobCategory jobCategoryLimit, AgeLimit ageLimit, Boolean isFirstCome, PostStatus status)
-    {
+                                  Integer maxParticipants, Gender genderLimit, JobCategory jobCategoryLimit, AgeLimit ageLimit, Boolean isFirstCome, PostStatus status) {
         return new Post(author, title, timeSlot, publicContent, privateContent, maxParticipants, genderLimit, jobCategoryLimit, ageLimit, isFirstCome, status);
     }
 

@@ -25,8 +25,13 @@ public class EventParticipant extends Timestamped {
     @JoinColumn(name = "user_id")
     private User user;
 
-    public EventParticipant(Event event, User user) {
+    private EventParticipant(Event event, User user) {
         this.event = event;
         this.user = user;
     }
+
+    public static EventParticipant create(Event event, User user) {
+        return new EventParticipant(event, user);
+    }
+
 }

@@ -36,7 +36,7 @@ public class PostResponseWithApplyStatusDto {
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
 
-    public PostResponseWithApplyStatusDto(Post post, Long appliedCount, Long confirmedCount) {
+    private PostResponseWithApplyStatusDto(Post post, Long appliedCount, Long confirmedCount) {
         this.postId = post.getId();
         this.authorId = post.getAuthor().getId();
         this.title = post.getTitle();
@@ -60,6 +60,10 @@ public class PostResponseWithApplyStatusDto {
         this.updatedAt = post.getUpdatedAt();
         this.appliedCount = appliedCount;
         this.confirmedCount = confirmedCount;
+    }
+
+    public static PostResponseWithApplyStatusDto from(Post post, Long appliedCount, Long confirmedCount) {
+        return new PostResponseWithApplyStatusDto(post, appliedCount, confirmedCount);
     }
 
     @QueryProjection

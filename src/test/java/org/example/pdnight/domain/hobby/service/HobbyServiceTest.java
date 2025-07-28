@@ -34,8 +34,11 @@ class HobbyServiceTest {
     @Test
     void createHobby_성공() {
         // given
-        HobbyRequest dto = new HobbyRequest("등산");
-        Hobby hobby = new Hobby("등산");
+        HobbyRequest dto = mock();
+        Hobby hobby = mock();
+
+        when(dto.getHobby()).thenReturn("등산");
+        when(hobby.getHobby()).thenReturn("등산");
 
         when(hobbyRepository.existsHobbiesByHobby(dto.getHobby())).thenReturn(false);
         when(hobbyRepository.save(any(Hobby.class))).thenReturn(hobby);
@@ -54,8 +57,9 @@ class HobbyServiceTest {
     @Test
     void createHobby_중복예외() {
         // given
-        HobbyRequest dto = new HobbyRequest("등산");
+        HobbyRequest dto = mock();
 
+        when(dto.getHobby()).thenReturn("등산");
         when(hobbyRepository.existsHobbiesByHobby(dto.getHobby())).thenReturn(true);
 
         // when & then
@@ -73,7 +77,13 @@ class HobbyServiceTest {
     void searchHobby_성공() {
         // given
         String keyword = "산";
-        List<Hobby> hobbies = List.of(new Hobby("등산"), new Hobby("산책"));
+
+        Hobby hobby1 = mock();
+        Hobby hobby2 = mock();
+
+        when(hobby1.getHobby()).thenReturn("등산");
+        when(hobby2.getHobby()).thenReturn("산책");
+        List<Hobby> hobbies = List.of(hobby1, hobby2);
 
         when(hobbyRepositoryQuery.searchHobby(keyword)).thenReturn(hobbies);
 

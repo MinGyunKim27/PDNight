@@ -37,7 +37,7 @@ public class ReviewService {
         // 존재 여부 판단
         validateExists(reviewer, ratedUser, post);
 
-        Review review = Review.create(reviewer, ratedUser, post, requestDto);
+        Review review = Review.create(reviewer, ratedUser, post, requestDto.getRate(), requestDto.getComment());
 
         reviewRepository.save(review);
         post.addReview(review);

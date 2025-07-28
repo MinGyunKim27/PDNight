@@ -42,7 +42,7 @@ public class SignupResponseDto {
 
     private LocalDateTime updateAt;
 
-    public SignupResponseDto(User user) {
+    private SignupResponseDto(User user) {
         this.email = user.getEmail();
         this.role = UserRole.USER;
         this.name = user.getName();

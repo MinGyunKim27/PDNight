@@ -49,7 +49,8 @@ public class AuthService {
         List<TechStack> techStackList = getTechStackList(request);
 
         String encodePassword = passwordEncoder.encode(request.getPassword());
-        User user = new User(request, encodePassword);
+        User user = User.create(request.getEmail(), encodePassword, null, request.getName(), request.getNickname(), request.getGender(),
+                request.getAge(), request.getJobCategory(), request.getRegion(), request.getWorkLocation(), request.getComment());
 
         // List<Hobby> -> Set<UserHobby>  /  List<TechStack> -> Set<UserTech>
         Set<UserHobby> userHobbies = getUserHobbySet(hobbyList, user);
@@ -128,13 +129,13 @@ public class AuthService {
 
     private Set<UserHobby> getUserHobbySet(List<Hobby> hobbyList, User user) {
         return hobbyList.stream()
-                .map(hobby -> new UserHobby(user, hobby))
+                .map(hobby -> UserHobby.create(user, hobby))
                 .collect(Collectors.toSet());
     }
 
     private Set<UserTech> getUserTechSet(List<TechStack> techStackList, User user) {
         return techStackList.stream()
-                .map(techStack -> new UserTech(user, techStack))
+                .map(techStack -> UserTech.create(user, techStack))
                 .collect(Collectors.toSet());
     }
 

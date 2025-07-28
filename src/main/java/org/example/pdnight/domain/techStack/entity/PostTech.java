@@ -1,6 +1,7 @@
 package org.example.pdnight.domain.techStack.entity;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,8 +10,7 @@ import org.example.pdnight.domain.post.entity.Post;
 @Entity
 @Table(name = "post_tech")
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PostTech {
 
     @Id
@@ -25,7 +25,7 @@ public class PostTech {
     @JoinColumn(name = "teck_stack_id")
     private TechStack techStack;
 
-    public PostTech(Post post, TechStack techStack) {
+    private PostTech(Post post, TechStack techStack) {
         this.post = post;
         this.techStack = techStack;
     }

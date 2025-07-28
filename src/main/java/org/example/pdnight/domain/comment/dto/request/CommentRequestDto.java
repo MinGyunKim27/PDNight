@@ -6,8 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
 public class CommentRequestDto {
 
 	@NotBlank(message = "변경내용은 필수값입니다.")

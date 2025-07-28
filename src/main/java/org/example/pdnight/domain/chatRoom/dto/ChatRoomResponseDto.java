@@ -1,15 +1,18 @@
 package org.example.pdnight.domain.chatRoom.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
-@AllArgsConstructor
 public class ChatRoomResponseDto {
     private final Long id;
     private final String chatRoomName;
 
-    public static ChatRoomResponseDto from(Long id, String chatRoomName) {
+    private ChatRoomResponseDto(Long id, String chatRoomName) {
+        this.id = id;
+        this.chatRoomName = chatRoomName;
+    }
+
+    public static ChatRoomResponseDto create(Long id, String chatRoomName) {
         return new ChatRoomResponseDto(id, chatRoomName);
     }
 }

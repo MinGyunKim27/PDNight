@@ -24,7 +24,7 @@ public class TechStackService {
         // DB에 존재 하는지 확인
         ifTechExists(dto);
 
-        TechStack techStack = new TechStack(dto.getTechStack());
+        TechStack techStack = TechStack.create(dto.getTechStack());
         TechStack save = techStackRepository.save(techStack);
         return TechStackResponseDto.from(save);
     }

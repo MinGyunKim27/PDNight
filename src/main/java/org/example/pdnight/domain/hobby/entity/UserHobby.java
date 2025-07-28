@@ -1,6 +1,7 @@
 package org.example.pdnight.domain.hobby.entity;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,8 +10,7 @@ import org.example.pdnight.domain.user.entity.User;
 @Entity
 @Table(name = "user_hobby")
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserHobby {
 
     @Id
@@ -25,7 +25,7 @@ public class UserHobby {
     @JoinColumn(name = "hobby_id")
     private Hobby hobby;
 
-    public UserHobby(User user, Hobby hobby) {
+    private UserHobby(User user, Hobby hobby) {
         this.user = user;
         this.hobby = hobby;
     }

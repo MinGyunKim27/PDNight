@@ -13,7 +13,7 @@ public class CouponResponseDto {
     private boolean isUsed;
     private LocalDateTime deadlineAt;
 
-    public CouponResponseDto(Coupon coupon) {
+    protected CouponResponseDto(Coupon coupon) {
         this.userId = coupon.getUser().getId();
         this.couponInfo = coupon.getCouponInfo();
         this.isUsed = coupon.isUsed();

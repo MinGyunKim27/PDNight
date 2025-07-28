@@ -34,7 +34,7 @@ public class TechStackServiceTest {
     void 기술스택_생성_성공() {
         //given
         TechStackRequestDto dto = new TechStackRequestDto("Spring Boot");
-        TechStack techStack = new TechStack("Spring Boot");
+        TechStack techStack = TechStack.create("Spring Boot");
 
         when(techStackRepository.existsTechStackByTechStack(dto.getTechStack())).thenReturn(false);
         when(techStackRepository.save(any(TechStack.class))).thenReturn(techStack);
@@ -72,10 +72,15 @@ public class TechStackServiceTest {
     void searchTechStackList_성공() {
         // given
         String keyword = "Spring";
-        List<TechStack> resultList = List.of(
+
+        TechStack techStack1 = TechStack.create("Spring Boot");
+        TechStack techStack2 = TechStack.create("Spring Security");
+
+        /*List<TechStack> resultList = List.of(
                 new TechStack("Spring Boot"),
                 new TechStack("Spring Security")
-        );
+        );*/
+        List<TechStack> resultList = List.of(techStack1, techStack2);
 
         when(techStackRepositoryQuery.searchTechStack(keyword)).thenReturn(resultList);
 

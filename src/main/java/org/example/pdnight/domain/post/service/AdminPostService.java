@@ -1,6 +1,7 @@
 package org.example.pdnight.domain.post.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.pdnight.domain.comment.repository.CommentRepository;
 import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.post.entity.Post;
@@ -15,12 +16,15 @@ import java.util.Optional;
 public class AdminPostService {
 
     private final PostRepository postRepository;
+    private final CommentRepository commentRepository;
 
     @Transactional
     public void deletePostById(Long id) {
         Post foundPost = getPostOrThrow(postRepository.findById(id));
 
         foundPost.unlinkReviews();
+        commentRepository.deleteAllByChildrenPostId(id);
+        commentRepository.deleteAllByPostId(id);
         postRepository.delete(foundPost);
     }
 

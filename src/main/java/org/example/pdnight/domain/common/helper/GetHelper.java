@@ -15,10 +15,6 @@ public class GetHelper {
 
     private final UserRepository userRepository;
     private final PostRepositoryQuery postRepositoryQuery;
-//    private final PostRepository postRepository;
-//    private final CommentRepository commentRepository;
-//    private final CouponRepository couponRepository;
-//    private final EventRepository eventRepository;
 
     public User getUserByIdOrElseThrow(Long id) {
         return userRepository.findByIdAndIsDeletedFalse(id)
@@ -30,19 +26,4 @@ public class GetHelper {
                 .orElseThrow(() -> new BaseException(ErrorCode.POST_NOT_FOUND));
     }
 
-//    public Comment getCommentById(Long id) {
-//        return commentRepository.findById(id)
-//                .orElseThrow(() -> new BaseException(ErrorCode.COMMENT_NOT_FOUND));
-//    }
-//
-//    public Coupon getCouponById(Long id) {
-//        return couponRepository.findById(id)
-//                .orElseThrow(() -> new BaseException(ErrorCode.COUPON_NOT_FOUND));
-//    }
-//
-//    public Event getEventById(Long id) {
-//        return eventRepository.findById(id).orElseThrow(
-//                () -> new BaseException(ErrorCode.EVENT_NOT_FOUNT)
-//        );
-//    }
 }

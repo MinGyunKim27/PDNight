@@ -43,12 +43,12 @@ public class Coupon {
         return new Coupon(user, couponInfo, deadlineAt);
     }
 
-    public void updateCoupon(UpdateCouponRequestDto dto) {
-        if (dto.getCouponInfo() != null && !dto.getCouponInfo().isEmpty()) {
-            this.couponInfo = dto.getCouponInfo();
+    public void updateCoupon(String couponInfo, LocalDateTime deadlineAt) {
+        if (couponInfo != null && !couponInfo.isEmpty()) {
+            this.couponInfo = couponInfo;
         }
-        if (dto.getDeadlineAt() != null) {
-            this.deadlineAt = dto.getDeadlineAt();
+        if (deadlineAt != null) {
+            this.deadlineAt = deadlineAt;
         }
     }
 

@@ -29,7 +29,7 @@ public class PostParticipant extends Timestamped {
     @Enumerated(EnumType.STRING)
     private JoinStatus status;
 
-    public PostParticipant(Post post, User user, JoinStatus status) {
+    private PostParticipant(Post post, User user, JoinStatus status) {
         this.post = post;
         this.user = user;
         this.status = status;
