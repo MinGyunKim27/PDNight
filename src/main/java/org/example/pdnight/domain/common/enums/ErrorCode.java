@@ -13,7 +13,6 @@ public enum ErrorCode {
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증이 필요합니다"),
     INSUFFICIENT_PERMISSION(HttpStatus.FORBIDDEN, "권한이 부족합니다"),
 
-
     // 사용자 관련 에러 (400 Bad Request, 401 UNAUTHORIZED, 404 NOT_FOUND, 409 Conflict)
     USERNAME_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 존재하는 사용자명입니다"),
     EMAIL_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 존재하는 이메일입니다"),
@@ -96,7 +95,12 @@ public enum ErrorCode {
     INVALID_FOLLOW_SELF(HttpStatus.BAD_REQUEST,"자기 자신을 팔로우 할 수 없습니다"),
     ALREADY_FOLLOWING(HttpStatus.CONFLICT,"팔로우를 이미 하고 있습니다!"),
     INVALID_UNFOLLOW_SELF(HttpStatus.BAD_REQUEST,"자기 자신을 팔로우 할 수 없습니다"),
-    NOT_FOLLOWING(HttpStatus.BAD_REQUEST,"팔로우 중이 아닙니다.")
+    NOT_FOLLOWING(HttpStatus.BAD_REQUEST,"팔로우 중이 아닙니다."),
+
+    // lock 관련 에러
+    LOCK_TIMEOUT(HttpStatus.REQUEST_TIMEOUT, "시간 초과입니다."),
+    LOCK_GET_FAILED(HttpStatus.BAD_REQUEST, "락 획득에 실패했습니다.")
+
     ;
     private final HttpStatus status;// HTTP 상태 코드
     private final String message;// 에러 메시지

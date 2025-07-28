@@ -32,11 +32,15 @@ public class Coupon {
 
     private LocalDateTime deadlineAt;
 
-    public Coupon(User user, String couponInfo, LocalDateTime deadlineAt) {
+    private Coupon(User user, String couponInfo, LocalDateTime deadlineAt) {
         this.user = user;
         this.couponInfo = couponInfo;
         this.isUsed = false;
         this.deadlineAt = deadlineAt;
+    }
+
+    public static Coupon create(User user, String couponInfo, LocalDateTime deadlineAt) {
+        return new Coupon(user, couponInfo, deadlineAt);
     }
 
     public void updateCoupon(UpdateCouponRequestDto dto) {
