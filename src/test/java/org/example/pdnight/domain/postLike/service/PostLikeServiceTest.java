@@ -2,13 +2,12 @@ package org.example.pdnight.domain.postLike.service;
 
 import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.exception.BaseException;
+import org.example.pdnight.domain.common.helper.GetHelper;
 import org.example.pdnight.domain.post.entity.Post;
-import org.example.pdnight.domain.post.repository.PostRepository;
 import org.example.pdnight.domain.postLike.dto.response.PostLikeResponse;
 import org.example.pdnight.domain.postLike.entity.PostLike;
 import org.example.pdnight.domain.postLike.repository.PostLikeRepository;
 import org.example.pdnight.domain.user.entity.User;
-import org.example.pdnight.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,11 +24,9 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class PostLikeServiceTest {
     @Mock
-    private PostRepository postRepository;
-    @Mock
-    private UserRepository userRepository;
-    @Mock
     private PostLikeRepository postLikeRepository;
+    @Mock
+    private GetHelper helper;
 
     @InjectMocks
     private PostLikeService postLikeService;
@@ -45,16 +42,17 @@ class PostLikeServiceTest {
         Post mockPost = Mockito.mock(Post.class);
         PostLike mockPostLike = new PostLike(mockPost, mockUser);
 
-        // when
+
         lenient().when(mockUser.getId()).thenReturn(userId);
         lenient().when(mockPost.getId()).thenReturn(postId);
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
-        when(postRepository.findById(postId)).thenReturn(Optional.of(mockPost));
+        when(helper.getUserById(userId)).thenReturn(mockUser);
+        when(helper.getPostById(postId)).thenReturn(mockPost);
+
         when(postLikeRepository.existsByPostAndUser(mockPost, mockUser)).thenReturn(false);
         when(postLikeRepository.save(Mockito.any(PostLike.class))).thenReturn(mockPostLike);
 
-
+        // when
         PostLikeResponse response = postLikeService.addLike(postId, userId);
 
         // then
@@ -75,8 +73,8 @@ class PostLikeServiceTest {
 
 
         // when & then
-        when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
-        when(postRepository.findById(postId)).thenReturn(Optional.of(mockPost));
+        when(helper.getUserById(userId)).thenReturn(mockUser);
+        when(helper.getPostById(postId)).thenReturn(mockPost);
         when(postLikeRepository.existsByPostAndUser(mockPost, mockUser)).thenReturn(true);
 
         BaseException exception = assertThrows(BaseException.class, () ->
@@ -98,12 +96,11 @@ class PostLikeServiceTest {
         Post mockPost = Mockito.mock(Post.class);
         PostLike mockPostLike = new PostLike(mockPost, mockUser);
 
-        // when
-        when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
-        when(postRepository.findById(postId)).thenReturn(Optional.of(mockPost));
+        when(helper.getUserById(userId)).thenReturn(mockUser);
+        when(helper.getPostById(postId)).thenReturn(mockPost);
         when(postLikeRepository.findByPostAndUser(mockPost, mockUser)).thenReturn(Optional.of(mockPostLike));
 
-
+        // when
         assertDoesNotThrow(() -> postLikeService.removeLike(postId, userId));
 
         // then
@@ -120,8 +117,8 @@ class PostLikeServiceTest {
         User mockUser = Mockito.mock(User.class);
         Post mockPost = Mockito.mock(Post.class);
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
-        when(postRepository.findById(postId)).thenReturn(Optional.of(mockPost));
+        when(helper.getUserById(userId)).thenReturn(mockUser);
+        when(helper.getPostById(postId)).thenReturn(mockPost);
         when(postLikeRepository.findByPostAndUser(mockPost, mockUser)).thenReturn(Optional.empty());
 
         // when & then
