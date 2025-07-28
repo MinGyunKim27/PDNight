@@ -35,6 +35,7 @@ public class SecurityConfig {
                         .requestMatchers("/ws-stomp/**").permitAll()
                         .requestMatchers("/chat/view").permitAll()
                         .requestMatchers("/chat/view/enter/**").permitAll()
+                        .requestMatchers("/health").permitAll()
                         .anyRequest().authenticated()
                 )
                 .build();

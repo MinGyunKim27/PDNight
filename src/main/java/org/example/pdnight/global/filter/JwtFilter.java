@@ -39,7 +39,14 @@ public class JwtFilter implements Filter {
 
         String url = httpRequest.getRequestURI();
 
+
         if (url.startsWith("/webjars/") || url.startsWith("/css/") || url.startsWith("/js/") || url.startsWith("/images/")) {
+                 chain.doFilter(request, response);
+            return;
+        }
+
+        if (url.startsWith("/health")) {
+
             chain.doFilter(request, response);
             return;
         }
@@ -47,6 +54,7 @@ public class JwtFilter implements Filter {
         if (url.startsWith("/api/auth/signup") || url.startsWith("/api/auth/login") || url.startsWith("/login")
                 || url.startsWith("/ws-stomp") || url.startsWith("/chat/view") || url.startsWith("/chat/view/enter/")
         ) {
+
             chain.doFilter(request, response);
             return;
         }
