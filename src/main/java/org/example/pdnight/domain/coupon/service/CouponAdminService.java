@@ -23,7 +23,7 @@ public class CouponAdminService {
     // 쿠폰사용
     @Transactional
     public CouponResponseDto createCoupon(CouponRequestDto dto) {
-        User user = helper.getUserById(dto.getUserId());
+        User user = helper.getUserByIdOrElseThrow(dto.getUserId());
         Coupon coupon = new Coupon(user, dto.getCouponInfo(), dto.getDeadlineAt());
 
         couponRepository.save(coupon);

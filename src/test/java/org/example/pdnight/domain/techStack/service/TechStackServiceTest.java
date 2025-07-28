@@ -1,13 +1,11 @@
 package org.example.pdnight.domain.techStack.service;
 
-import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.techStack.dto.request.TechStackRequestDto;
 import org.example.pdnight.domain.techStack.dto.response.TechStackResponseDto;
 import org.example.pdnight.domain.techStack.entity.TechStack;
 import org.example.pdnight.domain.techStack.repository.TechStackRepository;
 import org.example.pdnight.domain.techStack.repository.TechStackRepositoryQueryImpl;
-import org.example.pdnight.domain.user.entity.User;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -33,7 +31,7 @@ public class TechStackServiceTest {
     private TechStackRepositoryQueryImpl techStackRepositoryQuery;
 
     @Test
-    void 기술스택_생성_성공(){
+    void 기술스택_생성_성공() {
         //given
         TechStackRequestDto dto = new TechStackRequestDto("Spring Boot");
         TechStack techStack = new TechStack("Spring Boot");
@@ -51,6 +49,7 @@ public class TechStackServiceTest {
         verify(techStackRepository).existsTechStackByTechStack("Spring Boot");
         verify(techStackRepository).save(any(TechStack.class));
     }
+
     @Test
     void createTechStack_중복예외() {
         // given

@@ -32,6 +32,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -97,7 +98,7 @@ class PostServiceTest {
         Long userId = 1L;
 
         //when
-        when(userRepository.findByIdAndIsDeletedFalse(userId)).thenReturn(Optional.of(mockUser));
+        when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
         when(postRepository.save(any(Post.class))).thenReturn(post);
         PostCreateAndUpdateResponseDto responseDto = postService.createPost(userId, postRequestDto);
 
@@ -130,8 +131,7 @@ class PostServiceTest {
         //작성자와 다른 Id 일때
         Long userId = 5L;
 
-        when(postRepository.findByIdAndStatus(postId, PostStatus.OPEN)).thenReturn(Optional.of(post));
-
+        when(postRepositoryQuery.getPostByIdNotClose(postId)).thenReturn(Optional.of(post));
         //when, then
         BaseException exception = assertThrows(BaseException.class, () -> {
             postService.deletePostById(userId, postId);
@@ -163,7 +163,7 @@ class PostServiceTest {
                 .build();
 
         //
-        when(postRepository.findByIdAndStatus(postId, PostStatus.OPEN)).thenReturn(Optional.of(post));
+        when(postRepositoryQuery.getPostByIdNotClose(postId)).thenReturn(Optional.of(post));
 
         //when
         PostCreateAndUpdateResponseDto responseDto = postService.updatePostDetails(userId, postId, postUpdateRequestDto);
@@ -195,7 +195,7 @@ class PostServiceTest {
                 .publicContent("수정된 공개 내용")
                 .build();
 
-        when(postRepository.findByIdAndStatus(postId, PostStatus.OPEN)).thenReturn(Optional.of(post));
+        when(postRepositoryQuery.getPostByIdNotClose(postId)).thenReturn(Optional.of(post));
 
         //when
         PostCreateAndUpdateResponseDto responseDto = postService.updatePostDetails(userId, postId, postUpdateRequestDto);
@@ -222,6 +222,8 @@ class PostServiceTest {
         AgeLimit ageLimit = AgeLimit.AGE_30S;
         JobCategory jobCategoryLimit = JobCategory.BACK_END_DEVELOPER;
         Gender genderLimit = Gender.MALE;
+        List<Long> hobbyList = new ArrayList<>();
+        List<Long> techStackList = new ArrayList<>();
 
         PostResponseWithApplyStatusDto mockDto = new PostResponseWithApplyStatusDto();
 
@@ -232,12 +234,14 @@ class PostServiceTest {
                 maxParticipants,
                 ageLimit,
                 jobCategoryLimit,
-                genderLimit)
+                genderLimit,
+                hobbyList,
+                techStackList)
         ).thenReturn(page);
 
         //when
         Page<PostResponseWithApplyStatusDto> responseDtos = postService.getPostDtosBySearch(pageable, maxParticipants, ageLimit,
-                jobCategoryLimit, genderLimit);
+                jobCategoryLimit, genderLimit, hobbyList, techStackList);
 
         //then
         assertEquals(1, responseDtos.getTotalElements());
@@ -253,6 +257,8 @@ class PostServiceTest {
         AgeLimit ageLimit = AgeLimit.AGE_30S;
         JobCategory jobCategoryLimit = JobCategory.BACK_END_DEVELOPER;
         Gender genderLimit = Gender.MALE;
+        List<Long> hobbyList = new ArrayList<>();
+        List<Long> techStackList = new ArrayList<>();
 
         Page<PostResponseWithApplyStatusDto> emptyPage = new PageImpl<>(List.of(), pageable, 0);
 
@@ -261,12 +267,14 @@ class PostServiceTest {
                 maxParticipants,
                 ageLimit,
                 jobCategoryLimit,
-                genderLimit)
+                genderLimit,
+                hobbyList,
+                techStackList)
         ).thenReturn(emptyPage);
 
         //when
         Page<PostResponseWithApplyStatusDto> responseDtos = postService.getPostDtosBySearch(pageable, maxParticipants, ageLimit,
-                jobCategoryLimit, genderLimit);
+                jobCategoryLimit, genderLimit, hobbyList, techStackList);
 
         //then
         assertEquals(0, responseDtos.getTotalElements());
