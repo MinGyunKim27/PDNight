@@ -39,7 +39,7 @@ public class UserService {
     public UserResponseDto getMyProfile(Long userId) {
 
         // id로 유저 조회
-        User user = getUserById(userId);
+        User user = getUserByIdWithInfo(userId);
 
         // UserResponseDto로 변환하여 반환
         return UserResponseDto.from(user);
@@ -47,7 +47,7 @@ public class UserService {
 
     @Transactional
     public UserResponseDto updateMyProfile(Long userId, UserUpdateRequest request) {
-        User user = getUserById(userId);
+        User user = getUserByIdWithInfo(userId);
 
         // Set<UserHobby> / Set<UserTech> 생성 : DB 에서 있는거만 가져오기
         Set<UserHobby> userHobbies = getUserHobbyByIdList(request.getHobbyIdList(), user);
@@ -76,7 +76,7 @@ public class UserService {
 
     public UserResponseDto getProfile(Long userId) {
         // id로 유저 조회
-        User user = getUserById(userId);
+        User user = getUserByIdWithInfo(userId);
 
         // UserResponseDto로 변환하여 반환
         return UserResponseDto.from(user);
@@ -102,6 +102,11 @@ public class UserService {
     // get
     private User getUserById(Long id) {
         return userRepository.findById(id).orElseThrow(
+                () -> new BaseException(ErrorCode.USER_NOT_FOUND));
+    }
+
+    private User getUserByIdWithInfo(Long id) {
+        return userRepository.findByIdWithInfo(id).orElseThrow(
                 () -> new BaseException(ErrorCode.USER_NOT_FOUND));
     }
 
