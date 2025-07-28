@@ -130,7 +130,6 @@ public class PostService {
             value = CacheName.SEARCH_POST,
             key = "{#pageable.pageNumber, #pageable.pageSize, #maxParticipants, #ageLimit, #jobCategoryLimit, #genderLimit, #hobbyIdList, #techStackIdList}"
     )
-    public Page<PostResponseWithApplyStatusDto> getPostDtosBySearch(
     public PagedResponse<PostResponseWithApplyStatusDto> getPostDtosBySearch(
             Pageable pageable,
             Integer maxParticipants,
@@ -247,8 +246,8 @@ public class PostService {
             value = CacheName.SUGGESTED_POST,
             key = "{#pageable.pageNumber, #pageable.pageSize, #userId}"
     )
-    public PagedResponse<PostResponseWithApplyStatusDto> getSuggestedPosts(Long id, Pageable pageable) {
-        Page<PostResponseWithApplyStatusDto> suggestedPost = postRepositoryQuery.getSuggestedPost(id, pageable);
+    public PagedResponse<PostResponseWithApplyStatusDto> getSuggestedPosts(Long userId, Pageable pageable) {
+        Page<PostResponseWithApplyStatusDto> suggestedPost = postRepositoryQuery.getSuggestedPost(userId, pageable);
         return PagedResponse.from(suggestedPost);
     }
 
