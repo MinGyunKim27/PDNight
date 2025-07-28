@@ -25,7 +25,7 @@ public class CouponAdminService {
     public CouponResponseDto createCoupon(CouponRequestDto dto) {
 
         User user = helper.getUserByIdOrElseThrow(dto.getUserId());
-        Coupon coupon = new Coupon(user, dto.getCouponInfo(), dto.getDeadlineAt());
+        Coupon coupon = Coupon.create(user, dto.getCouponInfo(), dto.getDeadlineAt());
 
 
         couponRepository.save(coupon);
