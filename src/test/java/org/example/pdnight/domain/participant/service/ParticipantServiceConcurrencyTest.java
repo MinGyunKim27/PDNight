@@ -1,6 +1,5 @@
 package org.example.pdnight.domain.participant.service;
 
-import jakarta.transaction.Transactional;
 import org.example.pdnight.domain.common.enums.JobCategory;
 import org.example.pdnight.domain.common.enums.JoinStatus;
 import org.example.pdnight.domain.common.exception.BaseException;
@@ -16,6 +15,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -24,14 +24,12 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 @SpringBootTest
-@Transactional
+@ActiveProfiles("test")
 public class ParticipantServiceConcurrencyTest {
 
     @Autowired
@@ -49,8 +47,22 @@ public class ParticipantServiceConcurrencyTest {
 
     @BeforeEach
     void setUp() {
-        // 게시글 작성자 및 선착순 포스트 생성
-        authorUser = userRepository.findById(201L).orElseThrow();
+
+        testUsers = new ArrayList<>();
+
+        // 테스트 유저 생성
+        for (int i = 1; i <= 200; i++) {
+            Long l = (long) i;
+            User user = User.createTestUser(l,"email" + i + "@test.com", "user" + i, "Password123!");
+            User savedUser = userRepository.save(user);
+            testUsers.add(savedUser);
+        }
+
+        // 게시글 작성자 유저 생성
+        User author = User.createTestUser(201L,"email201@test.com", "user201", "Password123!");
+        authorUser = userRepository.save(author);
+
+        // 선착순 포스트 생성
         testPost = postRepository.save(Post.createPost(
                 authorUser,
                 "테스트 제목",
@@ -66,6 +78,7 @@ public class ParticipantServiceConcurrencyTest {
         ));
     }
 
+    //테스트 참가 신청 동시성 테스트
     @Test
     void testConcurrentApplyParticipant() throws InterruptedException {
         ExecutorService executor = Executors.newFixedThreadPool(50);
@@ -110,6 +123,7 @@ public class ParticipantServiceConcurrencyTest {
         // 성공 참가자 수와 DB 참가자 수는 같아야 함
         assertEquals(successCount, acceptedCount);
     }
+
 
     @Test
     void testConcurrentRejectAndCancel() throws InterruptedException {

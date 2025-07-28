@@ -119,7 +119,6 @@ public class ParticipantService {
         );
     }
 
-
     //참가 취소
     @Transactional
     @DistributedLock(
