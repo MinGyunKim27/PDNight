@@ -1,5 +1,6 @@
 package org.example.pdnight.domain.post.service;
 
+import org.example.pdnight.domain.chatRoom.service.ChattingService;
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.comment.repository.CommentRepository;
 import org.example.pdnight.domain.common.dto.PagedResponse;
@@ -37,29 +38,34 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class PostService {
+
     private final PostRepository postRepository;
     private final UserRepository userRepository;
-    private final PostRepositoryQuery PostRepositoryQuery;
+    private final PostRepositoryQuery postRepositoryQuery;
     private final CommentRepository commentRepository;
     private final HobbyRepositoryQuery hobbyRepositoryQuery;
     private final TechStackRepositoryQuery techStackRepositoryQuery;
+    private final ChattingService chattingService;
 
     //포스트 작성
+    @Transactional
     @Caching(evict = {
             @CacheEvict(value = CacheName.SEARCH_POST, allEntries = true),
             @CacheEvict(value = CacheName.SUGGESTED_POST, allEntries = true),
             @CacheEvict(value = CacheName.WRITTEN_POST, allEntries = true)
     })
-    @Transactional
     public PostCreateAndUpdateResponseDto createPost(Long userId, PostRequestDto request) {
         //임시 메서드 User 도메인 작업에 따라 변동될 것
-        User foundUser = getUserOrThrow(userRepository.findByIdAndIsDeletedFalse(userId));
+        User foundUser = getUserById(userId);
 
         // List<Hobby> / List<TechStack> 생성 : DB 에서 있는거만 가져오기
         List<Hobby> hobbyList = getHobbyList(request);
@@ -90,12 +96,13 @@ public class PostService {
     }
 
     //조회는 상태값 "OPEN" 인 게시글만 가능
-    @Cacheable(value = CacheName.ONE_POST, key = "#id")
     @Transactional(readOnly = true)
+    @Cacheable(value = CacheName.ONE_POST, key = "#id")
     public PostResponseWithApplyStatusDto findOpenedPost(Long id) {
-        return PostRepositoryQuery.getOpenedPostById(id);
+        return postRepositoryQuery.getOpenedPostById(id);
     }
 
+    @Transactional
     @Caching(evict = {
             @CacheEvict(value = CacheName.SEARCH_POST, allEntries = true),
             @CacheEvict(value = CacheName.ONE_POST, key = "#id"),
@@ -104,9 +111,8 @@ public class PostService {
             @CacheEvict(value = CacheName.WRITTEN_POST, allEntries = true),
             @CacheEvict(value = CacheName.SUGGESTED_POST, allEntries = true),
     })
-    @Transactional
     public void deletePostById(Long userId, Long id) {
-        Post foundPost = getPostById(id);
+        Post foundPost = getPostByIdOrElseThrow(id);
         validateAuthor(userId, foundPost);
 
         foundPost.unlinkReviews();
@@ -119,11 +125,12 @@ public class PostService {
     }
 
     //게시물 조건 검색
+    @Transactional(readOnly = true)
     @Cacheable(
             value = CacheName.SEARCH_POST,
             key = "{#pageable.pageNumber, #pageable.pageSize, #maxParticipants, #ageLimit, #jobCategoryLimit, #genderLimit, #hobbyIdList, #techStackIdList}"
     )
-    @Transactional(readOnly = true)
+    public Page<PostResponseWithApplyStatusDto> getPostDtosBySearch(
     public PagedResponse<PostResponseWithApplyStatusDto> getPostDtosBySearch(
             Pageable pageable,
             Integer maxParticipants,
@@ -134,11 +141,12 @@ public class PostService {
             List<Long> techStackIdList
     ) {
 
-        Page<PostResponseWithApplyStatusDto> postDtosBySearch = PostRepositoryQuery.findPostDtosBySearch(pageable, maxParticipants,
+        Page<PostResponseWithApplyStatusDto> postDtosBySearch = postRepositoryQuery.findPostDtosBySearch(pageable, maxParticipants,
                 ageLimit, jobCategoryLimit, genderLimit, hobbyIdList, techStackIdList);
         return PagedResponse.from(postDtosBySearch);
     }
 
+    @Transactional
     @Caching(evict = {
             @CacheEvict(value = CacheName.SEARCH_POST, allEntries = true),
             @CacheEvict(value = CacheName.ONE_POST, key = "#id"),
@@ -147,9 +155,8 @@ public class PostService {
             @CacheEvict(value = CacheName.WRITTEN_POST, allEntries = true),
             @CacheEvict(value = CacheName.SUGGESTED_POST, allEntries = true),
     })
-    @Transactional
     public PostCreateAndUpdateResponseDto updatePostDetails(Long userId, Long id, PostUpdateRequestDto request) {
-        Post foundPost = getPostById(id);
+        Post foundPost = getPostByIdOrElseThrow(id);
         validateAuthor(userId, foundPost);
 
         // 취미 리스트 : DB 에서 있는거만 가져오기 -> Set<UserHobby>
@@ -174,6 +181,7 @@ public class PostService {
         return PostCreateAndUpdateResponseDto.from(foundPost);
     }
 
+    @Transactional
     @Caching(evict = {
             @CacheEvict(value = CacheName.SEARCH_POST, allEntries = true),
             @CacheEvict(value = CacheName.ONE_POST, key = "#id"),
@@ -182,15 +190,23 @@ public class PostService {
             @CacheEvict(value = CacheName.WRITTEN_POST, allEntries = true),
             @CacheEvict(value = CacheName.SUGGESTED_POST, allEntries = true),
     })
-    @Transactional
     public PostResponseDto changeStatus(Long userId, Long id, PostStatusRequestDto request) {
         //상태값 변경은 어떤 상태라도 불러와서 수정
-        Post foundPost = getPostById(id);
+        Post foundPost = getPostByIdWithoutStatusLimit(id);
         validateAuthor(userId, foundPost);
 
         //변동사항 있을시에만 업데이트
         if (!foundPost.getStatus().equals(request.getStatus())) {
             foundPost.updateStatus(request.getStatus());
+            //모임 성사로 변경시 채팅방 생성
+            if (request.getStatus().equals(PostStatus.CONFIRMED)) {
+                // 게시글로 생성된 채팅방이 없는 경우 생성
+                if (!chattingService.checkPostChatRoom(foundPost.getId())) {
+                    chattingService.createFromPost(foundPost.getId());
+                }
+                chattingService.registration(foundPost);
+
+            }
         }
 
         return PostResponseDto.from(foundPost);
@@ -202,7 +218,7 @@ public class PostService {
             key = "{#pageable.pageNumber, #pageable.pageSize, #userId}"
     )
     public PagedResponse<PostResponseWithApplyStatusDto> findMyLikedPosts(Long userId, Pageable pageable) {
-        Page<PostResponseWithApplyStatusDto> myLikePost = PostRepositoryQuery.getMyLikePost(userId, pageable);
+        Page<PostResponseWithApplyStatusDto> myLikePost = postRepositoryQuery.getMyLikePost(userId, pageable);
         return PagedResponse.from(myLikePost);
     }
 
@@ -212,8 +228,8 @@ public class PostService {
             key = "{#pageable.pageNumber, #pageable.pageSize, #userId, #joinStatus}"
     )
     public PagedResponse<PostWithJoinStatusAndAppliedAtResponseDto> findMyConfirmedPosts(Long userId, JoinStatus joinStatus, Pageable pageable) {
-        Page<PostWithJoinStatusAndAppliedAtResponseDto> myConfirmedPost = PostRepositoryQuery.getConfirmedPost(userId, joinStatus, pageable);
-        return PagedResponse.from(myConfirmedPost);
+        Page<PostWithJoinStatusAndAppliedAtResponseDto> myLikePost = postRepositoryQuery.getConfirmedPost(userId, joinStatus, pageable);
+        return PagedResponse.from(myLikePost);
     }
 
     //내 작성 게시물 조회
@@ -222,8 +238,8 @@ public class PostService {
             key = "{#pageable.pageNumber, #pageable.pageSize, #userId}"
     )
     public PagedResponse<PostResponseWithApplyStatusDto> findMyWrittenPosts(Long userId, Pageable pageable) {
-        Page<PostResponseWithApplyStatusDto> myWrittenPost = PostRepositoryQuery.getWrittenPost(userId, pageable);
-        return PagedResponse.from(myWrittenPost);
+        Page<PostResponseWithApplyStatusDto> myLikePost = postRepositoryQuery.getWrittenPost(userId, pageable);
+        return PagedResponse.from(myLikePost);
     }
 
     //추천 게시물 조회
@@ -231,8 +247,8 @@ public class PostService {
             value = CacheName.SUGGESTED_POST,
             key = "{#pageable.pageNumber, #pageable.pageSize, #userId}"
     )
-    public PagedResponse<PostResponseWithApplyStatusDto> getSuggestedPosts(Long userId, Pageable pageable) {
-        Page<PostResponseWithApplyStatusDto> suggestedPost = PostRepositoryQuery.getSuggestedPost(userId, pageable);
+    public PagedResponse<PostResponseWithApplyStatusDto> getSuggestedPosts(Long id, Pageable pageable) {
+        Page<PostResponseWithApplyStatusDto> suggestedPost = postRepositoryQuery.getSuggestedPost(id, pageable);
         return PagedResponse.from(suggestedPost);
     }
 
@@ -241,18 +257,24 @@ public class PostService {
     // -- HELPER 메서드 -- //
     // get
 
-    public Post getPostById(Long id) {
-        return postRepository.findByIdAndStatus(id, PostStatus.OPEN)
+    public Post getPostByIdOrElseThrow(Long id) {
+        return postRepositoryQuery.getPostByIdNotClose(id)
+                .orElseThrow(() -> new BaseException(ErrorCode.POST_NOT_FOUND));
+    }
+
+    public Post getPostByIdWithoutStatusLimit(Long id) {
+        return postRepository.findPostById(id)
                 .orElseThrow(() -> new BaseException(ErrorCode.POST_NOT_FOUND));
     }
 
 
-    private User getUserOrThrow(Optional<User> user) {
-        return user.orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+    private User getUserById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
     }
 
     // validate
-    private void validateAuthor(Long userId, Post post) {
+    void validateAuthor(Long userId, Post post) {
         if (!post.getAuthor().getId().equals(userId)) {
             throw new BaseException(ErrorCode.POST_FORBIDDEN);
         }

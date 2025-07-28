@@ -1,6 +1,7 @@
 package org.example.pdnight.domain.eventParticipant.entity;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.pdnight.domain.common.entity.Timestamped;
@@ -10,7 +11,7 @@ import org.example.pdnight.domain.user.entity.User;
 @Entity
 @Table(name = "event_participants")
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class EventParticipant extends Timestamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

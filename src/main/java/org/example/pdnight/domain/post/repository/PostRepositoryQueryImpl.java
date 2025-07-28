@@ -9,6 +9,7 @@ import org.example.pdnight.domain.post.dto.response.PostResponseWithApplyStatusD
 import org.example.pdnight.domain.post.dto.response.PostWithJoinStatusAndAppliedAtResponseDto;
 import org.example.pdnight.domain.post.dto.response.QPostResponseWithApplyStatusDto;
 import org.example.pdnight.domain.post.dto.response.QPostWithJoinStatusAndAppliedAtResponseDto;
+import org.example.pdnight.domain.post.entity.Post;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.enums.PostStatus;
@@ -56,11 +57,26 @@ public class PostRepositoryQueryImpl implements PostRepositoryQuery {
         return content;
     }
 
+    // 닫힌 상태가 아닌 게시글 단건 조회
+    @Override
+    public Optional<Post> getPostByIdNotClose(Long postId) {
+
+        Post findPost = queryFactory
+                .select(post)
+                .from(post)
+                .where(post.id.eq(postId)
+                        .and(post.status.ne(PostStatus.CLOSED))) // OPEN 상태만 조회
+                .fetchOne();
+
+        return Optional.ofNullable(findPost);
+    }
+
 
     // 내 좋아요 게시글 목록 조회
     @Override
     public Page<PostResponseWithApplyStatusDto> getMyLikePost(Long userId, Pageable pageable) {
         BooleanBuilder builder = new BooleanBuilder();
+        //닫힌 상태가 아닐 때
         builder.and(post.status.ne(PostStatus.CLOSED));
         builder.and(postLike.user.id.eq(userId));
 
@@ -108,6 +124,7 @@ public class PostRepositoryQueryImpl implements PostRepositoryQuery {
         BooleanBuilder builder = new BooleanBuilder();
 
         builder.and(postParticipant.user.id.eq(userId));
+        //닫힌 상태가 아닐 때
         builder.and(post.status.ne(PostStatus.CLOSED));
 
         if (joinStatus != null) {
@@ -244,7 +261,7 @@ public class PostRepositoryQueryImpl implements PostRepositoryQuery {
                 .from(post)
                 .leftJoin(postLike).on(postLike.post.eq(post)) // 좋아요 조인
                 .groupBy(post.id)
-                .where(postLike.user.id.eq(userId))
+                .where(postLike.user.id.eq(userId).and(post.status.eq(PostStatus.OPEN)))
                 .orderBy(postLike.count().desc()) // 좋아요 수 내림차순 정렬
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())

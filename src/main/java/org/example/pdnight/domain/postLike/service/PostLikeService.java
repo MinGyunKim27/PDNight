@@ -25,8 +25,8 @@ public class PostLikeService {
     @Transactional
     public PostLikeResponse addLike(Long id, Long userId) {
 
-        User user = helper.getUserById(userId);
-        Post post = helper.getPostById(id);
+        User user = helper.getUserByIdOrElseThrow(userId);
+        Post post = helper.getPostByIdOrElseThrow(id);
 
         //좋아요 존재 하면 에러
         validateExists(post, user);
@@ -42,8 +42,8 @@ public class PostLikeService {
     @Transactional
     public void removeLike(Long id, Long userId) {
 
-        User user = helper.getUserById(userId);
-        Post post = helper.getPostById(id);
+        User user = helper.getUserByIdOrElseThrow(userId);
+        Post post = helper.getPostByIdOrElseThrow(id);
         PostLike like = getPostLikePostAndUser(post, user);
 
         post.removeLike(like);

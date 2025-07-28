@@ -1,6 +1,7 @@
 package org.example.pdnight.domain.participant.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.pdnight.domain.chatRoom.service.ChattingService;
 import org.example.pdnight.domain.common.dto.PagedResponse;
 import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.enums.JobCategory;
@@ -17,6 +18,7 @@ import org.example.pdnight.domain.post.enums.PostStatus;
 import org.example.pdnight.domain.post.repository.PostRepository;
 import org.example.pdnight.domain.user.entity.User;
 import org.example.pdnight.domain.user.repository.UserRepository;
+import org.example.pdnight.global.aop.DistributedLock;
 import org.example.pdnight.global.constant.CacheName;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
@@ -24,7 +26,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import static org.example.pdnight.domain.common.enums.ErrorCode.CANNOT_PARTICIPATE_POST;
 
 @Service
@@ -36,6 +37,7 @@ public class ParticipantService {
     private final UserRepository userRepository;
     private final ParticipantRepository participantRepository;
     private final InviteService inviteService;
+    private final ChattingService chattingService;
 
     // 참가 요건 확인
     private void validForCreateParticipant(User user, Post post) {
@@ -74,8 +76,13 @@ public class ParticipantService {
 
 
     //참가 신청
-    @CacheEvict(value = CacheName.CONFIRMED_POST, allEntries = true)
     @Transactional
+    @CacheEvict(value = CacheName.CONFIRMED_POST, allEntries = true)
+    @DistributedLock(
+            key = "#postId",
+            timeoutMs = 5000,
+            leaseTimeMs = 3000 // 락 유지 시간
+    )
     public ParticipantResponse applyParticipant(Long loginId, Long postId) {
         User user = getUser(loginId);
         Post post = getPostWithOpen(postId);
@@ -102,8 +109,8 @@ public class ParticipantService {
         } else {
             participant = PostParticipant.create(post, user);
         }
-        // 정상 신청
 
+        // 정상 신청
         participantRepository.save(participant);
 
         return ParticipantResponse.from(
@@ -117,6 +124,11 @@ public class ParticipantService {
 
     //참가 취소
     @Transactional
+    @DistributedLock(
+            key = "#postId",
+            timeoutMs = 5000,
+            leaseTimeMs = 3000
+    )
     public void deleteParticipant(Long loginId, Long postId) {
         User user = getUser(loginId);
         Post post = getPostWithOpen(postId);
@@ -133,8 +145,13 @@ public class ParticipantService {
     }
 
     //참가 확정(작성자)
-    @CacheEvict(value = CacheName.CONFIRMED_POST, allEntries = true)
     @Transactional
+    @CacheEvict(value = CacheName.CONFIRMED_POST, allEntries = true)
+    @DistributedLock(
+            key = "#postId",
+            timeoutMs = 5000,
+            leaseTimeMs = 3000
+    )
     public ParticipantResponse changeStatusParticipant(Long authorId, Long userId, Long postId, String status) {
         User user = getUser(userId);
         Post post = getPostWithOpen(postId);
@@ -165,6 +182,11 @@ public class ParticipantService {
         if (post.getMaxParticipants().equals(participantSize)) {
             post.updateStatus(PostStatus.CONFIRMED);
             inviteService.deleteAllByPostAndStatus(post, JoinStatus.PENDING);
+            // 채팅방 생성
+            if (!chattingService.checkPostChatRoom(postId)) {
+                chattingService.createFromPost(postId);
+            }
+            chattingService.registration(post);
         }
 
         return ParticipantResponse.from(

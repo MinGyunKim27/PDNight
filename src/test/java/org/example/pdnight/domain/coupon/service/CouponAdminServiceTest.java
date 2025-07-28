@@ -2,6 +2,7 @@ package org.example.pdnight.domain.coupon.service;
 
 import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.exception.BaseException;
+import org.example.pdnight.domain.common.helper.GetHelper;
 import org.example.pdnight.domain.coupon.dto.request.CouponRequestDto;
 import org.example.pdnight.domain.coupon.dto.request.UpdateCouponRequestDto;
 import org.example.pdnight.domain.coupon.dto.response.CouponResponseDto;
@@ -22,7 +23,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class CouponAdminServiceTest {
@@ -32,6 +32,9 @@ class CouponAdminServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private GetHelper helper;
 
     @InjectMocks
     private CouponAdminService couponAdminService;
@@ -43,15 +46,14 @@ class CouponAdminServiceTest {
         Long userId = 1L;
         CouponRequestDto dto = mock(CouponRequestDto.class);
         User user = mock(User.class);
-        Coupon coupon = new Coupon(user, dto.getCouponInfo(), dto.getDeadlineAt());
+        Coupon coupon = Coupon.create(user, dto.getCouponInfo(), dto.getDeadlineAt());
 
         // when
         when(dto.getUserId()).thenReturn(userId);
         when(dto.getCouponInfo()).thenReturn("쿠폰");
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(helper.getUserByIdOrElseThrow(dto.getUserId())).thenReturn(user);
         when(couponRepository.save(any(Coupon.class))).thenReturn(coupon);
-
 
         CouponResponseDto result = couponAdminService.createCoupon(dto);
 
@@ -70,7 +72,7 @@ class CouponAdminServiceTest {
 
         // when & then
         when(dto.getUserId()).thenReturn(1L);
-        when(userRepository.findById(dto.getUserId())).thenReturn(Optional.empty());
+        when(helper.getUserByIdOrElseThrow(1L)).thenThrow(new BaseException(ErrorCode.USER_NOT_FOUND));
 
         BaseException exception = assertThrows(BaseException.class, () -> couponAdminService.createCoupon(dto));
         assertThat(exception.getMessage()).isEqualTo(ErrorCode.USER_NOT_FOUND.getMessage());
