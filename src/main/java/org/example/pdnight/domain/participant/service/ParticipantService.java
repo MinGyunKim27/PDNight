@@ -1,6 +1,7 @@
 package org.example.pdnight.domain.participant.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.pdnight.domain.chatRoom.service.ChattingService;
 import org.example.pdnight.domain.common.dto.PagedResponse;
 import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.enums.JobCategory;
@@ -34,6 +35,7 @@ public class ParticipantService {
     private final UserRepository userRepository;
     private final ParticipantRepository participantRepository;
     private final InviteService inviteService;
+    private final ChattingService chattingService;
 
     // 참가 요건 확인
     private void validForCreateParticipant(User user, Post post) {
@@ -82,6 +84,7 @@ public class ParticipantService {
         User user = getUser(loginId);
         Post post = getPostWithOpen(postId);
 
+        // 신청 안되는지 확인
         validForCreateParticipant(user, post);
 
         PostParticipant participant;
@@ -175,7 +178,12 @@ public class ParticipantService {
         int participantSize = participantRepository.countByPostAndStatus(post, JoinStatus.ACCEPTED);
         if (post.getMaxParticipants().equals(participantSize)) {
             post.updateStatus(PostStatus.CONFIRMED);
-            inviteService.deleteAllByPostAndStatus(post,JoinStatus.PENDING);
+            inviteService.deleteAllByPostAndStatus(post, JoinStatus.PENDING);
+            // 채팅방 생성
+            if (!chattingService.checkPostChatRoom(postId)) {
+                chattingService.createFromPost(postId);
+            }
+            chattingService.registration(post);
         }
 
         return ParticipantResponse.from(

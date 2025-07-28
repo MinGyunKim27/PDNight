@@ -1,5 +1,6 @@
 package org.example.pdnight.domain.post.service;
 
+import org.example.pdnight.domain.chatRoom.service.ChattingService;
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.comment.repository.CommentRepository;
 import org.example.pdnight.domain.common.dto.PagedResponse;
@@ -20,6 +21,7 @@ import org.example.pdnight.domain.post.dto.response.PostWithJoinStatusAndApplied
 import org.example.pdnight.domain.post.entity.Post;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
+import org.example.pdnight.domain.post.enums.PostStatus;
 import org.example.pdnight.domain.post.repository.PostRepository;
 import org.example.pdnight.domain.post.repository.PostRepositoryQuery;
 import org.example.pdnight.domain.techStack.entity.PostTech;
@@ -48,6 +50,7 @@ public class PostService {
     private final CommentRepository commentRepository;
     private final HobbyRepositoryQuery hobbyRepositoryQuery;
     private final TechStackRepositoryQuery techStackRepositoryQuery;
+    private final ChattingService chattingService;
 
     //포스트 작성
     @Transactional
@@ -154,6 +157,15 @@ public class PostService {
         //변동사항 있을시에만 업데이트
         if (!foundPost.getStatus().equals(request.getStatus())) {
             foundPost.updateStatus(request.getStatus());
+            //모임 성사로 변경시 채팅방 생성
+            if (request.getStatus().equals(PostStatus.CONFIRMED)) {
+                // 게시글로 생성된 채팅방이 없는 경우 생성
+                if (!chattingService.checkPostChatRoom(foundPost.getId())) {
+                    chattingService.createFromPost(foundPost.getId());
+                }
+                chattingService.registration(foundPost);
+
+            }
         }
 
         return PostResponseDto.from(foundPost);

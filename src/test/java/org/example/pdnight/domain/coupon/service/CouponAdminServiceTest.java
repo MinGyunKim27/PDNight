@@ -46,7 +46,7 @@ class CouponAdminServiceTest {
         Long userId = 1L;
         CouponRequestDto dto = mock(CouponRequestDto.class);
         User user = mock(User.class);
-        Coupon coupon = new Coupon(user, dto.getCouponInfo(), dto.getDeadlineAt());
+        Coupon coupon = Coupon.create(user, dto.getCouponInfo(), dto.getDeadlineAt());
 
         // when
         when(dto.getUserId()).thenReturn(userId);

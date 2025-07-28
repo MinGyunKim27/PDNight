@@ -65,7 +65,7 @@ public class AuthService {
 
         validateUser(user, request.getPassword());
 
-        String token = jwtUtil.createToken(user.getId(), user.getRole());
+        String token = jwtUtil.createToken(user.getId(), user.getRole(), user.getNickname());
         return LoginResponseDto.from(token);
     }
 

@@ -14,9 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequiredArgsConstructor
@@ -34,7 +32,8 @@ public class AuthController {
     @PostMapping("/api/auth/login")
     private ResponseEntity<ApiResponse<LoginResponseDto>> login(@Valid @RequestBody LoginRequestDto request) {
         LoginResponseDto token = authService.login(request);
-        return ResponseEntity.ok(ApiResponse.ok("로그인 되었습니다.", token));
+        return ResponseEntity.ok()
+                .body(ApiResponse.ok("로그인 되었습니다.", token));
     }
 
     @PostMapping("/api/auth/logout")
@@ -50,5 +49,10 @@ public class AuthController {
         Long userId = userDetails.getUserId();
         authService.withdraw(userId, request);
         return ResponseEntity.ok(ApiResponse.ok("회원탈퇴 되었습니다.", null));
+    }
+
+    @GetMapping("/login")
+    public String loginPage() {
+        return "login";  // templates/login.ftl 을 찾음
     }
 }
