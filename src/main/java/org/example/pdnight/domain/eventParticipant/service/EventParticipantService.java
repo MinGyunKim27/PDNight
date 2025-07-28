@@ -1,6 +1,8 @@
 package org.example.pdnight.domain.eventParticipant.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.example.pdnight.domain.common.dto.PagedResponse;
 import org.example.pdnight.domain.common.dto.PagedResponse;
 import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.exception.BaseException;
@@ -11,9 +13,12 @@ import org.example.pdnight.domain.eventParticipant.dto.response.EventParticipant
 import org.example.pdnight.domain.eventParticipant.entity.EventParticipant;
 import org.example.pdnight.domain.eventParticipant.repository.EventParticipantRepository;
 import org.example.pdnight.domain.user.entity.User;
+import org.example.pdnight.domain.user.repository.UserRepository;
+import org.example.pdnight.global.aop.DistributedLock;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.redisson.api.RedissonClient;
 
 @Service
 @RequiredArgsConstructor
@@ -24,17 +29,24 @@ public class EventParticipantService {
     private final GetHelper helper;
 
     // 참가 신청
-    public void addParticipant(Long eventId, Long userId) {
+    @Transactional
+    @DistributedLock(
+            key = "#eventId",
+            timeoutMs = 5000,
+            leaseTimeMs = 3000 // 락 유지 시간
+    )
+    public void addParticipant(Long eventId, Long userId){
         // 이미 참가 신청한 유저이면 실패
         validateParticipant(eventId, userId);
 
         Event event = getEventById(eventId);
         User user = helper.getUserByIdOrElseThrow(userId);
 
+        // 신청 인원 확인
         int participantsCount = eventParticipantRepository.getEventParticipantByEventId(eventId);
-
-        // 참가가 다 찼는지 확인
-        validateIsFullEvent(participantsCount, event);
+        if(participantsCount == event.getMaxParticipants()){
+            throw new BaseException(ErrorCode.EVENT_PARTICIPANT_FULL);
+        }
 
         EventParticipant eventParticipant = new EventParticipant(event, user);
         eventParticipantRepository.save(eventParticipant);
@@ -42,7 +54,10 @@ public class EventParticipantService {
 
     // 참가 신청 유저 목록 조회
     public PagedResponse<EventParticipantResponse> findEventParticipantList(Long eventId, Pageable pageable) {
-        Page<EventParticipant> eventPage = eventParticipantRepository.findByEventIdWithUser(eventId, pageable);
+        Event event = eventRepository.findById(eventId).orElseThrow(
+                () -> new BaseException(ErrorCode.EVENT_NOT_FOUNT)
+        );
+        Page<EventParticipant> eventPage = eventParticipantRepository.findByEventWithUser(event, pageable);
         return PagedResponse.from(eventPage.map(EventParticipantResponse::from));
     }
 
