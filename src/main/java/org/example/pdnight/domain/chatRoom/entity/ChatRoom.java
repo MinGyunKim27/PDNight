@@ -15,16 +15,16 @@ public class ChatRoom {
 
     private Long postId;
 
-    public ChatRoom(String name) {
+    private ChatRoom(String name) {
         chatRoomName = name;
     }
 
-    public ChatRoom(String name, Long postId) {
+    private ChatRoom(String name, Long postId) {
         chatRoomName = name;
         this.postId = postId;
     }
 
-    public ChatRoom() {
+    protected ChatRoom() {
     }
 
     public static ChatRoom create(String name) {

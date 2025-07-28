@@ -17,12 +17,12 @@ public class ChatParticipant {
 
     private Long userId;
 
-    public ChatParticipant(ChatRoom chatRoom, Long id) {
+    private ChatParticipant(ChatRoom chatRoom, Long id) {
         this.chatRoom = chatRoom;
         this.userId = id;
     }
 
-    public ChatParticipant() {
+    protected ChatParticipant() {
     }
 
     public static ChatParticipant from(ChatRoom chatRoom, Long id) {

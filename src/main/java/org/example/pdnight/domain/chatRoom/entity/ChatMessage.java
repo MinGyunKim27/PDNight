@@ -25,7 +25,7 @@ public class ChatMessage {
 
     private LocalDateTime sentAt;
 
-    public ChatMessage(ChatMessageDto roomMessage) {
+    private ChatMessage(ChatMessageDto roomMessage) {
         this.roomId = roomMessage.getRoomId();
         this.sender = roomMessage.getSender();
         this.message = roomMessage.getMessage();
@@ -33,8 +33,7 @@ public class ChatMessage {
         sentAt = LocalDateTime.now();
     }
 
-    public ChatMessage() {
-
+    protected ChatMessage() {
     }
 
     public static ChatMessage from(ChatMessageDto roomMessage) {

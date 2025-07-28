@@ -1,7 +1,5 @@
 package org.example.pdnight.domain.post.service;
 
-import java.util.Optional;
-
 import org.example.pdnight.domain.chatRoom.service.ChattingService;
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.comment.repository.CommentRepository;
@@ -23,6 +21,7 @@ import org.example.pdnight.domain.post.dto.response.PostWithJoinStatusAndApplied
 import org.example.pdnight.domain.post.entity.Post;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
+import org.example.pdnight.domain.post.enums.PostStatus;
 import org.example.pdnight.domain.post.repository.PostRepository;
 import org.example.pdnight.domain.post.repository.PostRepositoryQuery;
 import org.example.pdnight.domain.techStack.entity.PostTech;

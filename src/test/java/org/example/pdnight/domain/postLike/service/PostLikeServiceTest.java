@@ -46,8 +46,8 @@ class PostLikeServiceTest {
         lenient().when(mockUser.getId()).thenReturn(userId);
         lenient().when(mockPost.getId()).thenReturn(postId);
 
-        when(helper.getUserById(userId)).thenReturn(mockUser);
-        when(helper.getPostById(postId)).thenReturn(mockPost);
+        when(helper.getUserByIdOrElseThrow(userId)).thenReturn(mockUser);
+        when(helper.getPostByIdOrElseThrow(postId)).thenReturn(mockPost);
 
         when(postLikeRepository.existsByPostAndUser(mockPost, mockUser)).thenReturn(false);
         when(postLikeRepository.save(Mockito.any(PostLike.class))).thenReturn(mockPostLike);
@@ -73,8 +73,8 @@ class PostLikeServiceTest {
 
 
         // when & then
-        when(helper.getUserById(userId)).thenReturn(mockUser);
-        when(helper.getPostById(postId)).thenReturn(mockPost);
+        when(helper.getUserByIdOrElseThrow(userId)).thenReturn(mockUser);
+        when(helper.getPostByIdOrElseThrow(postId)).thenReturn(mockPost);
         when(postLikeRepository.existsByPostAndUser(mockPost, mockUser)).thenReturn(true);
 
         BaseException exception = assertThrows(BaseException.class, () ->
@@ -96,8 +96,8 @@ class PostLikeServiceTest {
         Post mockPost = Mockito.mock(Post.class);
         PostLike mockPostLike = new PostLike(mockPost, mockUser);
 
-        when(helper.getUserById(userId)).thenReturn(mockUser);
-        when(helper.getPostById(postId)).thenReturn(mockPost);
+        when(helper.getUserByIdOrElseThrow(userId)).thenReturn(mockUser);
+        when(helper.getPostByIdOrElseThrow(postId)).thenReturn(mockPost);
         when(postLikeRepository.findByPostAndUser(mockPost, mockUser)).thenReturn(Optional.of(mockPostLike));
 
         // when
@@ -117,8 +117,8 @@ class PostLikeServiceTest {
         User mockUser = Mockito.mock(User.class);
         Post mockPost = Mockito.mock(Post.class);
 
-        when(helper.getUserById(userId)).thenReturn(mockUser);
-        when(helper.getPostById(postId)).thenReturn(mockPost);
+        when(helper.getUserByIdOrElseThrow(userId)).thenReturn(mockUser);
+        when(helper.getPostByIdOrElseThrow(postId)).thenReturn(mockPost);
         when(postLikeRepository.findByPostAndUser(mockPost, mockUser)).thenReturn(Optional.empty());
 
         // when & then
