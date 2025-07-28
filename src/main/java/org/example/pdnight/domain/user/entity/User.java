@@ -2,7 +2,6 @@ package org.example.pdnight.domain.user.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.example.pdnight.domain.auth.dto.request.SignupRequestDto;
 import org.example.pdnight.domain.common.entity.Timestamped;
 import org.example.pdnight.domain.common.enums.JobCategory;
 import org.example.pdnight.domain.common.enums.UserRole;
@@ -12,9 +11,7 @@ import org.example.pdnight.domain.hobby.entity.UserHobby;
 import org.example.pdnight.domain.invite.entity.Invite;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.techStack.entity.UserTech;
-import org.example.pdnight.domain.user.dto.request.UserUpdateRequest;
 import org.example.pdnight.domain.user.enums.Region;
-import org.springframework.data.util.TypeCollector;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -110,13 +107,6 @@ public class User extends Timestamped {
         this.comment = comment;
         this.totalRate = 0L;
         this.totalReviewer = 0L;
-    }
-
-    private User(Long id, String name, String email, String password) {
-        this.id = id;
-        this.name = name;
-        this.email = email;
-        this.password = password;
     }
 
     // 유저생성 메서드
