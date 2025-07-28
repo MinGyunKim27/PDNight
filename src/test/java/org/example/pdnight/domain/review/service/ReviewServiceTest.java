@@ -42,7 +42,6 @@ class ReviewServiceTest {
     private GetHelper helper;
 
 
-
     @Test
     @DisplayName("리뷰 등록 테스트 성공")
     void 리뷰_등록_테스트_성공() {
@@ -143,7 +142,7 @@ class ReviewServiceTest {
         Pageable pageable = PageRequest.of(0, 10);
         PageImpl<Review> reviewPage = new PageImpl<>(List.of(review), pageable, 1);
 
-        when(helper.getUserById(userId)).thenReturn(ratedUser);
+        when(helper.getUserByIdOrElseThrow(userId)).thenReturn(ratedUser);
         when(reviewRepository.findByRatedUser(ratedUser, pageable)).thenReturn(reviewPage);
 
         // when
@@ -163,7 +162,7 @@ class ReviewServiceTest {
         Long userId = 2L;
         User reviewer = new User(userId, "작성자", 0L, 0L);
         User ratedUser = new User(3L, "피리뷰어", 0L, 0L);
-        Post post =Mockito.mock(Post.class);
+        Post post = Mockito.mock(Post.class);
         ReflectionTestUtils.setField(post, "id", 0L);
 
         Review review = new Review();
@@ -175,7 +174,7 @@ class ReviewServiceTest {
         Pageable pageable = PageRequest.of(0, 10);
         PageImpl<Review> reviewPage = new PageImpl<>(List.of(review), pageable, 1);
 
-        when(helper.getUserById(userId)).thenReturn(reviewer);
+        when(helper.getUserByIdOrElseThrow(userId)).thenReturn(reviewer);
         when(reviewRepository.findByReviewer(reviewer, pageable)).thenReturn(reviewPage);
 
         // when

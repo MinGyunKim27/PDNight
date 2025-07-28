@@ -31,274 +31,276 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class CommentServiceTest {
 
-	@Mock
-	private CommentRepository commentRepository;
+    @Mock
+    private CommentRepository commentRepository;
 
     @Mock
     private GetHelper getHelper;
 
-	@InjectMocks
-	private CommentService commentService;
+    @InjectMocks
+    private CommentService commentService;
 
-	private User mockUser;
-	private Post mockPost;
-	private Long postId;
-	private Long authorId;
-	private Long commentId;
+    private User mockUser;
+    private Post mockPost;
+    private Long postId;
+    private Long authorId;
+    private Long commentId;
 
-	@BeforeEach
-	void setUp() {
-		mockUser = Mockito.mock(User.class);
-		mockPost = Mockito.mock(Post.class);
+    @BeforeEach
+    void setUp() {
+        mockUser = Mockito.mock(User.class);
+        mockPost = Mockito.mock(Post.class);
 
-		lenient().when(mockUser.getId()).thenReturn(1L);
-		lenient().when(mockPost.getId()).thenReturn(1L);
-	}
+        lenient().when(mockUser.getId()).thenReturn(1L);
+        lenient().when(mockPost.getId()).thenReturn(1L);
+    }
 
-	@Test
-	@DisplayName("댓글 정상 생성 테스트")
-	void createComment_댓글_생성_성공() {
-		//given
-		postId = 1L;
-		authorId = 1L;
-		String content = "댓글내용";
-		CommentRequestDto request = new CommentRequestDto(content);
+    @Test
+    @DisplayName("댓글 정상 생성 테스트")
+    void createComment_댓글_생성_성공() {
+        //given
+        postId = 1L;
+        authorId = 1L;
+        String content = "댓글내용";
+        CommentRequestDto request = new CommentRequestDto(content);
 
         when(getHelper.getPostByIdOrElseThrow(postId)).thenReturn(mockPost);
         when(getHelper.getUserByIdOrElseThrow(authorId)).thenReturn(mockUser);
 
-		Comment comment = Comment.create(mockPost, mockUser, request.getContent());
-		when(commentRepository.save(any(Comment.class))).thenReturn(comment);
+        Comment comment = Comment.create(mockPost, mockUser, request.getContent());
+        when(commentRepository.save(any(Comment.class))).thenReturn(comment);
 
-		//when
-		CommentResponseDto result = commentService.createComment(postId, authorId, request);
+        //when
+        CommentResponseDto result = commentService.createComment(postId, authorId, request);
 
-		//then
-		assertEquals(result.getAuthorId(), mockUser.getId());
-		assertEquals(result.getPostId(), mockPost.getId());
-		assertEquals(result.getContent(), request.getContent());
+        //then
+        assertEquals(result.getAuthorId(), mockUser.getId());
+        assertEquals(result.getPostId(), mockPost.getId());
+        assertEquals(result.getContent(), request.getContent());
 
         verify(getHelper).getPostByIdOrElseThrow(postId);
         verify(getHelper).getUserByIdOrElseThrow(authorId);
         verify(commentRepository).save(any(Comment.class));
     }
 
-	@Test
-	@DisplayName("게시물이 없어서 예외 발생 테스트")
-	void createComment_게시물_없음_생성_실패() {
-		//given
-		postId = 1L;
-		authorId = 1L;
-		String content = "댓글내용";
-		CommentRequestDto request = new CommentRequestDto(content);
+    @Test
+    @DisplayName("게시물이 없어서 예외 발생 테스트")
+    void createComment_게시물_없음_생성_실패() {
+        //given
+        postId = 1L;
+        authorId = 1L;
+        String content = "댓글내용";
+        CommentRequestDto request = new CommentRequestDto(content);
 
-		when(postRepository.findById(postId)).thenReturn(Optional.empty());
+        when(getHelper.getPostByIdOrElseThrow(postId)).thenThrow(new BaseException(ErrorCode.POST_NOT_FOUND));
 
-		//when & then
-		BaseException exception = assertThrows(BaseException.class, () ->
-			commentService.createComment(postId, authorId, request));
+        //when & then
+        BaseException exception = assertThrows(BaseException.class, () ->
+                commentService.createComment(postId, authorId, request));
 
-		assertEquals(ErrorCode.POST_NOT_FOUND.getMessage(), exception.getMessage());
+        assertEquals(ErrorCode.POST_NOT_FOUND.getMessage(), exception.getMessage());
 
         verify(getHelper).getPostByIdOrElseThrow(postId);
     }
 
-	@Test
-	@DisplayName("댓글 정상 삭제 테스트")
-	void deleteCommentById_댓글_삭제_성공() {
-		//given
-		postId = 1L;
-		commentId = 1L;
-		authorId = 1L;
+    @Test
+    @DisplayName("댓글 정상 삭제 테스트")
+    void deleteCommentById_댓글_삭제_성공() {
+        //given
+        postId = 1L;
+        commentId = 1L;
+        authorId = 1L;
 
-		String content = "댓글내용";
-		Comment comment = Comment.create(mockPost, mockUser, content);
-		ReflectionTestUtils.setField(comment,"id", 1L);
+        String content = "댓글내용";
+        Comment comment = Comment.create(mockPost, mockUser, content);
+        ReflectionTestUtils.setField(comment, "id", 1L);
 
-		when(postRepository.findById(postId)).thenReturn(Optional.of(mockPost));
-		when(userRepository.findByIdAndIsDeletedFalse(authorId)).thenReturn(Optional.of(mockUser));
-		when(commentRepository.findById(commentId)).thenReturn(Optional.of(comment));
+        when(getHelper.getPostByIdOrElseThrow(postId)).thenReturn(mockPost);
+        when(getHelper.getUserByIdOrElseThrow(authorId)).thenReturn(mockUser);
+        when(commentRepository.findById(commentId)).thenReturn(Optional.of(comment));
 
-		//when & then
-		commentService.deleteCommentById(postId, commentId, authorId);
+        //when & then
+        commentService.deleteCommentById(postId, commentId, authorId);
 
-		verify(postRepository).findById(postId);
-		verify(userRepository).findByIdAndIsDeletedFalse(authorId);
-		verify(commentRepository).findById(commentId);
-		verify(commentRepository).deleteAllByParentId(comment.getId());
-		verify(commentRepository).delete(comment);
-	}
+        verify(getHelper).getPostByIdOrElseThrow(postId);
+        verify(getHelper).getUserByIdOrElseThrow(authorId);
+        verify(commentRepository).findById(commentId);
+        verify(commentRepository).deleteAllByParentId(comment.getId());
+        verify(commentRepository).delete(comment);
+    }
 
-	@Test
-	@DisplayName("댓글 작성자가 아니라 삭제 시 예외 발생 테스트")
-	void deleteCommentById_작성자가_아닌_댓글_삭제_실패() {
-		//given
-		postId = 1L;
-		commentId = 1L;
-		authorId = 10L;
-		String content = "댓글내용";
-		Comment comment = Comment.create(mockPost, mockUser, content);
+    @Test
+    @DisplayName("댓글 작성자가 아니라 삭제 시 예외 발생 테스트")
+    void deleteCommentById_작성자가_아닌_댓글_삭제_실패() {
+        //given
+        postId = 1L;
+        commentId = 1L;
+        authorId = 10L;
+        String content = "댓글내용";
+        Comment comment = Comment.create(mockPost, mockUser, content);
 
-		User anotherUser = Mockito.mock(User.class);
-		lenient().when(anotherUser.getId()).thenReturn(10L);
+        User anotherUser = Mockito.mock(User.class);
+        lenient().when(anotherUser.getId()).thenReturn(10L);
 
-		when(postRepository.findById(postId)).thenReturn(Optional.of(mockPost));
-		when(userRepository.findByIdAndIsDeletedFalse(authorId)).thenReturn(Optional.of(anotherUser));
-		when(commentRepository.findById(commentId)).thenReturn(Optional.of(comment));
+        when(getHelper.getPostByIdOrElseThrow(postId)).thenReturn(mockPost);
+        when(getHelper.getUserByIdOrElseThrow(authorId)).thenReturn(mockUser);
+        when(commentRepository.findById(commentId)).thenReturn(Optional.of(comment));
 
-		//when & then
-		BaseException exception = assertThrows(BaseException.class, () ->
-			commentService.deleteCommentById(postId, commentId, authorId));
+        //when & then
+        BaseException exception = assertThrows(BaseException.class, () ->
+                commentService.deleteCommentById(postId, commentId, authorId));
 
-		assertEquals(ErrorCode.COMMENT_FORBIDDEN.getMessage(), exception.getMessage());
+        assertEquals(ErrorCode.COMMENT_FORBIDDEN.getMessage(), exception.getMessage());
 
-		verify(postRepository).findById(postId);
-		verify(userRepository).findByIdAndIsDeletedFalse(authorId);
-		verify(commentRepository).findById(commentId);
-	}
+        verify(getHelper).getPostByIdOrElseThrow(postId);
+        verify(getHelper).getUserByIdOrElseThrow(authorId);
+        verify(commentRepository).findById(commentId);
+    }
 
-	@Test
-	@DisplayName("댓글 정상 수정 테스트")
-	void updateCommentByDto_댓글_수정_성공() {
-		//given
-		postId = 1L;
-		commentId = 1L;
-		authorId = 1L;
-		String oldContent = "댓글내용";
-		Comment comment = Comment.create(mockPost, mockUser, oldContent);
-		CommentRequestDto request = new CommentRequestDto("수정할 댓글내용");
+    @Test
+    @DisplayName("댓글 정상 수정 테스트")
+    void updateCommentByDto_댓글_수정_성공() {
+        //given
+        postId = 1L;
+        commentId = 1L;
+        authorId = 1L;
+        String oldContent = "댓글내용";
+        Comment comment = Comment.create(mockPost, mockUser, oldContent);
+        CommentRequestDto request = new CommentRequestDto("수정할 댓글내용");
 
-		when(postRepository.findById(postId)).thenReturn(Optional.of(mockPost));
-		when(userRepository.findByIdAndIsDeletedFalse(authorId)).thenReturn(Optional.of(mockUser));
-		when(commentRepository.findById(commentId)).thenReturn(Optional.of(comment));
+        when(getHelper.getPostByIdOrElseThrow(postId)).thenReturn(mockPost);
+        when(getHelper.getUserByIdOrElseThrow(authorId)).thenReturn(mockUser);
+        when(commentRepository.findById(commentId)).thenReturn(Optional.of(comment));
 
-		//when
-		CommentResponseDto response = commentService.updateCommentByDto(postId, commentId, authorId, request);
+        //when
+        CommentResponseDto response = commentService.updateCommentByDto(postId, commentId, authorId, request);
 
-		//then
-		assertEquals(request.getContent(), response.getContent());
-		assertNotEquals(oldContent, response.getContent());
+        //then
+        assertEquals(request.getContent(), response.getContent());
+        assertNotEquals(oldContent, response.getContent());
 
-		verify(postRepository).findById(postId);
-		verify(userRepository).findByIdAndIsDeletedFalse(authorId);
-		verify(commentRepository).findById(commentId);
-	}
+        verify(getHelper).getPostByIdOrElseThrow(postId);
+        verify(getHelper).getUserByIdOrElseThrow(authorId);
+        verify(commentRepository).findById(commentId);
+    }
 
-	@Test
-	@DisplayName("댓글 작성자가 아니라 수정 시 예외 발생 테스트")
-	void updateCommentByDto_작성자가_아닌_댓글_수정_실패() {
-		//given
-		postId = 1L;
-		commentId = 1L;
-		authorId = 10L;
-		String oldContent = "댓글내용";
-		Comment comment = Comment.create(mockPost, mockUser, oldContent);
-		CommentRequestDto request = new CommentRequestDto("수정할 댓글내용");
+    @Test
+    @DisplayName("댓글 작성자가 아니라 수정 시 예외 발생 테스트")
+    void updateCommentByDto_작성자가_아닌_댓글_수정_실패() {
+        //given
+        postId = 1L;
+        commentId = 1L;
+        authorId = 10L;
+        String oldContent = "댓글내용";
+        Comment comment = Comment.create(mockPost, mockUser, oldContent);
+        CommentRequestDto request = new CommentRequestDto("수정할 댓글내용");
 
-		User anotherUser = Mockito.mock(User.class);
-		lenient().when(anotherUser.getId()).thenReturn(10L);
+        User anotherUser = Mockito.mock(User.class);
+        lenient().when(anotherUser.getId()).thenReturn(10L);
 
-		when(postRepository.findById(postId)).thenReturn(Optional.of(mockPost));
-		when(userRepository.findByIdAndIsDeletedFalse(authorId)).thenReturn(Optional.of(anotherUser));
-		when(commentRepository.findById(commentId)).thenReturn(Optional.of(comment));
+        when(getHelper.getPostByIdOrElseThrow(postId)).thenReturn(mockPost);
+        when(getHelper.getUserByIdOrElseThrow(authorId)).thenReturn(mockUser);
+        when(commentRepository.findById(commentId)).thenReturn(Optional.of(comment));
 
-		//when & then
-		BaseException exception = assertThrows(BaseException.class, () ->
-			commentService.deleteCommentById(postId, commentId, authorId));
+        //when & then
+        BaseException exception = assertThrows(BaseException.class, () ->
+                commentService.updateCommentByDto(postId, commentId, authorId, request));
 
-		verify(postRepository).findById(postId);
-		verify(userRepository).findByIdAndIsDeletedFalse(authorId);
-		verify(commentRepository).findById(commentId);
-	}
+        assertEquals(ErrorCode.COMMENT_FORBIDDEN.getMessage(), exception.getMessage());
 
-	@Test
-	@DisplayName("대댓글 정상 생성 테스트")
-	void createChildComment_대댓글_생성_성공() {
-		//given
-		postId = 1L;
-		commentId = 1L;
-		authorId = 1L;
-		String content = "댓글내용";
-		CommentRequestDto request = new CommentRequestDto(content);
+        verify(getHelper).getPostByIdOrElseThrow(postId);
+        verify(getHelper).getUserByIdOrElseThrow(authorId);
+        verify(commentRepository).findById(commentId);
+    }
 
-		Comment parentComment = Comment.create(mockPost, mockUser, request.getContent());
-		Comment childComment = Comment.createChild(mockPost, mockUser, request.getContent(), parentComment);
+    @Test
+    @DisplayName("대댓글 정상 생성 테스트")
+    void createChildComment_대댓글_생성_성공() {
+        //given
+        postId = 1L;
+        commentId = 1L;
+        authorId = 1L;
+        String content = "댓글내용";
+        CommentRequestDto request = new CommentRequestDto(content);
 
-		when(postRepository.findById(postId)).thenReturn(Optional.of(mockPost));
-		when(userRepository.findByIdAndIsDeletedFalse(authorId)).thenReturn(Optional.of(mockUser));
-		when(commentRepository.findById(commentId)).thenReturn(Optional.of(parentComment));
-		when(commentRepository.save(any(Comment.class))).thenReturn(childComment);
+        Comment parentComment = Comment.create(mockPost, mockUser, request.getContent());
+        Comment childComment = Comment.createChild(mockPost, mockUser, request.getContent(), parentComment);
 
-		//when
-		CommentResponseDto result = commentService.createChildComment(postId, commentId, authorId, request);
+        when(getHelper.getPostByIdOrElseThrow(postId)).thenReturn(mockPost);
+        when(getHelper.getUserByIdOrElseThrow(authorId)).thenReturn(mockUser);
+        when(commentRepository.findById(commentId)).thenReturn(Optional.of(parentComment));
+        when(commentRepository.save(any(Comment.class))).thenReturn(childComment);
 
-		//then
-		assertEquals(result.getAuthorId(), mockUser.getId());
-		assertEquals(result.getPostId(), mockPost.getId());
-		assertEquals(result.getContent(), request.getContent());
-		assertEquals(result.getParentId(), parentComment.getId());
+        //when
+        CommentResponseDto result = commentService.createChildComment(postId, commentId, authorId, request);
 
-		verify(postRepository).findById(postId);
-		verify(userRepository).findByIdAndIsDeletedFalse(authorId);
-		verify(commentRepository).findById(commentId);
-		verify(commentRepository).save(any(Comment.class));
-	}
+        //then
+        assertEquals(result.getAuthorId(), mockUser.getId());
+        assertEquals(result.getPostId(), mockPost.getId());
+        assertEquals(result.getContent(), request.getContent());
+        assertEquals(result.getParentId(), parentComment.getId());
 
-	@Test
-	@DisplayName("댓글 다건조회 정상 반환 확인 테스트")
-	void getCommentsByPostId_댓글_다건조회_정상구조() {
-		//given
-		postId = 1L;
-		Pageable pageable = PageRequest.of(0, 10);
+        verify(getHelper).getPostByIdOrElseThrow(postId);
+        verify(getHelper).getUserByIdOrElseThrow(authorId);
+        verify(commentRepository).findById(commentId);
+        verify(commentRepository).save(any(Comment.class));
+    }
 
-		when(postRepository.findById(postId)).thenReturn(Optional.of(mockPost));
+    @Test
+    @DisplayName("댓글 다건조회 정상 반환 확인 테스트")
+    void getCommentsByPostId_댓글_다건조회_정상구조() {
+        //given
+        postId = 1L;
+        Pageable pageable = PageRequest.of(0, 10);
 
-		Comment parentComment1 = Comment.create(mockPost, mockUser, "부모댓글1");
-		Comment parentComment2 = Comment.create(mockPost, mockUser, "부모댓글2");
-		Comment childComment = Comment.createChild(mockPost, mockUser, "자식댓글1", parentComment1);
+        when(getHelper.getPostByIdOrElseThrow(postId)).thenReturn(mockPost);
 
-		//Id 직접 세팅
-		ReflectionTestUtils.setField(parentComment1, "id", 1L);
-		ReflectionTestUtils.setField(parentComment2, "id", 2L);
-		ReflectionTestUtils.setField(childComment, "id", 3L);
+        Comment parentComment1 = Comment.create(mockPost, mockUser, "부모댓글1");
+        Comment parentComment2 = Comment.create(mockPost, mockUser, "부모댓글2");
+        Comment childComment = Comment.createChild(mockPost, mockUser, "자식댓글1", parentComment1);
 
-		//반환 리스트 세팅
-		List<Comment> commentList = List.of(parentComment1, parentComment2, childComment);
+        //Id 직접 세팅
+        ReflectionTestUtils.setField(parentComment1, "id", 1L);
+        ReflectionTestUtils.setField(parentComment2, "id", 2L);
+        ReflectionTestUtils.setField(childComment, "id", 3L);
 
-		when(commentRepository.findByPostIdOrderByIdAsc(postId)).thenReturn(commentList);
+        //반환 리스트 세팅
+        List<Comment> commentList = List.of(parentComment1, parentComment2, childComment);
 
-		//when
-		PagedResponse<CommentResponseDto> response = commentService.getCommentsByPostId(postId, pageable);
+        when(commentRepository.findByPostIdOrderByIdAsc(postId)).thenReturn(commentList);
 
-		//then
-		List<CommentResponseDto> contents = response.contents();
+        //when
+        PagedResponse<CommentResponseDto> response = commentService.getCommentsByPostId(postId, pageable);
 
-		//부모댓글만 저장되니 size == 2
-		assertEquals(2, contents.size());
+        //then
+        List<CommentResponseDto> contents = response.contents();
 
-		//1번 부모댓글엔 자식댓글 하나가 저장됐으니 size == 1
-		assertEquals(1, contents.get(0).getChildren().size());
+        //부모댓글만 저장되니 size == 2
+        assertEquals(2, contents.size());
 
-		//꺼낸 자식댓글의 아이디와 저장시킨 자식댓글 아이디 비교
-		assertEquals(contents.get(0).getChildren().get(0).getId(), childComment.getId());
+        //1번 부모댓글엔 자식댓글 하나가 저장됐으니 size == 1
+        assertEquals(1, contents.get(0).getChildren().size());
 
-		verify(commentRepository).findByPostIdOrderByIdAsc(postId);
-	}
+        //꺼낸 자식댓글의 아이디와 저장시킨 자식댓글 아이디 비교
+        assertEquals(contents.get(0).getChildren().get(0).getId(), childComment.getId());
 
-	@Test
-	@DisplayName("게시글 없어서 예외 발생 테스트")
-	void getCommentsByPostId_게시글_없어서_조회_실패() {
-		//given
-		postId = 1L;
-		Pageable pageable = PageRequest.of(0, 10);
+        verify(commentRepository).findByPostIdOrderByIdAsc(postId);
+    }
 
-		when(postRepository.findById(postId)).thenReturn(Optional.empty());
+    @Test
+    @DisplayName("게시글 없어서 예외 발생 테스트")
+    void getCommentsByPostId_게시글_없어서_조회_실패() {
+        //given
+        postId = 1L;
+        Pageable pageable = PageRequest.of(0, 10);
 
-		//when & then
-		BaseException exception = assertThrows(BaseException.class, () ->
-			commentService.getCommentsByPostId(postId, pageable));
+        when(getHelper.getPostByIdOrElseThrow(postId)).thenThrow(new BaseException(ErrorCode.POST_NOT_FOUND));
 
-		assertEquals(ErrorCode.POST_NOT_FOUND.getMessage(), exception.getMessage());
+        //when & then
+        BaseException exception = assertThrows(BaseException.class, () ->
+                commentService.getCommentsByPostId(postId, pageable));
+
+        assertEquals(ErrorCode.POST_NOT_FOUND.getMessage(), exception.getMessage());
 
         verify(getHelper).getPostByIdOrElseThrow(postId);
     }

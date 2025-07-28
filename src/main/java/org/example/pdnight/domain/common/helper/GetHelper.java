@@ -20,13 +20,13 @@ public class GetHelper {
 //    private final CouponRepository couponRepository;
 //    private final EventRepository eventRepository;
 
-    public User getUserById(Long id) {
+    public User getUserByIdOrElseThrow(Long id) {
         return userRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
     }
 
-    public Post getPostById(Long id) {
-        return postRepository.findByIdAndStatus(id, PostStatus.OPEN)
+    public Post getPostByIdOrElseThrow(Long id) {
+        return postRepositoryQuery.getPostByIdNotClose(id)
                 .orElseThrow(() -> new BaseException(ErrorCode.POST_NOT_FOUND));
     }
 

@@ -30,9 +30,9 @@ public class ReviewService {
         //본인이 본인을 매길 수 없음
         verifyAuthorize(userId, ratedUserId);
 
-        User reviewer = helper.getUserById(userId);
-        User ratedUser = helper.getUserById(ratedUserId);
-        Post post = helper.getPostById(postId);
+        User reviewer = helper.getUserByIdOrElseThrow(userId);
+        User ratedUser = helper.getUserByIdOrElseThrow(ratedUserId);
+        Post post = helper.getPostByIdOrElseThrow(postId);
 
         // 존재 여부 판단
         validateExists(reviewer, ratedUser, post);
@@ -48,7 +48,7 @@ public class ReviewService {
     // 사용자의 받은 리뷰 리스트 조회
     public PagedResponse<ReviewResponseDto> getReceivedReviewsByUser(Long userId, Pageable pageable) {
 
-        User ratedUser = helper.getUserById(userId);
+        User ratedUser = helper.getUserByIdOrElseThrow(userId);
 
         Page<Review> reviews = reviewRepository.findByRatedUser(ratedUser, pageable);
 
@@ -58,7 +58,7 @@ public class ReviewService {
     // 사용자의 작성한 리뷰 리스트 조회
     public PagedResponse<ReviewResponseDto> getWrittenReviewsByUser(Long userId, Pageable pageable) {
 
-        User ratedUser = helper.getUserById(userId);
+        User ratedUser = helper.getUserByIdOrElseThrow(userId);
 
         Page<Review> reviews = reviewRepository.findByReviewer(ratedUser, pageable);
 

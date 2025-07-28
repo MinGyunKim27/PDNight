@@ -98,7 +98,7 @@ class PostServiceTest {
         Long userId = 1L;
 
         //when
-        when(userRepository.findByIdAndIsDeletedFalse(userId)).thenReturn(Optional.of(mockUser));
+        when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
         when(postRepository.save(any(Post.class))).thenReturn(post);
         PostCreateAndUpdateResponseDto responseDto = postService.createPost(userId, postRequestDto);
 
@@ -131,6 +131,7 @@ class PostServiceTest {
         //작성자와 다른 Id 일때
         Long userId = 5L;
 
+        when(postRepositoryQuery.getPostByIdNotClose(postId)).thenReturn(Optional.of(post));
         //when, then
         BaseException exception = assertThrows(BaseException.class, () -> {
             postService.deletePostById(userId, postId);
@@ -162,7 +163,7 @@ class PostServiceTest {
                 .build();
 
         //
-        when(postRepository.findByIdAndStatus(postId, PostStatus.OPEN)).thenReturn(Optional.of(post));
+        when(postRepositoryQuery.getPostByIdNotClose(postId)).thenReturn(Optional.of(post));
 
         //when
         PostCreateAndUpdateResponseDto responseDto = postService.updatePostDetails(userId, postId, postUpdateRequestDto);
@@ -194,7 +195,7 @@ class PostServiceTest {
                 .publicContent("수정된 공개 내용")
                 .build();
 
-        when(postRepository.findByIdAndStatus(postId, PostStatus.OPEN)).thenReturn(Optional.of(post));
+        when(postRepositoryQuery.getPostByIdNotClose(postId)).thenReturn(Optional.of(post));
 
         //when
         PostCreateAndUpdateResponseDto responseDto = postService.updatePostDetails(userId, postId, postUpdateRequestDto);
