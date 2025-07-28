@@ -87,6 +87,7 @@ class PostServiceTest {
                 postRequestDto.getJobCategoryLimit(),
                 postRequestDto.getAgeLimit()
         );
+        post.setStatus(PostStatus.OPEN);
     }
 
     @Test
@@ -112,12 +113,13 @@ class PostServiceTest {
         Long postId = 1L;
 
         //when
-        when(postRepository.findByIdAndStatus(postId, PostStatus.OPEN)).thenReturn(Optional.of(post));
+        PostResponseWithApplyStatusDto postResponseWithApplyStatusDto;
+        postResponseWithApplyStatusDto = Mockito.mock(PostResponseWithApplyStatusDto.class);
+        when(postRepositoryQuery.getOpenedPostById(postId)).thenReturn(postResponseWithApplyStatusDto);
         PostResponseWithApplyStatusDto responseDto = postService.findOpenedPost(postId);
 
         //then
         assertNotNull(responseDto);
-        assertEquals(post.getTitle(), responseDto.getTitle());
     }
 
     @Test
@@ -128,7 +130,7 @@ class PostServiceTest {
         //작성자와 다른 Id 일때
         Long userId = 5L;
 
-        when(postRepository.findById(postId)).thenReturn(Optional.of(post));
+        when(postRepository.findByIdAndStatus(postId, PostStatus.OPEN)).thenReturn(Optional.of(post));
 
         //when, then
         BaseException exception = assertThrows(BaseException.class, () -> {
@@ -160,7 +162,8 @@ class PostServiceTest {
                 .ageLimit(AgeLimit.AGE_30S)
                 .build();
 
-        when(postRepository.findById(postId)).thenReturn(Optional.of(post));
+        //
+        when(postRepository.findByIdAndStatus(postId, PostStatus.OPEN)).thenReturn(Optional.of(post));
 
         //when
         PostCreateAndUpdateResponseDto responseDto = postService.updatePostDetails(userId, postId, postUpdateRequestDto);
@@ -192,7 +195,7 @@ class PostServiceTest {
                 .publicContent("수정된 공개 내용")
                 .build();
 
-        when(postRepository.findById(postId)).thenReturn(Optional.of(post));
+        when(postRepository.findByIdAndStatus(postId, PostStatus.OPEN)).thenReturn(Optional.of(post));
 
         //when
         PostCreateAndUpdateResponseDto responseDto = postService.updatePostDetails(userId, postId, postUpdateRequestDto);
@@ -365,6 +368,25 @@ class PostServiceTest {
         // then
         assertThat(response.contents()).hasSize(2);
         verify(postRepositoryQuery).getWrittenPost(userId, pageable);
+    }
+
+    @Test
+    void findMySuggestedPosts_정상조회() {
+        // given
+        Long userId = 1L;
+        Pageable pageable = PageRequest.of(0, 10);
+
+        List<PostResponseWithApplyStatusDto> dtoList = List.of(new PostResponseWithApplyStatusDto(), new PostResponseWithApplyStatusDto());
+        Page<PostResponseWithApplyStatusDto> page = new PageImpl<>(dtoList);
+
+        when(postRepositoryQuery.getSuggestedPost(userId, pageable)).thenReturn(page);
+
+        // when
+        PagedResponse<PostResponseWithApplyStatusDto> response = postService.getSuggestedPosts(userId, pageable);
+
+        // then
+        assertThat(response.contents()).hasSize(2);
+        verify(postRepositoryQuery).getSuggestedPost(userId, pageable);
     }
 
 }

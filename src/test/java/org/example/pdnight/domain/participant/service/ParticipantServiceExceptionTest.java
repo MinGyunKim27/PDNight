@@ -35,7 +35,6 @@ public class ParticipantServiceExceptionTest extends BaseParticipantTest {
     void fail_self_applyParticipantTest() {
         //given
         User author = getUser(1L);
-        Post post = getPost(author, 1L);
 
         //when
         // run method
@@ -53,7 +52,7 @@ public class ParticipantServiceExceptionTest extends BaseParticipantTest {
         //given
         User author = getUser(1L);
         User user = getUser(2L);
-        Post post = getPost(author, 1L);
+        Post post = getPost(author);
         PostParticipant participant = getPostParticipant(user, post, JoinStatus.PENDING);
 
         //when
@@ -75,7 +74,7 @@ public class ParticipantServiceExceptionTest extends BaseParticipantTest {
         //given
         User author = getUser(1L);
         User user = getUser(2L);
-        Post post = getPost(author, 1L);
+        Post post = getPost(author);
         PostParticipant participant = getPostParticipant(user, post, JoinStatus.ACCEPTED);
 
         //when
@@ -98,7 +97,7 @@ public class ParticipantServiceExceptionTest extends BaseParticipantTest {
         //given
         User author = getUser(1L);
         User user = getUser(2L);
-        Post post = getPost(author, 1L);
+        Post post = getPost(author);
 
         //when
         when(participantRepository.findByUserAndPost(user, post))
@@ -119,7 +118,7 @@ public class ParticipantServiceExceptionTest extends BaseParticipantTest {
         //given
         User author = getUser(1L);
         User user = getUser(2L);
-        Post post = getPost(author, 1L);
+        Post post = getPost(author);
         PostParticipant participant = getPostParticipant(user, post, JoinStatus.ACCEPTED);
 
         //when
@@ -143,7 +142,7 @@ public class ParticipantServiceExceptionTest extends BaseParticipantTest {
         String status = "accepted";
         User author = getUser(1L);
         User user = getUser(2L);
-        Post post = getPost(author, 1L);
+        Post post = getPost(author);
         PostParticipant participant = getPostParticipant(user, post, JoinStatus.PENDING);
 
         //when
@@ -166,7 +165,7 @@ public class ParticipantServiceExceptionTest extends BaseParticipantTest {
         String status = "rejected";
         User author = getUser(1L);
         User user = getUser(2L);
-        Post post = getPost(author, 1L);
+        Post post = getPost(author);
         PostParticipant participant = getPostParticipant(user, post, JoinStatus.ACCEPTED);
 
         //when
@@ -189,7 +188,7 @@ public class ParticipantServiceExceptionTest extends BaseParticipantTest {
         String status = "pending";
         User author = getUser(1L);
         User user = getUser(2L);
-        Post post = getPost(author, 1L);
+        Post post = getPost(author);
         PostParticipant participant = getPostParticipant(user, post, JoinStatus.PENDING);
 
         //when
@@ -210,7 +209,7 @@ public class ParticipantServiceExceptionTest extends BaseParticipantTest {
     void fail_NO_VIEWING_PERMISSION_changeStatusParticipant() {
         //given
         User user = getUser(2L);
-        Post post = getPost(getUser(1L), 1L);
+        Post post = getPost(getUser(1L));
 
         //when
         when(participantRepository.findByUserAndPost(user, post))

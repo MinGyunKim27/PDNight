@@ -43,7 +43,7 @@ public class Invite extends Timestamped {
     }
 
     public static Invite create(User inviter, User invitee, Post post) {
-        return new Invite(invitee, inviter, post);
+        return new Invite( inviter,invitee, post);
     }
 
 }
