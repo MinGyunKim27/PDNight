@@ -30,8 +30,8 @@ public class FollowService {
         // 자기 자신 팔로우 방지
         validateIsSelfFollow(userId, loginId, INVALID_FOLLOW_SELF);
 
-        User following = helper.getUserById(userId);
-        User follower = helper.getUserById(loginId);
+        User following = helper.getUserByIdOrElseThrow(userId);
+        User follower = helper.getUserByIdOrElseThrow(loginId);
 
         // 중복 팔로우 방지
         validateExistFollowing(follower, following);
@@ -48,8 +48,8 @@ public class FollowService {
         // 자기 자신 언팔 방지
         validateIsSelfFollow(userId, loginId, INVALID_UNFOLLOW_SELF);
 
-        User following = helper.getUserById(userId);
-        User follower = helper.getUserById(loginId);
+        User following = helper.getUserByIdOrElseThrow(userId);
+        User follower = helper.getUserByIdOrElseThrow(loginId);
 
         //팔로우 중이 아님
         Follow follow = getFollow(follower, following);

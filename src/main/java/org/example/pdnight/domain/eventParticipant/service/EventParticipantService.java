@@ -29,7 +29,7 @@ public class EventParticipantService {
         validateParticipant(eventId, userId);
 
         Event event = getEventById(eventId);
-        User user = helper.getUserById(userId);
+        User user = helper.getUserByIdOrElseThrow(userId);
 
         int participantsCount = eventParticipantRepository.getEventParticipantByEventId(eventId);
 

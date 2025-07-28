@@ -1,5 +1,6 @@
 package org.example.pdnight.domain.eventParticipant.service;
 
+import org.example.pdnight.domain.common.helper.GetHelper;
 import org.example.pdnight.domain.event.entity.Event;
 import org.example.pdnight.domain.event.repository.EventRepository;
 import org.example.pdnight.domain.eventParticipant.entity.EventParticipant;
@@ -26,6 +27,9 @@ class EventParticipantServiceTest {
     private EventParticipantRepository eventParticipantRepository;
 
     @Mock
+    private GetHelper helper;
+
+    @Mock
     private UserRepository userRepository;
 
     @InjectMocks
@@ -37,12 +41,14 @@ class EventParticipantServiceTest {
         Long eventId = 1L;
         Long userId = 100L;
 
-        Event event = new Event(eventId, 5);
-        User user = new User(userId, "Test");
+        Event event = mock();
+        User user = mock();
+
+        when(event.getMaxParticipants()).thenReturn(5);
 
         when(eventParticipantRepository.existsByEventIdAndUserId(eventId, userId)).thenReturn(false);
         when(eventRepository.findById(eventId)).thenReturn(Optional.of(event));
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(helper.getUserByIdOrElseThrow(userId)).thenReturn(user);
         when(eventParticipantRepository.getEventParticipantByEventId(eventId)).thenReturn(3);
 
         // When
@@ -52,4 +58,3 @@ class EventParticipantServiceTest {
         verify(eventParticipantRepository, times(1)).save(any(EventParticipant.class));
     }
 }
-

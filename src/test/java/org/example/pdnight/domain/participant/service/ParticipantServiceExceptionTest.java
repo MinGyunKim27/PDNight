@@ -35,6 +35,7 @@ public class ParticipantServiceExceptionTest extends BaseParticipantTest {
     void fail_self_applyParticipantTest() {
         //given
         User author = getUser(1L);
+        Post post = getPost(author);
 
         //when
         // run method

@@ -1,11 +1,5 @@
 package org.example.pdnight.domain.comment.service;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-import java.util.List;
-import java.util.Optional;
-
 import org.example.pdnight.domain.comment.dto.request.CommentRequestDto;
 import org.example.pdnight.domain.comment.dto.response.CommentResponseDto;
 import org.example.pdnight.domain.comment.entity.Comment;
@@ -13,10 +7,9 @@ import org.example.pdnight.domain.comment.repository.CommentRepository;
 import org.example.pdnight.domain.common.dto.PagedResponse;
 import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.exception.BaseException;
+import org.example.pdnight.domain.common.helper.GetHelper;
 import org.example.pdnight.domain.post.entity.Post;
-import org.example.pdnight.domain.post.repository.PostRepository;
 import org.example.pdnight.domain.user.entity.User;
-import org.example.pdnight.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,17 +22,20 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 @ExtendWith(MockitoExtension.class)
 class CommentServiceTest {
 
 	@Mock
 	private CommentRepository commentRepository;
 
-	@Mock
-	private PostRepository postRepository;
-
-	@Mock
-	private UserRepository userRepository;
+    @Mock
+    private GetHelper getHelper;
 
 	@InjectMocks
 	private CommentService commentService;
@@ -68,8 +64,8 @@ class CommentServiceTest {
 		String content = "댓글내용";
 		CommentRequestDto request = new CommentRequestDto(content);
 
-		when(postRepository.findById(postId)).thenReturn(Optional.of(mockPost));
-		when(userRepository.findByIdAndIsDeletedFalse(authorId)).thenReturn(Optional.of(mockUser));
+        when(getHelper.getPostByIdOrElseThrow(postId)).thenReturn(mockPost);
+        when(getHelper.getUserByIdOrElseThrow(authorId)).thenReturn(mockUser);
 
 		Comment comment = Comment.create(mockPost, mockUser, request.getContent());
 		when(commentRepository.save(any(Comment.class))).thenReturn(comment);
@@ -82,10 +78,10 @@ class CommentServiceTest {
 		assertEquals(result.getPostId(), mockPost.getId());
 		assertEquals(result.getContent(), request.getContent());
 
-		verify(postRepository).findById(postId);
-		verify(userRepository).findByIdAndIsDeletedFalse(authorId);
-		verify(commentRepository).save(any(Comment.class));
-	}
+        verify(getHelper).getPostByIdOrElseThrow(postId);
+        verify(getHelper).getUserByIdOrElseThrow(authorId);
+        verify(commentRepository).save(any(Comment.class));
+    }
 
 	@Test
 	@DisplayName("게시물이 없어서 예외 발생 테스트")
@@ -104,8 +100,8 @@ class CommentServiceTest {
 
 		assertEquals(ErrorCode.POST_NOT_FOUND.getMessage(), exception.getMessage());
 
-		verify(postRepository).findById(postId);
-	}
+        verify(getHelper).getPostByIdOrElseThrow(postId);
+    }
 
 	@Test
 	@DisplayName("댓글 정상 삭제 테스트")
@@ -304,6 +300,6 @@ class CommentServiceTest {
 
 		assertEquals(ErrorCode.POST_NOT_FOUND.getMessage(), exception.getMessage());
 
-		verify(postRepository).findById(postId);
-	}
+        verify(getHelper).getPostByIdOrElseThrow(postId);
+    }
 }

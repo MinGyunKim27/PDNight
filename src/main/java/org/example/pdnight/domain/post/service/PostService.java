@@ -145,7 +145,7 @@ public class PostService {
     @Transactional
     public PostResponseDto changeStatus(Long userId, Long id, PostStatusRequestDto request) {
         //상태값 변경은 어떤 상태라도 불러와서 수정
-        Post foundPost = getPostById(id);
+        Post foundPost = getPostByIdWithoutStatusLimit(id);
         validateAuthor(userId, foundPost);
 
         //변동사항 있을시에만 업데이트
@@ -190,13 +190,18 @@ public class PostService {
                 .orElseThrow(() -> new BaseException(ErrorCode.POST_NOT_FOUND));
     }
 
+    public Post getPostByIdWithoutStatusLimit(Long id) {
+        return postRepository.findPostById(id)
+                .orElseThrow(() -> new BaseException(ErrorCode.POST_NOT_FOUND));
+    }
+
 
     private User getUserOrThrow(Optional<User> user) {
         return user.orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
     }
 
     // validate
-    private void validateAuthor(Long userId, Post post) {
+    void validateAuthor(Long userId, Post post) {
         if (!post.getAuthor().getId().equals(userId)) {
             throw new BaseException(ErrorCode.POST_FORBIDDEN);
         }

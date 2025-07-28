@@ -59,9 +59,9 @@ class ReviewServiceTest {
         ReviewRequestDto requestDto = mock(ReviewRequestDto.class);
         when(requestDto.getRate()).thenReturn(BigDecimal.ONE);
 
-        when(helper.getUserById(reviewerId)).thenReturn(reviewer);
-        when(helper.getUserById(ratedUserId)).thenReturn(ratedUser);
-        when(helper.getPostById(postId)).thenReturn(post);
+        when(helper.getUserByIdOrElseThrow(reviewerId)).thenReturn(reviewer);
+        when(helper.getUserByIdOrElseThrow(ratedUserId)).thenReturn(ratedUser);
+        when(helper.getPostByIdOrElseThrow(postId)).thenReturn(post);
         when(reviewRepository.existsByReviewerAndRatedUserAndPost(reviewer, ratedUser, post)).thenReturn(false);
 
         Review savedReview = Review.create(reviewer, ratedUser, post, requestDto);
@@ -109,9 +109,9 @@ class ReviewServiceTest {
         ReviewRequestDto requestDto = mock(ReviewRequestDto.class);
 
         // when
-        when(helper.getUserById(reviewerId)).thenReturn(reviewer);
-        when(helper.getUserById(ratedUserId)).thenReturn(ratedUser);
-        when(helper.getPostById(postId)).thenReturn(post);
+        when(helper.getUserByIdOrElseThrow(reviewerId)).thenReturn(reviewer);
+        when(helper.getUserByIdOrElseThrow(ratedUserId)).thenReturn(ratedUser);
+        when(helper.getPostByIdOrElseThrow(postId)).thenReturn(post);
         when(reviewRepository.existsByReviewerAndRatedUserAndPost(reviewer, ratedUser, post)).thenReturn(true);
 
         // then

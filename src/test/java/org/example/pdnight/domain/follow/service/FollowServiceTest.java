@@ -52,8 +52,8 @@ public class FollowServiceTest {
     @Test
     @DisplayName("성공적으로 팔로우를 수행한다")
     void follow_success() {
-        when(helper.getUserById(1L)).thenReturn(user1);
-        when(helper.getUserById(2L)).thenReturn(user2);
+        when(helper.getUserByIdOrElseThrow(1L)).thenReturn(user1);
+        when(helper.getUserByIdOrElseThrow(2L)).thenReturn(user2);
         when(followRepository.existsByFollowerAndFollowing(user2, user1)).thenReturn(false);
 
         FollowResponseDto result = followService.follow(1L, 2L);
@@ -74,8 +74,8 @@ public class FollowServiceTest {
     @Test
     @DisplayName("이미 팔로우한 사용자에게 팔로우 시도 시 예외 발생")
     void follow_duplicate_fail() {
-        when(helper.getUserById(1L)).thenReturn(user1);
-        when(helper.getUserById(2L)).thenReturn(user2);
+        when(helper.getUserByIdOrElseThrow(1L)).thenReturn(user1);
+        when(helper.getUserByIdOrElseThrow(2L)).thenReturn(user2);
         when(followRepository.existsByFollowerAndFollowing(user2, user1)).thenReturn(true);
 
         BaseException exception = assertThrows(BaseException.class, () ->
@@ -87,8 +87,8 @@ public class FollowServiceTest {
     @Test
     @DisplayName("언팔로우 성공")
     void unfollow_success() {
-        when(helper.getUserById(1L)).thenReturn(user1);
-        when(helper.getUserById(2L)).thenReturn(user2);
+        when(helper.getUserByIdOrElseThrow(1L)).thenReturn(user1);
+        when(helper.getUserByIdOrElseThrow(2L)).thenReturn(user2);
         when(followRepository.findByFollowerAndFollowing(user2, user1)).thenReturn(Optional.of(Follow.create(user2, user1)));
 
         followService.unfollow(1L, 2L);
@@ -108,8 +108,8 @@ public class FollowServiceTest {
     @Test
     @DisplayName("언팔로우: 팔로우 중이 아니면 예외 발생")
     void unfollow_not_following_fail() {
-        when(helper.getUserById(1L)).thenReturn(user1);
-        when(helper.getUserById(2L)).thenReturn(user2);
+        when(helper.getUserByIdOrElseThrow(1L)).thenReturn(user1);
+        when(helper.getUserByIdOrElseThrow(2L)).thenReturn(user2);
         when(followRepository.findByFollowerAndFollowing(user2, user1)).thenReturn(Optional.empty());
 
         BaseException exception = assertThrows(BaseException.class, () ->

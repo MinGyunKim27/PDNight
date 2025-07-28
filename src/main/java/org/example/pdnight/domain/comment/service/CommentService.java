@@ -31,8 +31,8 @@ public class CommentService {
     //댓글 생성 메서드
     public CommentResponseDto createComment(Long postId, Long authorId, CommentRequestDto request) {
         //댓글을 기입될 게시글과, 작성자를 찾아옴 -> 없을 경우 예외 발생 -> 검증 로직
-        Post foundPost = helper.getPostById(postId);
-        User foundUser = helper.getUserById(authorId);
+        Post foundPost = helper.getPostByIdOrElseThrow(postId);
+        User foundUser = helper.getUserByIdOrElseThrow(authorId);
 
         //댓글 엔티티 생성 및 저장
         Comment comment = Comment.create(foundPost, foundUser, request.getContent());
@@ -45,8 +45,8 @@ public class CommentService {
     @Transactional
     public void deleteCommentById(Long postId, Long id, Long authorId) {
         //댓글을 기입될 게시글과, 작성자를 찾아옴 -> 없을 경우 예외 발생 -> 검증 로직
-        Post foundPost = helper.getPostById(postId);
-        User foundUser = helper.getUserById(authorId);
+        helper.getPostByIdOrElseThrow(postId);
+        helper.getUserByIdOrElseThrow(authorId);
 
         //댓글 검증 로직
         Comment foundComment = getCommentById(id);
@@ -61,8 +61,8 @@ public class CommentService {
     @Transactional
     public CommentResponseDto updateCommentByDto(Long postId, Long id, Long authorId, CommentRequestDto request) {
         //댓글을 기입될 게시글과, 작성자를 찾아옴 -> 없을 경우 예외 발생 -> 검증 로직
-        Post foundPost = helper.getPostById(postId);
-        User foundUser = helper.getUserById(authorId);
+        helper.getPostByIdOrElseThrow(postId);
+        helper.getUserByIdOrElseThrow(authorId);
 
         //댓글 검증 로직
         Comment foundComment = getCommentById(id);
@@ -80,8 +80,8 @@ public class CommentService {
     //대댓글 생성 메서드
     public CommentResponseDto createChildComment(Long postId, Long id, Long authorId, CommentRequestDto request) {
         //댓글을 기입될 게시글과, 작성자를 찾아옴 -> 없을 경우 예외 발생 -> 검증 로직
-        Post foundPost = helper.getPostById(postId);
-        User foundUser = helper.getUserById(authorId);
+        Post foundPost = helper.getPostByIdOrElseThrow(postId);
+        User foundUser = helper.getUserByIdOrElseThrow(authorId);
 
         Comment foundComment = getCommentById(id);
 
@@ -96,7 +96,7 @@ public class CommentService {
     @Transactional(readOnly = true)
     public PagedResponse<CommentResponseDto> getCommentsByPostId(Long postId, Pageable pageable) {
         //파람값으로 넘어온 게시글이 존재하는지 확인
-        Post foundPost = helper.getPostById(postId);
+        helper.getPostByIdOrElseThrow(postId);
 
         //1. 전체 댓글을 리스트로 반환 Id 기준으로 오름차순 정렬
         List<Comment> foundComments = commentRepository.findByPostIdOrderByIdAsc(postId);

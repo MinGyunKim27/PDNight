@@ -39,9 +39,9 @@ class InviteServiceTest {
         User inviter = new User(loginUserId, "초대자", 0L, 0L);
         User invitee = new User(userId, "피초대자", 0L, 0L);
 
-        when(helper.getPostById(postId)).thenReturn(post);
-        when(helper.getUserById(userId)).thenReturn(invitee);
-        when(helper.getUserById(loginUserId)).thenReturn(inviter);
+        when(helper.getPostByIdOrElseThrow(postId)).thenReturn(post);
+        when(helper.getUserByIdOrElseThrow(userId)).thenReturn(invitee);
+        when(helper.getUserByIdOrElseThrow(loginUserId)).thenReturn(inviter);
         when(inviteRepository.existsByPostIdAndInviteeIdAndInviterId(postId, userId, loginUserId)).thenReturn(false);
 
         Invite mockInvite = Invite.create(inviter, invitee, post);
