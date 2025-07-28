@@ -2,6 +2,7 @@ package org.example.pdnight.domain.review.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.common.dto.ApiResponse;
+import org.example.pdnight.domain.common.dto.PagedResponse;
 import org.example.pdnight.domain.review.dto.request.ReviewRequestDto;
 import org.example.pdnight.domain.review.dto.response.ReviewResponseDto;
 import org.example.pdnight.domain.review.service.ReviewService;
@@ -33,35 +34,34 @@ public class ReviewController {
 
     //사용자가 받은 리뷰 리스트 조회
     @GetMapping("api/users/{userId}/review")
-    public ResponseEntity<ApiResponse<?>> getReviews(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
+    public ResponseEntity<ApiResponse<PagedResponse<ReviewResponseDto>>> getReviews(
             @PathVariable("userId") Long userId,
             @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
             Pageable pageable
     ) {
 
-        return ResponseEntity.ok(ApiResponse.ok("사용자가 받은 리뷰 리스트 조회 성공.",reviewService.getReceivedReviewsByUser(userId, pageable)));
+        return ResponseEntity.ok(ApiResponse.ok("사용자가 받은 리뷰 리스트 조회 성공.", reviewService.getReceivedReviewsByUser(userId, pageable)));
     }
 
     //내가 받은 리뷰 리스트 조회
     @GetMapping("api/users/my/review")
-    public ResponseEntity<ApiResponse<?>> getMyReviews(
+    public ResponseEntity<ApiResponse<PagedResponse<ReviewResponseDto>>> getMyReviews(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
             Pageable pageable
     ) {
         Long myId = userDetails.getUserId();
-        return ResponseEntity.ok(ApiResponse.ok("사용자가 받은 리뷰 리스트 조회 성공.",reviewService.getReceivedReviewsByUser(myId, pageable)));
+        return ResponseEntity.ok(ApiResponse.ok("사용자가 받은 리뷰 리스트 조회 성공.", reviewService.getReceivedReviewsByUser(myId, pageable)));
     }
 
     //내가 받은 리뷰 리스트 조회
     @GetMapping("api/users/my/writtenReview")
-    public ResponseEntity<ApiResponse<?>> getMyWrittenReviews(
+    public ResponseEntity<ApiResponse<PagedResponse<ReviewResponseDto>>> getMyWrittenReviews(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
             Pageable pageable
     ) {
         Long myId = userDetails.getUserId();
-        return ResponseEntity.ok(ApiResponse.ok("사용자가 받은 리뷰 리스트 조회 성공.",reviewService.getWrittenReviewsByUser(myId, pageable)));
+        return ResponseEntity.ok(ApiResponse.ok("사용자가 받은 리뷰 리스트 조회 성공.", reviewService.getWrittenReviewsByUser(myId, pageable)));
     }
 }

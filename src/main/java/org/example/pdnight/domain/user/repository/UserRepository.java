@@ -3,6 +3,7 @@ package org.example.pdnight.domain.user.repository;
 import org.example.pdnight.domain.user.entity.User;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -18,6 +19,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     // 취미, 기술스택을 사용할 때
     @EntityGraph(attributePaths = {"userHobbies.hobby", "userTechs.techStack"})
-    Optional<User> findUserById(Long id);
+    @Query("SELECT u FROM User u WHERE u.id = :id")
+    Optional<User> findByIdWithInfo(Long id);
 
 }

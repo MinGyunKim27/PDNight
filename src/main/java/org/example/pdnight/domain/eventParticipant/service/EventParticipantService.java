@@ -2,6 +2,8 @@ package org.example.pdnight.domain.eventParticipant.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.example.pdnight.domain.common.dto.PagedResponse;
+import org.example.pdnight.domain.common.dto.PagedResponse;
 import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.common.helper.GetHelper;
@@ -24,7 +26,6 @@ public class EventParticipantService {
 
     private final EventParticipantRepository eventParticipantRepository;
     private final EventRepository eventRepository;
-    private final UserRepository userRepository;
     private final GetHelper helper;
 
     // 참가 신청
@@ -52,13 +53,9 @@ public class EventParticipantService {
     }
 
     // 참가 신청 유저 목록 조회
-    public Page<EventParticipantResponse> findEventParticipantList(Long eventId, Pageable pageable) {
-        Event event = eventRepository.findById(eventId).orElseThrow(
-                () -> new BaseException(ErrorCode.EVENT_NOT_FOUNT)
-        );
-
-        Page<EventParticipant> eventPage = eventParticipantRepository.findByEventWithUser(event, pageable);
-        return eventPage.map(EventParticipantResponse::new);
+    public PagedResponse<EventParticipantResponse> findEventParticipantList(Long eventId, Pageable pageable) {
+        Page<EventParticipant> eventPage = eventParticipantRepository.findByEventIdWithUser(eventId, pageable);
+        return PagedResponse.from(eventPage.map(EventParticipantResponse::from));
     }
 
 

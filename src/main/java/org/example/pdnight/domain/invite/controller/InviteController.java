@@ -26,11 +26,11 @@ public class InviteController {
         Long loginUserId = loginUser.getUserId();
         InviteResponseDto responseDto = inviteService.createInvite(postId,userId,loginUserId);
         URI location = URI.create("/api/posts/" + postId);
-        return ResponseEntity.created(location).body(ApiResponse.ok("초대가 완료되었습니다.",responseDto));
+        return ResponseEntity.created(location).body(ApiResponse.ok("초대가 완료되었습니다.", responseDto));
     }
 
     @DeleteMapping("/post/{postId}/users/{userId}/invite/{id}")
-    public ResponseEntity<ApiResponse<?>> deleteInvite(
+    public ResponseEntity<ApiResponse<Void>> deleteInvite(
             @PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetails loginUser
     ) {

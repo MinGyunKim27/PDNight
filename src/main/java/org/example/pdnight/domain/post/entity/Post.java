@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.example.pdnight.domain.common.entity.Timestamped;
 import org.example.pdnight.domain.common.enums.JobCategory;
 import org.example.pdnight.domain.hobby.entity.PostHobby;
@@ -46,6 +47,7 @@ public class Post extends Timestamped {
     private String publicContent;
     private String privateContent;
 
+    @Setter
     @Enumerated(EnumType.STRING)
     private PostStatus status;
 
