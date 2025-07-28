@@ -23,7 +23,7 @@ public class HobbyService {
     public HobbyResponse createHobby(HobbyRequest dto){
         validateExistHobby(dto.getHobby());
 
-        Hobby hobby = new Hobby(dto.getHobby());
+        Hobby hobby = Hobby.from(dto.getHobby());
 
         Hobby save = hobbyRepository.save(hobby);
         return HobbyResponse.from(save);

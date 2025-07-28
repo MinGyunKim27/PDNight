@@ -11,7 +11,7 @@ public class UserEvaluationResponse {
     private float rate;
     private LocalDateTime createdAt;
 
-    public UserEvaluationResponse(User user) {
+    private UserEvaluationResponse(User user) {
         this.id = user.getId();
         this.rate = (float) user.getTotalRate() / user.getTotalReviewer();
         this.createdAt = user.getCreatedAt();

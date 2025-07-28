@@ -24,7 +24,7 @@ public class EventService {
     // 이벤트 생성
     @Transactional
     public EventResponse createEvent(EventCreateRequest request){
-        Event event = new Event(
+        Event event = Event.from(
                 request.getTitle(),
                 request.getContent(),
                 request.getMaxParticipants(),
@@ -40,7 +40,7 @@ public class EventService {
     public EventResponse findEventById(Long id){
         Event event = getEventById(id);
 
-        return new EventResponse(event);
+        return EventResponse.from(event);
     }
 
     @Transactional(readOnly = true)

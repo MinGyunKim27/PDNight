@@ -6,6 +6,7 @@ import org.example.pdnight.domain.user.entity.User;
 
 @Getter
 public class FollowingResponseDto {
+
     private Long userId;
     private String nickname;
 
@@ -14,4 +15,5 @@ public class FollowingResponseDto {
         this.userId = userId;
         this.nickname = nickname;
     }
+
 }

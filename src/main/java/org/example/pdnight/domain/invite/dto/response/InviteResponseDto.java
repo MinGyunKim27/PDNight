@@ -12,7 +12,7 @@ public class InviteResponseDto {
     private Long postId;
     private String postTitle;
 
-    public InviteResponseDto(Invite invite) {
+    private InviteResponseDto(Invite invite) {
         this.id = invite.getId();
         this.inviteeId = invite.getInvitee().getId();
         this.inviteeNickName = invite.getInvitee().getNickname();

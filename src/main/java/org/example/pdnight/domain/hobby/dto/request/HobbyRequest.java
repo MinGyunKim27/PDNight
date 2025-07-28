@@ -1,12 +1,20 @@
 package org.example.pdnight.domain.hobby.dto.request;
 
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
-@AllArgsConstructor
 public class HobbyRequest {
+
     @NotNull
     String hobby;
+
+    private HobbyRequest (String hobby) {
+        this.hobby = hobby;
+    }
+
+    public static HobbyRequest from(String hobby) {
+        return new HobbyRequest(hobby);
+    }
+
 }

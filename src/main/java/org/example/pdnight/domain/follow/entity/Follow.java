@@ -1,7 +1,7 @@
 package org.example.pdnight.domain.follow.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.pdnight.domain.user.entity.User;
@@ -12,7 +12,7 @@ import org.example.pdnight.domain.user.entity.User;
 @Table(name = "follows", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"follower_id", "following_id"})
 })
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Follow {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

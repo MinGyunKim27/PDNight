@@ -49,7 +49,8 @@ public class AuthService {
         List<TechStack> techStackList = getTechStackList(request);
 
         String encodePassword = passwordEncoder.encode(request.getPassword());
-        User user = new User(request, encodePassword);
+        User user = User.create(request.getEmail(), encodePassword, null, request.getName(), request.getNickname(), request.getGender(),
+                request.getAge(), request.getJobCategory(), request.getRegion(), request.getWorkLocation(), request.getComment());
 
         // List<Hobby> -> Set<UserHobby>  /  List<TechStack> -> Set<UserTech>
         Set<UserHobby> userHobbies = getUserHobbySet(hobbyList, user);

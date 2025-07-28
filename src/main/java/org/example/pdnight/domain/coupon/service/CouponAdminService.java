@@ -27,25 +27,24 @@ public class CouponAdminService {
         User user = helper.getUserByIdOrElseThrow(dto.getUserId());
         Coupon coupon = Coupon.create(user, dto.getCouponInfo(), dto.getDeadlineAt());
 
-
         couponRepository.save(coupon);
         user.addCoupon(coupon); // 양방향 연관관계 리스트에 쿠폰 추가
-        return new CouponResponseDto(coupon);
+        return CouponResponseDto.from(coupon);
     }
 
     // 쿠폰 단건 조회
     @Transactional(readOnly = true)
     public CouponResponseDto getCoupon(Long id) {
         Coupon coupon = getCouponById(id);
-        return new CouponResponseDto(coupon);
+        return CouponResponseDto.from(coupon);
     }
 
     // 쿠폰 수정
     @Transactional
     public CouponResponseDto updateCoupon(Long id, UpdateCouponRequestDto dto) {
         Coupon coupon = getCouponById(id);
-        coupon.updateCoupon(dto);
-        return new CouponResponseDto(coupon);
+        coupon.updateCoupon(dto.getCouponInfo(), dto.getDeadlineAt());
+        return CouponResponseDto.from(coupon);
     }
 
     // 쿠폰삭제

@@ -36,8 +36,10 @@ class InviteServiceTest {
         // given
         Long postId = 1L, userId = 2L, loginUserId = 3L;
         Post post = Mockito.mock(Post.class);
-        User inviter = new User(loginUserId, "초대자", 0L, 0L);
-        User invitee = new User(userId, "피초대자", 0L, 0L);
+        // User inviter = new User(loginUserId, "초대자", 0L, 0L);
+        // User invitee = new User(userId, "피초대자", 0L, 0L);
+        User inviter = mock(User.class);
+        User invitee = mock(User.class);
 
         when(helper.getPostByIdOrElseThrow(postId)).thenReturn(post);
         when(helper.getUserByIdOrElseThrow(userId)).thenReturn(invitee);
@@ -45,7 +47,7 @@ class InviteServiceTest {
         when(inviteRepository.existsByPostIdAndInviteeIdAndInviterId(postId, userId, loginUserId)).thenReturn(false);
 
         Invite mockInvite = Invite.create(inviter, invitee, post);
-        when(inviteRepository.save(any())).thenReturn(mockInvite);
+        when(inviteRepository.save(any(Invite.class))).thenReturn(mockInvite);
 
         // when
         InviteResponseDto response = inviteService.createInvite(postId, userId, loginUserId);
@@ -61,9 +63,13 @@ class InviteServiceTest {
         // given
         Long inviteId = 1L;
         Long loginUserId = 3L;
-        User inviter = new User(loginUserId, "초대자", 0L, 0L);
         Post post = Mockito.mock(Post.class);
-        Invite invite = Invite.create(inviter, new User(2L, "초대받은이", 0L, 0L), post);
+        // User inviter = new User(loginUserId, "초대자", 0L, 0L);
+        // Invite invite = Invite.create(inviter, new User(2L, "초대받은이", 0L, 0L), post);
+        User inviter = mock();
+        Invite invite = mock();
+        when(invite.getInviter()).thenReturn(inviter);
+        when(inviter.getId()).thenReturn(loginUserId);
 
         when(inviteRepository.findById(inviteId)).thenReturn(Optional.of(invite));
 
@@ -131,9 +137,10 @@ class InviteServiceTest {
         // given
         Long inviteId = 1L;
         Long loginUserId = 99L;
-        User inviter = new User(1L, "다른사람", 0L, 0L);
         Post post = Mockito.mock(Post.class);
-        Invite invite = Invite.create(inviter, new User(2L, "초대받은이", 0L, 0L), post);
+
+        User inviter = User.createTestUser(1L, "다른사람", "1@a.com", "");
+        Invite invite = Invite.create(inviter, User.createTestUser(2L, "초대받은이", "2@b.com", ""), post);
 
         when(inviteRepository.findById(inviteId)).thenReturn(Optional.of(invite));
 

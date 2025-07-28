@@ -29,7 +29,7 @@ public class UserResponseDto {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public UserResponseDto(User user) {
+    private UserResponseDto(User user) {
         this.id = user.getId();
         this.email = user.getEmail();
         this.role = user.getRole();

@@ -17,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -116,6 +117,8 @@ class CouponAdminServiceTest {
         Long couponId = 1L;
         Coupon coupon = mock(Coupon.class);
         UpdateCouponRequestDto dto = mock(UpdateCouponRequestDto.class);
+        lenient().when(dto.getCouponInfo()).thenReturn("쿠폰정보");
+        lenient().when(dto.getDeadlineAt()).thenReturn(LocalDateTime.now());
         User user = mock(User.class);
 
         // when
@@ -126,7 +129,7 @@ class CouponAdminServiceTest {
 
         // then
         assertThat(result).isNotNull();
-        verify(coupon).updateCoupon(dto);
+        verify(coupon).updateCoupon(dto.getCouponInfo(), dto.getDeadlineAt());
     }
 
     @Test

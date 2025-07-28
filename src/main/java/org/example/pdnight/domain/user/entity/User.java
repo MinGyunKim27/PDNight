@@ -1,9 +1,7 @@
 package org.example.pdnight.domain.user.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.example.pdnight.domain.auth.dto.request.SignupRequestDto;
 import org.example.pdnight.domain.common.entity.Timestamped;
 import org.example.pdnight.domain.common.enums.JobCategory;
@@ -16,6 +14,7 @@ import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.techStack.entity.UserTech;
 import org.example.pdnight.domain.user.dto.request.UserUpdateRequest;
 import org.example.pdnight.domain.user.enums.Region;
+import org.springframework.data.util.TypeCollector;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -26,8 +25,7 @@ import java.util.Set;
 @Entity
 @Table(name = "users")
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends Timestamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -96,50 +94,43 @@ public class User extends Timestamped {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Coupon> coupons = new ArrayList<>();
 
-    public User(Long id, String name) {
-        this.id = id;
-        this.name = name;
-        this.role = UserRole.USER;
-        this.totalRate = 0L;
-        this.totalReviewer = 0L;
-        this.isDeleted = false;
-        this.deletedAt = null;
-    }
-
-    public User(SignupRequestDto request, String encodePassword) {
-        this.email = request.getEmail();
+    private User(String email, String encodePassword, UserRole role, String name, String nickname, Gender gender,
+                Long age, JobCategory jobCategory, Region region, Region workLocation, String comment
+                ) {
+        this.email = email;
         this.password = encodePassword;
-        this.role = UserRole.USER;
-        this.name = request.getName();
-        this.nickname = request.getNickname();
-        this.gender = request.getGender();
-        this.age = request.getAge();
-        this.jobCategory = request.getJobCategory();
-        this.region = request.getRegion();
-        this.workLocation = request.getWorkLocation();
-        this.comment = request.getComment();
+        this.role = role == null? UserRole.USER : role;
+        this.name = name;
+        this.nickname = nickname;
+        this.gender = gender;
+        this.age = age;
+        this.jobCategory = jobCategory;
+        this.region = region;
+        this.workLocation = workLocation;
+        this.comment = comment;
         this.totalRate = 0L;
         this.totalReviewer = 0L;
     }
 
-    public User(Long id, String name, String hashedOldPassword) {
+    private User(Long id, String name, String email, String password) {
         this.id = id;
         this.name = name;
-        this.password = hashedOldPassword;
+        this.email = email;
+        this.password = password;
     }
 
-    //테스트용
-    public User(Long id) {
-        this.id = id;
-        this.role = UserRole.USER;
+    // 유저생성 메서드
+    public static User create(String email, String encodePassword, UserRole role, String name, String nickname, Gender gender,
+                              Long age, JobCategory jobCategory, Region region, Region workLocation, String comment
+    ) {
+        return new User(email, encodePassword, role, name, nickname, gender,
+                age, jobCategory, region, workLocation, comment);
     }
 
-
-    public User(Long userId, String name, Long totalRate, Long totalReviewer) {
-        this.id = userId;
-        this.name = name;
-        this.totalRate = totalRate;
-        this.totalReviewer = totalReviewer;
+    // 어드민 생성 메서드
+    public static User createAdmin(String email, String name, String password) {
+        return new User(email, password, UserRole.ADMIN, name, name, Gender.MALE,
+                25L, JobCategory.BACK_END_DEVELOPER, Region.PANGYO_DONG, Region.PANGYO_DONG, null);
     }
 
     // 테스트용
@@ -155,16 +146,9 @@ public class User extends Timestamped {
         this.deletedAt = null;
     }
 
-    //어드민 생성 메서드
-    public static User createAdmin(String email, String name, String password) {
-        User admin = new User(email, name, password);
-        admin.role = UserRole.ADMIN;
-        return admin;
-    }
-
     //테스트 유저 생성 메서드
-    public static User createTestUser(Long id, String name,String email,String password) {
-        User test = new User(email,name, password);
+    public static User createTestUser(Long id, String name, String email, String password) {
+        User test = new User(email, name, password);
         test.role = UserRole.ADMIN;
         return test;
     }
@@ -180,27 +164,28 @@ public class User extends Timestamped {
         deletedAt = LocalDateTime.now();
     }
 
-    public void updateProfile(UserUpdateRequest request, Set<UserHobby> userHobbies, Set<UserTech> userTechs) {
-        if (request.getName() != null) {
-            this.name = request.getName();
+    public void updateProfile(String name, String nickname, String gender, Long age, String jobCategory, String region,
+                String comment, Set<UserHobby> userHobbies, Set<UserTech> userTechs) {
+        if (name != null) {
+            this.name = name;
         }
-        if (request.getNickname() != null) {
-            this.nickname = request.getNickname();
+        if (nickname != null) {
+            this.nickname = nickname;
         }
-        if (request.getGender() != null) {
-            this.gender = Gender.valueOf(request.getGender());
+        if (gender != null) {
+            this.gender = Gender.valueOf(gender);
         }
-        if (request.getAge() != null) {
-            this.age = request.getAge();
+        if (age != null) {
+            this.age = age;
         }
-        if (request.getJobCategory() != null) {
-            this.jobCategory = JobCategory.valueOf(request.getJobCategory());
+        if (jobCategory != null) {
+            this.jobCategory = JobCategory.valueOf(jobCategory);
         }
         if (region != null) {
             this.region = Region.valueOf(region);
         }
-        if (request.getComment() != null) {
-            this.comment = request.getComment();
+        if (comment != null) {
+            this.comment = comment;
         }
         if (userHobbies != null) {
             this.userHobbies.clear();

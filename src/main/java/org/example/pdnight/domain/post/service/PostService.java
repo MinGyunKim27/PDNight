@@ -287,7 +287,7 @@ public class PostService {
 
     private Set<PostTech> getPostTechSet(List<TechStack> techStackList, Post post) {
         return techStackList.stream()
-                .map(techStack -> new PostTech(post, techStack))
+                .map(techStack -> PostTech.from(post, techStack))
                 .collect(Collectors.toSet());
     }
 

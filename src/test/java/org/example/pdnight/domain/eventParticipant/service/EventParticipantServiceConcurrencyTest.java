@@ -45,7 +45,7 @@ class EventParticipantServiceConcurrencyTest {
             userRepository.save(User.createTestUser((long) i, "user" + i,"email"+i+"@test.com","asdasdasdaas"));
         }
 
-        Event event = new Event( "테스트 이벤트","이벤트 내용", MAX_PARTICIPANTS, LocalDateTime.now());
+        Event event = Event.from( "테스트 이벤트","이벤트 내용", MAX_PARTICIPANTS, LocalDateTime.now());
         eventRepository.save(event);
         eventId = event.getId();
     }

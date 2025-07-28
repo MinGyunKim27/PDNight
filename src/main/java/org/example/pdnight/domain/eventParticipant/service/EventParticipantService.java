@@ -48,7 +48,7 @@ public class EventParticipantService {
             throw new BaseException(ErrorCode.EVENT_PARTICIPANT_FULL);
         }
 
-        EventParticipant eventParticipant = new EventParticipant(event, user);
+        EventParticipant eventParticipant = EventParticipant.create(event, user);
         eventParticipantRepository.save(eventParticipant);
     }
 

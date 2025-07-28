@@ -40,11 +40,14 @@ class PostLikeServiceTest {
 
         User mockUser = Mockito.mock(User.class);
         Post mockPost = Mockito.mock(Post.class);
-        PostLike mockPostLike = new PostLike(mockPost, mockUser);
+        //PostLike mockPostLike = new PostLike(mockPost, mockUser);
+        PostLike mockPostLike = mock();
 
 
         lenient().when(mockUser.getId()).thenReturn(userId);
         lenient().when(mockPost.getId()).thenReturn(postId);
+        lenient().when(mockPostLike.getUser()).thenReturn(mockUser);
+        lenient().when(mockPostLike.getPost()).thenReturn(mockPost);
 
         when(helper.getUserByIdOrElseThrow(userId)).thenReturn(mockUser);
         when(helper.getPostByIdOrElseThrow(postId)).thenReturn(mockPost);
@@ -94,7 +97,7 @@ class PostLikeServiceTest {
 
         User mockUser = Mockito.mock(User.class);
         Post mockPost = Mockito.mock(Post.class);
-        PostLike mockPostLike = new PostLike(mockPost, mockUser);
+        PostLike mockPostLike = mock();
 
         when(helper.getUserByIdOrElseThrow(userId)).thenReturn(mockUser);
         when(helper.getPostByIdOrElseThrow(postId)).thenReturn(mockPost);

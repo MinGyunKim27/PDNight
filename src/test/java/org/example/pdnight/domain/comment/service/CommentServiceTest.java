@@ -62,7 +62,8 @@ class CommentServiceTest {
         postId = 1L;
         authorId = 1L;
         String content = "댓글내용";
-        CommentRequestDto request = new CommentRequestDto(content);
+        CommentRequestDto request = Mockito.mock(CommentRequestDto.class);
+        lenient().when(request.getContent()).thenReturn(content);
 
         when(getHelper.getPostByIdOrElseThrow(postId)).thenReturn(mockPost);
         when(getHelper.getUserByIdOrElseThrow(authorId)).thenReturn(mockUser);
@@ -90,7 +91,8 @@ class CommentServiceTest {
         postId = 1L;
         authorId = 1L;
         String content = "댓글내용";
-        CommentRequestDto request = new CommentRequestDto(content);
+        CommentRequestDto request = Mockito.mock(CommentRequestDto.class);
+        lenient().when(request.getContent()).thenReturn(content);
 
         when(getHelper.getPostByIdOrElseThrow(postId)).thenThrow(new BaseException(ErrorCode.POST_NOT_FOUND));
 
@@ -166,7 +168,8 @@ class CommentServiceTest {
         authorId = 1L;
         String oldContent = "댓글내용";
         Comment comment = Comment.create(mockPost, mockUser, oldContent);
-        CommentRequestDto request = new CommentRequestDto("수정할 댓글내용");
+        CommentRequestDto request = Mockito.mock(CommentRequestDto.class);
+        lenient().when(request.getContent()).thenReturn("수정할 댓글내용");
 
         when(getHelper.getPostByIdOrElseThrow(postId)).thenReturn(mockPost);
         when(getHelper.getUserByIdOrElseThrow(authorId)).thenReturn(mockUser);
@@ -193,7 +196,8 @@ class CommentServiceTest {
         authorId = 10L;
         String oldContent = "댓글내용";
         Comment comment = Comment.create(mockPost, mockUser, oldContent);
-        CommentRequestDto request = new CommentRequestDto("수정할 댓글내용");
+        CommentRequestDto request = Mockito.mock(CommentRequestDto.class);
+        lenient().when(request.getContent()).thenReturn("수정할 댓글내용");
 
         User anotherUser = Mockito.mock(User.class);
         lenient().when(anotherUser.getId()).thenReturn(10L);
@@ -221,7 +225,8 @@ class CommentServiceTest {
         commentId = 1L;
         authorId = 1L;
         String content = "댓글내용";
-        CommentRequestDto request = new CommentRequestDto(content);
+        CommentRequestDto request = Mockito.mock(CommentRequestDto.class);
+        lenient().when(request.getContent()).thenReturn(content);
 
         Comment parentComment = Comment.create(mockPost, mockUser, request.getContent());
         Comment childComment = Comment.createChild(mockPost, mockUser, request.getContent(), parentComment);

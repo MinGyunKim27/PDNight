@@ -24,8 +24,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
@@ -45,8 +44,10 @@ public class UserServiceTest {
     void 내_프로필_조회_성공() {
         // given
         Long userId = 1L;
-        User user = new User(userId, "Test");
+        User user = mock();
 
+        when(user.getName()).thenReturn("Test");
+        when(user.getId()).thenReturn(userId);
         when(userRepository.findByIdWithInfo(userId)).thenReturn(Optional.of(user));
 
         // when
@@ -74,16 +75,19 @@ public class UserServiceTest {
         Long hobbyId = 1L;
         Long techStackId = 1L;
 
-        User user = new User(userId, "Test");
-        Hobby hobby = new Hobby(hobbyId, "hobby");
-        TechStack techStack = new TechStack(techStackId, "techStack");
+        User user = User.createTestUser(userId, "Test", "emailTest@naver.com", "hashedOldPassword");
+        Hobby hobby = mock();
+        TechStack techStack = mock();
 
         List<Long> hobbyIdList = List.of(hobbyId);
         List<Long> techStackIdList = List.of(techStackId);
 
         UserUpdateRequest request = Mockito.mock();
 
-        when(request.getName()).thenReturn(user.getName());
+        when(hobby.getHobby()).thenReturn("hobby");
+        when(techStack.getTechStack()).thenReturn("techStack");
+
+        when(request.getName()).thenReturn("Test");
         when(request.getHobbyIdList()).thenReturn(hobbyIdList);
         when(request.getTechStackIdList()).thenReturn(techStackIdList);
 
@@ -101,21 +105,6 @@ public class UserServiceTest {
         assertEquals(List.of("techStack"), result.getTechStackList());
     }
 
-    // 현 상태에선 존재하지 않는 아이디를 넣어도 예외처리 하고있지않음
-    // DB에 있는 값만 조회하고 있는중
-    /*@Test
-    void 내_프로필_수정_실패_없는_취미() {
-        // given
-        Long userId = 1L;
-        Long hobbyId = 999L; // 존재하지 않는 ID
-        List<Long> hobbyIdList = List.of(1L);
-        UserUpdateRequest request = new UserUpdateRequest("닉네임", hobbyIdList);
-
-        when(hobbyRepository.findById(hobbyId)).thenReturn(Optional.empty());
-
-        assertThrows(BaseException.class, () -> userService.updateMyProfile(userId, request));
-    }*/
-
     @Test
     void 비밀번호_수정_성공() {
         Long userId = 1L;
@@ -124,9 +113,13 @@ public class UserServiceTest {
 
         // 실제 암호화된 비밀번호
         String hashedOldPassword = BCrypt.withDefaults().hashToString(10, oldPassword.toCharArray());
-        User user = new User(userId, "Test", hashedOldPassword);
+        // User user = new User(userId, "Test", hashedOldPassword);
+        User user = User.createTestUser(userId, "Test", "emailTest@naver.com", hashedOldPassword);
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        UserPasswordUpdateRequest request = new UserPasswordUpdateRequest(oldPassword, newPassword);
+
+        UserPasswordUpdateRequest request = mock();
+        when(request.getNewPassword()).thenReturn(newPassword);
+        when(request.getOldPassword()).thenReturn(oldPassword);
 
         userService.updatePassword(userId, request);
 
@@ -143,9 +136,11 @@ public class UserServiceTest {
         String newPassword = "5678";
 
         String hashedOldPassword = BCrypt.withDefaults().hashToString(10, oldPassword.toCharArray());
-        User user = new User(userId, "Test", hashedOldPassword);
+        User user = mock();
+        when(user.getPassword()).thenReturn(hashedOldPassword);
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        UserPasswordUpdateRequest request = new UserPasswordUpdateRequest(wrongPassword, newPassword);
+        UserPasswordUpdateRequest request = mock();
+        when(request.getOldPassword()).thenReturn(wrongPassword);
 
         assertThrows(BaseException.class, () -> userService.updatePassword(userId, request));
     }
@@ -155,7 +150,7 @@ public class UserServiceTest {
         Long userId = 1L;
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        UserPasswordUpdateRequest request = new UserPasswordUpdateRequest("1234", "5678");
+        UserPasswordUpdateRequest request = mock();
 
         assertThrows(BaseException.class, () -> userService.updatePassword(userId, request));
     }
@@ -163,8 +158,11 @@ public class UserServiceTest {
     @Test
     void 사용자_평가_조회_성공() {
         Long userId = 1L;
-        User user = new User(userId, "Test", 45L, 9L);
-
+        // User user = new User(userId, "Test", 45L, 9L);
+        User user = mock();
+        when(user.getId()).thenReturn(userId);
+        when(user.getTotalReviewer()).thenReturn(9L);
+        when(user.getTotalRate()).thenReturn(45L);
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
         UserEvaluationResponse result = userService.getEvaluation(userId);
