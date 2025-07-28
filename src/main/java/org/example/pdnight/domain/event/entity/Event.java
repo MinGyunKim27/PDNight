@@ -1,10 +1,7 @@
 package org.example.pdnight.domain.event.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.pdnight.domain.common.entity.Timestamped;
@@ -42,12 +39,6 @@ public class Event extends Timestamped {
     public Event(Long eventId, int i) {
         this.id = eventId;
         this.maxParticipants = i;
-    }
-
-    public Event(Long i, String title, int maxParticipants) {
-        this.id = i;
-        this.title = title;
-        this.maxParticipants = maxParticipants;
     }
 
     public void updateEvent(String title, String content, Integer maxParticipants, LocalDateTime eventDate) {

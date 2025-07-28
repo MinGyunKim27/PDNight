@@ -141,11 +141,13 @@ public class User extends Timestamped {
         this.totalReviewer = totalReviewer;
     }
 
-    public User(String email, String name, String password) {
+    // 테스트용
+    private User(String email, String name, String password) {
         this.email = email;
         this.name = name;
         this.password = password;
         this.role = UserRole.USER;
+        this.age = 20L;
         this.totalRate = 0L;
         this.totalReviewer = 0L;
         this.isDeleted = false;
@@ -157,6 +159,13 @@ public class User extends Timestamped {
         User admin = new User(email, name, password);
         admin.role = UserRole.ADMIN;
         return admin;
+    }
+
+    //테스트 유저 생성 메서드
+    public static User createTestUser(Long id, String name,String email,String password) {
+        User test = new User(email,name, password);
+        test.role = UserRole.ADMIN;
+        return test;
     }
 
     public void setHobbyAndTech(Set<UserHobby> userHobbies, Set<UserTech> userTechs) {

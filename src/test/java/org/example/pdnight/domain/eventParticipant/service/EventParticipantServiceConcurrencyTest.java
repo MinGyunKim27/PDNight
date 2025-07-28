@@ -2,7 +2,6 @@ package org.example.pdnight.domain.eventParticipant.service;
 
 import org.example.pdnight.domain.event.entity.Event;
 import org.example.pdnight.domain.event.repository.EventRepository;
-import org.example.pdnight.domain.event.service.EventService;
 import org.example.pdnight.domain.eventParticipant.repository.EventParticipantRepository;
 import org.example.pdnight.domain.user.entity.User;
 import org.example.pdnight.domain.user.repository.UserRepository;
@@ -12,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.time.LocalDateTime;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -41,11 +41,11 @@ class EventParticipantServiceConcurrencyTest {
     void setUp() {
         // 사용자 10명 저장
         int i;
-        for (i = 0; i < THREAD_COUNT; i++) {
-            userRepository.save(new User((long) i, "user" + i));
+        for (i = 1; i < THREAD_COUNT+1; i++) {
+            userRepository.save(User.createTestUser((long) i, "user" + i,"email"+i+"@test.com","asdasdasdaas"));
         }
 
-        Event event = new Event((long) i, "테스트 이벤트", MAX_PARTICIPANTS);
+        Event event = new Event( "테스트 이벤트","이벤트 내용", MAX_PARTICIPANTS, LocalDateTime.now());
         eventRepository.save(event);
         eventId = event.getId();
     }
