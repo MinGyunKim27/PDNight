@@ -1,13 +1,11 @@
 package org.example.pdnight.domain.techStack.service;
 
-import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.techStack.dto.request.TechStackRequestDto;
 import org.example.pdnight.domain.techStack.dto.response.TechStackResponseDto;
 import org.example.pdnight.domain.techStack.entity.TechStack;
 import org.example.pdnight.domain.techStack.repository.TechStackRepository;
 import org.example.pdnight.domain.techStack.repository.TechStackRepositoryQueryImpl;
-import org.example.pdnight.domain.user.entity.User;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -33,10 +31,10 @@ public class TechStackServiceTest {
     private TechStackRepositoryQueryImpl techStackRepositoryQuery;
 
     @Test
-    void 기술스택_생성_성공(){
+    void 기술스택_생성_성공() {
         //given
         TechStackRequestDto dto = new TechStackRequestDto("Spring Boot");
-        TechStack techStack = new TechStack("Spring Boot");
+        TechStack techStack = TechStack.create("Spring Boot");
 
         when(techStackRepository.existsTechStackByTechStack(dto.getTechStack())).thenReturn(false);
         when(techStackRepository.save(any(TechStack.class))).thenReturn(techStack);
@@ -51,6 +49,7 @@ public class TechStackServiceTest {
         verify(techStackRepository).existsTechStackByTechStack("Spring Boot");
         verify(techStackRepository).save(any(TechStack.class));
     }
+
     @Test
     void createTechStack_중복예외() {
         // given
@@ -73,10 +72,15 @@ public class TechStackServiceTest {
     void searchTechStackList_성공() {
         // given
         String keyword = "Spring";
-        List<TechStack> resultList = List.of(
+
+        TechStack techStack1 = TechStack.create("Spring Boot");
+        TechStack techStack2 = TechStack.create("Spring Security");
+
+        /*List<TechStack> resultList = List.of(
                 new TechStack("Spring Boot"),
                 new TechStack("Spring Security")
-        );
+        );*/
+        List<TechStack> resultList = List.of(techStack1, techStack2);
 
         when(techStackRepositoryQuery.searchTechStack(keyword)).thenReturn(resultList);
 

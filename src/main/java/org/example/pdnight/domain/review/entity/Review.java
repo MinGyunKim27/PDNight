@@ -1,6 +1,7 @@
 package org.example.pdnight.domain.review.entity;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,8 +18,7 @@ import java.math.BigDecimal;
         uniqueConstraints = @UniqueConstraint(columnNames = {"reviewer_id", "rated_user_id", "post_id"})
 )
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Review extends Timestamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,12 +42,16 @@ public class Review extends Timestamped {
     @Column(length = 30)
     private String comment;
 
-    public Review(User reviewer, User ratedUser, Post post, ReviewRequestDto dto) {
+    private Review(User reviewer, User ratedUser, Post post, BigDecimal rate, String comment) {
         this.reviewer = reviewer;
         this.ratedUser = ratedUser;
         this.post = post;
-        this.rate = dto.getRate();
-        this.comment = dto.getComment();
+        this.rate = rate;
+        this.comment = comment;
+    }
+
+    public static Review create(User reviewer, User ratedUser, Post post, BigDecimal rate, String comment) {
+        return new Review(reviewer, ratedUser, post, rate, comment);
     }
 
     public void removePost() {

@@ -9,6 +9,7 @@ import org.example.pdnight.domain.user.entity.User;
 import org.example.pdnight.domain.user.enums.Region;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @AllArgsConstructor
@@ -21,9 +22,9 @@ public class SignupResponseDto {
 
     private String nickname;
 
-    private String hobby;
+    private List<String> hobbyList;
 
-    private String techStack;
+    private List<String> techStackList;
 
     private Gender gender;
 
@@ -41,20 +42,30 @@ public class SignupResponseDto {
 
     private LocalDateTime updateAt;
 
-    public SignupResponseDto(User user, String hobby, String techStack) {
+    private SignupResponseDto(User user) {
         this.email = user.getEmail();
         this.role = UserRole.USER;
         this.name = user.getName();
         this.nickname = user.getNickname();
-        this.hobby = hobby;
-        this.techStack = techStack;
+        this.hobbyList = user.getUserHobbies()
+                .stream()
+                .map(hobby -> hobby.getHobby().getHobby())
+                .toList();
+        this.techStackList = user.getUserTechs()
+                .stream()
+                .map(tech -> tech.getTechStack().getTechStack())
+                .toList();
         this.gender = user.getGender();
-        this.age =  user.getAge();
+        this.age = user.getAge();
         this.jobCategory = user.getJobCategory();
         this.region = user.getRegion();
         this.workLocation = user.getWorkLocation();
         this.comment = user.getComment();
         this.createdAt = user.getCreatedAt();
         this.updateAt = user.getUpdatedAt();
+    }
+
+    public static SignupResponseDto from(User user) {
+        return new SignupResponseDto(user);
     }
 }

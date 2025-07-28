@@ -5,6 +5,7 @@ import org.example.pdnight.domain.auth.dto.request.LoginRequestDto;
 import org.example.pdnight.domain.auth.dto.request.SignupRequestDto;
 import org.example.pdnight.domain.auth.dto.request.WithdrawRequestDto;
 import org.example.pdnight.domain.common.enums.JobCategory;
+import org.example.pdnight.domain.common.enums.UserRole;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.user.entity.User;
 import org.example.pdnight.domain.user.enums.Region;
@@ -91,7 +92,7 @@ class AuthControllerTest {
         mockMvc.perform(delete("/api/auth/withdraw")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(withdrawRequest)))
-        //then
+                //then
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("JWT 토큰이 필요합니다."));
     }
@@ -102,7 +103,7 @@ class AuthControllerTest {
         //given
         SignupRequestDto request = signInRequest("withDraw");
         User user = createUser(request);
-        String token = jwtUtil.createToken(user.getId(), user.getRole());
+        String token = jwtUtil.createToken(user.getId(), user.getRole(), user.getNickname());
 
         WithdrawRequestDto withdrawRequest = withdrawRequest();
         //when
@@ -136,9 +137,20 @@ class AuthControllerTest {
         return WithdrawRequestDto.builder()
                 .password("testPassword").build();
     }
-    private User createUser(SignupRequestDto request){
+
+    private User createUser(SignupRequestDto request) {
         String encode = passwordEncoder.encode(request.getPassword());
-        User user = new User(request, encode, null, null);
+        User user = User.create(request.getEmail(),
+                encode,
+                UserRole.USER,
+                request.getName(),
+                request.getNickname(),
+                request.getGender(),
+                request.getAge(),
+                request.getJobCategory(),
+                request.getRegion(),
+                request.getWorkLocation(),
+                request.getComment());
         return userRepository.save(user);
     }
 }

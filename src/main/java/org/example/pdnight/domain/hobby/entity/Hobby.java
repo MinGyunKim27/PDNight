@@ -1,7 +1,7 @@
 package org.example.pdnight.domain.hobby.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.pdnight.domain.common.entity.Timestamped;
@@ -9,8 +9,7 @@ import org.example.pdnight.domain.common.entity.Timestamped;
 @Entity
 @Table(name = "hobbies")
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Hobby extends Timestamped{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,8 +18,12 @@ public class Hobby extends Timestamped{
     @Column(name = "hobby", unique = true)
     private String hobby;
 
-    public Hobby(String hobby){
+    private Hobby(String hobby){
         this.hobby = hobby;
+    }
+
+    public static Hobby from(String hobby) {
+        return new Hobby(hobby);
     }
 
 }

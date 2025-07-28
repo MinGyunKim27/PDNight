@@ -8,4 +8,6 @@ import java.util.List;
 @Repository
 public interface TechStackRepositoryQuery {
     List<TechStack> searchTechStack(String techStack);
+
+    List<TechStack> findByIdList(List<Long> ids);
 }

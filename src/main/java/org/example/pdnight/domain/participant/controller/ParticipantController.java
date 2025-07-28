@@ -18,7 +18,7 @@ public class ParticipantController {
 
     private final ParticipantService participantService;
 
-    @PostMapping("/api/participant/posts/{postId}")
+    @PostMapping("/api/posts/{postId}/participate")
     public ResponseEntity<ApiResponse<ParticipantResponse>> applyParticipant(
             @AuthenticationPrincipal CustomUserDetails loginUser,
             @PathVariable Long postId
@@ -28,7 +28,7 @@ public class ParticipantController {
                 .body(ApiResponse.ok("참여 신청되었습니다.", response));
     }
 
-    @DeleteMapping("/api/participant/posts/{postId}")
+    @DeleteMapping("/api/posts/{postId}/participate")
     public ResponseEntity<ApiResponse<Void>> deleteParticipant(
             @AuthenticationPrincipal CustomUserDetails loginUser,
             @PathVariable Long postId
@@ -38,7 +38,7 @@ public class ParticipantController {
                 .body(ApiResponse.ok("참여 신청이 취소되었습니다.", null));
     }
 
-    @PatchMapping("/api/participant/posts/{postId}/users/{userId}")
+    @PatchMapping("/api/posts/{postId}/participate/users/{userId}")
     public ResponseEntity<ApiResponse<ParticipantResponse>> changeStatusParticipant(
             @AuthenticationPrincipal CustomUserDetails author,
             @PathVariable Long postId,
@@ -62,7 +62,7 @@ public class ParticipantController {
                 .body(ApiResponse.ok("신청자 목록이 조회되었습니다.", response));
     }
 
-    @GetMapping("/api/participant/posts/{postId}/confirmed")
+    @GetMapping("/api/posts/{postId}/participate/confirmed")
     public ResponseEntity<ApiResponse<PagedResponse<ParticipantResponse>>> getAcceptedParticipantList(
             @AuthenticationPrincipal CustomUserDetails loginUser,
             @PathVariable Long postId,
