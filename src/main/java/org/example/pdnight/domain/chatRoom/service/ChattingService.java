@@ -97,6 +97,10 @@ public class ChattingService {
 
     // 메시지 보내기
     public void sendMessage(ChatMessageDto message) {
+        // 메시지 기록
+        ChatMessage chatMessage = ChatMessage.from(message);
+        chattingRepository.save(chatMessage);
+
         ChannelTopic topic = chatRoomRedisRepository.getTopic(message.getRoomId());
         topic = getOrSubscribeTopic(topic, message);
         redisPublisher.publish(topic, message);

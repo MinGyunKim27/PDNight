@@ -126,7 +126,7 @@
                         roomId: this.roomId
                     }
                 }).then(res => {
-                    res.data.forEach(msg => {
+                    res.data.data.forEach(msg => {
                         this.messages.push({
                             id: Date.now() + Math.random(), // 임시 고유값
                             sender: msg.messageType === 'ENTER' ? '[알림]' : msg.sender,
@@ -141,7 +141,7 @@
             fetchRoomInfo() {
                 axios.get("/chat/room/" + this.roomId)
                     .then(res => {
-                        this.room = res.data;
+                        this.room = res.data.data;
                     });
             },
             connectWS() {

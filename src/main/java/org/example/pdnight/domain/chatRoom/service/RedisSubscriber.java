@@ -4,8 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.pdnight.domain.chatRoom.dto.ChatMessageDto;
-import org.example.pdnight.domain.chatRoom.entity.ChatMessage;
-import org.example.pdnight.domain.chatRoom.repository.ChattingRepository;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -19,16 +17,12 @@ public class RedisSubscriber implements MessageListener {
     private final ObjectMapper objectMapper;
     private final RedisTemplate redisTemplate;
     private final SimpMessageSendingOperations messagingTemplate;
-    private final ChattingRepository chattingRepository;
 
     @Override
     public void onMessage(Message message, byte[] pattern) {
-        try{
+        try {
             String publishMessage = (String) redisTemplate.getStringSerializer().deserialize(message.getBody());
             ChatMessageDto roomMessage = objectMapper.readValue(publishMessage, ChatMessageDto.class);
-            ChatMessage chatMessage = ChatMessage.from(roomMessage);
-            // 전송할 메시지 저장
-            chattingRepository.save(chatMessage);
 
             // 채팅방 접속한 클라이언트에게 메시지 전송
             messagingTemplate.convertAndSend("/sub/chat/room/" + roomMessage.getRoomId(), roomMessage);

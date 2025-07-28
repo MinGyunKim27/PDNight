@@ -42,9 +42,12 @@
         },
         methods: {
             fetchRooms() {
-                axios.get('/chat/list')
+                axios.get("/chat/list")
                     .then(response => {
-                        this.chatrooms = response.data;
+                        this.chatrooms = response.data.data;
+                    })
+                    .catch(error => {
+                        console.error("채팅방 목록 조회 실패:", error);
                     });
             },
             createRoom() {
@@ -59,7 +62,7 @@
             async enterRoom(roomId) {
                 try {
                     const response = await axios.get('/chat/enter/me');
-                    const sender = response.data.username;
+                    const sender = response.data.data.username;
                     if (sender && sender.trim() !== "") {
                         localStorage.setItem("wschat.sender", sender);
                         localStorage.setItem("wschat.roomId", roomId);
