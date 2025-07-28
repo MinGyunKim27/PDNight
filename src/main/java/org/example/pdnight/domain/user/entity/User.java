@@ -31,6 +31,7 @@ import java.util.Set;
 public class User extends Timestamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Setter
     private Long id;
 
     @Column(nullable = false)
@@ -168,6 +169,7 @@ public class User extends Timestamped {
         return test;
     }
 
+
     public void setHobbyAndTech(Set<UserHobby> userHobbies, Set<UserTech> userTechs) {
         this.userHobbies = userHobbies;
         this.userTechs = userTechs;
@@ -194,8 +196,8 @@ public class User extends Timestamped {
         if (request.getJobCategory() != null) {
             this.jobCategory = JobCategory.valueOf(request.getJobCategory());
         }
-        if (request.getRegion() != null) {
-            this.region = Region.valueOf(request.getRegion());
+        if (region != null) {
+            this.region = Region.valueOf(region);
         }
         if (request.getComment() != null) {
             this.comment = request.getComment();

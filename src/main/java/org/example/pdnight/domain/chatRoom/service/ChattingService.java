@@ -68,14 +68,14 @@ public class ChattingService {
     // 채팅방 목록 조회
     public List<ChatRoomResponseDto> list() {
         return chatRoomRepository.findAll().stream()
-                .map(chatRoom -> ChatRoomResponseDto.from(chatRoom.getId(), chatRoom.getChatRoomName()))
+                .map(chatRoom -> ChatRoomResponseDto.create(chatRoom.getId(), chatRoom.getChatRoomName()))
                 .toList();
     }
 
     // 채팅방 정보 조회
     public ChatRoomResponseDto roomInfo(Long roomId) {
         ChatRoom chatRoom = chatRoomRepository.findById(roomId).orElseThrow(() -> new BaseException(ErrorCode.CHAT_ROOM_NOT_FOUND));
-        return new ChatRoomResponseDto(chatRoom.getId(), chatRoom.getChatRoomName());
+        return ChatRoomResponseDto.create(chatRoom.getId(), chatRoom.getChatRoomName());
     }
 
     // 채팅방 기록 출력
@@ -98,7 +98,7 @@ public class ChattingService {
     // 메시지 보내기
     public void sendMessage(ChatMessageDto message) {
         // 메시지 기록
-        ChatMessage chatMessage = ChatMessage.from(message);
+        ChatMessage chatMessage = ChatMessage.from(message.getRoomId(), message.getSender(), message.getMessage(), message.getMessageType());
         chattingRepository.save(chatMessage);
 
         ChannelTopic topic = chatRoomRedisRepository.getTopic(message.getRoomId());

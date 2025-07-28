@@ -17,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -187,6 +188,5 @@ class ReviewServiceTest {
         assertEquals(0L, response.contents().get(0).getPostId());
         assertEquals(3L, response.contents().get(0).getRatedUserId());
     }
-
 
 }

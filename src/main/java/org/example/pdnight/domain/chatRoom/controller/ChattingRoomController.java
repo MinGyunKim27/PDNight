@@ -48,7 +48,7 @@ public class ChattingRoomController {
     @GetMapping("/chat/enter/me")
     @ResponseBody
     public ResponseEntity<ApiResponse<NicknameResponseDto>> nicknameInfo(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ResponseEntity.ok(ApiResponse.ok("닉네임이 조회되었습니다", new NicknameResponseDto(userDetails.getUsername())));
+        return ResponseEntity.ok(ApiResponse.ok("닉네임이 조회되었습니다", NicknameResponseDto.from(userDetails.getUsername())));
     }
 
     // 채팅방 입장 시도

@@ -5,6 +5,7 @@ import org.example.pdnight.domain.auth.dto.request.LoginRequestDto;
 import org.example.pdnight.domain.auth.dto.request.SignupRequestDto;
 import org.example.pdnight.domain.auth.dto.request.WithdrawRequestDto;
 import org.example.pdnight.domain.common.enums.JobCategory;
+import org.example.pdnight.domain.common.enums.UserRole;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.user.entity.User;
 import org.example.pdnight.domain.user.enums.Region;
@@ -139,7 +140,17 @@ class AuthControllerTest {
 
     private User createUser(SignupRequestDto request) {
         String encode = passwordEncoder.encode(request.getPassword());
-        User user = new User(request, encode);
+        User user = User.create(request.getEmail(),
+                encode,
+                UserRole.USER,
+                request.getName(),
+                request.getNickname(),
+                request.getGender(),
+                request.getAge(),
+                request.getJobCategory(),
+                request.getRegion(),
+                request.getWorkLocation(),
+                request.getComment());
         return userRepository.save(user);
     }
 }

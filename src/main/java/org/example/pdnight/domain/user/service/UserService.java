@@ -55,7 +55,15 @@ public class UserService {
         Set<UserTech> userTechs = getUserTechByIdList(request.getTechStackIdList(), user);
 
         // 수정 로직
-        user.updateProfile(request, userHobbies, userTechs);
+        user.updateProfile(request.getName(),
+                request.getNickname(),
+                request.getGender(),
+                request.getAge(),
+                request.getJobCategory(),
+                request.getRegion(),
+                request.getComment(),
+                userHobbies,
+                userTechs );
         userRepository.save(user);
 
         return UserResponseDto.from(user);

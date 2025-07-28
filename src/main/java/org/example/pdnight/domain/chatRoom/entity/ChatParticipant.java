@@ -1,11 +1,14 @@
 package org.example.pdnight.domain.chatRoom.entity;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
 @Table(name = "chat_participants")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ChatParticipant {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,9 +23,6 @@ public class ChatParticipant {
     private ChatParticipant(ChatRoom chatRoom, Long id) {
         this.chatRoom = chatRoom;
         this.userId = id;
-    }
-
-    protected ChatParticipant() {
     }
 
     public static ChatParticipant from(ChatRoom chatRoom, Long id) {

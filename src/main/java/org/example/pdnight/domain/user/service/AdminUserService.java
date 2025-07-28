@@ -34,7 +34,7 @@ public class AdminUserService {
 
         user.updateNickname(dto.getNickname());
 
-        return new UserResponseDto(user);
+        return UserResponseDto.from(user);
     }
 
     @Transactional

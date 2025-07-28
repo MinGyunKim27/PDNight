@@ -128,13 +128,13 @@ public class AuthService {
 
     private Set<UserHobby> getUserHobbySet(List<Hobby> hobbyList, User user) {
         return hobbyList.stream()
-                .map(hobby -> new UserHobby(user, hobby))
+                .map(hobby -> UserHobby.create(user, hobby))
                 .collect(Collectors.toSet());
     }
 
     private Set<UserTech> getUserTechSet(List<TechStack> techStackList, User user) {
         return techStackList.stream()
-                .map(techStack -> new UserTech(user, techStack))
+                .map(techStack -> UserTech.create(user, techStack))
                 .collect(Collectors.toSet());
     }
 

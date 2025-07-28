@@ -1,13 +1,11 @@
 package org.example.pdnight.domain.event.dto.response;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.example.pdnight.domain.event.entity.Event;
 
 import java.time.LocalDateTime;
 
 @Getter
-@NoArgsConstructor
 public class EventResponse {
     private long id;
     private String title;
@@ -17,8 +15,7 @@ public class EventResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-
-    public EventResponse(Event event) {
+    protected EventResponse(Event event) {
         this.id = event.getId();
         this.title = event.getTitle();
         this.content = event.getContent();

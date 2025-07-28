@@ -281,7 +281,7 @@ public class PostService {
 
     private Set<PostHobby> getPostHobbySet(List<Hobby> hobbyList, Post post) {
         return hobbyList.stream()
-                .map(hobby -> new PostHobby(post, hobby))
+                .map(hobby -> PostHobby.create(post, hobby))
                 .collect(Collectors.toSet());
     }
 

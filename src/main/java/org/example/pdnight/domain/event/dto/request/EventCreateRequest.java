@@ -8,7 +8,6 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 
 @Getter
-@AllArgsConstructor
 public class EventCreateRequest {
     @NotBlank(message = "제목은 필수 입력값입니다.")
     private String title;
