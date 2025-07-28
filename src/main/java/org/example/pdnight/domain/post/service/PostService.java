@@ -4,6 +4,7 @@ import org.example.pdnight.domain.chatRoom.service.ChattingService;
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.comment.repository.CommentRepository;
 import org.example.pdnight.domain.common.dto.PagedResponse;
+import org.example.pdnight.global.constant.CacheName;
 import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.enums.JobCategory;
 import org.example.pdnight.domain.common.enums.JoinStatus;
@@ -29,6 +30,9 @@ import org.example.pdnight.domain.techStack.entity.TechStack;
 import org.example.pdnight.domain.techStack.repository.TechStackRepositoryQuery;
 import org.example.pdnight.domain.user.entity.User;
 import org.example.pdnight.domain.user.repository.UserRepository;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -54,6 +58,11 @@ public class PostService {
 
     //포스트 작성
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = CacheName.SEARCH_POST, allEntries = true),
+            @CacheEvict(value = CacheName.SUGGESTED_POST, allEntries = true),
+            @CacheEvict(value = CacheName.WRITTEN_POST, allEntries = true)
+    })
     public PostCreateAndUpdateResponseDto createPost(Long userId, PostRequestDto request) {
         //임시 메서드 User 도메인 작업에 따라 변동될 것
         User foundUser = getUserById(userId);
@@ -88,11 +97,20 @@ public class PostService {
 
     //조회는 상태값 "OPEN" 인 게시글만 가능
     @Transactional(readOnly = true)
+    @Cacheable(value = CacheName.ONE_POST, key = "#id")
     public PostResponseWithApplyStatusDto findOpenedPost(Long id) {
         return postRepositoryQuery.getOpenedPostById(id);
     }
 
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = CacheName.SEARCH_POST, allEntries = true),
+            @CacheEvict(value = CacheName.ONE_POST, key = "#id"),
+            @CacheEvict(value = CacheName.LIKED_POST, allEntries = true),
+            @CacheEvict(value = CacheName.CONFIRMED_POST, allEntries = true),
+            @CacheEvict(value = CacheName.WRITTEN_POST, allEntries = true),
+            @CacheEvict(value = CacheName.SUGGESTED_POST, allEntries = true),
+    })
     public void deletePostById(Long userId, Long id) {
         Post foundPost = getPostByIdOrElseThrow(id);
         validateAuthor(userId, foundPost);
@@ -108,7 +126,11 @@ public class PostService {
 
     //게시물 조건 검색
     @Transactional(readOnly = true)
-    public Page<PostResponseWithApplyStatusDto> getPostDtosBySearch(
+    @Cacheable(
+            value = CacheName.SEARCH_POST,
+            key = "{#pageable.pageNumber, #pageable.pageSize, #maxParticipants, #ageLimit, #jobCategoryLimit, #genderLimit, #hobbyIdList, #techStackIdList}"
+    )
+    public PagedResponse<PostResponseWithApplyStatusDto> getPostDtosBySearch(
             Pageable pageable,
             Integer maxParticipants,
             AgeLimit ageLimit,
@@ -117,11 +139,21 @@ public class PostService {
             List<Long> hobbyIdList,
             List<Long> techStackIdList
     ) {
-        return postRepositoryQuery.findPostDtosBySearch(pageable, maxParticipants,
+
+        Page<PostResponseWithApplyStatusDto> postDtosBySearch = postRepositoryQuery.findPostDtosBySearch(pageable, maxParticipants,
                 ageLimit, jobCategoryLimit, genderLimit, hobbyIdList, techStackIdList);
+        return PagedResponse.from(postDtosBySearch);
     }
 
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = CacheName.SEARCH_POST, allEntries = true),
+            @CacheEvict(value = CacheName.ONE_POST, key = "#id"),
+            @CacheEvict(value = CacheName.LIKED_POST, allEntries = true),
+            @CacheEvict(value = CacheName.CONFIRMED_POST, allEntries = true),
+            @CacheEvict(value = CacheName.WRITTEN_POST, allEntries = true),
+            @CacheEvict(value = CacheName.SUGGESTED_POST, allEntries = true),
+    })
     public PostCreateAndUpdateResponseDto updatePostDetails(Long userId, Long id, PostUpdateRequestDto request) {
         Post foundPost = getPostByIdOrElseThrow(id);
         validateAuthor(userId, foundPost);
@@ -149,6 +181,14 @@ public class PostService {
     }
 
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = CacheName.SEARCH_POST, allEntries = true),
+            @CacheEvict(value = CacheName.ONE_POST, key = "#id"),
+            @CacheEvict(value = CacheName.LIKED_POST, allEntries = true),
+            @CacheEvict(value = CacheName.CONFIRMED_POST, allEntries = true),
+            @CacheEvict(value = CacheName.WRITTEN_POST, allEntries = true),
+            @CacheEvict(value = CacheName.SUGGESTED_POST, allEntries = true),
+    })
     public PostResponseDto changeStatus(Long userId, Long id, PostStatusRequestDto request) {
         //상태값 변경은 어떤 상태라도 불러와서 수정
         Post foundPost = getPostByIdWithoutStatusLimit(id);
@@ -172,26 +212,42 @@ public class PostService {
     }
 
     // 내가 좋아요 누른 게시물 조회
+    @Cacheable(
+            value = CacheName.LIKED_POST,
+            key = "{#pageable.pageNumber, #pageable.pageSize, #userId}"
+    )
     public PagedResponse<PostResponseWithApplyStatusDto> findMyLikedPosts(Long userId, Pageable pageable) {
         Page<PostResponseWithApplyStatusDto> myLikePost = postRepositoryQuery.getMyLikePost(userId, pageable);
         return PagedResponse.from(myLikePost);
     }
 
     // 내 성사된/ 신청한 게시물 조회
+    @Cacheable(
+            value = CacheName.CONFIRMED_POST,
+            key = "{#pageable.pageNumber, #pageable.pageSize, #userId, #joinStatus}"
+    )
     public PagedResponse<PostWithJoinStatusAndAppliedAtResponseDto> findMyConfirmedPosts(Long userId, JoinStatus joinStatus, Pageable pageable) {
         Page<PostWithJoinStatusAndAppliedAtResponseDto> myLikePost = postRepositoryQuery.getConfirmedPost(userId, joinStatus, pageable);
         return PagedResponse.from(myLikePost);
     }
 
     //내 작성 게시물 조회
+    @Cacheable(
+            value = CacheName.WRITTEN_POST,
+            key = "{#pageable.pageNumber, #pageable.pageSize, #userId}"
+    )
     public PagedResponse<PostResponseWithApplyStatusDto> findMyWrittenPosts(Long userId, Pageable pageable) {
         Page<PostResponseWithApplyStatusDto> myLikePost = postRepositoryQuery.getWrittenPost(userId, pageable);
         return PagedResponse.from(myLikePost);
     }
 
     //추천 게시물 조회
-    public PagedResponse<PostResponseWithApplyStatusDto> getSuggestedPosts(Long id, Pageable pageable) {
-        Page<PostResponseWithApplyStatusDto> suggestedPost = postRepositoryQuery.getSuggestedPost(id, pageable);
+    @Cacheable(
+            value = CacheName.SUGGESTED_POST,
+            key = "{#pageable.pageNumber, #pageable.pageSize, #userId}"
+    )
+    public PagedResponse<PostResponseWithApplyStatusDto> getSuggestedPosts(Long userId, Pageable pageable) {
+        Page<PostResponseWithApplyStatusDto> suggestedPost = postRepositoryQuery.getSuggestedPost(userId, pageable);
         return PagedResponse.from(suggestedPost);
     }
 

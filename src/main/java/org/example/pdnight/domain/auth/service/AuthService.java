@@ -17,7 +17,9 @@ import org.example.pdnight.domain.techStack.repository.TechStackRepositoryQuery;
 import org.example.pdnight.domain.user.entity.User;
 import org.example.pdnight.domain.user.repository.UserRepository;
 import org.example.pdnight.global.config.PasswordEncoder;
+import org.example.pdnight.global.constant.CacheName;
 import org.example.pdnight.global.utils.JwtUtil;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +37,7 @@ public class AuthService {
     private final TechStackRepositoryQuery techStackRepositoryQuery;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final RedisTemplate<String, String> redisTemplate;
 
     @Transactional
     public SignupResponseDto signup(SignupRequestDto request) {
@@ -69,8 +72,8 @@ public class AuthService {
         return LoginResponseDto.from(token);
     }
 
-    public void logout(Long userId) {
-
+    public void logout(String token) {
+        redisTemplate.opsForSet().add(CacheName.BLACKLIST_TOKEN, token);
     }
 
     @Transactional

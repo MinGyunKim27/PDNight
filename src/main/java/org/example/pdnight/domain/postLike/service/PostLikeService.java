@@ -9,6 +9,8 @@ import org.example.pdnight.domain.postLike.dto.response.PostLikeResponse;
 import org.example.pdnight.domain.postLike.entity.PostLike;
 import org.example.pdnight.domain.postLike.repository.PostLikeRepository;
 import org.example.pdnight.domain.user.entity.User;
+import org.example.pdnight.global.constant.CacheName;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +21,7 @@ public class PostLikeService {
     private final PostLikeRepository postLikeRepository;
     private final GetHelper helper;
 
+    @CacheEvict(value = CacheName.LIKED_POST, allEntries = true)
     @Transactional
     public PostLikeResponse addLike(Long id, Long userId) {
 
@@ -35,6 +38,7 @@ public class PostLikeService {
         return PostLikeResponse.from(postLike);
     }
 
+    @CacheEvict(value = CacheName.LIKED_POST, allEntries = true)
     @Transactional
     public void removeLike(Long id, Long userId) {
 

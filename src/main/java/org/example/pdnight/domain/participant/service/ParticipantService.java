@@ -19,6 +19,8 @@ import org.example.pdnight.domain.post.repository.PostRepository;
 import org.example.pdnight.domain.user.entity.User;
 import org.example.pdnight.domain.user.repository.UserRepository;
 import org.example.pdnight.global.aop.DistributedLock;
+import org.example.pdnight.global.constant.CacheName;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -75,6 +77,7 @@ public class ParticipantService {
 
     //참가 신청
     @Transactional
+    @CacheEvict(value = CacheName.CONFIRMED_POST, allEntries = true)
     @DistributedLock(
             key = "#postId",
             timeoutMs = 5000,
@@ -90,15 +93,15 @@ public class ParticipantService {
         PostParticipant participant;
 
         //선착순 포스트인 경우
-        if (post.getIsFirstCome()){
+        if (post.getIsFirstCome()) {
             int count = participantRepository.countByPostAndStatus(post, JoinStatus.ACCEPTED);
-            if (count == post.getMaxParticipants()){
+            if (count == post.getMaxParticipants()) {
                 throw new BaseException(CANNOT_PARTICIPATE_POST);
             } else {
                 participant = PostParticipant.createIsFirst(post, user);
 
                 //참가 이후에 maxParticipants 수를 만족 했을 때
-                if(count+1 ==post.getMaxParticipants()){
+                if (count + 1 == post.getMaxParticipants()) {
                     post.updateStatus(PostStatus.CONFIRMED);
                     inviteService.deleteAllByPostAndStatus(post, JoinStatus.PENDING);
                 }
@@ -143,6 +146,7 @@ public class ParticipantService {
 
     //참가 확정(작성자)
     @Transactional
+    @CacheEvict(value = CacheName.CONFIRMED_POST, allEntries = true)
     @DistributedLock(
             key = "#postId",
             timeoutMs = 5000,

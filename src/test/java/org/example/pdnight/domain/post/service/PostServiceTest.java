@@ -240,12 +240,12 @@ class PostServiceTest {
         ).thenReturn(page);
 
         //when
-        Page<PostResponseWithApplyStatusDto> responseDtos = postService.getPostDtosBySearch(pageable, maxParticipants, ageLimit,
+        PagedResponse<PostResponseWithApplyStatusDto> responseDtos = postService.getPostDtosBySearch(pageable, maxParticipants, ageLimit,
                 jobCategoryLimit, genderLimit, hobbyList, techStackList);
 
         //then
-        assertEquals(1, responseDtos.getTotalElements());
-        assertEquals(mockDto, responseDtos.getContent().get(0));
+        assertThat(responseDtos.contents()).hasSize(1);
+        assertEquals(mockDto, responseDtos.contents().get(0));
     }
 
     @Test
@@ -273,12 +273,11 @@ class PostServiceTest {
         ).thenReturn(emptyPage);
 
         //when
-        Page<PostResponseWithApplyStatusDto> responseDtos = postService.getPostDtosBySearch(pageable, maxParticipants, ageLimit,
+        PagedResponse<PostResponseWithApplyStatusDto> responseDtos = postService.getPostDtosBySearch(pageable, maxParticipants, ageLimit,
                 jobCategoryLimit, genderLimit, hobbyList, techStackList);
 
         //then
-        assertEquals(0, responseDtos.getTotalElements());
-        assertTrue(responseDtos.getContent().isEmpty());
+        assertThat(responseDtos.contents()).hasSize(0);
     }
 
     @Test

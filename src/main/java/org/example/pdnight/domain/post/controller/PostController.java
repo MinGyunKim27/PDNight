@@ -71,11 +71,10 @@ public class PostController {
     ) {
         Pageable pageable = PageRequest.of(page, size);
 
-        PagedResponse<PostResponseWithApplyStatusDto> pagedResponse = PagedResponse.from(
-                postService.getPostDtosBySearch(
-                        pageable, maxParticipants, ageLimit, jobCategoryLimit, genderLimit,
-                        hobbyIdList, techStackIdList
-                ));
+        PagedResponse<PostResponseWithApplyStatusDto> pagedResponse = postService.getPostDtosBySearch(
+                pageable, maxParticipants, ageLimit, jobCategoryLimit, genderLimit,
+                hobbyIdList, techStackIdList
+        );
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.ok("게시글 목록이 조회되었습니다.", pagedResponse));
     }
