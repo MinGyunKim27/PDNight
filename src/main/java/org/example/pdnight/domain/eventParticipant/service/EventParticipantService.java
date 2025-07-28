@@ -43,7 +43,7 @@ public class EventParticipantService {
         User user = helper.getUserById(userId);
 
         // 신청 인원 확인
-        int participantsCount = eventParticipantRepository.getEventParticipantByEventIdWithLock(eventId);
+        int participantsCount = eventParticipantRepository.getEventParticipantByEventId(eventId);
         if(participantsCount == event.getMaxParticipants()){
             throw new BaseException(ErrorCode.EVENT_PARTICIPANT_FULL);
         }
