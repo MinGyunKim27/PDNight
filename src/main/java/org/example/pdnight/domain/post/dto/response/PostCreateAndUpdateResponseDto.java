@@ -4,12 +4,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.pdnight.domain.common.enums.JobCategory;
-import org.example.pdnight.domain.hobby.entity.PostHobby;
 import org.example.pdnight.domain.post.entity.Post;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.enums.PostStatus;
-import org.example.pdnight.domain.techStack.entity.PostTech;
 
 import java.time.LocalDateTime;
 import java.util.List;

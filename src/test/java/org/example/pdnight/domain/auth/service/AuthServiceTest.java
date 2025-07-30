@@ -1,11 +1,12 @@
 package org.example.pdnight.domain.auth.service;
 
-import org.example.pdnight.domain.auth.dto.request.LoginRequestDto;
-import org.example.pdnight.domain.auth.dto.request.SignupRequestDto;
-import org.example.pdnight.domain.auth.dto.request.WithdrawRequestDto;
+import org.example.pdnight.domain.auth.application.authUseCase.AuthServiceImpl;
+import org.example.pdnight.domain.auth.presentation.dto.request.LoginRequestDto;
+import org.example.pdnight.domain.auth.presentation.dto.request.SignupRequestDto;
+import org.example.pdnight.domain.auth.presentation.dto.request.WithdrawRequestDto;
 import org.example.pdnight.domain.common.exception.BaseException;
-import org.example.pdnight.domain.user.entity.User;
-import org.example.pdnight.domain.user.repository.UserRepository;
+import org.example.pdnight.domain.user.domain.entity.User;
+import org.example.pdnight.domain.user.infra.userInfra.UserJpaRepository;
 import org.example.pdnight.global.config.PasswordEncoder;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,10 +26,10 @@ import static org.mockito.Mockito.*;
 class AuthServiceTest {
 
     @InjectMocks
-    private AuthService authService;
+    private AuthServiceImpl authService;
 
     @Mock
-    private UserRepository userRepository;
+    private UserJpaRepository userJpaRepository;
 
     @Mock
     private PasswordEncoder passwordEncoder;
@@ -40,7 +41,7 @@ class AuthServiceTest {
     @DisplayName("중복 이메일로 회원가입 테스트")
     void signUpDuplicatedEmail() {
         //given
-        when(userRepository.findByEmail(any())).thenReturn(Optional.of(user));
+        when(userJpaRepository.findByEmail(any())).thenReturn(Optional.of(user));
 
         //when
         BaseException result = assertThrows(BaseException.class, () -> authService.signup(mock(SignupRequestDto.class)));
@@ -54,7 +55,7 @@ class AuthServiceTest {
     @DisplayName("탈퇴한 회원정보로 로그인 테스트")
     void loginWithdrawUser() {
         //given
-        when(userRepository.findByEmail(any())).thenReturn(Optional.of(user));
+        when(userJpaRepository.findByEmail(any())).thenReturn(Optional.of(user));
         when(user.getIsDeleted()).thenReturn(true);
         //when
         BaseException result = assertThrows(BaseException.class, () -> authService.login(mock(LoginRequestDto.class)));
@@ -68,7 +69,7 @@ class AuthServiceTest {
     @DisplayName("틀린 비밀번호로 로그인 테스트")
     void loginWrongPassword() {
         //given
-        when(userRepository.findByEmail(any())).thenReturn(Optional.of(user));
+        when(userJpaRepository.findByEmail(any())).thenReturn(Optional.of(user));
         when(user.getIsDeleted()).thenReturn(false);
         when(passwordEncoder.matches(any(), any())).thenReturn(false);
 
@@ -84,7 +85,7 @@ class AuthServiceTest {
     @DisplayName("회원 탈퇴 기능 동작 테스트")
     void withdraw() {
         //given
-        when(userRepository.findById(any())).thenReturn(Optional.of(user));
+        when(userJpaRepository.findById(any())).thenReturn(Optional.of(user));
         when(user.getIsDeleted()).thenReturn(false);
         when(passwordEncoder.matches(any(), any())).thenReturn(true);
 

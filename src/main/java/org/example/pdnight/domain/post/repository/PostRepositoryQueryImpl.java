@@ -51,7 +51,7 @@ public class PostRepositoryQueryImpl implements PostRepositoryQuery {
 
         // null 이면 추가 조회 막기
         if (content == null) return null;
-        // dto 에 추가 : 취미, 기술스택
+        // couponDto 에 추가 : 취미, 기술스택
         mappingToDtoWithList(postId, content);
 
         return content;
@@ -89,7 +89,7 @@ public class PostRepositoryQueryImpl implements PostRepositoryQuery {
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        // dto 에 추가 : 취미, 기술스택
+        // couponDto 에 추가 : 취미, 기술스택
         mappingToDtoListWithList(contents);
 
         Long count = queryFactory
@@ -202,7 +202,7 @@ public class PostRepositoryQueryImpl implements PostRepositoryQuery {
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        // dto 에 추가 : 취미, 기술스택
+        // couponDto 에 추가 : 취미, 기술스택
         mappingToDtoListWithList(contents);
 
         Long total = Optional.ofNullable(
@@ -241,7 +241,7 @@ public class PostRepositoryQueryImpl implements PostRepositoryQuery {
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        // dto 에 추가 : 취미, 기술스택
+        // couponDto 에 추가 : 취미, 기술스택
         mappingToDtoListWithList(contents);
 
         Long count = queryFactory
@@ -267,7 +267,7 @@ public class PostRepositoryQueryImpl implements PostRepositoryQuery {
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        // dto 에 추가 : 취미, 기술스택
+        // couponDto 에 추가 : 취미, 기술스택
         mappingToDtoListWithList(contents);
 
         Long count = queryFactory

@@ -16,8 +16,8 @@ import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.enums.PostStatus;
 import org.example.pdnight.domain.post.repository.PostRepository;
 import org.example.pdnight.domain.post.repository.PostRepositoryQuery;
-import org.example.pdnight.domain.user.entity.User;
-import org.example.pdnight.domain.user.repository.UserRepository;
+import org.example.pdnight.domain.user.domain.entity.User;
+import org.example.pdnight.domain.user.infra.userInfra.UserJpaRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -50,7 +50,7 @@ class PostServiceTest {
     private PostRepositoryQuery postRepositoryQuery;
 
     @Mock
-    private UserRepository userRepository;
+    private UserJpaRepository userJpaRepository;
 
     @InjectMocks
     private PostService postService;
@@ -98,7 +98,7 @@ class PostServiceTest {
         Long userId = 1L;
 
         //when
-        when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
+        when(userJpaRepository.findById(userId)).thenReturn(Optional.of(mockUser));
         when(postRepository.save(any(Post.class))).thenReturn(post);
         PostCreateAndUpdateResponseDto responseDto = postService.createPost(userId, postRequestDto);
 

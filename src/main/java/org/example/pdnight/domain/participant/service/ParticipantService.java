@@ -16,8 +16,8 @@ import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.enums.PostStatus;
 import org.example.pdnight.domain.post.repository.PostRepository;
-import org.example.pdnight.domain.user.entity.User;
-import org.example.pdnight.domain.user.repository.UserRepository;
+import org.example.pdnight.domain.user.domain.entity.User;
+import org.example.pdnight.domain.user.infra.userInfra.UserJpaRepository;
 import org.example.pdnight.global.aop.DistributedLock;
 import org.example.pdnight.global.constant.CacheName;
 import org.springframework.cache.annotation.CacheEvict;
@@ -35,7 +35,7 @@ import static org.example.pdnight.domain.common.enums.ErrorCode.CANNOT_PARTICIPA
 public class ParticipantService {
 
     private final PostRepository postRepository;
-    private final UserRepository userRepository;
+    private final UserJpaRepository userJpaRepository;
     private final ParticipantRepository participantRepository;
     private final InviteService inviteService;
     private final ChattingService chattingService;
@@ -165,7 +165,7 @@ public class ParticipantService {
     // ----------------------------------- HELPER 메서드 ------------------------------------------------------ //
     // =========================================get==========================================================
     private User getUser(Long userId) {
-        return userRepository.findById(userId)
+        return userJpaRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
     }
 
