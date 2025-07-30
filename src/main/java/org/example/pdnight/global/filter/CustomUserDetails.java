@@ -2,7 +2,9 @@ package org.example.pdnight.global.filter;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.example.pdnight.domain.common.enums.UserRole;
+import org.example.pdnight.domain1.common.enums.JobCategory;
+import org.example.pdnight.domain1.common.enums.UserRole;
+import org.example.pdnight.domain1.post.enums.Gender;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,6 +19,9 @@ public class CustomUserDetails implements UserDetails {
     private final String username;
     private final String password;
     private final UserRole userRole;
+    private final Long age;
+    private final Gender gender;
+    private final JobCategory jobCategory;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

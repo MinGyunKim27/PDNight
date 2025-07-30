@@ -1,7 +1,7 @@
 package org.example.pdnight.global.init;
 
-import org.example.pdnight.domain.user.entity.User;
-import org.example.pdnight.domain.user.repository.UserRepository;
+import org.example.pdnight.domain1.user.entity.User;
+import org.example.pdnight.domain1.user.repository.UserRepository;
 import org.example.pdnight.global.config.PasswordEncoder;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;

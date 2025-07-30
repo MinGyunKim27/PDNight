@@ -1,8 +1,8 @@
 package org.example.pdnight.global.exception;
 
 import lombok.extern.slf4j.Slf4j;
-import org.example.pdnight.domain.common.dto.ApiResponse;
-import org.example.pdnight.domain.common.exception.BaseException;
+import org.example.pdnight.domain1.common.dto.ApiResponse;
+import org.example.pdnight.domain1.common.exception.BaseException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
