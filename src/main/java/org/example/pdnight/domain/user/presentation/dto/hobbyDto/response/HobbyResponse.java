@@ -1,0 +1,23 @@
+package org.example.pdnight.domain.user.presentation.dto.hobbyDto.response;
+
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.example.pdnight.domain.hobby.domain.entity.Hobby;
+
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class HobbyResponse {
+    private Long id;
+    private String hobby;
+
+    private HobbyResponse (Hobby hobby) {
+        this.id = hobby.getId();
+        this.hobby = hobby.getHobby();
+    }
+
+    public static HobbyResponse from(Hobby hobby){
+        return new HobbyResponse(hobby);
+    }
+
+}

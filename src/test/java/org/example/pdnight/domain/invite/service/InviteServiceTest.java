@@ -8,7 +8,7 @@ import org.example.pdnight.domain.invite.entity.Invite;
 import org.example.pdnight.domain.invite.repository.InviteRepository;
 import org.example.pdnight.domain.invite.repository.InviteRepositoryQuery;
 import org.example.pdnight.domain.post.entity.Post;
-import org.example.pdnight.domain.user.entity.User;
+import org.example.pdnight.domain.user.domain.entity.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

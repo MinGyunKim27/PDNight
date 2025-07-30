@@ -2,12 +2,10 @@ package org.example.pdnight.domain.follow.service;
 
 import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.common.helper.GetHelper;
-import org.example.pdnight.domain.follow.dto.response.FollowResponseDto;
-import org.example.pdnight.domain.follow.dto.response.FollowingResponseDto;
-import org.example.pdnight.domain.follow.entity.Follow;
-import org.example.pdnight.domain.follow.repository.FollowRepository;
-import org.example.pdnight.domain.follow.repository.FollowRepositoryQuery;
-import org.example.pdnight.domain.user.entity.User;
+import org.example.pdnight.domain.user.presentation.dto.userDto.response.FollowResponseDto;
+import org.example.pdnight.domain.user.presentation.dto.userDto.response.FollowingResponseDto;
+import org.example.pdnight.domain.user.domain.entity.Follow;
+import org.example.pdnight.domain.user.domain.entity.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,7 +29,6 @@ public class FollowServiceTest {
     private FollowRepository followRepository;
     private FollowRepositoryQuery followRepositoryQuery;
     private GetHelper helper;
-    private FollowService followService;
 
     private User user1;
     private User user2;
@@ -42,7 +39,6 @@ public class FollowServiceTest {
         followRepositoryQuery = mock(FollowRepositoryQuery.class);
         helper = mock(GetHelper.class);
 
-        followService = new FollowService(followRepository, followRepositoryQuery, helper);
         user1 = Mockito.mock(User.class);
         lenient().when(user1.getId()).thenReturn(1L);
         user2 = Mockito.mock(User.class);

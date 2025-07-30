@@ -3,13 +3,13 @@ package org.example.pdnight.domain.coupon.service;
 import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.common.helper.GetHelper;
-import org.example.pdnight.domain.coupon.dto.request.CouponRequestDto;
-import org.example.pdnight.domain.coupon.dto.request.UpdateCouponRequestDto;
-import org.example.pdnight.domain.coupon.dto.response.CouponResponseDto;
-import org.example.pdnight.domain.coupon.entity.Coupon;
-import org.example.pdnight.domain.coupon.repository.CouponRepository;
-import org.example.pdnight.domain.user.entity.User;
-import org.example.pdnight.domain.user.repository.UserRepository;
+import org.example.pdnight.domain.user.presentation.dto.couponDto.request.CouponRequestDto;
+import org.example.pdnight.domain.user.presentation.dto.couponDto.request.UpdateCouponRequestDto;
+import org.example.pdnight.domain.user.presentation.dto.couponDto.response.CouponResponseDto;
+import org.example.pdnight.domain.user.domain.entity.Coupon;
+import org.example.pdnight.domain.user.infra.couponInfra.CouponJpaRepository;
+import org.example.pdnight.domain.user.domain.entity.User;
+import org.example.pdnight.domain.user.infra.userInfra.UserJpaRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,10 +29,10 @@ import static org.mockito.Mockito.*;
 class CouponAdminServiceTest {
 
     @Mock
-    private CouponRepository couponRepository;
+    private CouponJpaRepository couponJpaRepository;
 
     @Mock
-    private UserRepository userRepository;
+    private UserJpaRepository userJpaRepository;
 
     @Mock
     private GetHelper helper;
@@ -54,7 +54,7 @@ class CouponAdminServiceTest {
         when(dto.getCouponInfo()).thenReturn("쿠폰");
 
         when(helper.getUserByIdOrElseThrow(dto.getUserId())).thenReturn(user);
-        when(couponRepository.save(any(Coupon.class))).thenReturn(coupon);
+        when(couponJpaRepository.save(any(Coupon.class))).thenReturn(coupon);
 
         CouponResponseDto result = couponAdminService.createCoupon(dto);
 
@@ -62,7 +62,7 @@ class CouponAdminServiceTest {
         assertThat(result).isNotNull();
         assertThat(result.getCouponInfo()).isEqualTo("쿠폰");
         verify(user).addCoupon(any(Coupon.class));
-        verify(couponRepository).save(any(Coupon.class));
+        verify(couponJpaRepository).save(any(Coupon.class));
     }
 
     @Test
@@ -90,12 +90,12 @@ class CouponAdminServiceTest {
         // when
         when(user.getId()).thenReturn(1L);
         when(coupon.getUser()).thenReturn(user);
-        when(couponRepository.findById(couponId)).thenReturn(Optional.of(coupon));
+        when(couponJpaRepository.findById(couponId)).thenReturn(Optional.of(coupon));
         CouponResponseDto result = couponAdminService.getCoupon(couponId);
 
         // then
         assertThat(result).isNotNull();
-        verify(couponRepository).findById(couponId);
+        verify(couponJpaRepository).findById(couponId);
     }
 
     @Test
@@ -104,7 +104,7 @@ class CouponAdminServiceTest {
         // given
 
         // when & then
-        when(couponRepository.findById(1L)).thenReturn(Optional.empty());
+        when(couponJpaRepository.findById(1L)).thenReturn(Optional.empty());
         assertThatThrownBy(() -> couponAdminService.getCoupon(1L))
                 .isInstanceOf(BaseException.class)
                 .hasMessage(ErrorCode.COUPON_NOT_FOUND.getMessage());
@@ -124,7 +124,7 @@ class CouponAdminServiceTest {
         // when
         when(user.getId()).thenReturn(1L);
         when(coupon.getUser()).thenReturn(user);
-        when(couponRepository.findById(couponId)).thenReturn(Optional.of(coupon));
+        when(couponJpaRepository.findById(couponId)).thenReturn(Optional.of(coupon));
         CouponResponseDto result = couponAdminService.updateCoupon(couponId, dto);
 
         // then
@@ -138,7 +138,7 @@ class CouponAdminServiceTest {
         // given
 
         // when & then
-        when(couponRepository.findById(1L)).thenReturn(Optional.empty());
+        when(couponJpaRepository.findById(1L)).thenReturn(Optional.empty());
         assertThatThrownBy(() -> couponAdminService.updateCoupon(1L, mock(UpdateCouponRequestDto.class)))
                 .isInstanceOf(BaseException.class)
                 .hasMessage(ErrorCode.COUPON_NOT_FOUND.getMessage());
@@ -152,11 +152,11 @@ class CouponAdminServiceTest {
         Coupon coupon = mock(Coupon.class);
 
         // when
-        when(couponRepository.findById(couponId)).thenReturn(Optional.of(coupon));
+        when(couponJpaRepository.findById(couponId)).thenReturn(Optional.of(coupon));
         couponAdminService.deleteCoupon(couponId);
 
         // then
-        verify(couponRepository).delete(coupon);
+        verify(couponJpaRepository).delete(coupon);
     }
 
     @Test
@@ -165,7 +165,7 @@ class CouponAdminServiceTest {
         // given
 
         // when & then
-        when(couponRepository.findById(1L)).thenReturn(Optional.empty());
+        when(couponJpaRepository.findById(1L)).thenReturn(Optional.empty());
         assertThatThrownBy(() -> couponAdminService.deleteCoupon(1L))
                 .isInstanceOf(BaseException.class)
                 .hasMessage(ErrorCode.COUPON_NOT_FOUND.getMessage());

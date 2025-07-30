@@ -1,12 +1,12 @@
 package org.example.pdnight.domain.eventParticipant.service;
 
 import org.example.pdnight.domain.common.helper.GetHelper;
-import org.example.pdnight.domain.event.entity.Event;
-import org.example.pdnight.domain.event.repository.EventRepository;
-import org.example.pdnight.domain.eventParticipant.entity.EventParticipant;
+import org.example.pdnight.domain.event.domain.entity.Event;
+import org.example.pdnight.domain.event.infra.EventJpaRepository;
+import org.example.pdnight.domain.event.domain.entity.EventParticipant;
 import org.example.pdnight.domain.eventParticipant.repository.EventParticipantRepository;
-import org.example.pdnight.domain.user.entity.User;
-import org.example.pdnight.domain.user.repository.UserRepository;
+import org.example.pdnight.domain.user.domain.entity.User;
+import org.example.pdnight.domain.user.infra.userInfra.UserJpaRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -21,7 +21,7 @@ import static org.mockito.Mockito.*;
 class EventParticipantServiceTest {
 
     @Mock
-    private EventRepository eventRepository;
+    private EventJpaRepository eventJpaRepository;
 
     @Mock
     private EventParticipantRepository eventParticipantRepository;
@@ -30,7 +30,7 @@ class EventParticipantServiceTest {
     private GetHelper helper;
 
     @Mock
-    private UserRepository userRepository;
+    private UserJpaRepository userJpaRepository;
 
     @InjectMocks
     private EventParticipantService eventParticipantService;
@@ -47,7 +47,7 @@ class EventParticipantServiceTest {
         when(event.getMaxParticipants()).thenReturn(5);
 
         when(eventParticipantRepository.existsByEventIdAndUserId(eventId, userId)).thenReturn(false);
-        when(eventRepository.findById(eventId)).thenReturn(Optional.of(event));
+        when(eventJpaRepository.findById(eventId)).thenReturn(Optional.of(event));
         when(helper.getUserByIdOrElseThrow(userId)).thenReturn(user);
         when(eventParticipantRepository.getEventParticipantByEventId(eventId)).thenReturn(3);
 

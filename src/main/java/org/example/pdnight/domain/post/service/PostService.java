@@ -9,9 +9,8 @@ import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.enums.JobCategory;
 import org.example.pdnight.domain.common.enums.JoinStatus;
 import org.example.pdnight.domain.common.exception.BaseException;
-import org.example.pdnight.domain.hobby.entity.Hobby;
-import org.example.pdnight.domain.hobby.entity.PostHobby;
-import org.example.pdnight.domain.hobby.repository.HobbyRepositoryQuery;
+import org.example.pdnight.domain.hobby.domain.entity.Hobby;
+import org.example.pdnight.domain.hobby.infra.HobbyRepositoryImpl;
 import org.example.pdnight.domain.post.dto.request.PostRequestDto;
 import org.example.pdnight.domain.post.dto.request.PostStatusRequestDto;
 import org.example.pdnight.domain.post.dto.request.PostUpdateRequestDto;
@@ -25,11 +24,9 @@ import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.enums.PostStatus;
 import org.example.pdnight.domain.post.repository.PostRepository;
 import org.example.pdnight.domain.post.repository.PostRepositoryQuery;
-import org.example.pdnight.domain.techStack.entity.PostTech;
-import org.example.pdnight.domain.techStack.entity.TechStack;
-import org.example.pdnight.domain.techStack.repository.TechStackRepositoryQuery;
-import org.example.pdnight.domain.user.entity.User;
-import org.example.pdnight.domain.user.repository.UserRepository;
+import org.example.pdnight.domain.techStack.domain.entity.TechStack;
+import org.example.pdnight.domain.user.domain.entity.User;
+import org.example.pdnight.domain.user.infra.userInfra.UserJpaRepository;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
@@ -49,10 +46,10 @@ import java.util.stream.Collectors;
 public class PostService {
 
     private final PostRepository postRepository;
-    private final UserRepository userRepository;
+    private final UserJpaRepository userJpaRepository;
     private final PostRepositoryQuery postRepositoryQuery;
     private final CommentRepository commentRepository;
-    private final HobbyRepositoryQuery hobbyRepositoryQuery;
+    private final HobbyRepositoryImpl hobbyRepositoryQuery;
     private final TechStackRepositoryQuery techStackRepositoryQuery;
     private final ChattingService chattingService;
 
@@ -268,7 +265,7 @@ public class PostService {
 
 
     private User getUserById(Long userId) {
-        return userRepository.findById(userId)
+        return userJpaRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
     }
 

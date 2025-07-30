@@ -1,13 +1,11 @@
 package org.example.pdnight.domain.hobby.service;
 
-import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.exception.BaseException;
-import org.example.pdnight.domain.hobby.dto.request.HobbyRequest;
-import org.example.pdnight.domain.hobby.dto.response.HobbyResponse;
-import org.example.pdnight.domain.hobby.entity.Hobby;
-import org.example.pdnight.domain.hobby.repository.HobbyRepository;
-import org.example.pdnight.domain.hobby.repository.HobbyRepositoryQuery;
-import org.example.pdnight.domain.user.entity.User;
+import org.example.pdnight.domain.user.presentation.dto.hobbyDto.request.HobbyRequest;
+import org.example.pdnight.domain.user.presentation.dto.hobbyDto.response.HobbyResponse;
+import org.example.pdnight.domain.hobby.domain.entity.Hobby;
+import org.example.pdnight.domain.hobby.infra.HobbyJpaRepository;
+import org.example.pdnight.domain.hobby.infra.HobbyRepositoryImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -26,10 +24,10 @@ class HobbyServiceTest {
     private HobbyService hobbyService;
 
     @Mock
-    private HobbyRepository hobbyRepository;
+    private HobbyJpaRepository hobbyRepository;
 
     @Mock
-    private HobbyRepositoryQuery hobbyRepositoryQuery;
+    private HobbyRepositoryImpl hobbyRepositoryQuery;
 
     @Test
     void createHobby_성공() {
@@ -97,4 +95,3 @@ class HobbyServiceTest {
         verify(hobbyRepositoryQuery).searchHobby(keyword);
     }
 }
-

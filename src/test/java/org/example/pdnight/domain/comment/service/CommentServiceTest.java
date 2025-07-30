@@ -9,7 +9,7 @@ import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.common.helper.GetHelper;
 import org.example.pdnight.domain.post.entity.Post;
-import org.example.pdnight.domain.user.entity.User;
+import org.example.pdnight.domain.user.domain.entity.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

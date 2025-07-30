@@ -8,8 +8,8 @@ import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.enums.PostStatus;
 import org.example.pdnight.domain.post.repository.PostRepository;
-import org.example.pdnight.domain.user.entity.User;
-import org.example.pdnight.domain.user.repository.UserRepository;
+import org.example.pdnight.domain.user.domain.entity.User;
+import org.example.pdnight.domain.user.infra.userInfra.UserJpaRepository;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -23,7 +23,7 @@ import static org.mockito.Mockito.lenient;
 public class BaseParticipantTest {
 
     @Mock
-    private UserRepository userRepository;
+    private UserJpaRepository userJpaRepository;
 
     @Mock
     private PostRepository postRepository;
@@ -35,7 +35,7 @@ public class BaseParticipantTest {
         lenient().when(mockUser.getGender()).thenReturn(Gender.MALE);
         lenient().when(mockUser.getJobCategory()).thenReturn(JobCategory.DATA_SCIENTIST);
 
-        lenient().when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
+        lenient().when(userJpaRepository.findById(userId)).thenReturn(Optional.of(mockUser));
         return mockUser;
     }
 

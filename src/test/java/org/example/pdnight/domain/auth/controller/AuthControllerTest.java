@@ -1,15 +1,15 @@
 package org.example.pdnight.domain.auth.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.example.pdnight.domain.auth.dto.request.LoginRequestDto;
-import org.example.pdnight.domain.auth.dto.request.SignupRequestDto;
-import org.example.pdnight.domain.auth.dto.request.WithdrawRequestDto;
+import org.example.pdnight.domain.auth.presentation.dto.request.LoginRequestDto;
+import org.example.pdnight.domain.auth.presentation.dto.request.SignupRequestDto;
+import org.example.pdnight.domain.auth.presentation.dto.request.WithdrawRequestDto;
 import org.example.pdnight.domain.common.enums.JobCategory;
 import org.example.pdnight.domain.common.enums.UserRole;
 import org.example.pdnight.domain.post.enums.Gender;
-import org.example.pdnight.domain.user.entity.User;
-import org.example.pdnight.domain.user.enums.Region;
-import org.example.pdnight.domain.user.repository.UserRepository;
+import org.example.pdnight.domain.user.domain.entity.User;
+import org.example.pdnight.domain.user.domain.enums.Region;
+import org.example.pdnight.domain.user.infra.userInfra.UserJpaRepository;
 import org.example.pdnight.global.config.PasswordEncoder;
 import org.example.pdnight.global.utils.JwtUtil;
 import org.junit.jupiter.api.DisplayName;
@@ -39,7 +39,7 @@ class AuthControllerTest {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserJpaRepository userJpaRepository;
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -151,6 +151,6 @@ class AuthControllerTest {
                 request.getRegion(),
                 request.getWorkLocation(),
                 request.getComment());
-        return userRepository.save(user);
+        return userJpaRepository.save(user);
     }
 }

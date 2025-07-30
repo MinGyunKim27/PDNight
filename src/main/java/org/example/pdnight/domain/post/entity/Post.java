@@ -7,15 +7,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.example.pdnight.domain.common.entity.Timestamped;
 import org.example.pdnight.domain.common.enums.JobCategory;
-import org.example.pdnight.domain.hobby.entity.PostHobby;
 import org.example.pdnight.domain.invite.entity.Invite;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.enums.PostStatus;
 import org.example.pdnight.domain.postLike.entity.PostLike;
-import org.example.pdnight.domain.review.entity.Review;
-import org.example.pdnight.domain.techStack.entity.PostTech;
-import org.example.pdnight.domain.user.entity.User;
+import org.example.pdnight.domain.user.domain.entity.Review;
+import org.example.pdnight.domain.user.domain.entity.User;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

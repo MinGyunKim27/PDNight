@@ -1,11 +1,10 @@
 package org.example.pdnight.domain.techStack.service;
 
 import org.example.pdnight.domain.common.exception.BaseException;
-import org.example.pdnight.domain.techStack.dto.request.TechStackRequestDto;
-import org.example.pdnight.domain.techStack.dto.response.TechStackResponseDto;
-import org.example.pdnight.domain.techStack.entity.TechStack;
-import org.example.pdnight.domain.techStack.repository.TechStackRepository;
-import org.example.pdnight.domain.techStack.repository.TechStackRepositoryQueryImpl;
+import org.example.pdnight.domain.user.application.techStackUseCase.TechStackService;
+import org.example.pdnight.domain.user.domain.entity.TechStack;
+import org.example.pdnight.domain.user.infra.techStackInfra.TechStackQueryRepositoryImpl;
+import org.example.pdnight.domain.user.presentation.dto.techStackDto.response.TechStackResponseDto;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -25,10 +24,10 @@ public class TechStackServiceTest {
     private TechStackService techStackService;
 
     @Mock
-    private TechStackRepository techStackRepository;
+    private TechStackJpaRepository techStackRepository;
 
     @Mock
-    private TechStackRepositoryQueryImpl techStackRepositoryQuery;
+    private TechStackQueryRepositoryImpl techStackRepositoryQuery;
 
     @Test
     void 기술스택_생성_성공() {

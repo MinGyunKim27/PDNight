@@ -1,10 +1,10 @@
 package org.example.pdnight.domain.eventParticipant.service;
 
-import org.example.pdnight.domain.event.entity.Event;
-import org.example.pdnight.domain.event.repository.EventRepository;
+import org.example.pdnight.domain.event.domain.entity.Event;
+import org.example.pdnight.domain.event.infra.EventJpaRepository;
 import org.example.pdnight.domain.eventParticipant.repository.EventParticipantRepository;
-import org.example.pdnight.domain.user.entity.User;
-import org.example.pdnight.domain.user.repository.UserRepository;
+import org.example.pdnight.domain.user.domain.entity.User;
+import org.example.pdnight.domain.user.infra.userInfra.UserJpaRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,10 +25,10 @@ class EventParticipantServiceConcurrencyTest {
     private EventParticipantRepository eventParticipantRepository;
 
     @Autowired
-    private EventRepository eventRepository;
+    private EventJpaRepository eventJpaRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserJpaRepository userJpaRepository;
 
     private static final int THREAD_COUNT = 10;
     private static final int MAX_PARTICIPANTS = 5;
@@ -42,11 +42,11 @@ class EventParticipantServiceConcurrencyTest {
         // 사용자 10명 저장
         int i;
         for (i = 1; i < THREAD_COUNT+1; i++) {
-            userRepository.save(User.createTestUser((long) i, "user" + i,"email"+i+"@test.com","asdasdasdaas"));
+            userJpaRepository.save(User.createTestUser((long) i, "user" + i,"email"+i+"@test.com","asdasdasdaas"));
         }
 
         Event event = Event.from( "테스트 이벤트","이벤트 내용", MAX_PARTICIPANTS, LocalDateTime.now());
-        eventRepository.save(event);
+        eventJpaRepository.save(event);
         eventId = event.getId();
     }
 

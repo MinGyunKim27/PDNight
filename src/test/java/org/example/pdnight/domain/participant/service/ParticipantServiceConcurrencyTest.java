@@ -9,8 +9,8 @@ import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.enums.PostStatus;
 import org.example.pdnight.domain.post.repository.PostRepository;
-import org.example.pdnight.domain.user.entity.User;
-import org.example.pdnight.domain.user.repository.UserRepository;
+import org.example.pdnight.domain.user.domain.entity.User;
+import org.example.pdnight.domain.user.infra.userInfra.UserJpaRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +35,7 @@ public class ParticipantServiceConcurrencyTest {
     @Autowired
     ParticipantService participantService;
     @Autowired
-    UserRepository userRepository;
+    UserJpaRepository userJpaRepository;
     @Autowired
     PostRepository postRepository;
     @Autowired
@@ -54,13 +54,13 @@ public class ParticipantServiceConcurrencyTest {
         for (int i = 1; i <= 200; i++) {
             Long l = (long) i;
             User user = User.createTestUser(l,"email" + i + "@test.com", "user" + i, "Password123!");
-            User savedUser = userRepository.save(user);
+            User savedUser = userJpaRepository.save(user);
             testUsers.add(savedUser);
         }
 
         // 게시글 작성자 유저 생성
         User author = User.createTestUser(201L,"email201@test.com", "user201", "Password123!");
-        authorUser = userRepository.save(author);
+        authorUser = userJpaRepository.save(author);
 
         // 선착순 포스트 생성
         testPost = postRepository.save(Post.createPost(

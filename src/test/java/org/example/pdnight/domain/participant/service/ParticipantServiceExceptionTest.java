@@ -6,7 +6,7 @@ import org.example.pdnight.domain.participant.entity.PostParticipant;
 import org.example.pdnight.domain.common.enums.JoinStatus;
 import org.example.pdnight.domain.participant.repository.ParticipantRepository;
 import org.example.pdnight.domain.post.entity.Post;
-import org.example.pdnight.domain.user.entity.User;
+import org.example.pdnight.domain.user.domain.entity.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

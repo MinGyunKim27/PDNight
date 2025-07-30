@@ -10,7 +10,7 @@ import org.example.pdnight.domain.invite.entity.Invite;
 import org.example.pdnight.domain.invite.repository.InviteRepository;
 import org.example.pdnight.domain.invite.repository.InviteRepositoryQuery;
 import org.example.pdnight.domain.post.entity.Post;
-import org.example.pdnight.domain.user.entity.User;
+import org.example.pdnight.domain.user.domain.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
