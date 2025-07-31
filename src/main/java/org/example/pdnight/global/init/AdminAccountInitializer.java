@@ -1,6 +1,8 @@
 //package org.example.pdnight.global.init;
 //
-//
+//import org.example.pdnight.domain.auth.domain.AuthReader;
+//import org.example.pdnight.domain.user.domain.userDomain.UserCommander;
+//import org.example.pdnight.domain.user.domain.entity.User;
 //import org.example.pdnight.global.config.PasswordEncoder;
 //import org.springframework.boot.ApplicationArguments;
 //import org.springframework.boot.ApplicationRunner;
@@ -11,7 +13,8 @@
 //@Component
 //@RequiredArgsConstructor
 //public class AdminAccountInitializer implements ApplicationRunner {
-//	private final UserRepository userRepository;
+//	private final AuthReader authReader;
+//	private final UserCommander userCommandQuery;
 //	private final PasswordEncoder passwordEncoder;
 //
 //	@Override
@@ -21,12 +24,12 @@
 //		String adminPassword = passwordEncoder.encode("password1!");
 //
 //		//이미 admin 계정이 있을 시
-//		if (userRepository.existsByEmail(adminEmail)) {
+//		if (authReader.findByEmail(adminEmail).isPresent()) {
 //			return;
 //		}
 //
-//		User admin = User.createAdmin(adminEmail, adminName, adminPassword);
-//		userRepository.save(admin);
+//		User admin = User.createAdmin(adminName);
+//		userCommandQuery.save(admin);
 //	}
 //
 //}

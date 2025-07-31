@@ -56,6 +56,9 @@ dependencies {
     testRuntimeOnly 'com.h2database:h2'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
+    // WebClient를 위한 Spring WebFlux
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
     // Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.redisson:redisson-spring-boot-starter:3.24.3'

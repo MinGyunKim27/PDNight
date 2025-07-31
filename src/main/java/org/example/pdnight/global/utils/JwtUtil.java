@@ -4,9 +4,9 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.example.pdnight.domain.common.enums.JobCategory;
+import org.example.pdnight.domain.common.enums.UserRole;
 import org.example.pdnight.domain.post.enums.Gender;
-import org.example.pdnight.global.common.enums.JobCategory;
-import org.example.pdnight.global.common.enums.UserRole;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -32,15 +32,16 @@ public class JwtUtil {
         key = Keys.hmacShaKeyFor(bytes);
     }
 
-    public String createToken(Long userId, UserRole userRole, String nickname, Long userAge, Gender gender, JobCategory jobCategory) {
+    public String createToken(Long userId, UserRole userRole, String nickname,
+                              Long age, Gender gender, JobCategory jobCategory) {
         Date date = new Date();
 
         return Jwts.builder()
                 .setSubject(String.valueOf(userId))
                 .claim("userRole", userRole)
                 .claim("userNickname", nickname)
-                .claim("userAge", userAge)
-                .claim("userGender", gender)
+                .claim("age",age)
+                .claim("gender",gender)
                 .claim("jobCategory", jobCategory)
                 .setExpiration(new Date(date.getTime() + TOKEN_TIME))
                 .setIssuedAt(date)
