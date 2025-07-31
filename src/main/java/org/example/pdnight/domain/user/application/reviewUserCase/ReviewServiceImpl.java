@@ -12,21 +12,21 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ReviewServiceImpl implements ReviewService {
 
-    private final ReviewQueryService reviewQueryService;
-    private final ReviewCommandService reviewCommandService;
+    private final ReviewReaderService reviewReaderService;
+    private final ReviewCommanderService reviewCommanderService;
 
     @Override
     public ReviewResponse createReview(Long userId, Long ratedUserId, Long postId, ReviewRequest requestDto) {
-        return reviewCommandService.createReview(userId, ratedUserId, postId, requestDto);
+        return reviewCommanderService.createReview(userId, ratedUserId, postId, requestDto);
     }
 
     @Override
     public PagedResponse<ReviewResponse> getReceivedReviewsByUser(Long userId, Pageable pageable) {
-        return reviewQueryService.getReceivedReviewsByUser(userId, pageable);
+        return reviewReaderService.getReceivedReviewsByUser(userId, pageable);
     }
 
     @Override
     public PagedResponse<ReviewResponse> getWrittenReviewsByUser(Long userId, Pageable pageable) {
-        return reviewQueryService.getWrittenReviewsByUser(userId, pageable);
+        return reviewReaderService.getWrittenReviewsByUser(userId, pageable);
     }
 }

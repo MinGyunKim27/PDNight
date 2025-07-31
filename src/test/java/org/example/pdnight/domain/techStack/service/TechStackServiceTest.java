@@ -3,10 +3,8 @@ package org.example.pdnight.domain.techStack.service;
 import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.user.application.techStackUseCase.TechStackService;
 import org.example.pdnight.domain.user.domain.entity.TechStack;
-import org.example.pdnight.domain.user.domain.teckStackDomain.TechStackCommandQuery;
+import org.example.pdnight.domain.user.domain.teckStackDomain.TechStackCommander;
 import org.example.pdnight.domain.user.domain.teckStackDomain.TechStackReader;
-import org.example.pdnight.domain.user.infra.techStackInfra.TechStackJpaRepository;
-import org.example.pdnight.domain.user.infra.techStackInfra.TechStackQueryRepositoryImpl;
 import org.example.pdnight.domain.user.presentation.dto.techStackDto.request.TechStackRequest;
 import org.example.pdnight.domain.user.presentation.dto.techStackDto.response.TechStackResponse;
 import org.junit.jupiter.api.Test;
@@ -31,7 +29,7 @@ public class TechStackServiceTest {
     private TechStackReader techStackReader;
 
     @Mock
-    private TechStackCommandQuery techStackCommandQuery;
+    private TechStackCommander techStackCommandQuery;
 
     @Test
     void 기술스택_생성_성공() {

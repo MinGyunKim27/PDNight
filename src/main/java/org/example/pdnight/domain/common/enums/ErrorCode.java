@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum ErrorCode {
     // 인증 관련 에러 (401 Unauthorized)
+    AUTH_DEACTIVATED(HttpStatus.UNAUTHORIZED, "탈퇴 된 인증 객체입니다."),
+    AUTH_NOT_FOUND(HttpStatus.NOT_FOUND, "인증 객체을 찾을 수 없습니다"),
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다"),
     EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, "만료된 토큰입니다"),
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증이 필요합니다"),

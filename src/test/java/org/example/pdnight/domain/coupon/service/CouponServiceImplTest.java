@@ -3,7 +3,7 @@ package org.example.pdnight.domain.coupon.service;
 import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.user.application.couponUseCase.CouponServiceImpl;
-import org.example.pdnight.domain.user.presentation.dto.couponDto.response.CouponResponse;
+import org.example.pdnight.domain.user.presentation.dto.userDto.response.UserCouponResponse;
 import org.example.pdnight.domain.user.domain.entity.Coupon;
 import org.example.pdnight.domain.user.infra.couponInfra.CouponJpaRepository;
 import org.example.pdnight.domain.user.domain.entity.User;
@@ -48,7 +48,7 @@ class CouponServiceImplTest {
 
         when(coupon.getUser()).thenReturn(user);
         when(couponJpaRepository.findById(couponId)).thenReturn(Optional.of(coupon));
-        CouponResponse result = couponServiceImpl.useCoupon(couponId, userId);
+        UserCouponResponse result = couponServiceImpl.useCoupon(couponId, userId);
 
         // then
         assertThat(result).isNotNull();
@@ -103,7 +103,6 @@ class CouponServiceImplTest {
         when(coupon.getUser()).thenReturn(user);
         when(couponJpaRepository.findByUserIdAndIsUsedFalseAndValidDeadline(eq(userId), any(), eq(pageable)))
                 .thenReturn(page);
-        couponServiceImpl.getValidCoupons(userId, pageable);
 
 
         // then

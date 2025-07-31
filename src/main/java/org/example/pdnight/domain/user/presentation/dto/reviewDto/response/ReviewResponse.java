@@ -9,8 +9,9 @@ import java.time.LocalDateTime;
 @Getter
 public class ReviewResponse {
     private Long id;
+    private Long reviewerId;
+    private Long revieweeId;
     private Long postId;
-    private Long ratedUserId;
     private BigDecimal rate;
     private String comment;
     private LocalDateTime createdAt;
@@ -18,8 +19,9 @@ public class ReviewResponse {
 
     public ReviewResponse(Review review) {
         this.id = review.getId();
-        this.postId = review.getPost().getId();
-        this.ratedUserId = review.getRatedUser().getId();
+        this.postId = review.getPostId();
+        this.reviewerId = review.getReviewerId();
+        this.revieweeId = review.getRevieweeId();
         this.rate = review.getRate();
         this.comment = review.getComment();
         this.createdAt = review.getCreatedAt();

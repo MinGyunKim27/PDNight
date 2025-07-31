@@ -1,12 +1,6 @@
 package org.example.pdnight.domain.user.application.hobbyUseCase;
 
 import lombok.RequiredArgsConstructor;
-import org.example.pdnight.domain.common.enums.ErrorCode;
-import org.example.pdnight.domain.common.exception.BaseException;
-import org.example.pdnight.domain.user.domain.entity.Hobby;
-import org.example.pdnight.domain.user.domain.hobbyDomain.HobbyCommandQuery;
-import org.example.pdnight.domain.user.domain.hobbyDomain.HobbyReader;
-import org.example.pdnight.domain.user.infra.hobbyInfra.HobbyRepositoryImpl;
 import org.example.pdnight.domain.user.presentation.dto.hobbyDto.request.HobbyRequest;
 import org.example.pdnight.domain.user.presentation.dto.hobbyDto.response.HobbyResponse;
 import org.springframework.stereotype.Service;
@@ -18,29 +12,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class HobbyServiceImpl implements HobbyService {
 
-    private final HobbyCommandQuery hobbyCommandQuery;
-    private final HobbyReader hobbyReader;
+    private final HobbyCommanderService hobbyCommander;
+    private final HobbyReaderService hobbyReader;
 
-    public HobbyResponse createHobby(HobbyRequest dto){
-        validateExistHobby(dto.getHobby());
-
-        Hobby hobby = Hobby.from(dto.getHobby());
-
-        Hobby save = hobbyCommandQuery.save(hobby);
-        return HobbyResponse.from(save);
+    public HobbyResponse createHobby(HobbyRequest dto) {
+        return hobbyCommander.createHobby(dto);
     }
 
-    public List<HobbyResponse> searchHobby(String searchHobby){
-        List<Hobby> hobbies = hobbyReader.searchHobby(searchHobby);
-        return hobbies.stream().map(HobbyResponse::from).toList();
-    }
-
-    // ----------------------------------- HELPER 메서드 ------------------------------------------------------ //
-    // validate
-    private void validateExistHobby(String hobby) {
-        Boolean exists = hobbyReader.existsHobbiesByHobby(hobby);
-        if (exists){
-            throw new BaseException(ErrorCode.HOBBY_ALREADY_EXISTS);
-        }
+    public List<HobbyResponse> searchHobby(String searchHobby) {
+        return hobbyReader.searchHobby(searchHobby);
     }
 }

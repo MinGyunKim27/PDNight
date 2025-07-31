@@ -12,14 +12,11 @@ import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.enums.PostStatus;
 import org.example.pdnight.domain.postLike.entity.PostLike;
-import org.example.pdnight.domain.user.domain.entity.Review;
 import org.example.pdnight.domain.user.domain.entity.User;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Table(name = "posts")
@@ -69,9 +66,6 @@ public class Post extends Timestamped {
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PostLike> postLikes = new ArrayList<>();
-
-    @OneToMany(mappedBy = "post", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    private List<Review> reviews = new ArrayList<>();
 
 
     private Post(
@@ -146,13 +140,4 @@ public class Post extends Timestamped {
         this.postLikes.remove(postLike);
     }
 
-    public void addReview(Review review) {
-        this.reviews.add(review);
-    }
-
-    public void unlinkReviews() {
-        for (Review review : reviews) {
-            review.removePost();
-        }
-    }
 }

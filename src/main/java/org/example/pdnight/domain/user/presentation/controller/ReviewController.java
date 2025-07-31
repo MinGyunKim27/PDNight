@@ -3,9 +3,9 @@ package org.example.pdnight.domain.user.presentation.controller;
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.common.dto.ApiResponse;
 import org.example.pdnight.domain.common.dto.PagedResponse;
+import org.example.pdnight.domain.user.application.reviewUserCase.ReviewService;
 import org.example.pdnight.domain.user.presentation.dto.reviewDto.request.ReviewRequest;
 import org.example.pdnight.domain.user.presentation.dto.reviewDto.response.ReviewResponse;
-import org.example.pdnight.domain.user.application.reviewUserCase.ReviewServiceImpl;
 import org.example.pdnight.global.filter.CustomUserDetails;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api")
 @RequiredArgsConstructor
 public class ReviewController {
-    private final ReviewServiceImpl reviewServiceImpl;
+    private final ReviewService reviewService;
 
     // -------------------------- Command Api -------------------------------------------------//
     @PostMapping("/posts/{postId}/participants/{userId}/review")
@@ -29,7 +29,7 @@ public class ReviewController {
             @PathVariable("userId") Long ratedUserId,
             @Validated @RequestBody ReviewRequest requestDto
     ) {
-        ReviewResponse response = reviewServiceImpl.createReview(userDetails.getUserId(), ratedUserId, postId, requestDto);
+        ReviewResponse response = reviewService.createReview(userDetails.getUserId(), ratedUserId, postId, requestDto);
 
         return ResponseEntity.ok(ApiResponse.ok("리뷰가 등록되었습니다.", response));
     }
@@ -43,7 +43,7 @@ public class ReviewController {
             @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
             Pageable pageable
     ) {
-        return ResponseEntity.ok(ApiResponse.ok("사용자가 받은 리뷰 리스트 조회 성공.", reviewServiceImpl.getReceivedReviewsByUser(userId, pageable)));
+        return ResponseEntity.ok(ApiResponse.ok("사용자가 받은 리뷰 리스트 조회 성공.", reviewService.getReceivedReviewsByUser(userId, pageable)));
     }
 
     //내가 받은 리뷰 리스트 조회
@@ -54,7 +54,7 @@ public class ReviewController {
             Pageable pageable
     ) {
         Long myId = userDetails.getUserId();
-        return ResponseEntity.ok(ApiResponse.ok("사용자가 받은 리뷰 리스트 조회 성공.", reviewServiceImpl.getReceivedReviewsByUser(myId, pageable)));
+        return ResponseEntity.ok(ApiResponse.ok("사용자가 받은 리뷰 리스트 조회 성공.", reviewService.getReceivedReviewsByUser(myId, pageable)));
     }
 
     //내가 받은 리뷰 리스트 조회
@@ -65,6 +65,6 @@ public class ReviewController {
             Pageable pageable
     ) {
         Long myId = userDetails.getUserId();
-        return ResponseEntity.ok(ApiResponse.ok("사용자가 받은 리뷰 리스트 조회 성공.", reviewServiceImpl.getWrittenReviewsByUser(myId, pageable)));
+        return ResponseEntity.ok(ApiResponse.ok("사용자가 받은 리뷰 리스트 조회 성공.", reviewService.getWrittenReviewsByUser(myId, pageable)));
     }
 }

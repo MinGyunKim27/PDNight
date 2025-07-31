@@ -5,13 +5,15 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.pdnight.domain.common.entity.Timestamped;
+import org.example.pdnight.domain.common.enums.ErrorCode;
+import org.example.pdnight.domain.common.exception.BaseException;
 
 import java.math.BigDecimal;
 
 @Entity
 @Table(
         name = "reviews",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"reviewer_id", "rated_user_id", "post_id"})
+        uniqueConstraints = @UniqueConstraint(columnNames = {"reviewer_id", "reviewee_id", "post_id"})
 )
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -25,7 +27,7 @@ public class Review extends Timestamped {
 
     @Column(nullable = false)
     private Long revieweeId;
-    
+
     private Long postId;
 
     @Column(precision = 2, scale = 1, nullable = false)
@@ -43,10 +45,11 @@ public class Review extends Timestamped {
     }
 
     public static Review create(Long reviewerId, Long revieweeId, Long postId, BigDecimal rate, String comment) {
-        return new Review(reviewerId, revieweeId, postId, rate, comment);
-    }
+        //본인이 본인을 매길 수 없음
+        if (reviewerId.equals(revieweeId)) {
+            throw new BaseException(ErrorCode.CANNOT_REVIEW_SELF);
+        }
 
-    public void removePost() {
-        this.postId = null;
+        return new Review(reviewerId, revieweeId, postId, rate, comment);
     }
 }

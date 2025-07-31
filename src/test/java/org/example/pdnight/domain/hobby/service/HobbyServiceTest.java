@@ -3,7 +3,7 @@ package org.example.pdnight.domain.hobby.service;
 import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.user.application.hobbyUseCase.HobbyService;
 import org.example.pdnight.domain.user.domain.entity.Hobby;
-import org.example.pdnight.domain.user.domain.hobbyDomain.HobbyCommandQuery;
+import org.example.pdnight.domain.user.domain.hobbyDomain.HobbyCommander;
 import org.example.pdnight.domain.user.domain.hobbyDomain.HobbyReader;
 import org.example.pdnight.domain.user.presentation.dto.hobbyDto.request.HobbyRequest;
 import org.example.pdnight.domain.user.presentation.dto.hobbyDto.response.HobbyResponse;
@@ -29,7 +29,7 @@ class HobbyServiceTest {
     private HobbyReader hobbyReader;
 
     @Mock
-    private HobbyCommandQuery hobbyCommandQuery;
+    private HobbyCommander hobbyCommandQuery;
 
     @Test
     void createHobby_성공() {

@@ -1,10 +1,9 @@
 package org.example.pdnight.domain.post.service;
 
-import org.example.pdnight.domain.chatRoom.service.ChattingService;
 import lombok.RequiredArgsConstructor;
+import org.example.pdnight.domain.chatRoom.service.ChattingService;
 import org.example.pdnight.domain.comment.repository.CommentRepository;
 import org.example.pdnight.domain.common.dto.PagedResponse;
-import org.example.pdnight.global.constant.CacheName;
 import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.enums.JobCategory;
 import org.example.pdnight.domain.common.enums.JoinStatus;
@@ -24,6 +23,7 @@ import org.example.pdnight.domain.post.repository.PostRepository;
 import org.example.pdnight.domain.post.repository.PostRepositoryQuery;
 import org.example.pdnight.domain.user.domain.entity.User;
 import org.example.pdnight.domain.user.infra.userInfra.UserJpaRepository;
+import org.example.pdnight.global.constant.CacheName;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
@@ -32,11 +32,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -94,8 +90,6 @@ public class PostService {
     public void deletePostById(Long userId, Long id) {
         Post foundPost = getPostByIdOrElseThrow(id);
         validateAuthor(userId, foundPost);
-
-        foundPost.unlinkReviews();
 
         //자식 댓글들 먼저 일괄 삭제 외래키 제약 제거
         commentRepository.deleteAllByChildrenPostId(id);

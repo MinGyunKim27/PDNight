@@ -1,21 +1,17 @@
 package org.example.pdnight.domain.user.service;
 
-import at.favre.lib.crypto.bcrypt.BCrypt;
 import org.example.pdnight.domain.common.exception.BaseException;
-import org.example.pdnight.domain.user.application.userUseCase.UserCommandService;
 import org.example.pdnight.domain.user.application.userUseCase.UserService;
 import org.example.pdnight.domain.user.domain.entity.Hobby;
 import org.example.pdnight.domain.user.domain.entity.TechStack;
-import org.example.pdnight.domain.auth.presentation.dto.request.UserPasswordUpdateRequest;
 import org.example.pdnight.domain.user.domain.hobbyDomain.HobbyReader;
 import org.example.pdnight.domain.user.domain.teckStackDomain.TechStackReader;
-import org.example.pdnight.domain.user.domain.userDomain.UserCommandQuery;
+import org.example.pdnight.domain.user.domain.userDomain.UserCommander;
 import org.example.pdnight.domain.user.domain.userDomain.UserReader;
 import org.example.pdnight.domain.user.presentation.dto.userDto.request.UserUpdateRequest;
 import org.example.pdnight.domain.user.presentation.dto.userDto.response.UserEvaluationResponse;
 import org.example.pdnight.domain.user.presentation.dto.userDto.response.UserResponse;
 import org.example.pdnight.domain.user.domain.entity.User;
-import org.example.pdnight.domain.user.infra.userInfra.UserJpaRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -37,7 +33,7 @@ public class UserServiceImplTest {
     private UserReader userReader;
 
     @Mock
-    private UserCommandQuery userCommandQuery;
+    private UserCommander userCommandQuery;
 
     @Mock
     private HobbyReader hobbyRepositoryQuery;

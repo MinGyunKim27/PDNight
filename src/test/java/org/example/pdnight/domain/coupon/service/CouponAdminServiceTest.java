@@ -5,7 +5,7 @@ import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.common.helper.GetHelper;
 import org.example.pdnight.domain.user.presentation.dto.couponDto.request.CouponRequest;
 import org.example.pdnight.domain.user.presentation.dto.couponDto.request.UpdateCouponRequest;
-import org.example.pdnight.domain.user.presentation.dto.couponDto.response.CouponResponse;
+import org.example.pdnight.domain.user.presentation.dto.userDto.response.UserCouponResponse;
 import org.example.pdnight.domain.user.domain.entity.Coupon;
 import org.example.pdnight.domain.user.infra.couponInfra.CouponJpaRepository;
 import org.example.pdnight.domain.user.domain.entity.User;
@@ -56,7 +56,7 @@ class CouponAdminServiceTest {
         when(helper.getUserByIdOrElseThrow(dto.getUserId())).thenReturn(user);
         when(couponJpaRepository.save(any(Coupon.class))).thenReturn(coupon);
 
-        CouponResponse result = couponAdminService.createCoupon(dto);
+        UserCouponResponse result = couponAdminService.createCoupon(dto);
 
         // then
         assertThat(result).isNotNull();
@@ -91,7 +91,7 @@ class CouponAdminServiceTest {
         when(user.getId()).thenReturn(1L);
         when(coupon.getUser()).thenReturn(user);
         when(couponJpaRepository.findById(couponId)).thenReturn(Optional.of(coupon));
-        CouponResponse result = couponAdminService.getCoupon(couponId);
+        UserCouponResponse result = couponAdminService.getCoupon(couponId);
 
         // then
         assertThat(result).isNotNull();
@@ -118,14 +118,14 @@ class CouponAdminServiceTest {
         Coupon coupon = mock(Coupon.class);
         UpdateCouponRequest dto = mock(UpdateCouponRequest.class);
         lenient().when(dto.getCouponInfo()).thenReturn("쿠폰정보");
-        lenient().when(dto.getDeadlineAt()).thenReturn(LocalDateTime.now());
+        lenient().when(dto.getDefaultDeadlineDays()).thenReturn(10);
         User user = mock(User.class);
 
         // when
         when(user.getId()).thenReturn(1L);
         when(coupon.getUser()).thenReturn(user);
         when(couponJpaRepository.findById(couponId)).thenReturn(Optional.of(coupon));
-        CouponResponse result = couponAdminService.updateCoupon(couponId, dto);
+        UserCouponResponse result = couponAdminService.updateCoupon(couponId, dto);
 
         // then
         assertThat(result).isNotNull();

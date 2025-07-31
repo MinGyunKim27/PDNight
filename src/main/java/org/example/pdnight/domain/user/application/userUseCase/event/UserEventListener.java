@@ -1,13 +1,12 @@
 package org.example.pdnight.domain.user.application.userUseCase.event;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.user.domain.entity.User;
-import org.example.pdnight.domain.user.domain.userDomain.UserCommandQuery;
+import org.example.pdnight.domain.user.domain.userDomain.UserCommander;
 import org.example.pdnight.domain.user.domain.userDomain.UserReader;
-import org.springframework.transaction.annotation.Transactional;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -17,10 +16,9 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @RequiredArgsConstructor
 public class UserEventListener {
 
-    private final UserCommandQuery userCommandQuery;
+    private final UserCommander userCommandQuery;
     private final UserReader userReader;
 
-    @Transactional
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public User handlerUserSignUpEvent(UserSignUpEvent event) {
         try {
@@ -32,7 +30,6 @@ public class UserEventListener {
         }
     }
 
-    @Transactional
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleUserDelete(UserDeleteEvent event) {
         try {
@@ -45,7 +42,6 @@ public class UserEventListener {
         }
     }
 
-    @Transactional
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleUserEvaludation(UserEvaluationEvent event) {
         try {

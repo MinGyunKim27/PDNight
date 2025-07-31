@@ -4,25 +4,22 @@ import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.common.dto.ApiResponse;
 import org.example.pdnight.domain.common.dto.PagedResponse;
 import org.example.pdnight.domain.common.enums.JoinStatus;
-import org.example.pdnight.domain.user.application.userUseCase.UserService;
-import org.example.pdnight.domain.user.application.userUseCase.UserServiceImpl;
-import org.example.pdnight.domain.user.presentation.dto.couponDto.response.CouponResponse;
-import org.example.pdnight.domain.user.presentation.dto.userDto.request.UserNicknameUpdate;
-import org.example.pdnight.domain.user.presentation.dto.userDto.response.FollowResponse;
-import org.example.pdnight.domain.user.presentation.dto.userDto.response.FollowingResponse;
 import org.example.pdnight.domain.invite.dto.response.InviteResponseDto;
 import org.example.pdnight.domain.invite.service.InviteService;
 import org.example.pdnight.domain.post.dto.response.PostResponseWithApplyStatusDto;
 import org.example.pdnight.domain.post.dto.response.PostWithJoinStatusAndAppliedAtResponseDto;
 import org.example.pdnight.domain.post.service.PostService;
+import org.example.pdnight.domain.user.application.userUseCase.UserService;
+import org.example.pdnight.domain.user.presentation.dto.userDto.request.GiveCouponRequest;
+import org.example.pdnight.domain.user.presentation.dto.userDto.request.UserNicknameUpdate;
 import org.example.pdnight.domain.user.presentation.dto.userDto.request.UserUpdateRequest;
-import org.example.pdnight.domain.user.presentation.dto.userDto.response.UserEvaluationResponse;
-import org.example.pdnight.domain.user.presentation.dto.userDto.response.UserResponse;
+import org.example.pdnight.domain.user.presentation.dto.userDto.response.*;
 import org.example.pdnight.global.filter.CustomUserDetails;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -42,13 +39,13 @@ public class UserController {
     @PatchMapping("/users/my/profile")
     public ResponseEntity<ApiResponse<UserResponse>> updateMyProfile(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestBody UserUpdateRequest requestDto
+            @RequestBody UserUpdateRequest request
     ) {
         Long userId = userDetails.getUserId();
 
         return ResponseEntity.ok(ApiResponse.ok(
                 "프로필이 수정되었습니다.",
-                userService.updateMyProfile(userId, requestDto)
+                userService.updateMyProfile(userId, request)
         ));
     }
 
@@ -57,8 +54,8 @@ public class UserController {
     public ResponseEntity<ApiResponse<FollowResponse>> follow(
             @PathVariable Long userId,
             @AuthenticationPrincipal CustomUserDetails loginUser
-    ){
-        FollowResponse follow = userService.follow(userId,loginUser.getUserId());
+    ) {
+        FollowResponse follow = userService.follow(userId, loginUser.getUserId());
         return ResponseEntity.ok(ApiResponse.ok("팔로우 했습니다.", follow));
     }
 
@@ -67,14 +64,23 @@ public class UserController {
     public ResponseEntity<ApiResponse<Void>> unfollow(
             @PathVariable Long userId,
             @AuthenticationPrincipal CustomUserDetails loggedInUser
-    ){
-        userService.unfollow(userId,loggedInUser.getUserId());
-        return ResponseEntity.ok(ApiResponse.ok("언팔로우 했습니다.",null));
+    ) {
+        userService.unfollow(userId, loggedInUser.getUserId());
+        return ResponseEntity.ok(ApiResponse.ok("언팔로우 했습니다.", null));
+    }
+
+    // 사용자에게 쿠폰 부여
+    @PostMapping("/admin/coupons/{id}")
+    public ResponseEntity<ApiResponse<UserCouponResponse>> giveCouponToUser(
+            @RequestBody GiveCouponRequest request
+    ) {
+        UserCouponResponse response = userService.giveCouponToUser(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok("쿠폰이 등록되었습니다.", response));
     }
 
     // 쿠폰사용
     @PatchMapping("/coupons/{id}")
-    public ResponseEntity<ApiResponse<CouponResponse>> useCoupon(
+    public ResponseEntity<ApiResponse<UserCouponResponse>> useCoupon(
             @PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
@@ -198,7 +204,7 @@ public class UserController {
 
     // 내 쿠폰목록 조회
     @GetMapping("/users/my/coupons")
-    public ResponseEntity<ApiResponse<PagedResponse<CouponResponse>>> getMyCoupons(
+    public ResponseEntity<ApiResponse<PagedResponse<UserCouponResponse>>> getMyCoupons(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PageableDefault() Pageable pageable
     ) {

@@ -13,31 +13,31 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
-    private final AuthCommandService authCommandService;
-    private final AuthQueryService authQueryService;
+    private final AuthCommanderService authCommanderService;
+    // private final AuthReaderService authReaderService;
 
     @Override
     public SignupResponse signup(SignupRequest request) {
-        return authCommandService.signup(request);
+        return authCommanderService.signup(request);
     }
 
     @Override
     public LoginResponse login(LoginRequest request) {
-        return authCommandService.login(request);
+        return authCommanderService.login(request);
     }
 
     @Override
     public void updatePassword(Long userId, UserPasswordUpdateRequest requestDto) {
-        authCommandService.updatePassword(userId, requestDto);
+        authCommanderService.updatePassword(userId, requestDto);
     }
 
     @Override
     public void logout(String token) {
-        authCommandService.logout(token);
+        authCommanderService.logout(token);
     }
 
     @Override
     public void withdraw(Long userId, WithdrawRequest request) {
-        authCommandService.withdraw(userId, request);
+        authCommanderService.withdraw(userId, request);
     }
 }

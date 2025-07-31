@@ -1,8 +1,9 @@
 package org.example.pdnight.domain.user.domain.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
-import java.time.LocalDateTime;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "coupons")
@@ -17,23 +18,23 @@ public class Coupon {
     @Column(nullable = false)
     private String couponInfo;
 
-    private LocalDateTime defaultDeadlineAt;
+    private Integer defaultDeadlineDays;
 
-    private Coupon(String couponInfo, LocalDateTime defaultDeadlineAt) {
+    private Coupon(String couponInfo, Integer defaultDeadlineDays) {
         this.couponInfo = couponInfo;
-        this.defaultDeadlineAt = defaultDeadlineAt;
+        this.defaultDeadlineDays = defaultDeadlineDays;
     }
 
-    public static Coupon create(String couponInfo, LocalDateTime deadlineAt) {
-        return new Coupon(couponInfo, deadlineAt);
+    public static Coupon create(String couponInfo, Integer defaultDeadlineDays) {
+        return new Coupon(couponInfo, defaultDeadlineDays);
     }
 
-    public void updateCoupon(String couponInfo, LocalDateTime defaultDeadlineAt) {
+    public void updateCoupon(String couponInfo, Integer defaultDeadlineDays) {
         if (couponInfo != null && !couponInfo.isEmpty()) {
             this.couponInfo = couponInfo;
         }
-        if (defaultDeadlineAt != null) {
-            this.defaultDeadlineAt = defaultDeadlineAt;
+        if (defaultDeadlineDays != null) {
+            this.defaultDeadlineDays = defaultDeadlineDays;
         }
     }
 }

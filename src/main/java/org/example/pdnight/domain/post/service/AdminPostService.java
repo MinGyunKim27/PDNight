@@ -21,8 +21,6 @@ public class AdminPostService {
     @Transactional
     public void deletePostById(Long id) {
         Post foundPost = getPostOrThrow(postRepository.findById(id));
-
-        foundPost.unlinkReviews();
         commentRepository.deleteAllByChildrenPostId(id);
         commentRepository.deleteAllByPostId(id);
         postRepository.delete(foundPost);

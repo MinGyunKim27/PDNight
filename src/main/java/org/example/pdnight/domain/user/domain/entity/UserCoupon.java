@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.example.pdnight.domain.common.entity.Timestamped;
 import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.exception.BaseException;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -30,6 +31,17 @@ public class UserCoupon extends Timestamped {
 
     private LocalDateTime deadlineAt;
 
+    private UserCoupon(User user, Long couponId, LocalDateTime deadlineAt) {
+        this.user = user;
+        this.couponId = couponId;
+        this.deadlineAt = deadlineAt;
+    }
+
+    public static UserCoupon create(User user, Long couponId, Integer defaultDeadlineDays) {
+        LocalDateTime dateTime = LocalDateTime.now().plusDays(defaultDeadlineDays);
+        return new UserCoupon(user, couponId, dateTime);
+    }
+
     public void use() {
         if (this.isUsed) {
             throw new BaseException(ErrorCode.COUPON_ALREADY_USED);
@@ -40,9 +52,15 @@ public class UserCoupon extends Timestamped {
         this.isUsed = true;
     }
 
-    public Long getUserId() { return user.getId(); }
+    public Long getUserId() {
+        return user.getId();
+    }
 
-    public boolean isUsed() { return isUsed; }
+    public boolean isUsed() {
+        return isUsed;
+    }
 
-    public UserCoupon getCoupon() { return this; } // 필요할 때만
+    public UserCoupon getCoupon() {
+        return this;
+    } // 필요할 때만
 }

@@ -4,12 +4,12 @@ import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.common.helper.GetHelper;
 import org.example.pdnight.domain.user.application.userUseCase.UserService;
-import org.example.pdnight.domain.user.domain.userDomain.UserCommandQuery;
+import org.example.pdnight.domain.user.domain.entity.Follow;
+import org.example.pdnight.domain.user.domain.entity.User;
+import org.example.pdnight.domain.user.domain.userDomain.UserCommander;
 import org.example.pdnight.domain.user.domain.userDomain.UserReader;
 import org.example.pdnight.domain.user.presentation.dto.userDto.response.FollowResponse;
 import org.example.pdnight.domain.user.presentation.dto.userDto.response.FollowingResponse;
-import org.example.pdnight.domain.user.domain.entity.Follow;
-import org.example.pdnight.domain.user.domain.entity.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,14 +27,13 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.example.pdnight.domain.common.enums.ErrorCode.INVALID_UNFOLLOW_SELF;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class FollowServiceTest {
     private UserReader userReader;
-    private UserCommandQuery userCommandQuery;
+    private UserCommander userCommandQuery;
     private GetHelper helper;
 
     @InjectMocks
@@ -46,7 +45,7 @@ public class FollowServiceTest {
     @BeforeEach
     void setUp() {
         userReader = mock(UserReader.class);
-        userCommandQuery = mock(UserCommandQuery.class);
+        userCommandQuery = mock(UserCommander.class);
 
         user1 = Mockito.mock(User.class);
         lenient().when(user1.getId()).thenReturn(1L);
