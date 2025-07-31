@@ -2,7 +2,6 @@ package org.example.pdnight.domain.event.presentation.dto.response;
 
 import lombok.Getter;
 import org.example.pdnight.domain.event.domain.entity.EventParticipant;
-import org.example.pdnight.domain.user.domain.entity.User;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -12,14 +11,14 @@ import java.util.List;
 public class EventParticipantResponse {
     private Long id;
     private Long eventId;
-    private List<User> user = new ArrayList<>();
+    private List<Long> user = new ArrayList<>();
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
     private EventParticipantResponse(EventParticipant eventParticipant) {
         this.id = eventParticipant.getId();
         this.eventId = eventParticipant.getEvent().getId();
-        this.user.add(eventParticipant.getUser());
+        this.user.add(eventParticipant.getUserId());
         this.createdAt = eventParticipant.getCreatedAt();
         this.updatedAt = eventParticipant.getUpdatedAt();
     }

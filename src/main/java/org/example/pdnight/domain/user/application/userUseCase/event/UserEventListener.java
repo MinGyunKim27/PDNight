@@ -20,13 +20,12 @@ public class UserEventListener {
     private final UserReader userReader;
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public User handlerUserSignUpEvent(UserSignUpEvent event) {
+    public void handlerUserSignUpEvent(UserSignUpEvent event) {
         try {
             User user = User.fromUserSignUpEvent(event.getAuthId(), event.getRequest());
-            return userCommandQuery.save(user);
+            userCommandQuery.save(user);
         } catch (Exception e) {
             log.info("프로필 생성 실패: userId={}, error={}", event.getAuthId(), e.getMessage());
-            return null;
         }
     }
 

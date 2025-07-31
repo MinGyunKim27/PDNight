@@ -5,7 +5,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.pdnight.domain.common.entity.Timestamped;
-import org.example.pdnight.domain.user.domain.entity.User;
 
 @Entity
 @Table(name = "event_participants")
@@ -20,17 +19,16 @@ public class EventParticipant extends Timestamped {
     @JoinColumn(name = "event_id")
     private Event event;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
+    @Column(nullable = false)
+    private Long userId;
 
-    private EventParticipant(Event event, User user) {
+    private EventParticipant(Event event, Long userId) {
         this.event = event;
-        this.user = user;
+        this.userId = userId;
     }
 
-    public static EventParticipant create(Event event, User user) {
-        return new EventParticipant(event, user);
+    public static EventParticipant create(Event event, Long userId) {
+        return new EventParticipant(event, userId);
     }
 
 }

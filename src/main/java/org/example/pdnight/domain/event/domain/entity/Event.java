@@ -7,6 +7,10 @@ import lombok.NoArgsConstructor;
 import org.example.pdnight.domain.common.entity.Timestamped;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+import static jakarta.persistence.CascadeType.ALL;
 
 @Entity
 @Table(name = "events")
@@ -22,6 +26,9 @@ public class Event extends Timestamped {
 
     @Column(nullable = false)
     private String content;
+
+    @OneToMany(mappedBy = "event", cascade = ALL, orphanRemoval = true)
+    private List<EventParticipant> eventParticipants = new ArrayList<>();
 
     @Column(nullable = false)
     private Integer maxParticipants;
@@ -60,9 +67,13 @@ public class Event extends Timestamped {
     }
 
     public void updateEvent(String title, String content, Integer maxParticipants, LocalDateTime eventDate) {
-        if(title != null) this.title = title;
-        if(content != null) this.content = content;
-        if(maxParticipants != null && maxParticipants >= 1) this.maxParticipants = maxParticipants;
-        if(eventDate != null) this.eventDate = eventDate;
+        if (title != null) this.title = title;
+        if (content != null) this.content = content;
+        if (maxParticipants != null && maxParticipants >= 1) this.maxParticipants = maxParticipants;
+        if (eventDate != null) this.eventDate = eventDate;
+    }
+
+    public void addParticipant(EventParticipant eventParticipant) {
+        this.eventParticipants.add(eventParticipant);
     }
 }
