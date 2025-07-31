@@ -26,6 +26,7 @@ import static jakarta.persistence.CascadeType.ALL;
 public class User extends Timestamped {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
@@ -76,10 +77,9 @@ public class User extends Timestamped {
 
     // ================================== 생성자 ==================================
     private User(
-            Long id, String name, String nickname, Gender gender,
+            String name, String nickname, Gender gender,
             Long age, JobCategory jobCategory, Region region, Region workLocation, String comment
     ) {
-        this.id = id;
         this.name = name;
         this.nickname = nickname;
         this.gender = gender;
@@ -94,9 +94,9 @@ public class User extends Timestamped {
 
     // ================================== static 생성 메서드 ==================================
     // 유저 생성 메서드
-    public static User fromUserSignUpEvent(Long userId, SignupRequest request) {
+    public static User fromUserSignUpEvent(SignupRequest request) {
         return new User(
-                userId, request.getName(), request.getNickname(), request.getGender(),
+                request.getName(), request.getNickname(), request.getGender(),
                 request.getAge(), request.getJobCategory(),
                 request.getRegion(), request.getWorkLocation(),
                 request.getComment()
@@ -106,7 +106,7 @@ public class User extends Timestamped {
     // 어드민 생성 메서드
     public static User createAdmin(String name) {
         return new User(
-                1L, name, name, Gender.MALE,
+                name, name, Gender.MALE,
                 25L, JobCategory.BACK_END_DEVELOPER,
                 Region.PANGYO_DONG, Region.PANGYO_DONG,
                 null);

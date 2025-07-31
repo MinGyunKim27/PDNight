@@ -36,7 +36,7 @@ public class UserReaderImpl implements UserReader {
         QUser user = QUser.user;
 
         return queryFactory
-                .select(user)
+                .selectFrom(user)
                 .where(user.id.eq(id))
                 .stream()
                 .findFirst();
@@ -76,7 +76,7 @@ public class UserReaderImpl implements UserReader {
         QUser user = QUser.user;
 
         return queryFactory
-                .select(user)
+                .selectFrom(user)
                 .where(user.id.eq(id).and(user.isDeleted.eq(false)))
                 .stream()
                 .findFirst();
@@ -88,8 +88,7 @@ public class UserReaderImpl implements UserReader {
         QUser user = QUser.user;
 
         List<User> users = queryFactory
-                .select(user)
-                .from(user)
+                .selectFrom(user)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();

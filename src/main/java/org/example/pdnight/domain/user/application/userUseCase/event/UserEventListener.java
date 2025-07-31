@@ -16,20 +16,19 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @RequiredArgsConstructor
 public class UserEventListener {
 
-    private final UserCommander userCommandQuery;
+    private final UserCommander userCommander;
     private final UserReader userReader;
 
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     public void handlerUserSignUpEvent(UserSignUpEvent event) {
         try {
-            User user = User.fromUserSignUpEvent(event.getAuthId(), event.getRequest());
-            userCommandQuery.save(user);
+            User user = User.fromUserSignUpEvent(event.getRequest());
+            userCommander.save(user);
         } catch (Exception e) {
             log.info("프로필 생성 실패: userId={}, error={}", event.getAuthId(), e.getMessage());
         }
     }
-
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     public void handleUserDelete(UserDeleteEvent event) {
         try {
             User user = userReader.findById(event.getAuthId()).orElseThrow(
@@ -41,7 +40,7 @@ public class UserEventListener {
         }
     }
 
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     public void handleUserEvaludation(UserEvaluationEvent event) {
         try {
             User user = userReader.findById(event.getUserId()).orElseThrow(
