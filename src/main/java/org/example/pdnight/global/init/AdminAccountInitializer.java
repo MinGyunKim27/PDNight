@@ -1,5 +1,6 @@
 package org.example.pdnight.global.init;
 
+import org.example.pdnight.domain.auth.domain.AuthReader;
 import org.example.pdnight.domain.user.domain.userDomain.UserCommandQuery;
 import org.example.pdnight.domain.user.domain.userDomain.UserReader;
 import org.example.pdnight.domain.user.domain.entity.User;
@@ -13,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 @Component
 @RequiredArgsConstructor
 public class AdminAccountInitializer implements ApplicationRunner {
-	private final UserReader userReader;
+	private final AuthReader authReader;
 	private final UserCommandQuery userCommandQuery;
 	private final PasswordEncoder passwordEncoder;
 
@@ -24,7 +25,7 @@ public class AdminAccountInitializer implements ApplicationRunner {
 		String adminPassword = passwordEncoder.encode("password1!");
 
 		//이미 admin 계정이 있을 시
-		if (userReader.existsByEmail(adminEmail)) {
+		if (authReader.findByEmail(adminEmail).isPresent()) {
 			return;
 		}
 

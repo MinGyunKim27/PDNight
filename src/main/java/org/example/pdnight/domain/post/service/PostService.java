@@ -9,8 +9,6 @@ import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.enums.JobCategory;
 import org.example.pdnight.domain.common.enums.JoinStatus;
 import org.example.pdnight.domain.common.exception.BaseException;
-import org.example.pdnight.domain.hobby.domain.entity.Hobby;
-import org.example.pdnight.domain.hobby.infra.HobbyRepositoryImpl;
 import org.example.pdnight.domain.post.dto.request.PostRequestDto;
 import org.example.pdnight.domain.post.dto.request.PostStatusRequestDto;
 import org.example.pdnight.domain.post.dto.request.PostUpdateRequestDto;
@@ -24,7 +22,6 @@ import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.enums.PostStatus;
 import org.example.pdnight.domain.post.repository.PostRepository;
 import org.example.pdnight.domain.post.repository.PostRepositoryQuery;
-import org.example.pdnight.domain.techStack.domain.entity.TechStack;
 import org.example.pdnight.domain.user.domain.entity.User;
 import org.example.pdnight.domain.user.infra.userInfra.UserJpaRepository;
 import org.springframework.cache.annotation.CacheEvict;
@@ -49,8 +46,6 @@ public class PostService {
     private final UserJpaRepository userJpaRepository;
     private final PostRepositoryQuery postRepositoryQuery;
     private final CommentRepository commentRepository;
-    private final HobbyRepositoryImpl hobbyRepositoryQuery;
-    private final TechStackRepositoryQuery techStackRepositoryQuery;
     private final ChattingService chattingService;
 
     //포스트 작성
@@ -64,11 +59,6 @@ public class PostService {
         //임시 메서드 User 도메인 작업에 따라 변동될 것
         User foundUser = getUserById(userId);
 
-        // List<Hobby> / List<TechStack> 생성 : DB 에서 있는거만 가져오기
-        List<Hobby> hobbyList = getHobbyList(request);
-
-        List<TechStack> techStackList = getTechStackList(request);
-
         Post post = Post.createPost(
                 foundUser,
                 request.getTitle(),
@@ -81,13 +71,6 @@ public class PostService {
                 request.getAgeLimit()
         );
 
-        // List<Hobby> -> Set<PostHobby>  /  List<TechStack> -> Set<PostTech>
-        Set<PostHobby> postHobbies = getPostHobbySet(hobbyList, post);
-
-        Set<PostTech> postTechs = getPostTechSet(techStackList, post);
-
-        // post 저장 : 취미, 기술 스택 저장
-        post.setHobbyAndTech(postHobbies, postTechs);
         Post savedPost = postRepository.save(post);
         return PostCreateAndUpdateResponseDto.from(savedPost);
     }
@@ -155,12 +138,6 @@ public class PostService {
         Post foundPost = getPostByIdOrElseThrow(id);
         validateAuthor(userId, foundPost);
 
-        // 취미 리스트 : DB 에서 있는거만 가져오기 -> Set<UserHobby>
-        Set<PostHobby> postHobbies = getUserHobbyByIdList(request.getHobbyIdList(), foundPost);
-
-        // 기술 스택 리스트 : DB 에서 있는거만 가져오기 -> List<UserTech>
-        Set<PostTech> postTechs = getUserTechByIdList(request.getTechStackIdList(), foundPost);
-
         foundPost.updatePostIfNotNull(
                 request.getTitle(),
                 request.getTimeSlot(),
@@ -169,9 +146,7 @@ public class PostService {
                 request.getMaxParticipants(),
                 request.getGenderLimit(),
                 request.getJobCategoryLimit(),
-                request.getAgeLimit(),
-                postHobbies,
-                postTechs
+                request.getAgeLimit()
         );
 
         return PostCreateAndUpdateResponseDto.from(foundPost);
@@ -275,60 +250,5 @@ public class PostService {
             throw new BaseException(ErrorCode.POST_FORBIDDEN);
         }
     }
-
-    private Set<PostHobby> getPostHobbySet(List<Hobby> hobbyList, Post post) {
-        return hobbyList.stream()
-                .map(hobby -> PostHobby.create(post, hobby))
-                .collect(Collectors.toSet());
-    }
-
-    private Set<PostTech> getPostTechSet(List<TechStack> techStackList, Post post) {
-        return techStackList.stream()
-                .map(techStack -> PostTech.from(post, techStack))
-                .collect(Collectors.toSet());
-    }
-
-    private List<Hobby> getHobbyList(PostRequestDto request) {
-        List<Hobby> hobbyList = new ArrayList<>();
-        if (request.getHobbyIdList() != null && !request.getHobbyIdList().isEmpty()) {
-            hobbyList = hobbyRepositoryQuery.findByIdList(request.getHobbyIdList());
-        }
-        return hobbyList;
-    }
-
-    private List<TechStack> getTechStackList(PostRequestDto request) {
-        List<TechStack> techStackList = new ArrayList<>();
-        if (request.getTechStackIdList() != null && !request.getTechStackIdList().isEmpty()) {
-            techStackList = techStackRepositoryQuery.findByIdList(request.getTechStackIdList());
-        }
-        return techStackList;
-    }
-
-    // ----------- 중간 테이블 용 Helper 메서드 --------------------------//
-
-
-    private Set<PostTech> getUserTechByIdList(List<Long> ids, Post post) {
-        Set<PostTech> postTechs = new HashSet<>();
-        if (ids != null && !ids.isEmpty()) {
-            postTechs = techStackRepositoryQuery.findByIdList(ids)
-                    .stream()
-                    .map(techStack -> PostTech.from(post, techStack))
-                    .collect(Collectors.toSet());
-        }
-
-        return postTechs;
-    }
-
-    private Set<PostHobby> getUserHobbyByIdList(List<Long> ids, Post post) {
-        Set<PostHobby> postHobbies = new HashSet<>();
-        if (ids != null && !ids.isEmpty()) {
-            postHobbies = hobbyRepositoryQuery.findByIdList(ids)
-                    .stream()
-                    .map(hobby -> PostHobby.create(post, hobby))
-                    .collect(Collectors.toSet());
-        }
-        return postHobbies;
-    }
-
 
 }

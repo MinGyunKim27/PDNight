@@ -13,7 +13,7 @@ import java.util.List;
 
 @Getter
 @Builder
-public class SignupRequestDto {
+public class SignupRequest {
     @NotBlank(message = "이메일은 작성해야 합니다.")
     @ValidEmailPattern
     private String email;

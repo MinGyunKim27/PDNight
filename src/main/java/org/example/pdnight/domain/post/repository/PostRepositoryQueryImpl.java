@@ -25,14 +25,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import static org.example.pdnight.domain.hobby.entity.QHobby.hobby1;
-import static org.example.pdnight.domain.hobby.entity.QPostHobby.postHobby;
 import static org.example.pdnight.domain.participant.entity.QPostParticipant.postParticipant;
 import static org.example.pdnight.domain.post.entity.QPost.post;
 import static org.example.pdnight.domain.postLike.entity.QPostLike.postLike;
-import static org.example.pdnight.domain.techStack.entity.QPostTech.postTech;
-import static org.example.pdnight.domain.techStack.entity.QTechStack.techStack1;
 
 @Repository
 @RequiredArgsConstructor
@@ -51,8 +46,6 @@ public class PostRepositoryQueryImpl implements PostRepositoryQuery {
 
         // null 이면 추가 조회 막기
         if (content == null) return null;
-        // couponDto 에 추가 : 취미, 기술스택
-        mappingToDtoWithList(postId, content);
 
         return content;
     }
@@ -88,9 +81,6 @@ public class PostRepositoryQueryImpl implements PostRepositoryQuery {
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
-
-        // couponDto 에 추가 : 취미, 기술스택
-        mappingToDtoListWithList(contents);
 
         Long count = queryFactory
                 .select(post.count())
@@ -180,21 +170,11 @@ public class PostRepositoryQueryImpl implements PostRepositoryQuery {
         if (genderLimit != null) {
             builder.and(post.genderLimit.eq(genderLimit));
         }
-        if (hobbyIds != null && !hobbyIds.isEmpty()) {
-            builder.and(QuerydslExpressionHelper.isHaveHobby(post, hobbyIds));
-        }
-        if (techStackIds != null && !techStackIds.isEmpty()) {
-            builder.and(QuerydslExpressionHelper.isHaveTechStack(post, techStackIds));
-        }
 
         List<PostResponseWithApplyStatusDto> contents = queryFactory
                 .select(postResponseDtoProjection())
                 .from(post)
                 .leftJoin(post.author)
-                .leftJoin(post.postHobbies, postHobby)
-                .leftJoin(postHobby.hobby, hobby1)
-                .leftJoin(post.postTechs, postTech)
-                .leftJoin(postTech.techStack, techStack1)
                 .where(builder)
                 .groupBy(post.id)
                 .orderBy(post.createdAt.desc())
@@ -202,18 +182,12 @@ public class PostRepositoryQueryImpl implements PostRepositoryQuery {
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        // couponDto 에 추가 : 취미, 기술스택
-        mappingToDtoListWithList(contents);
 
         Long total = Optional.ofNullable(
                 queryFactory
                         .select(post.countDistinct())
                         .from(post)
                         .leftJoin(post.author)
-                        .leftJoin(post.postHobbies, postHobby)
-                        .leftJoin(postHobby.hobby, hobby1)
-                        .leftJoin(post.postTechs, postTech)
-                        .leftJoin(postTech.techStack, techStack1)
                         .where(builder)
                         .fetchOne()
         ).orElse(0L);
@@ -241,9 +215,6 @@ public class PostRepositoryQueryImpl implements PostRepositoryQuery {
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        // couponDto 에 추가 : 취미, 기술스택
-        mappingToDtoListWithList(contents);
-
         Long count = queryFactory
                 .select(post.count())
                 .from(post)
@@ -267,8 +238,6 @@ public class PostRepositoryQueryImpl implements PostRepositoryQuery {
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        // couponDto 에 추가 : 취미, 기술스택
-        mappingToDtoListWithList(contents);
 
         Long count = queryFactory
                 .select(post.countDistinct())
@@ -303,70 +272,4 @@ public class PostRepositoryQueryImpl implements PostRepositoryQuery {
         );
     }
 
-    // List 형으로 추가 정보가 필요할 때 Dto 매핑 : 단건 조회 시
-    private void mappingToDtoWithList(Long postId, PostResponseWithApplyStatusDto content) {
-        List<String> hobbyList = queryFactory
-                .select(hobby1.hobby)
-                .from(postHobby)
-                .join(postHobby.hobby, hobby1)
-                .where(postHobby.post.id.in(postId))
-                .fetch();
-
-        List<String> techList = queryFactory
-                .select(techStack1.techStack)
-                .from(postTech)
-                .join(postTech.techStack, techStack1)
-                .where(postTech.post.id.in(postId))
-                .fetch();
-
-        // DTO에 매핑
-        content.setHobbyAndTech(hobbyList, techList);
-    }
-
-    // List 형으로 추가 정보가 필요할 때 Dto 매핑 : 목록 조회 시
-    private void mappingToDtoListWithList(List<PostResponseWithApplyStatusDto> contents) {
-        if (contents == null || contents.isEmpty()) return;
-        // 게시글 ID 리스트 추출
-        List<Long> postIds = contents.stream().map(PostResponseWithApplyStatusDto::getPostId).toList();
-        // 취미/기술스택 맵 조회
-        Map<Long, List<String>> hobbyMap = getPostHobbyMap(postIds);
-        Map<Long, List<String>> techStackMap = getPostTechMap(postIds);
-        // 각 DTO에 매핑
-        for (PostResponseWithApplyStatusDto dto : contents) {
-            List<String> hobbyList = hobbyMap.getOrDefault(dto.getPostId(), Collections.emptyList());
-            List<String> techList = techStackMap.getOrDefault(dto.getPostId(), Collections.emptyList());
-            dto.setHobbyAndTech(hobbyList, techList);
-        }
-    }
-
-
-    private Map<Long, List<String>> getPostHobbyMap(List<Long> postIds) {
-        if (postIds == null || postIds.isEmpty()) return Collections.emptyMap();
-        return queryFactory
-                .select(postHobby.post.id, hobby1.hobby)
-                .from(postHobby)
-                .join(postHobby.hobby, hobby1)
-                .where(postHobby.post.id.in(postIds))
-                .fetch()
-                .stream()
-                .collect(Collectors.groupingBy(
-                        tuple -> tuple.get(postHobby.post.id),
-                        Collectors.mapping(tuple -> tuple.get(hobby1.hobby), Collectors.toList())
-                ));
-    }
-
-    private Map<Long, List<String>> getPostTechMap(List<Long> postIds) {
-        if (postIds == null || postIds.isEmpty()) return Collections.emptyMap();
-        return queryFactory
-                .select(postTech.post.id, techStack1.techStack)
-                .from(postTech)
-                .join(postTech.techStack, techStack1)
-                .where(postTech.post.id.in(postIds))
-                .fetch()
-                .stream()
-                .collect(Collectors.groupingBy(
-                        tuple -> tuple.get(postTech.post.id),
-                        Collectors.mapping(tuple -> tuple.get(techStack1.techStack), Collectors.toList())
-                ));
-    }
 }

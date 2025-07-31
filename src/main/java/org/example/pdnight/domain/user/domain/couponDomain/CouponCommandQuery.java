@@ -6,5 +6,7 @@ import org.springframework.stereotype.Component;
 @Component
 public interface CouponCommandQuery {
 
-    void save(Coupon coupon);
+    Coupon save(Coupon coupon);
+
+    void delete(Coupon coupon);
 }

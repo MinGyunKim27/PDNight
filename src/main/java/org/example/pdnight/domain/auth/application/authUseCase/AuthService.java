@@ -1,21 +1,21 @@
 package org.example.pdnight.domain.auth.application.authUseCase;
 
-import org.example.pdnight.domain.auth.presentation.dto.request.LoginRequestDto;
-import org.example.pdnight.domain.auth.presentation.dto.request.SignupRequestDto;
+import org.example.pdnight.domain.auth.presentation.dto.request.LoginRequest;
+import org.example.pdnight.domain.auth.presentation.dto.request.SignupRequest;
 import org.example.pdnight.domain.auth.presentation.dto.request.UserPasswordUpdateRequest;
-import org.example.pdnight.domain.auth.presentation.dto.request.WithdrawRequestDto;
-import org.example.pdnight.domain.auth.presentation.dto.response.LoginResponseDto;
-import org.example.pdnight.domain.auth.presentation.dto.response.SignupResponseDto;
+import org.example.pdnight.domain.auth.presentation.dto.request.WithdrawRequest;
+import org.example.pdnight.domain.auth.presentation.dto.response.LoginResponse;
+import org.example.pdnight.domain.auth.presentation.dto.response.SignupResponse;
 
 public interface AuthService {
 
-    SignupResponseDto signup(SignupRequestDto request);
+    SignupResponse signup(SignupRequest request);
 
-    LoginResponseDto login(LoginRequestDto request);
+    LoginResponse login(LoginRequest request);
 
     void updatePassword(Long userId, UserPasswordUpdateRequest requestDto);
 
     void logout(String token);
 
-    void withdraw(Long userId, WithdrawRequestDto request);
+    void withdraw(Long userId, WithdrawRequest request);
 }

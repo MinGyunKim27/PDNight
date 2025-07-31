@@ -1,9 +1,9 @@
 package org.example.pdnight.domain.auth.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.example.pdnight.domain.auth.presentation.dto.request.LoginRequestDto;
-import org.example.pdnight.domain.auth.presentation.dto.request.SignupRequestDto;
-import org.example.pdnight.domain.auth.presentation.dto.request.WithdrawRequestDto;
+import org.example.pdnight.domain.auth.presentation.dto.request.LoginRequest;
+import org.example.pdnight.domain.auth.presentation.dto.request.SignupRequest;
+import org.example.pdnight.domain.auth.presentation.dto.request.WithdrawRequest;
 import org.example.pdnight.domain.common.enums.JobCategory;
 import org.example.pdnight.domain.common.enums.UserRole;
 import org.example.pdnight.domain.post.enums.Gender;
@@ -51,7 +51,7 @@ class AuthControllerTest {
     @DisplayName("회원 가입 성공 테스트")
     void signInSuccess() throws Exception {
         //given
-        SignupRequestDto request = signInRequest("Signup");
+        SignupRequest request = signInRequest("Signup");
 
         //when
         ResultActions perform = mockMvc.perform(post("/api/auth/signup")
@@ -67,10 +67,10 @@ class AuthControllerTest {
     @DisplayName("로그인 성공 테스트")
     void loginSuccess() throws Exception {
         //given
-        SignupRequestDto request = signInRequest("login");
+        SignupRequest request = signInRequest("login");
         createUser(request);
 
-        LoginRequestDto loginRequest = loginRequest("login");
+        LoginRequest loginRequest = loginRequest("login");
 
         //when
         ResultActions perform = mockMvc.perform(post("/api/auth/login")
@@ -86,7 +86,7 @@ class AuthControllerTest {
     @DisplayName("필터 테스트 - 토큰이 없는 경우 회원 탈퇴 실패")
     void filterTestNoToken() throws Exception {
         //given
-        WithdrawRequestDto withdrawRequest = withdrawRequest();
+        WithdrawRequest withdrawRequest = withdrawRequest();
 
         //when
         mockMvc.perform(delete("/api/auth/withdraw")
@@ -101,11 +101,11 @@ class AuthControllerTest {
     @DisplayName("토큰이 있는 경우 회원 탈퇴 성공")
     void Withdraw() throws Exception {
         //given
-        SignupRequestDto request = signInRequest("withDraw");
+        SignupRequest request = signInRequest("withDraw");
         User user = createUser(request);
         String token = jwtUtil.createToken(user.getId(), user.getRole(), user.getNickname());
 
-        WithdrawRequestDto withdrawRequest = withdrawRequest();
+        WithdrawRequest withdrawRequest = withdrawRequest();
         //when
         mockMvc.perform(delete("/api/auth/withdraw")
                         .header("Authorization", "Bearer " + token)
@@ -115,8 +115,8 @@ class AuthControllerTest {
                 .andExpect(status().isOk());
     }
 
-    private SignupRequestDto signInRequest(String name) {
-        return SignupRequestDto.builder()
+    private SignupRequest signInRequest(String name) {
+        return SignupRequest.builder()
                 .email(name + "Test@example.com")
                 .password("testPassword")
                 .name("test")
@@ -127,18 +127,18 @@ class AuthControllerTest {
                 .workLocation(Region.BAEKHYEON_DONG).build();
     }
 
-    private LoginRequestDto loginRequest(String name) {
-        return LoginRequestDto.builder()
+    private LoginRequest loginRequest(String name) {
+        return LoginRequest.builder()
                 .email(name + "Test@example.com")
                 .password("testPassword").build();
     }
 
-    private WithdrawRequestDto withdrawRequest() {
-        return WithdrawRequestDto.builder()
+    private WithdrawRequest withdrawRequest() {
+        return WithdrawRequest.builder()
                 .password("testPassword").build();
     }
 
-    private User createUser(SignupRequestDto request) {
+    private User createUser(SignupRequest request) {
         String encode = passwordEncoder.encode(request.getPassword());
         User user = User.create(request.getEmail(),
                 encode,

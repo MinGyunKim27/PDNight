@@ -19,16 +19,14 @@ public class UserHobby {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "hobby_id")
-    private Hobby hobby;
+    private Long hobbyId;
 
-    private UserHobby(User user, Hobby hobby) {
+    private UserHobby(User user, Long hobbyId) {
         this.user = user;
-        this.hobby = hobby;
+        this.hobbyId = hobbyId;
     }
 
-    public static UserHobby create(User user, Hobby hobby) {
-        return new UserHobby(user, hobby);
+    public static UserHobby create(User user, Long hobbyId) {
+        return new UserHobby(user, hobbyId);
     }
 }

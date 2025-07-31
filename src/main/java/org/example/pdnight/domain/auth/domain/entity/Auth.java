@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.pdnight.domain.common.enums.UserRole;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "auth")
 @Getter
@@ -25,10 +27,19 @@ public class Auth {
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
+    private boolean isDeleted = false;
+
+    private LocalDateTime deletedAt;
+
     private Auth(String email, String password, UserRole role) {
         this.email = email;
         this.password = password;
         this.role = role == null? UserRole.USER : role;
+    }
+
+    public void softDelete(){
+        this.isDeleted = true;
+        this.deletedAt = LocalDateTime.now();
     }
 
     public static Auth create(String email, String password,  UserRole role) {

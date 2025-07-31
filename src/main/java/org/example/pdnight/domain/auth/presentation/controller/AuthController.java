@@ -3,12 +3,12 @@ package org.example.pdnight.domain.auth.presentation.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.example.pdnight.domain.auth.presentation.dto.request.LoginRequestDto;
-import org.example.pdnight.domain.auth.presentation.dto.request.SignupRequestDto;
+import org.example.pdnight.domain.auth.presentation.dto.request.LoginRequest;
+import org.example.pdnight.domain.auth.presentation.dto.request.SignupRequest;
 import org.example.pdnight.domain.auth.presentation.dto.request.UserPasswordUpdateRequest;
-import org.example.pdnight.domain.auth.presentation.dto.request.WithdrawRequestDto;
-import org.example.pdnight.domain.auth.presentation.dto.response.LoginResponseDto;
-import org.example.pdnight.domain.auth.presentation.dto.response.SignupResponseDto;
+import org.example.pdnight.domain.auth.presentation.dto.request.WithdrawRequest;
+import org.example.pdnight.domain.auth.presentation.dto.response.LoginResponse;
+import org.example.pdnight.domain.auth.presentation.dto.response.SignupResponse;
 import org.example.pdnight.domain.auth.application.authUseCase.AuthService;
 import org.example.pdnight.domain.common.dto.ApiResponse;
 import org.example.pdnight.global.filter.CustomUserDetails;
@@ -27,15 +27,15 @@ public class AuthController {
     private final JwtUtil jwtUtil;
 
     @PostMapping("/api/auth/signup")
-    private ResponseEntity<ApiResponse<SignupResponseDto>> signup(@Valid @RequestBody SignupRequestDto request) {
-        SignupResponseDto user = authService.signup(request);
+    private ResponseEntity<ApiResponse<SignupResponse>> signup(@Valid @RequestBody SignupRequest request) {
+        SignupResponse user = authService.signup(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.ok("회원가입 되었습니다.", user));
     }
 
     @PostMapping("/api/auth/login")
-    private ResponseEntity<ApiResponse<LoginResponseDto>> login(@Valid @RequestBody LoginRequestDto request) {
-        LoginResponseDto token = authService.login(request);
+    private ResponseEntity<ApiResponse<LoginResponse>> login(@Valid @RequestBody LoginRequest request) {
+        LoginResponse token = authService.login(request);
         return ResponseEntity.ok()
                 .body(ApiResponse.ok("로그인 되었습니다.", token));
     }
@@ -63,7 +63,7 @@ public class AuthController {
     }
 
     @DeleteMapping("/api/auth/withdraw")
-    private ResponseEntity<ApiResponse<Void>> withdraw(@Valid @RequestBody WithdrawRequestDto request,
+    private ResponseEntity<ApiResponse<Void>> withdraw(@Valid @RequestBody WithdrawRequest request,
                                                        @AuthenticationPrincipal CustomUserDetails userDetails) {
         Long userId = userDetails.getUserId();
         authService.withdraw(userId, request);

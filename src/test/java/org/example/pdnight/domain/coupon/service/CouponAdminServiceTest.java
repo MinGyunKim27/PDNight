@@ -3,9 +3,9 @@ package org.example.pdnight.domain.coupon.service;
 import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.common.helper.GetHelper;
-import org.example.pdnight.domain.user.presentation.dto.couponDto.request.CouponRequestDto;
-import org.example.pdnight.domain.user.presentation.dto.couponDto.request.UpdateCouponRequestDto;
-import org.example.pdnight.domain.user.presentation.dto.couponDto.response.CouponResponseDto;
+import org.example.pdnight.domain.user.presentation.dto.couponDto.request.CouponRequest;
+import org.example.pdnight.domain.user.presentation.dto.couponDto.request.UpdateCouponRequest;
+import org.example.pdnight.domain.user.presentation.dto.couponDto.response.CouponResponse;
 import org.example.pdnight.domain.user.domain.entity.Coupon;
 import org.example.pdnight.domain.user.infra.couponInfra.CouponJpaRepository;
 import org.example.pdnight.domain.user.domain.entity.User;
@@ -45,7 +45,7 @@ class CouponAdminServiceTest {
     void 쿠폰을_생성_성공() {
         // given
         Long userId = 1L;
-        CouponRequestDto dto = mock(CouponRequestDto.class);
+        CouponRequest dto = mock(CouponRequest.class);
         User user = mock(User.class);
         Coupon coupon = Coupon.create(user, dto.getCouponInfo(), dto.getDeadlineAt());
 
@@ -56,7 +56,7 @@ class CouponAdminServiceTest {
         when(helper.getUserByIdOrElseThrow(dto.getUserId())).thenReturn(user);
         when(couponJpaRepository.save(any(Coupon.class))).thenReturn(coupon);
 
-        CouponResponseDto result = couponAdminService.createCoupon(dto);
+        CouponResponse result = couponAdminService.createCoupon(dto);
 
         // then
         assertThat(result).isNotNull();
@@ -69,7 +69,7 @@ class CouponAdminServiceTest {
     @DisplayName("쿠폰생성시 유저없음 예외 발생")
     void 쿠폰_생성시_유저없음_예외() {
         // given
-        CouponRequestDto dto = mock(CouponRequestDto.class);
+        CouponRequest dto = mock(CouponRequest.class);
 
         // when & then
         when(dto.getUserId()).thenReturn(1L);
@@ -91,7 +91,7 @@ class CouponAdminServiceTest {
         when(user.getId()).thenReturn(1L);
         when(coupon.getUser()).thenReturn(user);
         when(couponJpaRepository.findById(couponId)).thenReturn(Optional.of(coupon));
-        CouponResponseDto result = couponAdminService.getCoupon(couponId);
+        CouponResponse result = couponAdminService.getCoupon(couponId);
 
         // then
         assertThat(result).isNotNull();
@@ -116,7 +116,7 @@ class CouponAdminServiceTest {
         // given
         Long couponId = 1L;
         Coupon coupon = mock(Coupon.class);
-        UpdateCouponRequestDto dto = mock(UpdateCouponRequestDto.class);
+        UpdateCouponRequest dto = mock(UpdateCouponRequest.class);
         lenient().when(dto.getCouponInfo()).thenReturn("쿠폰정보");
         lenient().when(dto.getDeadlineAt()).thenReturn(LocalDateTime.now());
         User user = mock(User.class);
@@ -125,7 +125,7 @@ class CouponAdminServiceTest {
         when(user.getId()).thenReturn(1L);
         when(coupon.getUser()).thenReturn(user);
         when(couponJpaRepository.findById(couponId)).thenReturn(Optional.of(coupon));
-        CouponResponseDto result = couponAdminService.updateCoupon(couponId, dto);
+        CouponResponse result = couponAdminService.updateCoupon(couponId, dto);
 
         // then
         assertThat(result).isNotNull();
@@ -139,7 +139,7 @@ class CouponAdminServiceTest {
 
         // when & then
         when(couponJpaRepository.findById(1L)).thenReturn(Optional.empty());
-        assertThatThrownBy(() -> couponAdminService.updateCoupon(1L, mock(UpdateCouponRequestDto.class)))
+        assertThatThrownBy(() -> couponAdminService.updateCoupon(1L, mock(UpdateCouponRequest.class)))
                 .isInstanceOf(BaseException.class)
                 .hasMessage(ErrorCode.COUPON_NOT_FOUND.getMessage());
     }

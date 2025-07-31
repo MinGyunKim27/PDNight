@@ -7,7 +7,7 @@ import org.example.pdnight.domain.invite.dto.response.InviteResponseDto;
 import org.example.pdnight.domain.invite.dto.response.QInviteResponseDto;
 import org.example.pdnight.domain.invite.entity.QInvite;
 import org.example.pdnight.domain.post.entity.QPost;
-import org.example.pdnight.domain.user.entity.QUser;
+import org.example.pdnight.domain.user.domain.entity.QUser;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;

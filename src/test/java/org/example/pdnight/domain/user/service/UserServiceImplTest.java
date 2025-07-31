@@ -2,12 +2,18 @@ package org.example.pdnight.domain.user.service;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
 import org.example.pdnight.domain.common.exception.BaseException;
+import org.example.pdnight.domain.user.application.userUseCase.UserCommandService;
 import org.example.pdnight.domain.user.application.userUseCase.UserService;
+import org.example.pdnight.domain.user.domain.entity.Hobby;
 import org.example.pdnight.domain.user.domain.entity.TechStack;
 import org.example.pdnight.domain.auth.presentation.dto.request.UserPasswordUpdateRequest;
+import org.example.pdnight.domain.user.domain.hobbyDomain.HobbyReader;
+import org.example.pdnight.domain.user.domain.teckStackDomain.TechStackReader;
+import org.example.pdnight.domain.user.domain.userDomain.UserCommandQuery;
+import org.example.pdnight.domain.user.domain.userDomain.UserReader;
 import org.example.pdnight.domain.user.presentation.dto.userDto.request.UserUpdateRequest;
 import org.example.pdnight.domain.user.presentation.dto.userDto.response.UserEvaluationResponse;
-import org.example.pdnight.domain.user.presentation.dto.userDto.response.UserResponseDto;
+import org.example.pdnight.domain.user.presentation.dto.userDto.response.UserResponse;
 import org.example.pdnight.domain.user.domain.entity.User;
 import org.example.pdnight.domain.user.infra.userInfra.UserJpaRepository;
 import org.junit.jupiter.api.Test;
@@ -28,12 +34,15 @@ import static org.mockito.Mockito.*;
 public class UserServiceImplTest {
 
     @Mock
-    private UserJpaRepository userJpaRepository;
+    private UserReader userReader;
 
     @Mock
-    private HobbyRepositoryImpl hobbyRepositoryQuery;
+    private UserCommandQuery userCommandQuery;
+
     @Mock
-    private TechStackRepositoryQuery techStackRepositoryQuery;
+    private HobbyReader hobbyRepositoryQuery;
+    @Mock
+    private TechStackReader techStackRepositoryQuery;
 
     @InjectMocks
     private UserService userService;
@@ -46,10 +55,10 @@ public class UserServiceImplTest {
 
         when(user.getName()).thenReturn("Test");
         when(user.getId()).thenReturn(userId);
-        when(userJpaRepository.findByIdWithInfo(userId)).thenReturn(Optional.of(user));
+        when(userReader.findById(userId)).thenReturn(Optional.of(user));
 
         // when
-        UserResponseDto result = userService.getMyProfile(userId);
+        UserResponse result = userService.getMyProfile(userId);
 
         // then
         assertEquals(userId, result.getId());
@@ -60,7 +69,7 @@ public class UserServiceImplTest {
     void 내_프로필_조회_실패_유저없음() {
         // given
         Long userId = 1L;
-        when(userJpaRepository.findByIdWithInfo(userId)).thenReturn(Optional.empty());
+        when(userReader.findById(userId)).thenReturn(Optional.empty());
 
         // when & then
         assertThrows(BaseException.class, () -> userService.getMyProfile(userId));
@@ -89,69 +98,70 @@ public class UserServiceImplTest {
         when(request.getHobbyIdList()).thenReturn(hobbyIdList);
         when(request.getTechStackIdList()).thenReturn(techStackIdList);
 
-        when(userJpaRepository.findByIdWithInfo(userId)).thenReturn(Optional.of(user));
+        when(userReader.findById(userId)).thenReturn(Optional.of(user));
         when(hobbyRepositoryQuery.findByIdList(hobbyIdList)).thenReturn(List.of(hobby));
         when(techStackRepositoryQuery.findByIdList(techStackIdList)).thenReturn(List.of(techStack));
 
         // when
-        UserResponseDto result = userService.updateMyProfile(userId, request);
+        UserResponse result = userService.updateMyProfile(userId, request);
 
         // then
-        verify(userJpaRepository).save(any(User.class)); // 저장 메서드 호출 확인
+        verify(userCommandQuery).save(any(User.class)); // 저장 메서드 호출 확인
         assertEquals("Test", result.getName());
         assertEquals(List.of("hobby"), result.getHobbyList());
         assertEquals(List.of("techStack"), result.getTechStackList());
     }
 
-    @Test
-    void 비밀번호_수정_성공() {
-        Long userId = 1L;
-        String oldPassword = "1234";
-        String newPassword = "5678";
-
-        // 실제 암호화된 비밀번호
-        String hashedOldPassword = BCrypt.withDefaults().hashToString(10, oldPassword.toCharArray());
-        // User user = new User(userId, "Test", hashedOldPassword);
-        User user = User.createTestUser(userId, "Test", "emailTest@naver.com", hashedOldPassword);
-        when(userJpaRepository.findById(userId)).thenReturn(Optional.of(user));
-
-        UserPasswordUpdateRequest request = mock();
-        when(request.getNewPassword()).thenReturn(newPassword);
-        when(request.getOldPassword()).thenReturn(oldPassword);
-
-        userService.updatePassword(userId, request);
-
-        verify(userJpaRepository).save(user);
-        assertNotEquals(hashedOldPassword, user.getPassword()); // 비밀번호 바뀌었는지 확인
-    }
-
-    @Test
-    void 비밀번호_수정_실패_비밀번호_불일치() {
-        // given
-        Long userId = 1L;
-        String oldPassword = "1234";
-        String wrongPassword = "9999";
-        String newPassword = "5678";
-
-        String hashedOldPassword = BCrypt.withDefaults().hashToString(10, oldPassword.toCharArray());
-        User user = mock();
-        when(user.getPassword()).thenReturn(hashedOldPassword);
-        when(userJpaRepository.findById(userId)).thenReturn(Optional.of(user));
-        UserPasswordUpdateRequest request = mock();
-        when(request.getOldPassword()).thenReturn(wrongPassword);
-
-        assertThrows(BaseException.class, () -> userService.updatePassword(userId, request));
-    }
-
-    @Test
-    void 비밀번호_수정_실패_유저_없음() {
-        Long userId = 1L;
-        when(userJpaRepository.findById(userId)).thenReturn(Optional.empty());
-
-        UserPasswordUpdateRequest request = mock();
-
-        assertThrows(BaseException.class, () -> userService.updatePassword(userId, request));
-    }
+    // Auth 테스트로 이동 & 리팩토링
+//    @Test
+//    void 비밀번호_수정_성공() {
+//        Long userId = 1L;
+//        String oldPassword = "1234";
+//        String newPassword = "5678";
+//
+//        // 실제 암호화된 비밀번호
+//        String hashedOldPassword = BCrypt.withDefaults().hashToString(10, oldPassword.toCharArray());
+//        // User user = new User(userId, "Test", hashedOldPassword);
+//        User user = User.createTestUser(userId, "Test", "emailTest@naver.com", hashedOldPassword);
+//        when(userReader.findById(userId)).thenReturn(Optional.of(user));
+//
+//        UserPasswordUpdateRequest request = mock();
+//        when(request.getNewPassword()).thenReturn(newPassword);
+//        when(request.getOldPassword()).thenReturn(oldPassword);
+//
+//        userService.updatePassword(userId, request);
+//
+//        verify(userCommandQuery).save(user);
+//        assertNotEquals(hashedOldPassword, user.getPassword()); // 비밀번호 바뀌었는지 확인
+//    }
+//
+//    @Test
+//    void 비밀번호_수정_실패_비밀번호_불일치() {
+//        // given
+//        Long userId = 1L;
+//        String oldPassword = "1234";
+//        String wrongPassword = "9999";
+//        String newPassword = "5678";
+//
+//        String hashedOldPassword = BCrypt.withDefaults().hashToString(10, oldPassword.toCharArray());
+//        User user = mock();
+//        when(user.getPassword()).thenReturn(hashedOldPassword);
+//        when(userJpaRepository.findById(userId)).thenReturn(Optional.of(user));
+//        UserPasswordUpdateRequest request = mock();
+//        when(request.getOldPassword()).thenReturn(wrongPassword);
+//
+//        assertThrows(BaseException.class, () -> userService.updatePassword(userId, request));
+//    }
+//
+//    @Test
+//    void 비밀번호_수정_실패_유저_없음() {
+//        Long userId = 1L;
+//        when(userJpaRepository.findById(userId)).thenReturn(Optional.empty());
+//
+//        UserPasswordUpdateRequest request = mock();
+//
+//        assertThrows(BaseException.class, () -> userService.updatePassword(userId, request));
+//    }
 
     @Test
     void 사용자_평가_조회_성공() {
@@ -161,7 +171,7 @@ public class UserServiceImplTest {
         when(user.getId()).thenReturn(userId);
         when(user.getTotalReviewer()).thenReturn(9L);
         when(user.getTotalRate()).thenReturn(45L);
-        when(userJpaRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userReader.findById(userId)).thenReturn(Optional.of(user));
 
         UserEvaluationResponse result = userService.getEvaluation(userId);
 
@@ -172,7 +182,7 @@ public class UserServiceImplTest {
     @Test
     void 사용자_평가_조회_실패_유저_없음() {
         Long userId = 1L;
-        when(userJpaRepository.findById(userId)).thenReturn(Optional.empty());
+        when(userReader.findById(userId)).thenReturn(Optional.empty());
 
         assertThrows(BaseException.class, () -> userService.getEvaluation(userId));
     }

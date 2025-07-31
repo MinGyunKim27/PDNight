@@ -8,7 +8,13 @@ import org.example.pdnight.domain.user.domain.entity.Coupon;
 public class CouponRepositoryImpl implements CouponCommandQuery {
     private final CouponJpaRepository couponJpaRepository;
 
-    public Coupon Save(Coupon coupon){
+    @Override
+    public Coupon save(Coupon coupon){
         return couponJpaRepository.save(coupon);
+    }
+
+    @Override
+    public void delete(Coupon coupon){
+        couponJpaRepository.delete(coupon);
     }
 }

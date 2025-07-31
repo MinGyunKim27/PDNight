@@ -4,44 +4,45 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.example.pdnight.domain.common.entity.Timestamped;
 import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.exception.BaseException;
-
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "user_coupons")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class UserCoupon {
+public class UserCoupon extends Timestamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "coupon_id")
-    private Coupon coupon;
-
     @Column(nullable = false)
-    @Getter
-    private Long userId;
+    private Long couponId;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @Column(nullable = false)
     private boolean isUsed;
+
+    private LocalDateTime deadlineAt;
 
     public void use() {
         if (this.isUsed) {
             throw new BaseException(ErrorCode.COUPON_ALREADY_USED);
         }
-        if (this.coupon.getDeadlineAt() != null && this.coupon.getDeadlineAt().isBefore(LocalDateTime.now())) {
+        if (this.deadlineAt != null && this.deadlineAt.isBefore(LocalDateTime.now())) {
             throw new BaseException(ErrorCode.COUPON_EXPIRED);
         }
         this.isUsed = true;
     }
 
-    public Long getUserId() { return userId; }
+    public Long getUserId() { return user.getId(); }
 
     public boolean isUsed() { return isUsed; }
 
-    public Coupon getCoupon() { return coupon; } // 필요할 때만
+    public UserCoupon getCoupon() { return this; } // 필요할 때만
 }

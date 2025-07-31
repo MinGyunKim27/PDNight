@@ -8,11 +8,11 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class TechStackResponseDto {
+public class TechStackResponse {
     private Long id;
     private String techStack;
 
-    public static TechStackResponseDto from(TechStack techStack){
-        return new TechStackResponseDto(techStack.getId(),techStack.getTechStack());
+    public static TechStackResponse from(TechStack techStack){
+        return new TechStackResponse(techStack.getId(),techStack.getTechStack());
     }
 }

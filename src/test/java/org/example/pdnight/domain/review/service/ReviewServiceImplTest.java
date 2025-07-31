@@ -6,8 +6,8 @@ import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.common.helper.GetHelper;
 import org.example.pdnight.domain.post.entity.Post;
 import org.example.pdnight.domain.user.application.reviewUserCase.ReviewServiceImpl;
-import org.example.pdnight.domain.user.presentation.dto.reviewDto.request.ReviewRequestDto;
-import org.example.pdnight.domain.user.presentation.dto.reviewDto.response.ReviewResponseDto;
+import org.example.pdnight.domain.user.presentation.dto.reviewDto.request.ReviewRequest;
+import org.example.pdnight.domain.user.presentation.dto.reviewDto.response.ReviewResponse;
 import org.example.pdnight.domain.user.domain.entity.Review;
 import org.example.pdnight.domain.user.infra.reviewInfra.ReviewJpaRepository;
 import org.example.pdnight.domain.user.domain.entity.User;
@@ -59,7 +59,7 @@ class ReviewServiceImplTest {
         Post post = Mockito.mock();  // 테스트 전용 생성자 필요할 수 있음
         when(post.getId()).thenReturn(3L);     // 또는 Post 클래스에도 테스트 생성자 추가 권장
 
-        ReviewRequestDto requestDto = mock(ReviewRequestDto.class);
+        ReviewRequest requestDto = mock(ReviewRequest.class);
         when(requestDto.getRate()).thenReturn(BigDecimal.ONE);
 
         when(helper.getUserByIdOrElseThrow(reviewerId)).thenReturn(reviewer);
@@ -71,7 +71,7 @@ class ReviewServiceImplTest {
         when(reviewJpaRepository.save(any(Review.class))).thenReturn(savedReview);
 
         // when
-        ReviewResponseDto response = reviewServiceImpl.createReview(reviewerId, ratedUserId, postId, requestDto);
+        ReviewResponse response = reviewServiceImpl.createReview(reviewerId, ratedUserId, postId, requestDto);
 
         // then
         assertNotNull(response);
@@ -86,7 +86,7 @@ class ReviewServiceImplTest {
         // given
         Long userId = 1L;
         Long postId = 1L;
-        ReviewRequestDto mockRequestDto = mock(ReviewRequestDto.class);
+        ReviewRequest mockRequestDto = mock(ReviewRequest.class);
 
         // when & then
         BaseException exception = assertThrows(BaseException.class, () ->
@@ -105,7 +105,7 @@ class ReviewServiceImplTest {
         User ratedUser = mock();
         Post post = mock();
 
-        ReviewRequestDto requestDto = mock(ReviewRequestDto.class);
+        ReviewRequest requestDto = mock(ReviewRequest.class);
 
         when(helper.getUserByIdOrElseThrow(1L)).thenReturn(reviewer);
         when(helper.getUserByIdOrElseThrow(2L)).thenReturn(ratedUser);
@@ -143,7 +143,7 @@ class ReviewServiceImplTest {
         when(reviewJpaRepository.findByRatedUser(ratedUser, pageable)).thenReturn(reviewPage);
 
         // when
-        PagedResponse<ReviewResponseDto> response = reviewServiceImpl.getReceivedReviewsByUser(userId, pageable);
+        PagedResponse<ReviewResponse> response = reviewServiceImpl.getReceivedReviewsByUser(userId, pageable);
 
         // then
         assertNotNull(response);
@@ -179,10 +179,10 @@ class ReviewServiceImplTest {
         PageImpl<Review> reviewPage = new PageImpl<>(List.of(review), pageable, 1);
 
         when(helper.getUserByIdOrElseThrow(userId)).thenReturn(reviewer);
-        when(reviewJpaRepository.findByReviewer(reviewer, pageable)).thenReturn(reviewPage);
+//        when(reviewJpaRepository.findByReviewer(reviewer, pageable)).thenReturn(reviewPage);
 
         // when
-        PagedResponse<ReviewResponseDto> response = reviewServiceImpl.getWrittenReviewsByUser(userId, pageable);
+        PagedResponse<ReviewResponse> response = reviewServiceImpl.getWrittenReviewsByUser(userId, pageable);
 
         // then
         assertNotNull(response);

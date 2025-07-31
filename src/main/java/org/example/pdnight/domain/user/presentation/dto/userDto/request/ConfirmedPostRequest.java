@@ -5,7 +5,7 @@ import lombok.Getter;
 import org.example.pdnight.domain.common.enums.JoinStatus;
 
 @Getter
-public class ConfirmedPostRequestDto {
+public class ConfirmedPostRequest {
     @NotNull
     private JoinStatus joinStatus;
 }

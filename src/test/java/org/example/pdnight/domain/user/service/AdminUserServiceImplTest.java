@@ -2,13 +2,15 @@ package org.example.pdnight.domain.user.service;
 
 import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.exception.BaseException;
-import org.example.pdnight.domain.user.presentation.dto.userDto.request.UserNicknameUpdateDto;
-import org.example.pdnight.domain.user.presentation.dto.userDto.response.UserResponseDto;
+import org.example.pdnight.domain.user.application.userUseCase.UserService;
+import org.example.pdnight.domain.user.presentation.dto.userDto.request.UserNicknameUpdate;
+import org.example.pdnight.domain.user.presentation.dto.userDto.response.UserResponse;
 import org.example.pdnight.domain.user.domain.entity.User;
 import org.example.pdnight.domain.user.infra.userInfra.UserJpaRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -24,6 +26,8 @@ class AdminUserServiceImplTest {
     @Mock
     private UserJpaRepository userJpaRepository;
 
+    @InjectMocks
+    private UserService userService;
 
     @Test
     @DisplayName("관리자가 유저 닉네임 변경 성공")
@@ -31,13 +35,13 @@ class AdminUserServiceImplTest {
         // given
         Long userId = 1L;
         User mockUser = Mockito.mock(User.class);
-        UserNicknameUpdateDto dto = mock(UserNicknameUpdateDto.class);
+        UserNicknameUpdate dto = mock(UserNicknameUpdate.class);
         when(dto.getNickname()).thenReturn("수정된 닉네임");
 
         when(userJpaRepository.findById(userId)).thenReturn(Optional.of(mockUser));
 
         // when
-        UserResponseDto response = adminUserService.updateNickname(userId, dto);
+        UserResponse response = userService.updateNickname(userId, dto);
 
         // then
         assertNotNull(response);
@@ -49,12 +53,12 @@ class AdminUserServiceImplTest {
     void 닉네임_변경_유저없음_예외() {
         // given
         Long userId = 1L;
-        UserNicknameUpdateDto dto = mock(UserNicknameUpdateDto.class);
+        UserNicknameUpdate dto = mock(UserNicknameUpdate.class);
 
         // when & then
         when(userJpaRepository.findById(userId)).thenReturn(Optional.empty());
         BaseException exception = assertThrows(BaseException.class,
-                () -> adminUserService.updateNickname(userId, dto));
+                () -> userService.updateNickname(userId, dto));
 
         assertEquals(ErrorCode.USER_NOT_FOUND.getStatus(), exception.getStatus());
         assertEquals(ErrorCode.USER_NOT_FOUND.getMessage(), exception.getMessage());
@@ -71,7 +75,7 @@ class AdminUserServiceImplTest {
         when(mockUser.getIsDeleted()).thenReturn(false);
         when(userJpaRepository.findById(userId)).thenReturn(Optional.of(mockUser));
 
-        adminUserService.deleteUser(userId);
+        userService.delete(userId);
 
         // then
         verify(mockUser).softDelete();
@@ -88,7 +92,7 @@ class AdminUserServiceImplTest {
         when(mockUser.getIsDeleted()).thenReturn(true);
         when(userJpaRepository.findById(userId)).thenReturn(Optional.of(mockUser));
         BaseException exception = assertThrows(BaseException.class,
-                () -> adminUserService.deleteUser(userId));
+                () -> userService.delete(userId));
 
         assertEquals(ErrorCode.USER_DEACTIVATED.getStatus(), exception.getStatus());
         assertEquals(ErrorCode.USER_DEACTIVATED.getMessage(), exception.getMessage());
@@ -103,7 +107,7 @@ class AdminUserServiceImplTest {
         // when & then
         when(userJpaRepository.findById(userId)).thenReturn(Optional.empty());
         BaseException exception = assertThrows(BaseException.class,
-                () -> adminUserService.deleteUser(userId));
+                () -> userService.delete(userId));
 
         assertEquals(ErrorCode.USER_NOT_FOUND.getStatus(), exception.getStatus());
         assertEquals(ErrorCode.USER_NOT_FOUND.getMessage(), exception.getMessage());

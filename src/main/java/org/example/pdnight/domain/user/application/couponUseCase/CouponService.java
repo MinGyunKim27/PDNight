@@ -1,23 +1,22 @@
 package org.example.pdnight.domain.user.application.couponUseCase;
 
 import org.example.pdnight.domain.common.dto.PagedResponse;
-import org.example.pdnight.domain.user.presentation.dto.couponDto.request.CouponRequestDto;
-import org.example.pdnight.domain.user.presentation.dto.couponDto.request.UpdateCouponRequestDto;
-import org.example.pdnight.domain.user.presentation.dto.couponDto.response.CouponResponseDto;
+import org.example.pdnight.domain.user.presentation.dto.couponDto.request.CouponRequest;
+import org.example.pdnight.domain.user.presentation.dto.couponDto.request.UpdateCouponRequest;
+import org.example.pdnight.domain.user.presentation.dto.couponDto.response.CouponResponse;
+import org.example.pdnight.domain.user.presentation.dto.couponDto.response.CouponUpdateResponse;
 import org.springframework.data.domain.Pageable;
 
 public interface CouponService {
 
-    CouponResponseDto useCoupon(Long couponId, Long userId);
+    CouponResponse createCoupon(CouponRequest dto);
 
-    CouponResponseDto updateCoupon(Long id, UpdateCouponRequestDto dto);
+    CouponUpdateResponse updateCoupon(Long id, UpdateCouponRequest dto);
 
     void deleteCoupon(Long id);
 
-    CouponResponseDto createCoupon(CouponRequestDto dto);
+    PagedResponse<CouponResponse> getValidCoupons(Long userId, Pageable pageable);
 
-    PagedResponse<CouponResponseDto> getValidCoupons(Long userId, Pageable pageable);
-
-    CouponResponseDto getCoupon(Long id);
+    CouponResponse getCoupon(Long id);
 
 }

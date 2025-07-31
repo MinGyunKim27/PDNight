@@ -4,23 +4,34 @@ import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.example.pdnight.domain.user.domain.entity.*;
+import org.example.pdnight.domain.user.application.userUseCase.UserInfoAssembler;
+import org.example.pdnight.domain.user.domain.entity.QFollow;
+import org.example.pdnight.domain.user.domain.entity.QUser;
+import org.example.pdnight.domain.user.domain.entity.User;
+import org.example.pdnight.domain.user.domain.entity.UserCoupon;
 import org.example.pdnight.domain.user.domain.userDomain.UserReader;
-import org.example.pdnight.domain.user.presentation.dto.userDto.response.FollowingResponseDto;
-import org.example.pdnight.domain.user.presentation.dto.userDto.response.QFollowingResponseDto;
+import org.example.pdnight.domain.user.presentation.dto.couponDto.response.CouponResponse;
+import org.example.pdnight.domain.user.presentation.dto.userDto.response.FollowingResponse;
+import org.example.pdnight.domain.user.presentation.dto.userDto.response.QFollowingResponse;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
-
+import com.querydsl.core.types.Projections;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+
+import static org.example.pdnight.domain.user.domain.entity.QCoupon.coupon;
+import static org.example.pdnight.domain.user.domain.entity.QUserCoupon.userCoupon;
 
 @Repository
 @RequiredArgsConstructor
 public class UserQueryRepositoryImpl implements UserReader {
 
     private final JPAQueryFactory queryFactory;
+    private final UserInfoAssembler userInfoAssembler;
 
     @Override
     public Optional<User> findById(Long id) {
@@ -60,6 +71,7 @@ public class UserQueryRepositoryImpl implements UserReader {
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
     }
 
+
     @Override
     public Optional<User> findByIdAndIsDeletedFalse(Long id){
 
@@ -68,47 +80,10 @@ public class UserQueryRepositoryImpl implements UserReader {
         return queryFactory
                 .select(user)
                 .where(user.id.eq(id).and(user.isDeleted.eq(false)))
-                .stream().findFirst();
+                .stream()
+                .findFirst();
     }
 
-    @Override
-    public Optional<User> findByEmailIsDeletedFalse(String email){
-        QUser user = QUser.user;
-
-        return queryFactory
-                .select(user)
-                .where(user.email.eq(email).and(user.isDeleted.eq(false)))
-                .stream().findFirst();
-    }
-
-    @Override
-    public Optional<User> findByIdWithInfoIsDeletedFalse(Long id){
-
-        QUser user = QUser.user;
-        QTechStack techStack = QTechStack.techStack1;
-        QUserTech userTech = QUserTech.userTech;
-
-        QHobby hobby = QHobby.hobby1;
-        QUserHobby userHobby = QUserHobby.userHobby;
-
-        return queryFactory
-                .select(user)
-                .where(user.id.eq(id).and(user.isDeleted.eq(false)))
-                .stream().findFirst();
-    }
-
-    @Override
-    public boolean existsByEmail(String email){
-        QUser user = QUser.user;
-
-        Integer result = queryFactory
-                .selectOne()
-                .from(user)
-                .where(user.email.eq(email))
-                .fetchFirst();
-
-        return result != null;
-    }
 
     @Override
     public Page<User> findAll(Pageable pageable) {
@@ -130,13 +105,14 @@ public class UserQueryRepositoryImpl implements UserReader {
         return PageableExecutionUtils.getPage(users, pageable, () -> Optional.ofNullable(count).orElse(0L));
     }
 
+    //있는데
     @Override
-    public Page<FollowingResponseDto> findFollowingsByUserId(Long userId, Pageable pageable) {
+    public Page<FollowingResponse> findFollowingsByUserId(Long userId, Pageable pageable) {
         QFollow follow = QFollow.follow;
         QUser user = QUser.user;
 
-        JPQLQuery<FollowingResponseDto> query = queryFactory
-                .select(new QFollowingResponseDto(
+        JPQLQuery<FollowingResponse> query = queryFactory
+                .select(new QFollowingResponse(
                         follow.following.id,
                         follow.following.nickname
                 ))
@@ -152,5 +128,53 @@ public class UserQueryRepositoryImpl implements UserReader {
                 .where(follow.follower.id.eq(userId));
 
         return PageableExecutionUtils.getPage(query.fetch(), pageable, countQuery::fetchOne);
+    }
+
+
+    public Page<CouponResponse> findUserCoupons(Long userId, LocalDateTime now, Pageable pageable){
+        List<CouponResponse> couponList = queryFactory
+                .select(Projections.constructor(CouponResponse.class,
+                        userCoupon,
+                        coupon))
+                .from(userCoupon)
+                .join(coupon).on(userCoupon.couponId.eq(coupon.id))
+                .where(
+                        userCoupon.user.id.eq(userId),
+                        userCoupon.isUsed.isFalse(),
+                        userCoupon.deadlineAt.isNull()
+                                .or(userCoupon.deadlineAt.after(now))
+                )
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        JPQLQuery<Long>  total = queryFactory
+                .select(userCoupon.count())
+                .from(userCoupon)
+                .where(
+                        userCoupon.user.id.eq(userId),
+                        userCoupon.isUsed.isFalse(),
+                        userCoupon.deadlineAt.isNull()
+                                .or(userCoupon.deadlineAt.after(now))
+                );
+
+        return PageableExecutionUtils.getPage(couponList, pageable, total::fetchOne);
+    }
+
+    public CouponResponse findUserCoupon(Long userId, LocalDateTime now) {
+        return queryFactory
+                .select(Projections.constructor(CouponResponse.class,
+                        userCoupon,
+                        coupon))
+                .from(userCoupon)
+                .join(coupon).on(userCoupon.couponId.eq(coupon.id))
+                .where(
+                        userCoupon.user.id.eq(userId),
+                        userCoupon.isUsed.isFalse(),
+                        userCoupon.deadlineAt.isNull()
+                                .or(userCoupon.deadlineAt.after(now))
+                )
+                .findFirst();
+
     }
 }

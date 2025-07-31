@@ -7,7 +7,7 @@ import lombok.Getter;
 import java.math.BigDecimal;
 
 @Getter
-public class ReviewRequestDto {
+public class ReviewRequest {
     @NotNull
     private BigDecimal rate;
     @Size(max = 30)

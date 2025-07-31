@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
-public class UserResponseDto {
+public class UserResponse {
 
     private Long id;
     private String email;
@@ -29,18 +29,10 @@ public class UserResponseDto {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    private UserResponseDto(User user) {
+    private UserResponse(User user, List<String> hobbyNames, List<String> techNames) {
         this.id = user.getId();
-        this.email = user.getEmail();
-        this.role = user.getRole();
-        this.hobbyList = user.getUserHobbies()
-                .stream()
-                .map(hobby -> hobby.getHobby().getHobby())
-                .toList();
-        this.techStackList = user.getUserTechs()
-                .stream()
-                .map(tech -> tech.getTechStack().getTechStack())
-                .toList();
+        this.hobbyList =hobbyNames;
+        this.techStackList = techNames;
         this.name = user.getName();
         this.nickname = user.getNickname();
         this.gender = user.getGender();
@@ -53,7 +45,7 @@ public class UserResponseDto {
         this.updatedAt = user.getUpdatedAt();
     }
 
-    public static UserResponseDto from(User user) {
-        return new UserResponseDto(user);
+    public static UserResponse from(User user, List<String> hobbyNames, List<String> techNames) {
+        return new UserResponse(user,hobbyNames,techNames);
     }
 }

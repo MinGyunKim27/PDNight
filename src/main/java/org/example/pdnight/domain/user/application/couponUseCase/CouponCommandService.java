@@ -1,72 +1,66 @@
 package org.example.pdnight.domain.user.application.couponUseCase;
 
 import lombok.RequiredArgsConstructor;
-import org.example.pdnight.domain.auth.presentation.dto.request.SignupRequestDto;
 import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.exception.BaseException;
-import org.example.pdnight.domain.common.helper.GetHelper;
+import org.example.pdnight.domain.user.domain.couponDomain.CouponCommandQuery;
 import org.example.pdnight.domain.user.domain.entity.*;
 import org.example.pdnight.domain.user.infra.couponInfra.CouponJpaRepository;
-import org.example.pdnight.domain.user.presentation.dto.couponDto.request.CouponRequestDto;
-import org.example.pdnight.domain.user.presentation.dto.couponDto.request.UpdateCouponRequestDto;
-import org.example.pdnight.domain.user.presentation.dto.couponDto.response.CouponResponseDto;
+import org.example.pdnight.domain.user.presentation.dto.couponDto.request.CouponRequest;
+import org.example.pdnight.domain.user.presentation.dto.couponDto.request.UpdateCouponRequest;
+import org.example.pdnight.domain.user.presentation.dto.couponDto.response.CouponUpdateResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class CouponCommandService {
 
-    private final CouponJpaRepository couponJpaRepository;
-    private final GetHelper helper;
-
-    // 쿠폰사용
-    @Transactional
-    public CouponResponseDto useCoupon(Long couponId, Long userId) {
-        UserCoupon coupon = getMyCouponById(couponId, userId);
-
-        validateUseCoupon(userId, coupon);
-
-        coupon.use(); // 쿠폰 사용 처리
-        return CouponResponseDto.from(coupon);
-    }
+    private final CouponCommandQuery couponCommandQuery;
 
     // --------------------- Admin Api ------------------------------------------------//
+    // 쿠폰생성
+    @Transactional
+    public CouponUpdateResponse createCoupon(CouponRequest dto) {
+        Coupon coupon = Coupon.create(dto.getCouponInfo(), dto.getDeadlineAt());
+
+        couponCommandQuery.save(coupon);
+        return CouponUpdateResponse.from(coupon);
+    }
+
+    // 쿠폰 부여
+    @Transactional
+    public CouponUpdateResponse giveCouponToUser(CouponRequest dto) {
+        // Coupon 정보 가져옴
+        // UserCoupon 생성
+        // user에게 이벤트로 UserCoupon 넘겨서, UserCoupon 리스트에 추가함
+        // UserCoupon 리턴
+
+        Coupon coupon = Coupon.create(dto.getCouponInfo(), dto.getDeadlineAt());
+
+        couponCommandQuery.save(coupon);
+        return CouponUpdateResponse.from(coupon);
+    }
+
+
     // 쿠폰 수정
     @Transactional
-    public CouponResponseDto updateCoupon(Long id, UpdateCouponRequestDto dto) {
+    public CouponUpdateResponse updateCoupon(Long id, UpdateCouponRequest dto) {
         Coupon coupon = getCouponById(id);
         coupon.updateCoupon(dto.getCouponInfo(), dto.getDeadlineAt());
-        return CouponResponseDto.from(coupon);
+        return CouponUpdateResponse.from(coupon);
     }
 
     // 쿠폰삭제
     @Transactional
     public void deleteCoupon(Long id) {
         Coupon coupon = getCouponById(id);
-        couponJpaRepository.delete(coupon);
-    }
-
-    // 쿠폰생성
-    @Transactional
-    public CouponResponseDto createCoupon(CouponRequestDto dto) {
-
-        User user = helper.getUserByIdOrElseThrow(dto.getUserId());
-        Coupon coupon = Coupon.create(user, dto.getCouponInfo(), dto.getDeadlineAt());
-
-        couponJpaRepository.save(coupon);
-        user.addCoupon(coupon.getId()); // 양방향 연관관계 리스트에 쿠폰 추가
-        return CouponResponseDto.from(coupon);
+        couponCommandQuery.delete(coupon);
     }
 
     // ----------------------------------- HELPER 메서드 ------------------------------------------------------ //
     // get
-    private UserCoupon getCouponById(Long couponId) {
+    private Coupon getCouponById(Long couponId) {
         return couponJpaRepository.findById(couponId)
                 .orElseThrow(() -> new BaseException(ErrorCode.COUPON_NOT_FOUND));
     }

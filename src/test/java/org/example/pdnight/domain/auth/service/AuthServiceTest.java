@@ -1,9 +1,9 @@
 package org.example.pdnight.domain.auth.service;
 
-import org.example.pdnight.domain.auth.application.authUseCase.AuthServiceImpl;
-import org.example.pdnight.domain.auth.presentation.dto.request.LoginRequestDto;
-import org.example.pdnight.domain.auth.presentation.dto.request.SignupRequestDto;
-import org.example.pdnight.domain.auth.presentation.dto.request.WithdrawRequestDto;
+import org.example.pdnight.domain.auth.application.authUseCase.AuthService;
+import org.example.pdnight.domain.auth.presentation.dto.request.LoginRequest;
+import org.example.pdnight.domain.auth.presentation.dto.request.SignupRequest;
+import org.example.pdnight.domain.auth.presentation.dto.request.WithdrawRequest;
 import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.user.domain.entity.User;
 import org.example.pdnight.domain.user.infra.userInfra.UserJpaRepository;
@@ -18,7 +18,8 @@ import org.springframework.http.HttpStatus;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -26,7 +27,7 @@ import static org.mockito.Mockito.*;
 class AuthServiceTest {
 
     @InjectMocks
-    private AuthServiceImpl authService;
+    private AuthService authService;
 
     @Mock
     private UserJpaRepository userJpaRepository;
@@ -44,7 +45,7 @@ class AuthServiceTest {
         when(userJpaRepository.findByEmail(any())).thenReturn(Optional.of(user));
 
         //when
-        BaseException result = assertThrows(BaseException.class, () -> authService.signup(mock(SignupRequestDto.class)));
+        BaseException result = assertThrows(BaseException.class, () -> authService.signup(mock(SignupRequest.class)));
 
         //then
         assertEquals(HttpStatus.CONFLICT,result.getStatus());
@@ -58,7 +59,7 @@ class AuthServiceTest {
         when(userJpaRepository.findByEmail(any())).thenReturn(Optional.of(user));
         when(user.getIsDeleted()).thenReturn(true);
         //when
-        BaseException result = assertThrows(BaseException.class, () -> authService.login(mock(LoginRequestDto.class)));
+        BaseException result = assertThrows(BaseException.class, () -> authService.login(mock(LoginRequest.class)));
 
         //then
         assertEquals(HttpStatus.UNAUTHORIZED,result.getStatus());
@@ -74,7 +75,7 @@ class AuthServiceTest {
         when(passwordEncoder.matches(any(), any())).thenReturn(false);
 
         //when
-        BaseException result = assertThrows(BaseException.class, () -> authService.login(mock(LoginRequestDto.class)));
+        BaseException result = assertThrows(BaseException.class, () -> authService.login(mock(LoginRequest.class)));
 
         //then
         assertEquals(HttpStatus.BAD_REQUEST,result.getStatus());
@@ -90,7 +91,7 @@ class AuthServiceTest {
         when(passwordEncoder.matches(any(), any())).thenReturn(true);
 
         //when
-        authService.withdraw(1L, mock(WithdrawRequestDto.class));
+        authService.withdraw(1L, mock(WithdrawRequest.class));
 
         //then
         verify(user).softDelete();

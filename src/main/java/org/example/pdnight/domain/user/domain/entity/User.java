@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.example.pdnight.domain.auth.presentation.dto.request.SignupRequestDto;
+import org.example.pdnight.domain.auth.presentation.dto.request.SignupRequest;
 import org.example.pdnight.domain.common.entity.Timestamped;
 import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.enums.JobCategory;
@@ -12,11 +12,12 @@ import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.user.domain.enums.Region;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+
+import static jakarta.persistence.CascadeType.ALL;
 
 @Entity
 @Table(name = "users")
@@ -32,10 +33,6 @@ public class User extends Timestamped {
 
     private String nickname;
 
-    private Set<Long> userHobbyIds = new HashSet<>();
-
-    private Set<Long> userTechIds = new HashSet<>();
-
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
@@ -43,6 +40,12 @@ public class User extends Timestamped {
 
     @Enumerated(EnumType.STRING)
     private JobCategory jobCategory;
+
+    @OneToMany(mappedBy = "user", cascade = ALL, orphanRemoval = true)
+    private List<UserHobby> userHobbies = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = ALL, orphanRemoval = true)
+    private List<UserTech> userTeckStacks = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     private Region region;
@@ -53,25 +56,28 @@ public class User extends Timestamped {
 
     private String comment;
 
-    private Long totalRate;
+    private Long totalRate = 0L;
     private Long totalReviewer;
 
+    // 쿠폰
+    @OneToMany(mappedBy = "user", cascade = ALL, orphanRemoval = true)
+    private List<UserCoupon> userCoupons = new ArrayList<>();
+
     //유저 삭제하면 팔로우 알아서 삭제 되도록
-    @OneToMany(mappedBy = "follower", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "follower", cascade = ALL, orphanRemoval = true)
     private List<Follow> followList = new ArrayList<>();
 
     //유저 삭제하면 팔로잉 알아서 삭제 되도록
-    @OneToMany(mappedBy = "following", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "following", cascade = ALL, orphanRemoval = true)
     private List<Follow> followingList = new ArrayList<>();
-
-    private final List<Long> couponIdList = new ArrayList<>();
 
     private Boolean isDeleted = false;
     private LocalDateTime deletedAt;
 
-    // todo: id도 직접 만들어줌
-    private User(Long id, String name, String nickname, Gender gender,
-                 Long age, JobCategory jobCategory, Region region, Region workLocation, String comment
+    // ================================== 생성자 ==================================
+    private User(
+            Long id, String name, String nickname, Gender gender,
+            Long age, JobCategory jobCategory, Region region, Region workLocation, String comment
     ) {
         this.id = id;
         this.name = name;
@@ -86,69 +92,42 @@ public class User extends Timestamped {
         this.totalReviewer = 0L;
     }
 
-    private User(String name, String nickname, Gender gender,
-                 Long age, JobCategory jobCategory, Region region, Region workLocation, String comment
-    ) {
-        this.name = name;
-        this.nickname = nickname;
-        this.gender = gender;
-        this.age = age;
-        this.jobCategory = jobCategory;
-        this.region = region;
-        this.workLocation = workLocation;
-        this.comment = comment;
-        this.totalRate = 0L;
-        this.totalReviewer = 0L;
-    }
-
-    // 테스트용
-    private User(String name) {
-        this.name = name;
-        this.age = 20L;
-        this.totalRate = 0L;
-        this.totalReviewer = 0L;
-        this.isDeleted = false;
-        this.deletedAt = null;
-    }
-
-    // 유저생성 메서드
-    public static User create(String name, String nickname, Gender gender,
-                              Long age, JobCategory jobCategory, Region region, Region workLocation, String comment
-    ) {
-        return new User(name, nickname, gender, age, jobCategory, region, workLocation, comment);
-    }
-
-    // 어드민 생성 메서드
-    public static User createAdmin(String name) {
-        return new User(name, name, Gender.MALE,
-                25L, JobCategory.BACK_END_DEVELOPER, Region.PANGYO_DONG, Region.PANGYO_DONG, null);
-    }
-
-    //테스트 유저 생성 메서드
-    public static User createTestUser(Long id, String name, String email, String password) {
-        return new User(name);
-    }
-
-    // todo: 이벤트용
-    public static User fromUserEvent(Long userId, SignupRequestDto request) {
-        return new User(userId, request.getName(), request.getNickname(), request.getGender(),
-                request.getAge(), request.getJobCategory(), request.getRegion(), request.getWorkLocation(),
+    // ================================== static 생성 메서드 ==================================
+    // 유저 생성 메서드
+    public static User fromUserSignUpEvent(Long userId, SignupRequest request) {
+        return new User(
+                userId, request.getName(), request.getNickname(), request.getGender(),
+                request.getAge(), request.getJobCategory(),
+                request.getRegion(), request.getWorkLocation(),
                 request.getComment()
         );
     }
 
-    public void setHobbyAndTech(Set<Long> userHobbyIds, Set<Long> userTechIds) {
-        this.userHobbyIds = userHobbyIds;
-        this.userTechIds = userTechIds;
+    // 어드민 생성 메서드
+    public static User createAdmin(String name) {
+        return new User(
+                1L, name, name, Gender.MALE,
+                25L, JobCategory.BACK_END_DEVELOPER,
+                Region.PANGYO_DONG, Region.PANGYO_DONG,
+                null);
     }
 
-    public void softDelete() {
-        isDeleted = true;
-        deletedAt = LocalDateTime.now();
+    // ================================== add ==================================
+    public void addFollow(User targetUser, Follow follow) {
+        this.followingList.add(follow);      // 내가 팔로잉하는 유저 목록에 추가
+        targetUser.followList.add(follow);   // 상대 유저가 나를 팔로우하는 목록에 추가
     }
 
-    public void updateProfile(String name, String nickname, String gender, Long age, String jobCategory, String region,
-                              String comment, Set<Long> userHobbies, Set<Long> userTechs) {
+    public void addCoupon(UserCoupon userCoupon) {
+        this.userCoupons.add(userCoupon);
+    }
+
+    // ================================== update ==================================
+    public void updateProfile(
+            String name, String nickname, String gender, Long age,
+            String jobCategory, String region, String comment,
+            List<Long> hobbies, List<Long> techStacks
+    ) {
         if (name != null) {
             this.name = name;
         }
@@ -170,13 +149,21 @@ public class User extends Timestamped {
         if (comment != null) {
             this.comment = comment;
         }
-        if (userHobbies != null) {
-            this.userHobbyIds.clear();
-            this.userHobbyIds.addAll(userHobbies);
+        setHobbies(hobbies);
+        setTechs(techStacks);
+    }
+
+    public void setHobbies(List<Long> hobbies) {
+        userHobbies.clear();
+        for (Long hobbyId : hobbies) {
+            userHobbies.add(UserHobby.create(this, hobbyId));
         }
-        if (userTechs != null) {
-            this.userTechIds.clear();
-            this.userTechIds.addAll(userTechs);
+    }
+
+    public void setTechs(List<Long> techs) {
+        userTeckStacks.clear();
+        for (Long techStackId : techs) {
+            userTeckStacks.add(UserTech.create(this, techStackId));
         }
     }
 
@@ -184,10 +171,14 @@ public class User extends Timestamped {
         this.nickname = nickname;
     }
 
-    public void addCoupon(Long id) {
-        couponIdList.add(id);
+    public void updateEvaluation(BigDecimal rate) {
+        this.totalRate = BigDecimal.valueOf(this.totalRate)
+                .add(rate)
+                .longValue();
+        this.totalReviewer++;
     }
 
+    // ================================== validate ==================================
     public void validateIsSelfFollow(User targetUser, ErrorCode error) {
         if (this.id.equals(targetUser.getId())) {
             throw new BaseException(error);
@@ -212,6 +203,12 @@ public class User extends Timestamped {
         }
     }
 
+    // ================================== remove ==================================
+    public void softDelete() {
+        isDeleted = true;
+        deletedAt = LocalDateTime.now();
+    }
+
     public void unfollow(User targetUser) {
         Follow toRemove = this.followingList.stream()
                 .filter(follow -> follow.getFollowing().getId().equals(targetUser.getId()))
@@ -223,4 +220,19 @@ public class User extends Timestamped {
         targetUser.followList.remove(toRemove);
     }
 
+    // ----------------  테스트용 ------------------
+    private User(String name) {
+        this.id = 1L;
+        this.name = name;
+        this.age = 20L;
+        this.totalRate = 0L;
+        this.totalReviewer = 0L;
+        this.isDeleted = false;
+        this.deletedAt = null;
+    }
+
+    //테스트 유저 생성 메서드
+    public static User createTestUser(Long id, String name, String email, String password) {
+        return new User(name);
+    }
 }

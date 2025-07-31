@@ -4,13 +4,13 @@ import com.querydsl.core.annotations.QueryProjection;
 import lombok.Getter;
 
 @Getter
-public class FollowingResponseDto {
+public class FollowingResponse {
 
     private Long userId;
     private String nickname;
 
     @QueryProjection
-    public FollowingResponseDto(Long userId, String nickname) {
+    public FollowingResponse(Long userId, String nickname) {
         this.userId = userId;
         this.nickname = nickname;
     }

@@ -3,8 +3,10 @@ package org.example.pdnight.domain.user.infra.couponInfra;
 import java.util.List;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.example.pdnight.domain.user.domain.couponDomain.CouponReader;
 import org.example.pdnight.domain.user.domain.entity.Coupon;
 import org.example.pdnight.domain.user.domain.entity.UserCoupon;
+import org.example.pdnight.domain.user.presentation.dto.couponDto.response.CouponResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -18,47 +20,14 @@ import static org.example.pdnight.domain.user.domain.entity.QUserCoupon.userCoup
 
 @Repository
 @RequiredArgsConstructor
-public class CouponQueryRepositoryImpl {
+public class CouponQueryRepositoryImpl implements CouponReader {
 
     private final JPAQueryFactory queryFactory;
 
-//    @Query("SELECT c FROM Coupon c WHERE c.user.id = :userId AND c.isUsed = false " +
-//            "AND (c.deadlineAt IS NULL OR c.deadlineAt > :now)")
-    public Page<Coupon> findByUserIdAndIsUsedFalseAndValidDeadline(@Param("userId") Long userId,
-                                                            @Param("now") LocalDateTime now,
-                                                            Pageable pageable){
-        List<Coupon> couponList = queryFactory.select(coupon)
+    public Coupon getCouponByCouponIdAndUserId(Long couponId) {
+        return queryFactory.select(coupon)
                 .from(coupon)
-                .where(
-                        coupon.user.id.eq(userId),
-                        coupon.isUsed.isFalse(),
-                        coupon.deadlineAt.isNull()
-                                .or(coupon.deadlineAt.after(now))
-                        )
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
-
-        long total = queryFactory
-                .select(coupon.count())
-                .from(coupon)
-                .where(
-                        coupon.user.id.eq(userId),
-                        coupon.isUsed.isFalse(),
-                        coupon.deadlineAt.isNull()
-                                .or(coupon.deadlineAt.after(now))
-                )
+                .where(coupon.id.eq(couponId))
                 .fetchOne();
-
-        return new PageImpl<>(couponList, pageable, total);
-    }
-
-    public UserCoupon getCouponByCouponIdAndUserId(Long couponId, Long userId) {
-        return queryFactory.select(userCoupon)
-                .from(userCoupon)
-                .where(userCoupon.couponId.eq(couponId),
-                        userCoupon.userId.eq(userId))
-                .fetchOne();
-
     }
 }

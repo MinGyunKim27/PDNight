@@ -5,5 +5,5 @@ import org.springframework.stereotype.Component;
 
 @Component
 public interface HobbyCommandQuery {
-    void save(Hobby hobby);
+    Hobby save(Hobby hobby);
 }

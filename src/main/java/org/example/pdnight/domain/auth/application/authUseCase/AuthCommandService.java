@@ -2,19 +2,21 @@ package org.example.pdnight.domain.auth.application.authUseCase;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
 import lombok.RequiredArgsConstructor;
+import org.example.pdnight.domain.auth.application.port.UserQueryPort;
 import org.example.pdnight.domain.auth.domain.AuthCommandQuery;
 import org.example.pdnight.domain.auth.domain.AuthReader;
 import org.example.pdnight.domain.auth.domain.entity.Auth;
-import org.example.pdnight.domain.auth.presentation.dto.request.LoginRequestDto;
-import org.example.pdnight.domain.auth.presentation.dto.request.SignupRequestDto;
+import org.example.pdnight.domain.auth.presentation.dto.request.LoginRequest;
+import org.example.pdnight.domain.auth.presentation.dto.request.SignupRequest;
 import org.example.pdnight.domain.auth.presentation.dto.request.UserPasswordUpdateRequest;
-import org.example.pdnight.domain.auth.presentation.dto.request.WithdrawRequestDto;
-import org.example.pdnight.domain.auth.presentation.dto.response.LoginResponseDto;
-import org.example.pdnight.domain.auth.presentation.dto.response.SignupResponseDto;
+import org.example.pdnight.domain.auth.presentation.dto.request.WithdrawRequest;
+import org.example.pdnight.domain.auth.presentation.dto.response.LoginResponse;
+import org.example.pdnight.domain.auth.presentation.dto.response.SignupResponse;
+import org.example.pdnight.domain.auth.presentation.dto.response.UserInfo;
 import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.exception.BaseException;
-import org.example.pdnight.domain.user.application.event.UserRegisteredEvent;
-import org.example.pdnight.domain.user.domain.entity.User;
+import org.example.pdnight.domain.user.application.userUseCase.event.UserDeleteEvent;
+import org.example.pdnight.domain.user.application.userUseCase.event.UserSignUpEvent;
 import org.example.pdnight.domain.user.domain.userDomain.UserReader;
 import org.example.pdnight.global.config.PasswordEncoder;
 import org.example.pdnight.global.constant.CacheName;
@@ -35,9 +37,10 @@ public class AuthCommandService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final RedisTemplate<String, String> redisTemplate;
+    private final UserQueryPort userQueryPort;
 
     @Transactional
-    public SignupResponseDto signup(SignupRequestDto request) {
+    public SignupResponse signup(SignupRequest request) {
         // auth 저장
         if (getAuthByEmail(request.getEmail()) != null) {
             throw new BaseException(ErrorCode.EMAIL_ALREADY_EXISTS);
@@ -53,23 +56,28 @@ public class AuthCommandService {
         Auth saveAuth = authCommandQuery.save(auth);
 
         // 회원가입 이벤트 발행
-        eventPublisher.publishEvent(UserRegisteredEvent.of(
+        eventPublisher.publishEvent(UserSignUpEvent.of(
                 auth.getId(),
                 request
         ));
 
-        return SignupResponseDto.from(saveAuth);
+        return SignupResponse.from(saveAuth);
     }
 
     @Transactional
-    public LoginResponseDto login(LoginRequestDto request) {
+    public LoginResponse login(LoginRequest request) {
         Auth auth = getAuthByEmail(request.getEmail());
 
-        validateUser(auth, request.getPassword());  // 컨트롤러 호출
-        // 유저 나이, 성별, 직업
+        validateAuth(auth, request.getPassword());  // 컨트롤러 호출
 
-        String token = jwtUtil.createToken(auth.getId(), auth.getRole(), user.getNickname());
-        return LoginResponseDto.from(token);
+        UserInfo userInfo = userQueryPort.getUserInfoById(auth.getId());
+
+        // 유저 나이, 성별, 직업 토큰에 담기
+        String token = jwtUtil.createToken(
+                auth.getId(),auth.getRole(),userInfo.getNickname(),
+                userInfo.getAge(),userInfo.getGender(),userInfo.getJobCategory());
+
+        return LoginResponse.from(token);
     }
 
     public void logout(String token) {
@@ -77,31 +85,36 @@ public class AuthCommandService {
     }
 
     @Transactional
-    public void withdraw(Long userId, WithdrawRequestDto request) {
-        User user = getUserById(userId); // 컨트롤러 호출
+    public void withdraw(Long userId, WithdrawRequest request) {
+        Auth auth = getAuthById(userId); // 컨트롤러 호출
 
-        validateUser(user, request.getPassword());
+        validateAuth(auth, request.getPassword());
 
-        user.softDelete();
+        auth.softDelete();
+
+        // 회원 탈퇴 이벤트 발행
+        eventPublisher.publishEvent(UserDeleteEvent.of(
+                auth.getId()
+        ));
     }
 
     @Transactional
     public void updatePassword(Long userId, UserPasswordUpdateRequest request) {
-        User user = getUserById(userId);
+        Auth auth = getAuthById(userId);
 
         // 비밀번호 검증
-        validatePassword(request.getOldPassword(), user);
+        validatePassword(request.getOldPassword(), auth);
 
         // 비밀번호 암호화
         String encodedPassword = BCrypt.withDefaults().hashToString(10, request.getNewPassword().toCharArray());
-        user.changePassword(encodedPassword);
-        userCommandQuery.save(user);
+        auth.changePassword(encodedPassword);
+        authCommandQuery.save(auth);
     }
 
     // ----------------------------------- HELPER 메서드 ------------------------------------------------------ //
     // get
-    private User getUserById(Long userId) {
-        return userReader.findById(userId)
+    private Auth getAuthById(Long authId) {
+        return authReader.findById(authId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
     }
 
@@ -111,10 +124,8 @@ public class AuthCommandService {
     }
 
     // validate
-    private void validateUser(Auth auth, String password) {
-        //
-
-        if (auth.getIsDeleted()) {
+    private void validateAuth(Auth auth, String password) {
+        if (auth.getDeletedAt()!=null) {
             throw new BaseException(ErrorCode.USER_DEACTIVATED);
         }
 

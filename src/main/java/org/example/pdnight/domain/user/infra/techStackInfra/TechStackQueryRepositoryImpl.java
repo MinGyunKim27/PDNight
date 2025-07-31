@@ -10,6 +10,9 @@ import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -17,9 +20,10 @@ public class TechStackQueryRepositoryImpl implements TechStackReader {
 
     private final JPAQueryFactory queryFactory;
 
+    QTechStack qTechStack = QTechStack.techStack1;
+
     @Override
     public List<TechStack> searchTechStack(String techStack) {
-        QTechStack qTechStack = QTechStack.techStack1;
         BooleanBuilder booleanBuilder = new BooleanBuilder();
 
         if (StringUtils.hasText(techStack)) {
@@ -33,7 +37,6 @@ public class TechStackQueryRepositoryImpl implements TechStackReader {
 
     @Override
     public List<TechStack> findByIdList(List<Long> ids) {
-        QTechStack qTechStack = QTechStack.techStack1;
         return queryFactory.selectFrom(qTechStack)
                 .where(qTechStack.id.in(ids))
                 .fetch();
@@ -41,7 +44,6 @@ public class TechStackQueryRepositoryImpl implements TechStackReader {
 
     @Override
     public boolean existsTechStackByTechStack(String techStack) {
-        QTechStack qTechStack = QTechStack.techStack1;
 
         Integer result = queryFactory
                 .selectOne()
@@ -59,6 +61,30 @@ public class TechStackQueryRepositoryImpl implements TechStackReader {
                 .selectFrom(qTechStack)
                 .where(qTechStack.techStack.eq(techStack))
                 .fetchOne();
+    }
+
+    @Override
+    public List<String> getNamesByIds(List<Long> techIds) {
+
+        if (techIds == null || techIds.isEmpty()) return List.of();
+
+        return queryFactory
+                .select(qTechStack.techStack)
+                .from(qTechStack)
+                .where(qTechStack.id.in(techIds))
+                .fetch();
+    }
+
+    @Override
+    public Map<Long, String> getNamesByIdsMap(Set<Long> techIds) {
+        if (techIds == null || techIds.isEmpty()) return Map.of();
+
+        return queryFactory
+                .selectFrom(qTechStack)
+                .where(qTechStack.id.in(techIds))
+                .fetch()
+                .stream()
+                .collect(Collectors.toMap(TechStack::getId, TechStack::getTechStack));
     }
 
 }

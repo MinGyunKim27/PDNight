@@ -1,12 +1,12 @@
 package org.example.pdnight.domain.auth.application.authUseCase;
 
 import lombok.RequiredArgsConstructor;
-import org.example.pdnight.domain.auth.presentation.dto.request.LoginRequestDto;
-import org.example.pdnight.domain.auth.presentation.dto.request.SignupRequestDto;
+import org.example.pdnight.domain.auth.presentation.dto.request.LoginRequest;
+import org.example.pdnight.domain.auth.presentation.dto.request.SignupRequest;
 import org.example.pdnight.domain.auth.presentation.dto.request.UserPasswordUpdateRequest;
-import org.example.pdnight.domain.auth.presentation.dto.request.WithdrawRequestDto;
-import org.example.pdnight.domain.auth.presentation.dto.response.LoginResponseDto;
-import org.example.pdnight.domain.auth.presentation.dto.response.SignupResponseDto;
+import org.example.pdnight.domain.auth.presentation.dto.request.WithdrawRequest;
+import org.example.pdnight.domain.auth.presentation.dto.response.LoginResponse;
+import org.example.pdnight.domain.auth.presentation.dto.response.SignupResponse;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,12 +17,12 @@ public class AuthServiceImpl implements AuthService {
     private final AuthQueryService authQueryService;
 
     @Override
-    public SignupResponseDto signup(SignupRequestDto request) {
+    public SignupResponse signup(SignupRequest request) {
         return authCommandService.signup(request);
     }
 
     @Override
-    public LoginResponseDto login(LoginRequestDto request) {
+    public LoginResponse login(LoginRequest request) {
         return authCommandService.login(request);
     }
 
@@ -37,7 +37,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public void withdraw(Long userId, WithdrawRequestDto request) {
+    public void withdraw(Long userId, WithdrawRequest request) {
         authCommandService.withdraw(userId, request);
     }
 }

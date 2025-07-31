@@ -46,14 +46,6 @@ public class PostResponseWithApplyStatusDto {
         this.status = post.getStatus();
         this.maxParticipants = post.getMaxParticipants();
         this.genderLimit = post.getGenderLimit();
-        this.hobbyList = post.getPostHobbies()
-                .stream()
-                .map(hobby -> hobby.getHobby().getHobby())
-                .toList();
-        this.techStackList = post.getPostTechs()
-                .stream()
-                .map(tech -> tech.getTechStack().getTechStack())
-                .toList();
         this.jobCategoryLimit = post.getJobCategoryLimit();
         this.ageLimit = post.getAgeLimit();
         this.createdAt = post.getCreatedAt();

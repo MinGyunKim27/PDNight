@@ -68,12 +68,6 @@ public class Post extends Timestamped {
     private Boolean isFirstCome = false;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<PostHobby> postHobbies = new HashSet<>();
-
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<PostTech> postTechs = new HashSet<>();
-
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PostLike> postLikes = new ArrayList<>();
 
     @OneToMany(mappedBy = "post", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
@@ -124,16 +118,10 @@ public class Post extends Timestamped {
         return new Post(author, title, timeSlot, publicContent, privateContent, maxParticipants, genderLimit, jobCategoryLimit, ageLimit, isFirstCome, status);
     }
 
-    public void setHobbyAndTech(Set<PostHobby> postHobbies, Set<PostTech> postTechs) {
-        this.postHobbies = postHobbies;
-        this.postTechs = postTechs;
-    }
-
     //update 메서드 null 체크 후 아닌 값만 set
     public void updatePostIfNotNull(
             String title, LocalDateTime timeSlot, String publicContent, String privateContent,
-            Integer maxParticipants, Gender genderLimit, JobCategory jobCategoryLimit, AgeLimit ageLimit,
-            Set<PostHobby> postHobbies, Set<PostTech> postTechs
+            Integer maxParticipants, Gender genderLimit, JobCategory jobCategoryLimit, AgeLimit ageLimit
     ) {
         if (title != null) this.title = title;
         if (timeSlot != null) this.timeSlot = timeSlot;
@@ -143,14 +131,6 @@ public class Post extends Timestamped {
         if (genderLimit != null) this.genderLimit = genderLimit;
         if (jobCategoryLimit != null) this.jobCategoryLimit = jobCategoryLimit;
         if (ageLimit != null) this.ageLimit = ageLimit;
-        if (postHobbies != null) {
-            this.postHobbies.clear();
-            this.postHobbies.addAll(postHobbies);
-        }
-        if (postTechs != null) {
-            this.postTechs.clear();
-            this.postTechs.addAll(postTechs);
-        }
     }
 
     //상태 변경 메서드

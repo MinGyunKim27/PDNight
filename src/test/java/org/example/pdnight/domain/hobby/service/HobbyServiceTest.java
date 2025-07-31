@@ -1,21 +1,23 @@
 package org.example.pdnight.domain.hobby.service;
 
 import org.example.pdnight.domain.common.exception.BaseException;
+import org.example.pdnight.domain.user.application.hobbyUseCase.HobbyService;
+import org.example.pdnight.domain.user.domain.entity.Hobby;
+import org.example.pdnight.domain.user.domain.hobbyDomain.HobbyCommandQuery;
+import org.example.pdnight.domain.user.domain.hobbyDomain.HobbyReader;
 import org.example.pdnight.domain.user.presentation.dto.hobbyDto.request.HobbyRequest;
 import org.example.pdnight.domain.user.presentation.dto.hobbyDto.response.HobbyResponse;
-import org.example.pdnight.domain.hobby.domain.entity.Hobby;
-import org.example.pdnight.domain.hobby.infra.HobbyJpaRepository;
-import org.example.pdnight.domain.hobby.infra.HobbyRepositoryImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
-import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
 class HobbyServiceTest {
@@ -24,10 +26,10 @@ class HobbyServiceTest {
     private HobbyService hobbyService;
 
     @Mock
-    private HobbyJpaRepository hobbyRepository;
+    private HobbyReader hobbyReader;
 
     @Mock
-    private HobbyRepositoryImpl hobbyRepositoryQuery;
+    private HobbyCommandQuery hobbyCommandQuery;
 
     @Test
     void createHobby_성공() {
@@ -38,8 +40,8 @@ class HobbyServiceTest {
         when(dto.getHobby()).thenReturn("등산");
         when(hobby.getHobby()).thenReturn("등산");
 
-        when(hobbyRepository.existsHobbiesByHobby(dto.getHobby())).thenReturn(false);
-        when(hobbyRepository.save(any(Hobby.class))).thenReturn(hobby);
+        when(hobbyReader.existsHobbiesByHobby(dto.getHobby())).thenReturn(false);
+        when(hobbyCommandQuery.save(any(Hobby.class))).thenReturn(hobby);
 
         // when
         HobbyResponse response = hobbyService.createHobby(dto);
@@ -48,8 +50,8 @@ class HobbyServiceTest {
         assertThat(response).isNotNull();
         assertThat(response.getHobby()).isEqualTo("등산");
 
-        verify(hobbyRepository).existsHobbiesByHobby("등산");
-        verify(hobbyRepository).save(any(Hobby.class));
+        verify(hobbyReader).existsHobbiesByHobby("등산");
+        verify(hobbyCommandQuery).save(any(Hobby.class));
     }
 
     @Test
@@ -58,7 +60,7 @@ class HobbyServiceTest {
         HobbyRequest dto = mock();
 
         when(dto.getHobby()).thenReturn("등산");
-        when(hobbyRepository.existsHobbiesByHobby(dto.getHobby())).thenReturn(true);
+        when(hobbyReader.existsHobbiesByHobby(dto.getHobby())).thenReturn(true);
 
         // when & then
         BaseException exception = assertThrows(BaseException.class, () -> {
@@ -67,8 +69,8 @@ class HobbyServiceTest {
 
         assertThat(exception.getMessage()).isEqualTo("이미 존재하는 취미 입니다");
 
-        verify(hobbyRepository).existsHobbiesByHobby("등산");
-        verify(hobbyRepository, never()).save(any());
+        verify(hobbyReader).existsHobbiesByHobby("등산");
+        verify(hobbyCommandQuery, never()).save(any());
     }
 
     @Test
@@ -83,7 +85,7 @@ class HobbyServiceTest {
         when(hobby2.getHobby()).thenReturn("산책");
         List<Hobby> hobbies = List.of(hobby1, hobby2);
 
-        when(hobbyRepositoryQuery.searchHobby(keyword)).thenReturn(hobbies);
+        when(hobbyReader.searchHobby(keyword)).thenReturn(hobbies);
 
         // when
         List<HobbyResponse> result = hobbyService.searchHobby(keyword);
@@ -92,6 +94,6 @@ class HobbyServiceTest {
         assertThat(result).hasSize(2);
         assertThat(result.get(0).getHobby()).contains("산");
 
-        verify(hobbyRepositoryQuery).searchHobby(keyword);
+        verify(hobbyReader).searchHobby(keyword);
     }
 }

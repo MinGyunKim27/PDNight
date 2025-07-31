@@ -29,8 +29,6 @@ public class PostCreateAndUpdateResponseDto {
     private final Gender genderLimit;
     private final JobCategory jobCategoryLimit;
     private final AgeLimit ageLimit;
-    private final List<String> hobbyList;
-    private final List<String> techStackList;
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
 
@@ -46,14 +44,6 @@ public class PostCreateAndUpdateResponseDto {
         this.genderLimit = post.getGenderLimit();
         this.jobCategoryLimit = post.getJobCategoryLimit();
         this.ageLimit = post.getAgeLimit();
-        this.hobbyList = post.getPostHobbies()
-                .stream()
-                .map(hobby -> hobby.getHobby().getHobby())
-                .toList();
-        this.techStackList = post.getPostTechs()
-                .stream()
-                .map(tech -> tech.getTechStack().getTechStack())
-                .toList();
         this.createdAt = post.getCreatedAt();
         this.updatedAt = post.getUpdatedAt();
     }
@@ -70,8 +60,6 @@ public class PostCreateAndUpdateResponseDto {
             Gender genderLimit,
             JobCategory jobCategoryLimit,
             AgeLimit ageLimit,
-            Set<PostHobby> hobbyList,
-            Set<PostTech> techStackList,
             LocalDateTime createdAt,
             LocalDateTime updatedAt
     ) {
@@ -86,12 +74,6 @@ public class PostCreateAndUpdateResponseDto {
         this.genderLimit = genderLimit;
         this.jobCategoryLimit = jobCategoryLimit;
         this.ageLimit = ageLimit;
-        this.hobbyList = hobbyList.stream()
-                .map(hobby -> hobby.getHobby().getHobby())
-                .toList();
-        this.techStackList = techStackList.stream()
-                .map(tech -> tech.getTechStack().getTechStack())
-                .toList();
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
@@ -109,8 +91,6 @@ public class PostCreateAndUpdateResponseDto {
                 post.getGenderLimit(),
                 post.getJobCategoryLimit(),
                 post.getAgeLimit(),
-                post.getPostHobbies(),
-                post.getPostTechs(),
                 post.getCreatedAt(),
                 post.getUpdatedAt());
     }

@@ -5,9 +5,11 @@ import org.example.pdnight.domain.common.dto.ApiResponse;
 import org.example.pdnight.domain.common.dto.PagedResponse;
 import org.example.pdnight.domain.common.enums.JoinStatus;
 import org.example.pdnight.domain.user.application.userUseCase.UserService;
-import org.example.pdnight.domain.user.presentation.dto.userDto.request.UserNicknameUpdateDto;
-import org.example.pdnight.domain.user.presentation.dto.userDto.response.FollowResponseDto;
-import org.example.pdnight.domain.user.presentation.dto.userDto.response.FollowingResponseDto;
+import org.example.pdnight.domain.user.application.userUseCase.UserServiceImpl;
+import org.example.pdnight.domain.user.presentation.dto.couponDto.response.CouponResponse;
+import org.example.pdnight.domain.user.presentation.dto.userDto.request.UserNicknameUpdate;
+import org.example.pdnight.domain.user.presentation.dto.userDto.response.FollowResponse;
+import org.example.pdnight.domain.user.presentation.dto.userDto.response.FollowingResponse;
 import org.example.pdnight.domain.invite.dto.response.InviteResponseDto;
 import org.example.pdnight.domain.invite.service.InviteService;
 import org.example.pdnight.domain.post.dto.response.PostResponseWithApplyStatusDto;
@@ -15,7 +17,7 @@ import org.example.pdnight.domain.post.dto.response.PostWithJoinStatusAndApplied
 import org.example.pdnight.domain.post.service.PostService;
 import org.example.pdnight.domain.user.presentation.dto.userDto.request.UserUpdateRequest;
 import org.example.pdnight.domain.user.presentation.dto.userDto.response.UserEvaluationResponse;
-import org.example.pdnight.domain.user.presentation.dto.userDto.response.UserResponseDto;
+import org.example.pdnight.domain.user.presentation.dto.userDto.response.UserResponse;
 import org.example.pdnight.global.filter.CustomUserDetails;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -34,15 +36,11 @@ public class UserController {
     private final PostService postService;
     private final InviteService inviteService;
 
-    // ----------------------------------------------------------------------------------------//
-    // ----------------------------------------------------------------------------------------//
     // -------------------------- Command Api -------------------------------------------------//
-    // ----------------------------------------------------------------------------------------//
-    // ----------------------------------------------------------------------------------------//
 
     // 본인 프로필 수정
     @PatchMapping("/users/my/profile")
-    public ResponseEntity<ApiResponse<UserResponseDto>> updateMyProfile(
+    public ResponseEntity<ApiResponse<UserResponse>> updateMyProfile(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody UserUpdateRequest requestDto
     ) {
@@ -56,11 +54,11 @@ public class UserController {
 
     //팔로우
     @PostMapping("/api/users/{userId}/follow")
-    public ResponseEntity<ApiResponse<FollowResponseDto>> follow(
+    public ResponseEntity<ApiResponse<FollowResponse>> follow(
             @PathVariable Long userId,
             @AuthenticationPrincipal CustomUserDetails loginUser
     ){
-        FollowResponseDto follow = userService.follow(userId,loginUser.getUserId());
+        FollowResponse follow = userService.follow(userId,loginUser.getUserId());
         return ResponseEntity.ok(ApiResponse.ok("팔로우 했습니다.", follow));
     }
 
@@ -74,15 +72,21 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.ok("언팔로우 했습니다.",null));
     }
 
-    // ----------------------------------------------------------------------------------------//
-    // ----------------------------------------------------------------------------------------//
+    // 쿠폰사용
+    @PatchMapping("/coupons/{id}")
+    public ResponseEntity<ApiResponse<CouponResponse>> useCoupon(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        return ResponseEntity.ok(ApiResponse.ok("쿠폰을 사용하였습니다.", userService.useCoupon(id, userDetails.getUserId())));
+    }
+
+
     // --------------------- Admin Command Api ------------------------------------------------//
-    // ----------------------------------------------------------------------------------------//
-    // ----------------------------------------------------------------------------------------//
 
     @PatchMapping("/admin/users/{id}/nickname")
-    public ResponseEntity<ApiResponse<UserResponseDto>> adminUpdateNickname(@PathVariable Long id,
-                                                                            @RequestBody UserNicknameUpdateDto dto) {
+    public ResponseEntity<ApiResponse<UserResponse>> adminUpdateNickname(@PathVariable Long id,
+                                                                         @RequestBody UserNicknameUpdate dto) {
         return ResponseEntity.ok(ApiResponse.ok("닉네임이 변경되었습니다.", userService.updateNickname(id, dto)));
     }
 
@@ -92,41 +96,39 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.ok("회원탈퇴 시켰습니다.", null));
     }
 
-    // ----------------------------------------------------------------------------------------//
-    // ----------------------------------------------------------------------------------------//
     // ---------------------- 조회 Api ---------------------------------------------------------//
-    // ----------------------------------------------------------------------------------------//
-    // ----------------------------------------------------------------------------------------//
 
+    //todo: 얘는 포스트 이동?
     // 내 좋아요 게시글 목록 조회
     @GetMapping("/users/my/likedPosts")
     public ResponseEntity<ApiResponse<PagedResponse<PostResponseWithApplyStatusDto>>> getMyLikedPosts(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @PageableDefault(size = 10, page = 0) Pageable pageable
+            @PageableDefault() Pageable pageable
     ) {
         Long id = userDetails.getUserId();
         PagedResponse<PostResponseWithApplyStatusDto> myLikedPost = postService.findMyLikedPosts(id, pageable);
         return ResponseEntity.ok(ApiResponse.ok("내 좋아요 게시글 목록이 조회되었습니다.", myLikedPost));
     }
 
+    //todo: 얘는 포스트 이동?
     //내 신청/성사된 게시글 조회
     @GetMapping("/users/my/confirmedPosts")
     public ResponseEntity<ApiResponse<PagedResponse<PostWithJoinStatusAndAppliedAtResponseDto>>> getMyConfirmedPosts(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam(required = false) JoinStatus joinStatus,
-            @PageableDefault(size = 10, page = 0) Pageable pageable
+            @PageableDefault() Pageable pageable
     ) {
         Long id = userDetails.getUserId();
         PagedResponse<PostWithJoinStatusAndAppliedAtResponseDto> myLikedPost = postService.findMyConfirmedPosts(id, joinStatus, pageable);
         return ResponseEntity.ok(ApiResponse.ok("참여 신청한 게시글 목록이 조회되었습니다.", myLikedPost));
     }
 
-
+    //todo: 얘는 포스트 이동?
     // 내가 작성한 게시글 조회
     @GetMapping("/users/my/writtenPosts")
     public ResponseEntity<ApiResponse<PagedResponse<PostResponseWithApplyStatusDto>>> getMyWrittenPosts(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @PageableDefault(size = 10, page = 0) Pageable pageable
+            @PageableDefault() Pageable pageable
     ) {
         Long id = userDetails.getUserId();
         PagedResponse<PostResponseWithApplyStatusDto> myLikedPost = postService.findMyWrittenPosts(id, pageable);
@@ -135,11 +137,10 @@ public class UserController {
 
     // 내 프로필 조회
     @GetMapping("/users/my/profile")
-    public ResponseEntity<ApiResponse<UserResponseDto>> getMyProfile(
+    public ResponseEntity<ApiResponse<UserResponse>> getMyProfile(
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         Long userId = userDetails.getUserId();
-        // 로그인 중인 아이디로 프로필 조회
         return ResponseEntity.ok(ApiResponse.ok(
                 "내 프로필이 조회되었습니다.",
                 userService.getMyProfile(userId)
@@ -148,7 +149,7 @@ public class UserController {
 
     // 유저 프로필 조회
     @GetMapping("/users/{id}/profile")
-    public ResponseEntity<ApiResponse<UserResponseDto>> getProfile(
+    public ResponseEntity<ApiResponse<UserResponse>> getProfile(
             @PathVariable Long id
     ) {
         return ResponseEntity.ok(ApiResponse.ok(
@@ -159,9 +160,9 @@ public class UserController {
 
     //유저 검색
     @GetMapping("/users/search")
-    public ResponseEntity<ApiResponse<PagedResponse<UserResponseDto>>> searchUsers(
+    public ResponseEntity<ApiResponse<PagedResponse<UserResponse>>> searchUsers(
             @RequestParam String search,
-            @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
+            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
             Pageable pageable
     ) {
         return ResponseEntity.ok(ApiResponse.ok(
@@ -170,7 +171,6 @@ public class UserController {
         ));
     }
 
-    //todo: 리뷰로 이동 해야함.
     //평가 조회
     @GetMapping("/users/{id}/evaluation")
     public ResponseEntity<ApiResponse<UserEvaluationResponse>> getEvaluation(
@@ -184,26 +184,33 @@ public class UserController {
 
     //내 팔로잉 목록 조회
     @GetMapping("/users/my/following")
-    public ResponseEntity<ApiResponse<PagedResponse<FollowingResponseDto>>> getFollowings(
+    public ResponseEntity<ApiResponse<PagedResponse<FollowingResponse>>> getFollowings(
             @AuthenticationPrincipal CustomUserDetails loggedInUser,
-            @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
+            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
             Pageable pageable
     ) {
         Long myId = loggedInUser.getUserId();
-        Page<FollowingResponseDto> followings = userService.getFollowings(myId, pageable);
-        PagedResponse<FollowingResponseDto> dtoPagedResponse = PagedResponse.from(followings);
+        Page<FollowingResponse> followings = userService.getFollowings(myId, pageable);
+        PagedResponse<FollowingResponse> dtoPagedResponse = PagedResponse.from(followings);
 
         return ResponseEntity.ok(ApiResponse.ok("팔로잉 목록 조회가 완료되었습니다.", dtoPagedResponse));
     }
 
-    // ----------------------------------------------------------------------------------------//
-    // ----------------------------------------------------------------------------------------//
+    // 내 쿠폰목록 조회
+    @GetMapping("/users/my/coupons")
+    public ResponseEntity<ApiResponse<PagedResponse<CouponResponse>>> getMyCoupons(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PageableDefault() Pageable pageable
+    ) {
+        return ResponseEntity.ok(ApiResponse.ok("쿠폰이 조회되었습니다.", userService.getValidCoupons(userDetails.getUserId(), pageable)));
+    }
+
     // --------------------- Admin 조회 Api ----------------------------------------------------//
-    // ----------------------------------------------------------------------------------------//
-    // ----------------------------------------------------------------------------------------//
 
     @GetMapping("/admin/users")
-    public ResponseEntity<ApiResponse<PagedResponse<UserResponseDto>>> adminGetAllUsers(@PageableDefault(size = 10,page = 0) Pageable pageable) {
+    public ResponseEntity<ApiResponse<PagedResponse<UserResponse>>> adminGetAllUsers(
+            @PageableDefault() Pageable pageable
+    ) {
         return ResponseEntity.ok(ApiResponse.ok("전체유저 조회 완료되었습니다.", userService.getAllUsers(pageable)));
     }
 
@@ -212,14 +219,19 @@ public class UserController {
     // ----------------------------------------------------------------------------------------//
     // ----------------------------------------------------------------------------------------//
     // ----------------------------------------------------------------------------------------//
-    // ----------------------------------------------------------------------------------------//
     // ----------------------------------- 내 초대 API -----------------------------------------//
+    // ----------------------------------------------------------------------------------------//
+    // ----------------------------------------------------------------------------------------//
+    // ----------------------------------------------------------------------------------------//
+    // ----------------------------------------------------------------------------------------//
+    // ----------------------------------------------------------------------------------------//
+
     //todo: Invite로 이동 해야함.
     //내 초대받은 목록 조회
     @GetMapping("/users/my/invited")
     public ResponseEntity<ApiResponse<PagedResponse<InviteResponseDto>>> getMyInvited(
             @AuthenticationPrincipal CustomUserDetails loggedInUser,
-            @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
+            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
             Pageable pageable
     ) {
         Long userId = loggedInUser.getUserId();
@@ -232,7 +244,7 @@ public class UserController {
     @GetMapping("/users/my/invite")
     public ResponseEntity<ApiResponse<PagedResponse<InviteResponseDto>>> getMyInvite(
             @AuthenticationPrincipal CustomUserDetails loggedInUser,
-            @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
+            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
             Pageable pageable
     ) {
         Long userId = loggedInUser.getUserId();

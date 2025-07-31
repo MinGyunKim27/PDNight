@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class TechStackRequestDto {
+public class TechStackRequest {
     @NotNull
     private String techStack;
 }

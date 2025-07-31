@@ -5,7 +5,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.pdnight.domain.common.entity.Timestamped;
-import org.example.pdnight.domain.post.entity.Post;
 
 import java.math.BigDecimal;
 
@@ -25,7 +24,7 @@ public class Review extends Timestamped {
     private Long reviewerId;
 
     @Column(nullable = false)
-    private Long ratedUserId;
+    private Long revieweeId;
     
     private Long postId;
 
@@ -35,16 +34,16 @@ public class Review extends Timestamped {
     @Column(length = 30)
     private String comment;
 
-    private Review(Long reviewerId, Long ratedUserId, Long postId, BigDecimal rate, String comment) {
+    private Review(Long reviewerId, Long revieweeId, Long postId, BigDecimal rate, String comment) {
         this.reviewerId = reviewerId;
-        this.ratedUserId = ratedUserId;
+        this.revieweeId = revieweeId;
         this.postId = postId;
         this.rate = rate;
         this.comment = comment;
     }
 
-    public static Review create(Long reviewerId, Long ratedUserId, Long postId, BigDecimal rate, String comment) {
-        return new Review(reviewerId, ratedUserId, postId, rate, comment);
+    public static Review create(Long reviewerId, Long revieweeId, Long postId, BigDecimal rate, String comment) {
+        return new Review(reviewerId, revieweeId, postId, rate, comment);
     }
 
     public void removePost() {

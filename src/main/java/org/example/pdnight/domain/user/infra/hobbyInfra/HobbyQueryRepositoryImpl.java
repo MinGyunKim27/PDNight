@@ -11,6 +11,9 @@ import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -18,9 +21,10 @@ public class HobbyQueryRepositoryImpl implements HobbyReader {
 
     private final JPAQueryFactory queryFactory;
 
+    QHobby qHobby = QHobby.hobby1;
+
     @Override
     public List<Hobby> searchHobby(String hobby) {
-        QHobby qHobby = QHobby.hobby1;
         BooleanBuilder booleanBuilder = new BooleanBuilder();
 
         if (StringUtils.hasText(hobby)) {
@@ -34,30 +38,54 @@ public class HobbyQueryRepositoryImpl implements HobbyReader {
 
     @Override
     public List<Hobby> findByIdList(List<Long> ids) {
-        QHobby hobby = QHobby.hobby1;
-        return queryFactory.selectFrom(hobby)
-                .where(hobby.id.in(ids))
+
+        return queryFactory.selectFrom(qHobby)
+                .where(qHobby.id.in(ids))
                 .fetch();
     }
 
     public Boolean existsHobbiesByHobby(String hobbyName){
-        QHobby hobby = QHobby.hobby1;
 
         Integer existOne = queryFactory
                 .selectOne()
-                .from(hobby)
-                .where(hobby.hobby.eq(hobbyName))
+                .from(qHobby)
+                .where(qHobby.hobby.eq(hobbyName))
                 .fetchFirst();
 
         return existOne != null && existOne > 0;
     }
 
     public Hobby findByhobby(String hobbyName){
-        QHobby hobby = QHobby.hobby1;
 
         return  queryFactory
-                .selectFrom(hobby)
-                .where(hobby.hobby.eq(hobbyName))
+                .selectFrom(qHobby)
+                .where(qHobby.hobby.eq(hobbyName))
                 .fetchOne();
     }
+
+    @Override
+    public List<String> getNamesByIds(List<Long> hobbyIds) {
+
+        if (hobbyIds == null || hobbyIds.isEmpty()) return List.of();
+
+        return queryFactory
+                .select(qHobby.hobby)
+                .from(qHobby)
+                .where(qHobby.id.in(hobbyIds))
+                .fetch();
+    }
+
+    @Override
+    public Map<Long, String> getNamesByIdsMap(Set<Long> hobbyIds) {
+
+        if (hobbyIds == null || hobbyIds.isEmpty()) return Map.of();
+
+        return queryFactory
+                .selectFrom(qHobby)
+                .where(qHobby.id.in(hobbyIds))
+                .fetch()
+                .stream()
+                .collect(Collectors.toMap(Hobby::getId, Hobby::getHobby));
+    }
+
 }

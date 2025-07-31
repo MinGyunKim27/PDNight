@@ -2,11 +2,14 @@ package org.example.pdnight.domain.user.application.userUseCase;
 
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.common.dto.PagedResponse;
-import org.example.pdnight.domain.user.presentation.dto.userDto.request.UserNicknameUpdateDto;
+import org.example.pdnight.domain.user.presentation.dto.couponDto.response.CouponResponse;
+import org.example.pdnight.domain.user.presentation.dto.userDto.request.UserNicknameUpdate;
 import org.example.pdnight.domain.user.presentation.dto.userDto.request.UserUpdateRequest;
-import org.example.pdnight.domain.user.presentation.dto.userDto.response.FollowResponseDto;
+import org.example.pdnight.domain.user.presentation.dto.userDto.response.FollowResponse;
+import org.example.pdnight.domain.user.presentation.dto.userDto.response.FollowingResponse;
 import org.example.pdnight.domain.user.presentation.dto.userDto.response.UserEvaluationResponse;
-import org.example.pdnight.domain.user.presentation.dto.userDto.response.UserResponseDto;
+import org.example.pdnight.domain.user.presentation.dto.userDto.response.UserResponse;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -22,12 +25,11 @@ public class UserServiceImpl implements UserService {
     // ----------------------------------------------------------------------------------------//
     // ----------------------------------------------------------------------------------------//
 
-    public UserResponseDto updateMyProfile(Long userId, UserUpdateRequest request){
+    public UserResponse updateMyProfile(Long userId, UserUpdateRequest request){
         return userCommandService.updateMyProfile(userId,request);
     }
 
-
-    public FollowResponseDto follow(Long userId, Long loginId){
+    public FollowResponse follow(Long userId, Long loginId){
         return userCommandService.follow(userId,loginId);
     }
 
@@ -39,13 +41,17 @@ public class UserServiceImpl implements UserService {
     public void delete(Long userId){
         userCommandService.delete(userId);
     }
+
+    public CouponResponse useCoupon(Long couponId, Long userId) {
+        return userCommandService.useCoupon(couponId, userId);
+    }
     // ----------------------------------------------------------------------------------------//
     // ----------------------------------------------------------------------------------------//
     // --------------------- Admin Command Api ------------------------------------------------//
     // ----------------------------------------------------------------------------------------//
     // ----------------------------------------------------------------------------------------//
 
-    public UserResponseDto updateNickname(Long userId, UserNicknameUpdateDto dto){
+    public UserResponse updateNickname(Long userId, UserNicknameUpdate dto){
         return userCommandService.updateNickname(userId,dto);
     }
 
@@ -55,11 +61,11 @@ public class UserServiceImpl implements UserService {
     // ----------------------------------------------------------------------------------------//
     // ----------------------------------------------------------------------------------------//
 
-    public UserResponseDto getMyProfile(Long userId){
-        return userQueryService.getMyProfile(userId);
+    public UserResponse getMyProfile(Long userId){
+        return userQueryService.getProfile(userId);
     }
 
-    public UserResponseDto getProfile(Long userId) {
+    public UserResponse getProfile(Long userId) {
         return userQueryService.getProfile(userId);
     }
 
@@ -68,17 +74,27 @@ public class UserServiceImpl implements UserService {
     }
 
     //유저 이름이나 닉네임이나 이메일로 검색
-    public PagedResponse<UserResponseDto> searchUsers(String search, Pageable pageable){
+    public PagedResponse<UserResponse> searchUsers(String search, Pageable pageable){
         return userQueryService.searchUsers(search,pageable);
     }
 
+    @Override
+    public Page<FollowingResponse> getFollowings(Long myId, Pageable pageable) {
+        return userQueryService.getFollowings(myId,pageable);
+    }
+
+    // 보유한 사용가능한 쿠폰 조회
+    @Override
+    public PagedResponse<CouponResponse> getValidCoupons(Long userId, Pageable pageable) {
+        return userQueryService.getValidCoupons(userId, pageable);
+    }
     // ----------------------------------------------------------------------------------------//
     // ----------------------------------------------------------------------------------------//
     // --------------------- Admin 조회 Api ----------------------------------------------------//
     // ----------------------------------------------------------------------------------------//
     // ----------------------------------------------------------------------------------------//
 
-    public PagedResponse<UserResponseDto> getAllUsers(Pageable pageable){
+    public PagedResponse<UserResponse> getAllUsers(Pageable pageable){
         return userQueryService.getAllUsers(pageable);
     }
 

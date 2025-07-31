@@ -19,16 +19,14 @@ public class UserTech {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "teck_stack_id")
-    private TechStack techStack;
+    private Long techStackId;
 
-    private UserTech(User user, TechStack techStack) {
+    private UserTech(User user, Long techStackId) {
         this.user = user;
-        this.techStack = techStack;
+        this.techStackId = techStackId;
     }
 
-    public static UserTech create(User user, TechStack techStack) {
-        return new UserTech(user, techStack);
+    public static UserTech create(User user, Long techStackId) {
+        return new UserTech(user, techStackId);
     }
 }

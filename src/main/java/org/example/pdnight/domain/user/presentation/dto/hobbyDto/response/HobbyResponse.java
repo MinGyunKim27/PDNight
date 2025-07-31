@@ -3,7 +3,7 @@ package org.example.pdnight.domain.user.presentation.dto.hobbyDto.response;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.example.pdnight.domain.hobby.domain.entity.Hobby;
+import org.example.pdnight.domain.user.domain.entity.Hobby;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

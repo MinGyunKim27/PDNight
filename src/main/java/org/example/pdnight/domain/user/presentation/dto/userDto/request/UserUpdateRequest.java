@@ -7,8 +7,8 @@ import java.util.Set;
 
 @Getter
 public class UserUpdateRequest {
-    private Set<Long> hobbyIdList;
-    private Set<Long> techStackIdList;
+    private List<Long> hobbyIdList;
+    private List<Long> techStackIdList;
     private String name;
     private String nickname;
     private String gender;

@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
-public class ReviewResponseDto {
+public class ReviewResponse {
     private Long id;
     private Long postId;
     private Long ratedUserId;
@@ -16,7 +16,7 @@ public class ReviewResponseDto {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public ReviewResponseDto(Review review) {
+    public ReviewResponse(Review review) {
         this.id = review.getId();
         this.postId = review.getPost().getId();
         this.ratedUserId = review.getRatedUser().getId();
@@ -26,8 +26,8 @@ public class ReviewResponseDto {
         this.updatedAt = review.getUpdatedAt();
     }
 
-    public static ReviewResponseDto from(Review review) {
-        return new ReviewResponseDto(review);
+    public static ReviewResponse from(Review review) {
+        return new ReviewResponse(review);
     }
 
 }

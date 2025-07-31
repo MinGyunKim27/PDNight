@@ -3,7 +3,7 @@ package org.example.pdnight.domain.coupon.service;
 import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.user.application.couponUseCase.CouponServiceImpl;
-import org.example.pdnight.domain.user.presentation.dto.couponDto.response.CouponResponseDto;
+import org.example.pdnight.domain.user.presentation.dto.couponDto.response.CouponResponse;
 import org.example.pdnight.domain.user.domain.entity.Coupon;
 import org.example.pdnight.domain.user.infra.couponInfra.CouponJpaRepository;
 import org.example.pdnight.domain.user.domain.entity.User;
@@ -48,7 +48,7 @@ class CouponServiceImplTest {
 
         when(coupon.getUser()).thenReturn(user);
         when(couponJpaRepository.findById(couponId)).thenReturn(Optional.of(coupon));
-        CouponResponseDto result = couponServiceImpl.useCoupon(couponId, userId);
+        CouponResponse result = couponServiceImpl.useCoupon(couponId, userId);
 
         // then
         assertThat(result).isNotNull();
