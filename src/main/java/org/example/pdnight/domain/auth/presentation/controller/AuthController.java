@@ -3,16 +3,15 @@ package org.example.pdnight.domain.auth.presentation.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.example.pdnight.domain.auth.application.authUseCase.AuthService;
 import org.example.pdnight.domain.auth.presentation.dto.request.LoginRequest;
 import org.example.pdnight.domain.auth.presentation.dto.request.SignupRequest;
 import org.example.pdnight.domain.auth.presentation.dto.request.UserPasswordUpdateRequest;
 import org.example.pdnight.domain.auth.presentation.dto.request.WithdrawRequest;
 import org.example.pdnight.domain.auth.presentation.dto.response.LoginResponse;
 import org.example.pdnight.domain.auth.presentation.dto.response.SignupResponse;
-import org.example.pdnight.domain.auth.application.authUseCase.AuthService;
 import org.example.pdnight.global.common.dto.ApiResponse;
 import org.example.pdnight.global.filter.CustomUserDetails;
-import org.example.pdnight.global.utils.JwtUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -24,7 +23,6 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
-    private final JwtUtil jwtUtil;
 
     @PostMapping("/api/auth/signup")
     private ResponseEntity<ApiResponse<SignupResponse>> signup(@Valid @RequestBody SignupRequest request) {
@@ -40,7 +38,7 @@ public class AuthController {
                 .body(ApiResponse.ok("로그인 되었습니다.", token));
     }
 
-    @PatchMapping("/users/my/password")
+    @PatchMapping("/api/auth/my/password")
     public ResponseEntity<ApiResponse<Void>> updatePassword(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody UserPasswordUpdateRequest requestDto
@@ -55,18 +53,18 @@ public class AuthController {
     }
 
     @PostMapping("/api/auth/logout")
-    private ResponseEntity<ApiResponse<Void>> logout(HttpServletRequest request) {
-        String bearerJwt = request.getHeader("Authorization");
-        String token = jwtUtil.substringToken(bearerJwt);
-        authService.logout(token);
+    private ResponseEntity<ApiResponse<Void>> logout(HttpServletRequest http) {
+        authService.logout(http);
         return ResponseEntity.ok(ApiResponse.ok("로그아웃 되었습니다.", null));
     }
 
     @DeleteMapping("/api/auth/withdraw")
-    private ResponseEntity<ApiResponse<Void>> withdraw(@Valid @RequestBody WithdrawRequest request,
+    private ResponseEntity<ApiResponse<Void>> withdraw(HttpServletRequest http,
+                                                       @Valid @RequestBody WithdrawRequest request,
                                                        @AuthenticationPrincipal CustomUserDetails userDetails) {
         Long userId = userDetails.getUserId();
         authService.withdraw(userId, request);
+        authService.logout(http);
         return ResponseEntity.ok(ApiResponse.ok("회원탈퇴 되었습니다.", null));
     }
 

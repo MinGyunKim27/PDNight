@@ -1,6 +1,7 @@
 package org.example.pdnight.domain.auth.application.authUseCase;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.auth.application.port.UserQueryPort;
 import org.example.pdnight.domain.auth.domain.AuthCommander;
@@ -65,7 +66,6 @@ public class AuthCommanderService {
     @Transactional
     public LoginResponse login(LoginRequest request) {
         Auth auth = getAuthByEmail(request.getEmail());
-
         validateAuth(auth, request.getPassword());
 
         UserInfo userInfo = userQueryPort.getUserInfoById(auth.getId());
@@ -78,14 +78,15 @@ public class AuthCommanderService {
         return LoginResponse.from(token);
     }
 
-    public void logout(String token) {
+    public void logout(HttpServletRequest http) {
+        String bearerJwt = http.getHeader("Authorization");
+        String token = jwtUtil.substringToken(bearerJwt);
         redisTemplate.opsForSet().add(CacheName.BLACKLIST_TOKEN, token);
     }
 
     @Transactional
     public void withdraw(Long userId, WithdrawRequest request) {
         Auth auth = getAuthById(userId);
-
         validateAuth(auth, request.getPassword());
 
         auth.softDelete();
