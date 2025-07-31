@@ -23,4 +23,5 @@ public class PostLikeResponse {
     public static PostLikeResponse from(PostLike postLike) {
         return new PostLikeResponse(postLike);
     }
+
 }

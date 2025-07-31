@@ -34,7 +34,6 @@ public class Post extends Timestamped {
     private LocalDateTime timeSlot;
 
     private String publicContent;
-    private String privateContent;
 
     @Setter
     @Enumerated(EnumType.STRING)
@@ -65,14 +64,19 @@ public class Post extends Timestamped {
     private List<PostParticipant> postParticipants = new ArrayList<>();
 
     private Post(
-            Long authorId, String title, LocalDateTime timeSlot, String publicContent, String privateContent,
-            Integer maxParticipants, Gender genderLimit, JobCategory jobCategoryLimit, AgeLimit ageLimit
+            Long authorId,
+            String title,
+            LocalDateTime timeSlot,
+            String publicContent,
+            Integer maxParticipants,
+            Gender genderLimit,
+            JobCategory jobCategoryLimit,
+            AgeLimit ageLimit
     ) {
         this.authorId = authorId;
         this.title = title;
         this.timeSlot = timeSlot;
         this.publicContent = publicContent;
-        this.privateContent = privateContent;
         this.status = PostStatus.OPEN;
         this.maxParticipants = maxParticipants;
         this.genderLimit = genderLimit;
@@ -80,13 +84,22 @@ public class Post extends Timestamped {
         this.ageLimit = ageLimit;
     }
 
-    private Post(Long authorId, String title, LocalDateTime timeSlot, String publicContent, String privateContent,
-                 Integer maxParticipants, Gender genderLimit, JobCategory jobCategoryLimit, AgeLimit ageLimit, Boolean isFirstCome, PostStatus status) {
+    private Post(
+            Long authorId,
+            String title,
+            LocalDateTime timeSlot,
+            String publicContent,
+            Integer maxParticipants,
+            Gender genderLimit,
+            JobCategory jobCategoryLimit,
+            AgeLimit ageLimit,
+            Boolean isFirstCome,
+            PostStatus status
+    ) {
         this.authorId = authorId;
         this.title = title;
         this.timeSlot = timeSlot;
         this.publicContent = publicContent;
-        this.privateContent = privateContent;
         this.status = PostStatus.OPEN;
         this.maxParticipants = maxParticipants;
         this.genderLimit = genderLimit;
@@ -97,35 +110,70 @@ public class Post extends Timestamped {
     }
 
     public static Post createPost(
-            Long authorId, String title, LocalDateTime timeSlot, String publicContent, String privateContent,
-            Integer maxParticipants, Gender genderLimit, JobCategory jobCategoryLimit, AgeLimit ageLimit
+            Long authorId,
+            String title,
+            LocalDateTime timeSlot,
+            String publicContent,
+            Integer maxParticipants,
+            Gender genderLimit,
+            JobCategory jobCategoryLimit,
+            AgeLimit ageLimit
     ) {
-        return new Post(authorId, title, timeSlot, publicContent, privateContent, maxParticipants, genderLimit, jobCategoryLimit, ageLimit);
+        return new Post(
+                authorId,
+                title,
+                timeSlot,
+                publicContent,
+                maxParticipants,
+                genderLimit,
+                jobCategoryLimit,
+                ageLimit
+        );
     }
 
     public static Post createPost(
-            Long authorId, String title, LocalDateTime timeSlot, String publicContent, String privateContent,
-            Integer maxParticipants, Gender genderLimit, JobCategory jobCategoryLimit, AgeLimit ageLimit,
-            Boolean isFirstCome, PostStatus status
-    )
-    {
-        return new Post(authorId, title, timeSlot, publicContent, privateContent, maxParticipants, genderLimit, jobCategoryLimit, ageLimit, isFirstCome, status);
+            Long authorId,
+            String title,
+            LocalDateTime timeSlot,
+            String publicContent,
+            Integer maxParticipants,
+            Gender genderLimit,
+            JobCategory jobCategoryLimit,
+            AgeLimit ageLimit,
+            Boolean isFirstCome,
+            PostStatus status
+    ) {
+        return new Post(
+                authorId,
+                title,
+                timeSlot,
+                publicContent,
+                maxParticipants,
+                genderLimit,
+                jobCategoryLimit,
+                ageLimit,
+                isFirstCome,
+                status
+        );
     }
 
     //update 메서드 null 체크 후 아닌 값만 set
     public void updatePostIfNotNull(
-            String title, LocalDateTime timeSlot, String publicContent, String privateContent,
-            Integer maxParticipants, Gender genderLimit, JobCategory jobCategoryLimit, AgeLimit ageLimit
+            String title,
+            LocalDateTime timeSlot,
+            String publicContent,
+            Integer maxParticipants,
+            Gender genderLimit,
+            JobCategory jobCategoryLimit,
+            AgeLimit ageLimit
     ) {
         if (title != null) this.title = title;
         if (timeSlot != null) this.timeSlot = timeSlot;
         if (publicContent != null) this.publicContent = publicContent;
-        if (privateContent != null) this.privateContent = privateContent;
         if (maxParticipants != null && maxParticipants >= 1) this.maxParticipants = maxParticipants;
         if (genderLimit != null) this.genderLimit = genderLimit;
         if (jobCategoryLimit != null) this.jobCategoryLimit = jobCategoryLimit;
         if (ageLimit != null) this.ageLimit = ageLimit;
-
     }
 
     //상태 변경 메서드
@@ -145,4 +193,7 @@ public class Post extends Timestamped {
         postLikes.remove(postLike);
     }
 
+    public void removeParticipant(PostParticipant postParticipant) {
+        postParticipants.remove(postParticipant);
+    }
 }

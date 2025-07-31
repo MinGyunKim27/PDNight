@@ -26,7 +26,6 @@ public class PostRequestDto {
     private LocalDateTime timeSlot;
 
     private String publicContent;
-    private String privateContent;
 
     @Min(value = 1, message = "참가인원은 최소 1인이상입니다.")
     private Integer maxParticipants;

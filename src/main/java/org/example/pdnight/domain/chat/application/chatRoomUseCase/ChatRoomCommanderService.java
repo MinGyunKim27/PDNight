@@ -7,6 +7,7 @@ import org.example.pdnight.domain.chat.domain.ChatMessage;
 import org.example.pdnight.domain.chat.domain.ChatParticipant;
 import org.example.pdnight.domain.chat.domain.ChatRoom;
 import org.example.pdnight.domain.chat.domain.ChatRoomCommandQuery;
+import org.example.pdnight.domain.chat.infra.ChatRoomRedisRepository;
 import org.example.pdnight.domain.chat.presentation.dto.request.ChatMessageDto;
 import org.example.pdnight.domain.post.domain.post.Post;
 import org.example.pdnight.domain.post.domain.post.PostParticipant;
@@ -15,15 +16,17 @@ import org.example.pdnight.global.common.enums.ErrorCode;
 import org.example.pdnight.global.common.exception.BaseException;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
+@Service
 @RequiredArgsConstructor
 public class ChatRoomCommanderService {
-    private ChatRoomCommandQuery chatRoomCommandQuery;
+    private final ChatRoomCommandQuery chatRoomCommandQuery;
 
     // 채팅방 생성
     public ChatRoom create(String name) {
@@ -76,25 +79,26 @@ public class ChatRoomCommanderService {
 
     // -- HELPER 메서드 -- //
     private void postAuthorRegistration(ChatRoom chatRoom, Long authorId) {
-        if (!chatRoomCommandQuery.existsByChatRoomAndUserId(chatRoom, authorId)) {
-            ChatParticipant chatRoomAuth = ChatParticipant.from(chatRoom, authorId);
-            chatRoomCommandQuery.saveParticipant(chatRoomAuth);
+        if (chatRoom.getParticipants().stream().noneMatch(participant -> participant.getUserId().equals(authorId))) {
+            ChatParticipant authorParticipant = ChatParticipant.from(chatRoom, authorId);
+            chatRoom.addParticipants(authorParticipant);
         }
     }
 
     private void postParticipantRegistration(ChatRoom chatRoom, List<PostParticipant> participants) {
         for (PostParticipant participant : participants) {
             // 채팅방에 참여되지 않은 경우 등록
-            if (!chatRoomCommandQuery.existsByChatRoomAndUserId(chatRoom, participant.getUserId())) {
-                ChatParticipant chatParticipant = ChatParticipant.from(chatRoom, participant.getUserId());
-                chatRoomCommandQuery.saveParticipant(chatParticipant);
-            }
+//            if (!chatRoomCommandQuery.existsByChatRoomAndUserId(chatRoom, participant.getUserId())) {
+//                ChatParticipant chatParticipant = ChatParticipant.from(chatRoom, participant.getUserId());
+//                chatRoomCommandQuery.saveParticipant(chatParticipant);
+//            }
         }
     }
 
     private String validatedChatRoomEnter(ChatRoom chatRoom, Long userId) {
         if (chatRoom.getPostId() != null) {
-            if (!chatRoomCommandQuery.existsByChatRoomAndUserId(chatRoom, userId)) {
+            List<ChatParticipant> participants = chatRoom.getParticipants();
+            if (participants.stream().noneMatch(participant -> participant.getUserId().equals(userId))) {
                 throw new BaseException(ErrorCode.CHAT_ROOM_NOT_PARTICIPANT);
             }
             return "게시글 채팅방에 참여 되었습니다.";

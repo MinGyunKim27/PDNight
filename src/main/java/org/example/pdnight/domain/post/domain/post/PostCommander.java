@@ -14,4 +14,6 @@ public interface PostCommander {
 
     Optional<Post> getPostById(Long id);
 
+    void deletePost(Post post);
+
 }

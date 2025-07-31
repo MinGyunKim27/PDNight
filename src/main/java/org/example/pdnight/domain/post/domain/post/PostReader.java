@@ -4,8 +4,8 @@ import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.enums.JoinStatus;
 import org.example.pdnight.domain.post.enums.PostStatus;
-import org.example.pdnight.domain.post.presentation.dto.response.PostResponseWithApplyStatusDto;
-import org.example.pdnight.domain.post.presentation.dto.response.PostWithJoinStatusAndAppliedAtResponseDto;
+import org.example.pdnight.domain.post.presentation.dto.response.PostResponseDto;
+
 
 import org.example.pdnight.global.common.enums.JobCategory;
 import org.springframework.data.domain.Page;
@@ -16,17 +16,15 @@ import java.util.Optional;
 
 public interface PostReader {
 
-    Page<PostParticipant> findByPostAndStatus(Post post, JoinStatus joinStatus, Pageable pageable);
+    Optional<Post> getPostById(Long id);
 
-    PostResponseWithApplyStatusDto getPostById(Long id);
+    Page<PostResponseDto> getMyLikePost(Long userId, Pageable pageable);
 
-    Page<PostResponseWithApplyStatusDto> getMyLikePost(Long userId, Pageable pageable);
+    Page<PostResponseDto> getConfirmedPost(Long userId, JoinStatus joinStatus, Pageable pageable);
 
-    Page<PostWithJoinStatusAndAppliedAtResponseDto> getConfirmedPost(Long userId, JoinStatus joinStatus, Pageable pageable);
+    Page<Post> getWrittenPost(Long userId, Pageable pageable);
 
-    Page<PostResponseWithApplyStatusDto> getWrittenPost(Long userId, Pageable pageable);
-
-    Page<PostResponseWithApplyStatusDto> getSuggestedPost(Long userId, Pageable pageable);
+    Page<Post> getSuggestedPost(Long userId, Pageable pageable);
 
     Optional<Post> findById(Long postId);
 
@@ -34,7 +32,7 @@ public interface PostReader {
 
     List<PostParticipant> findByUserAndPost(Long userId, Post post);
 
-    Page<PostResponseWithApplyStatusDto> findPostDtosBySearch(
+    Page<Post> findPostDtosBySearch(
             Pageable pageable,
             Integer maxParticipants,
             AgeLimit ageLimit,

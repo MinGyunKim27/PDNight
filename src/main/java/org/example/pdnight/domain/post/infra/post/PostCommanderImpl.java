@@ -3,7 +3,6 @@ package org.example.pdnight.domain.post.infra.post;
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.post.domain.post.Post;
 import org.example.pdnight.domain.post.domain.post.PostCommander;
-
 import org.example.pdnight.domain.post.enums.PostStatus;
 import org.springframework.stereotype.Repository;
 
@@ -33,6 +32,11 @@ public class PostCommanderImpl implements PostCommander {
     @Override
     public Optional<Post> getPostById(Long id) {
         return postJpaRepository.getPostById(id);
+    }
+
+    @Override
+    public void deletePost(Post post) {
+        postJpaRepository.delete(post);
     }
 
 }

@@ -18,42 +18,42 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class PostServiceImpl implements PostService{
 
-    private final PostReaderService postQueryService;
+    private final PostReaderService postReaderService;
     private final PostCommanderService postCommanderService;
 
     @Override
     public PagedResponse<ParticipantResponse> getParticipantListByPending(Long authorId, Long postId, int page, int size) {
-        return postQueryService.getParticipantListByPending(authorId, postId, page, size);
+        return postReaderService.getParticipantListByPending(authorId, postId, page, size);
     }
 
     @Override
     public PagedResponse<ParticipantResponse> getParticipantListByAccepted(Long loginId, Long postId, int page, int size) {
-        return postQueryService.getParticipantListByAccepted(loginId, postId, page, size);
+        return postReaderService.getParticipantListByAccepted(loginId, postId, page, size);
     }
 
     @Override
-    public PostResponseWithApplyStatusDto findOpenedPost(Long id) {
-        return postQueryService.findOpenedPost(id);
+    public PostResponseDto findPost(Long id) {
+        return postReaderService.findPost(id);
     };
 
     @Override
-    public PagedResponse<PostResponseWithApplyStatusDto> findMyLikedPosts(Long userId, Pageable pageable) {
-        return postQueryService.findMyLikedPosts(userId, pageable);
+    public PagedResponse<PostResponseDto> findMyLikedPosts(Long userId, Pageable pageable) {
+        return postReaderService.findMyLikedPosts(userId, pageable);
     }
 
     @Override
-    public PagedResponse<PostWithJoinStatusAndAppliedAtResponseDto> findMyConfirmedPosts(Long userId, JoinStatus joinStatus, Pageable pageable) {
-        return postQueryService.findMyConfirmedPosts(userId, joinStatus, pageable);
+    public PagedResponse<PostResponseDto> findMyConfirmedPosts(Long userId, JoinStatus joinStatus, Pageable pageable) {
+        return postReaderService.findMyConfirmedPosts(userId, joinStatus, pageable);
     }
 
     @Override
-    public PagedResponse<PostResponseWithApplyStatusDto> findMyWrittenPosts(Long userId, Pageable pageable) {
-        return postQueryService.findMyWrittenPosts(userId, pageable);
+    public PagedResponse<PostResponseDto> findMyWrittenPosts(Long userId, Pageable pageable) {
+        return postReaderService.findMyWrittenPosts(userId, pageable);
     }
 
     @Override
-    public PagedResponse<PostResponseWithApplyStatusDto> getSuggestedPosts(Long userId, Pageable pageable) {
-        return postQueryService.getSuggestedPosts(userId, pageable);
+    public PagedResponse<PostResponseDto> getSuggestedPosts(Long userId, Pageable pageable) {
+        return postReaderService.getSuggestedPosts(userId, pageable);
     }
 
     @Override
@@ -72,19 +72,19 @@ public class PostServiceImpl implements PostService{
     }
 
     @Override
-    public PostCreateAndUpdateResponseDto createPost(Long userId, PostRequestDto request) {
+    public PostResponseDto createPost(Long userId, PostRequestDto request) {
         return postCommanderService.createPost(userId, request);
     }
 
     @Override
-    public PagedResponse<PostResponseWithApplyStatusDto> getPostDtosBySearch(
+    public PagedResponse<PostResponseDto> getPostDtosBySearch(
             Pageable pageable,
             Integer maxParticipants,
             AgeLimit ageLimit,
             JobCategory jobCategoryLimit,
             Gender genderLimit
     ) {
-        return postCommanderService.getPostDtosBySearch(pageable, maxParticipants, ageLimit, jobCategoryLimit, genderLimit);
+        return postReaderService.getPostDtosBySearch(pageable, maxParticipants, ageLimit, jobCategoryLimit, genderLimit);
     }
 
     @Override
@@ -93,13 +93,13 @@ public class PostServiceImpl implements PostService{
     }
 
     @Override
-    public PostCreateAndUpdateResponseDto updatePostDetails(Long userId, Long id, PostUpdateRequestDto request) {
+    public PostResponseDto updatePostDetails(Long userId, Long id, PostUpdateRequestDto request) {
         return postCommanderService.updatePostDetails(userId, id, request);
     }
 
     @Override
     public PostResponseDto changeStatus(Long userId, Long id, PostStatusRequestDto request) {
-        return postCommanderService.changeStatus(userId, id, request);
+        return postCommanderService.changePostStatus(userId, id, request);
     }
 
     @Override

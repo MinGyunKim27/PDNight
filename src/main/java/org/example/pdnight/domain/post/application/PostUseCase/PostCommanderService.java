@@ -3,25 +3,25 @@ package org.example.pdnight.domain.post.application.PostUseCase;
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.post.domain.post.Post;
 import org.example.pdnight.domain.post.domain.post.PostCommander;
-
 import org.example.pdnight.domain.post.domain.post.PostLike;
 import org.example.pdnight.domain.post.domain.post.PostParticipant;
-import org.example.pdnight.domain.post.enums.*;
+import org.example.pdnight.domain.post.enums.AgeLimit;
+import org.example.pdnight.domain.post.enums.Gender;
+import org.example.pdnight.domain.post.enums.JoinStatus;
+import org.example.pdnight.domain.post.enums.PostStatus;
 import org.example.pdnight.domain.post.presentation.dto.request.PostRequestDto;
 import org.example.pdnight.domain.post.presentation.dto.request.PostStatusRequestDto;
 import org.example.pdnight.domain.post.presentation.dto.request.PostUpdateRequestDto;
-import org.example.pdnight.domain.post.presentation.dto.response.*;
-import org.example.pdnight.global.common.dto.PagedResponse;
+import org.example.pdnight.domain.post.presentation.dto.response.ParticipantResponse;
+import org.example.pdnight.domain.post.presentation.dto.response.PostLikeResponse;
+import org.example.pdnight.domain.post.presentation.dto.response.PostResponseDto;
+import org.example.pdnight.global.aop.DistributedLock;
 import org.example.pdnight.global.common.enums.ErrorCode;
 import org.example.pdnight.global.common.enums.JobCategory;
 import org.example.pdnight.global.common.exception.BaseException;
-import org.example.pdnight.global.aop.DistributedLock;
 import org.example.pdnight.global.constant.CacheName;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +35,7 @@ public class PostCommanderService {
 
     private final PostCommander postCommander;
 
+    // region  게시물 신청자
     //참가 신청
     @Transactional
     @CacheEvict(value = CacheName.CONFIRMED_POST, allEntries = true)
@@ -74,7 +75,7 @@ public class PostCommanderService {
         }
 
         // 정상 삭제
-        postCommander.delete(pending);
+        post.removeParticipant(pending);
     }
 
     //참가 확정(작성자)
@@ -104,7 +105,9 @@ public class PostCommanderService {
                 pending.getUpdatedAt()
         );
     }
+    //endregion
 
+    //region 게시물 좋아요
     @CacheEvict(value = CacheName.LIKED_POST, allEntries = true)
     @Transactional
     public PostLikeResponse addLike(Long id, Long userId) {
@@ -116,7 +119,6 @@ public class PostCommanderService {
 
         PostLike postLike = PostLike.create(post, userId);
         post.addLike(postLike);
-        postCommander.save(postLike);
 
         return PostLikeResponse.from(postLike);
     }
@@ -129,7 +131,175 @@ public class PostCommanderService {
         PostLike like = getPostLikePostAndUser(post, userId);
 
         post.removeLike(like);
-        postCommander.delete(like);
+    }
+
+    //endregion
+
+    //region 게시글
+    //포스트 작성
+    @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = CacheName.SEARCH_POST, allEntries = true),
+            @CacheEvict(value = CacheName.SUGGESTED_POST, allEntries = true),
+            @CacheEvict(value = CacheName.WRITTEN_POST, allEntries = true)
+    })
+    public PostResponseDto createPost(Long userId, PostRequestDto request) {
+
+        Post post = Post.createPost(
+                userId,
+                request.getTitle(),
+                request.getTimeSlot(),
+                request.getPublicContent(),
+                request.getMaxParticipants(),
+                request.getGenderLimit(),
+                request.getJobCategoryLimit(),
+                request.getAgeLimit()
+        );
+
+        return PostResponseDto.toDto(post);
+    }
+
+    @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = CacheName.SEARCH_POST, allEntries = true),
+            @CacheEvict(value = CacheName.ONE_POST, key = "#id"),
+            @CacheEvict(value = CacheName.LIKED_POST, allEntries = true),
+            @CacheEvict(value = CacheName.CONFIRMED_POST, allEntries = true),
+            @CacheEvict(value = CacheName.WRITTEN_POST, allEntries = true),
+            @CacheEvict(value = CacheName.SUGGESTED_POST, allEntries = true),
+    })
+    public void deletePostById(Long userId, Long id) {
+        Post foundPost = getPostByIdOrElseThrow(id);
+        validateAuthor(userId, foundPost);
+
+        //자식 댓글들 먼저 일괄 삭제 외래키 제약 제거 todo: 추후 이벤트 처리를 통해서 게시글 댓글 삭제 초대 삭제등
+        // commentRepository.deleteAllByChildrenPostId(id);
+        //postId 기준 댓글 일괄 삭제 메서드 외래키 제약 제거
+        // commentRepository.deleteAllByPostId(id);
+        postCommander.deletePost(foundPost);
+    }
+
+    @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = CacheName.SEARCH_POST, allEntries = true),
+            @CacheEvict(value = CacheName.ONE_POST, key = "#id"),
+            @CacheEvict(value = CacheName.LIKED_POST, allEntries = true),
+            @CacheEvict(value = CacheName.CONFIRMED_POST, allEntries = true),
+            @CacheEvict(value = CacheName.WRITTEN_POST, allEntries = true),
+            @CacheEvict(value = CacheName.SUGGESTED_POST, allEntries = true),
+    })
+    public PostResponseDto updatePostDetails(Long userId, Long id, PostUpdateRequestDto request) {
+        Post foundPost = getPostByIdOrElseThrow(id);
+        validateAuthor(userId, foundPost);
+
+        foundPost.updatePostIfNotNull(
+                request.getTitle(),
+                request.getTimeSlot(),
+                request.getPublicContent(),
+                request.getMaxParticipants(),
+                request.getGenderLimit(),
+                request.getJobCategoryLimit(),
+                request.getAgeLimit()
+        );
+
+        return PostResponseDto.toDto(foundPost);
+    }
+
+    @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = CacheName.SEARCH_POST, allEntries = true),
+            @CacheEvict(value = CacheName.ONE_POST, key = "#id"),
+            @CacheEvict(value = CacheName.LIKED_POST, allEntries = true),
+            @CacheEvict(value = CacheName.CONFIRMED_POST, allEntries = true),
+            @CacheEvict(value = CacheName.WRITTEN_POST, allEntries = true),
+            @CacheEvict(value = CacheName.SUGGESTED_POST, allEntries = true),
+    })
+    public PostResponseDto changePostStatus(Long userId, Long id, PostStatusRequestDto request) {
+        //상태값 변경은 어떤 상태라도 불러와서 수정
+        Post foundPost = getPostByIdWithoutStatusLimit(id);
+        validateAuthor(userId, foundPost);
+
+        //변동사항 있을시에만 업데이트
+        if (!foundPost.getStatus().equals(request.getStatus())) {
+            foundPost.updateStatus(request.getStatus());
+//            //모임 성사로 변경시 채팅방 생성      -> 이벤트 처리
+//            if (request.getStatus().equals(PostStatus.CONFIRMED)) {
+//                // 게시글로 생성된 채팅방이 없는 경우 생성
+//                if (!chattingService.checkPostChatRoom(foundPost.getId())) {
+//                    chattingService.createFromPost(foundPost.getId());
+//                }
+//                chattingService.registration(foundPost);
+//
+//            }
+        }
+
+        return PostResponseDto.toDto(foundPost);
+    }
+
+    public void deleteAdminPostById(Long id) {
+        postCommander.deletePost(getPostByIdOrElseThrow(id));
+    }
+    //endregion
+
+    //region ----------------------------------- HELPER 메서드 ------------------------------------------------------
+
+    private PostLike getPostLikePostAndUser(Post post, Long userId) {
+        return post.getPostLikes().stream()
+                .filter(postLike -> postLike.getUserId().equals(userId)).findFirst()
+                .orElseThrow(() -> new BaseException(POSTLIKE_NOT_FOUND));
+    }
+
+    // validate
+    private void validateExists(Post post, Long userId) {
+        if (post.getPostLikes().stream().noneMatch(postLike -> postLike.getUserId().equals(userId))) {
+            throw new BaseException(ErrorCode.ALREADY_LIKED);
+        }
+    }
+
+    private Post getPostByIdOrElseThrow(Long postId) {
+        return postCommander.findPostById(postId)
+                .orElseThrow(() -> new BaseException(POST_NOT_FOUND));
+    }
+
+    private Post getPostWithOpen(Long postId) {
+        return postCommander.findByIdAndStatus(postId, PostStatus.OPEN)
+                .orElseThrow(() -> new BaseException(POST_NOT_FOUND));
+    }
+
+    private Post getPostByIdWithoutStatusLimit(Long id) {
+        return postCommander.findPostById(id)
+                .orElseThrow(() -> new BaseException(POST_NOT_FOUND));
+    }
+
+    //참가자 생성, 추가 메서드
+    private PostParticipant handleJoinRequest(Post post, Long userId) {
+
+        int count = acceptedParticipantsCounter(post.getPostParticipants());
+
+        if (count == post.getMaxParticipants()) {
+            throw new BaseException(CANNOT_PARTICIPATE_POST);
+        }
+
+        PostParticipant participant = PostParticipant.create(post, userId);
+
+        if (post.getIsFirstCome()) {
+            participant.changeStatus(JoinStatus.ACCEPTED);
+
+            if (count + 1 == post.getMaxParticipants()) {
+                post.updateStatus(PostStatus.CONFIRMED);
+            }
+        }
+
+        post.addParticipants(participant);
+
+        return participant;
+    }
+
+    // 리스트를 불러와서 참여자 수
+    private int acceptedParticipantsCounter(List<PostParticipant> participants) {
+        return (int) participants.stream()
+                .filter(participant -> participant.getStatus() == JoinStatus.ACCEPTED)
+                .count();
     }
 
     private static AgeLimit determineAgeLimit(Long age) {
@@ -176,6 +346,36 @@ public class PostCommanderService {
         }
     }
 
+    private PostParticipant getParticipantByStatus(Long userId, Post post, JoinStatus joinStatus) {
+        List<PostParticipant> postParticipants = post.getPostParticipants();
+        return postParticipants.stream()
+                .filter(PostParticipant -> PostParticipant.getUserId().equals(userId) && PostParticipant.getStatus().equals(joinStatus))
+                .findFirst()
+                .orElse(null);
+    }
+
+    // 게시글 인원이 꽉차게 되면 게시글 상태를 마감으로 변경 (CONFIRMED)
+    private void changePostStatusForConfirmed(Long postId, Post post) {
+        int participantSize = acceptedParticipantsCounter(post.getPostParticipants());
+        if (post.getMaxParticipants().equals(participantSize)) {
+            post.updateStatus(PostStatus.CONFIRMED);
+            // 이벤트 발생
+//            inviteService.deleteAllByPostAndStatus(post, JoinStatus.PENDING);
+//            // 채팅방 생성
+//            if (!chattingService.checkPostChatRoom(postId)) {
+//                chattingService.createFromPost(postId);
+//            }
+//            chattingService.registration(post);
+        }
+    }
+
+    // validate - 작성자가 맞는지 검증
+    private void validateAuthor(Long userId, Post post) {
+        if (!post.getAuthorId().equals(userId)) {
+            throw new BaseException(POST_FORBIDDEN);
+        }
+    }
+
     // 상태 변경 가능 확인 (상태가 변경될 때 validate)
     private void validForChangeStatusParticipant(Long authorId, Post post, PostParticipant pending, JoinStatus joinStatus) {
         // 상태변경 안됨 : 게시글이 본인것이 아님
@@ -194,224 +394,6 @@ public class PostCommanderService {
         }
     }
 
-    // ===========================================else==========================================================
-    // 게시글 인원이 꽉차게 되면 게시글 상태를 마감으로 변경 (CONFIRMED)
-    private void changePostStatusForConfirmed(Long postId, Post post) {
-        int participantSize = participantRepository.countByPostAndStatus(post, JoinStatus.ACCEPTED);
-        if (post.getMaxParticipants().equals(participantSize)) {
-            post.updateStatus(PostStatus.CONFIRMED);
-            inviteService.deleteAllByPostAndStatus(post, JoinStatus.PENDING);
-            // 채팅방 생성
-            if (!chattingService.checkPostChatRoom(postId)) {
-                chattingService.createFromPost(postId);
-            }
-            chattingService.registration(post);
-        }
-    }
 
-
-
-    //포스트 작성
-    @Transactional
-    @Caching(evict = {
-            @CacheEvict(value = CacheName.SEARCH_POST, allEntries = true),
-            @CacheEvict(value = CacheName.SUGGESTED_POST, allEntries = true),
-            @CacheEvict(value = CacheName.WRITTEN_POST, allEntries = true)
-    })
-    public PostCreateAndUpdateResponseDto createPost(Long userId, PostRequestDto request) {
-
-        Post post = Post.createPost(
-                userId,
-                request.getTitle(),
-                request.getTimeSlot(),
-                request.getPublicContent(),
-                request.getPrivateContent(),
-                request.getMaxParticipants(),
-                request.getGenderLimit(),
-                request.getJobCategoryLimit(),
-                request.getAgeLimit()
-        );
-
-        return PostCreateAndUpdateResponseDto.from(post);
-    }
-
-    //게시물 조건 검색
-    @Transactional(readOnly = true)
-    @Cacheable(
-            value = CacheName.SEARCH_POST,
-            key = "{#pageable.pageNumber, #pageable.pageSize, #maxParticipants, #ageLimit, #jobCategoryLimit, #genderLimit, #hobbyIdList, #techStackIdList}"
-    )
-    public PagedResponse<PostResponseWithApplyStatusDto> getPostDtosBySearch(
-            Pageable pageable,
-            Integer maxParticipants,
-            AgeLimit ageLimit,
-            JobCategory jobCategoryLimit,
-            Gender genderLimit
-    ) {
-        Page<PostResponseWithApplyStatusDto> postDtosBySearch = postCommander.findPostDtosBySearch(pageable, maxParticipants,
-                ageLimit, jobCategoryLimit, genderLimit);
-        return PagedResponse.from(postDtosBySearch);
-    }
-
-    @Transactional
-    @Caching(evict = {
-            @CacheEvict(value = CacheName.SEARCH_POST, allEntries = true),
-            @CacheEvict(value = CacheName.ONE_POST, key = "#id"),
-            @CacheEvict(value = CacheName.LIKED_POST, allEntries = true),
-            @CacheEvict(value = CacheName.CONFIRMED_POST, allEntries = true),
-            @CacheEvict(value = CacheName.WRITTEN_POST, allEntries = true),
-            @CacheEvict(value = CacheName.SUGGESTED_POST, allEntries = true),
-    })
-    public void deletePostById(Long userId, Long id) {
-        Post foundPost = getPostByIdOrElseThrow(id);
-        validateAuthor(userId, foundPost);
-
-        //자식 댓글들 먼저 일괄 삭제 외래키 제약 제거
-        commentRepository.deleteAllByChildrenPostId(id);
-        //postId 기준 댓글 일괄 삭제 메서드 외래키 제약 제거
-        commentRepository.deleteAllByPostId(id);
-        postRepository.delete(foundPost);
-    }
-
-    @Transactional
-    @Caching(evict = {
-            @CacheEvict(value = CacheName.SEARCH_POST, allEntries = true),
-            @CacheEvict(value = CacheName.ONE_POST, key = "#id"),
-            @CacheEvict(value = CacheName.LIKED_POST, allEntries = true),
-            @CacheEvict(value = CacheName.CONFIRMED_POST, allEntries = true),
-            @CacheEvict(value = CacheName.WRITTEN_POST, allEntries = true),
-            @CacheEvict(value = CacheName.SUGGESTED_POST, allEntries = true),
-    })
-    public PostCreateAndUpdateResponseDto updatePostDetails(Long userId, Long id, PostUpdateRequestDto request) {
-        Post foundPost = getPostByIdOrElseThrow(id);
-        validateAuthor(userId, foundPost);
-
-
-        foundPost.updatePostIfNotNull(
-                request.getTitle(),
-                request.getTimeSlot(),
-                request.getPublicContent(),
-                request.getPrivateContent(),
-                request.getMaxParticipants(),
-                request.getGenderLimit(),
-                request.getJobCategoryLimit(),
-                request.getAgeLimit()
-        );
-
-        return PostCreateAndUpdateResponseDto.from(foundPost);
-    }
-
-    @Transactional
-    @Caching(evict = {
-            @CacheEvict(value = CacheName.SEARCH_POST, allEntries = true),
-            @CacheEvict(value = CacheName.ONE_POST, key = "#id"),
-            @CacheEvict(value = CacheName.LIKED_POST, allEntries = true),
-            @CacheEvict(value = CacheName.CONFIRMED_POST, allEntries = true),
-            @CacheEvict(value = CacheName.WRITTEN_POST, allEntries = true),
-            @CacheEvict(value = CacheName.SUGGESTED_POST, allEntries = true),
-    })
-    public PostResponseDto changeStatus(Long userId, Long id, PostStatusRequestDto request) {
-        //상태값 변경은 어떤 상태라도 불러와서 수정
-        Post foundPost = getPostByIdWithoutStatusLimit(id);
-        validateAuthor(userId, foundPost);
-
-        //변동사항 있을시에만 업데이트
-        if (!foundPost.getStatus().equals(request.getStatus())) {
-            foundPost.updateStatus(request.getStatus());
-//            //모임 성사로 변경시 채팅방 생성      -> 이벤트 처리
-//            if (request.getStatus().equals(PostStatus.CONFIRMED)) {
-//                // 게시글로 생성된 채팅방이 없는 경우 생성
-//                if (!chattingService.checkPostChatRoom(foundPost.getId())) {
-//                    chattingService.createFromPost(foundPost.getId());
-//                }
-//                chattingService.registration(foundPost);
-//
-//            }
-        }
-
-        return PostResponseDto.from(foundPost);
-    }
-
-    public void deleteAdminPostById(Long id) {
-        postCommander.findPostById(id).orElseThrow(() -> new BaseException(POST_NOT_FOUND));
-        return postCommander.delete(id);
-    }
-
-
-    //----------------------------------- HELPER 메서드 ------------------------------------------------------ //
-
-    public PostLike getPostLikePostAndUser(Post post, Long userId) {
-        return postLikeRepository.findByPostAndUser(post, userId)
-                .orElseThrow(() -> new BaseException(POSTLIKE_NOT_FOUND));
-    }
-
-    // validate
-    public void validateExists(Post post, Long userId) {
-        if (postLikeRepository.existsByPostAndUser(post, userId)) {
-            throw new BaseException(ErrorCode.ALREADY_LIKED);
-        }
-    }
-
-    private PostParticipant getParticipantByStatus(Long userId, Post post, JoinStatus pending) {
-        return participantRepository.findByUserAndPost(userId, post).stream()
-                .filter(p -> p.getStatus().equals(pending))
-                .findFirst()
-                .orElse(null);
-    }
-
-    //region ------------------ Post HELPER 메서드 ------------------
-    private Post getPostByIdOrElseThrow(Long postId) {
-        return postCommander.findPostById(postId)
-                .orElseThrow(() -> new BaseException(POST_NOT_FOUND));
-    }
-
-    private Post getPostWithOpen(Long postId) {
-        return postCommander.findByIdAndStatus(postId, PostStatus.OPEN)
-                .orElseThrow(() -> new BaseException(POST_NOT_FOUND));
-    }
-
-    private Post getPostByIdWithoutStatusLimit(Long id) {
-        return postCommander.findPostById(id)
-                .orElseThrow(() -> new BaseException(POST_NOT_FOUND));
-    }
     //endregion
-
-    // validate
-    private void validateAuthor(Long userId, Post post) {
-        if (!post.getAuthorId().equals(userId)) {
-            throw new BaseException(POST_FORBIDDEN);
-        }
-    }
-
-    //참가자 생성, 추가 메서드
-    private PostParticipant handleJoinRequest(Post post, Long userId) {
-
-        int count = acceptedParticipantsCounter(post.getPostParticipants());
-
-        if (count == post.getMaxParticipants()) {
-            throw new BaseException(CANNOT_PARTICIPATE_POST);
-        }
-
-        PostParticipant participant = PostParticipant.create(post, userId);
-
-        if (post.getIsFirstCome()) {
-            participant.changeStatus(JoinStatus.ACCEPTED);
-
-            if (count + 1 == post.getMaxParticipants()) {
-                post.updateStatus(PostStatus.CONFIRMED);
-            }
-        }
-
-        post.addParticipants(participant);
-
-        return participant;
-    }
-
-    // 리스트를 불러와서 참여자 수
-    private int acceptedParticipantsCounter(List<PostParticipant> participants) {
-        return (int) participants.stream()
-                .filter(participant -> participant.getStatus() == JoinStatus.ACCEPTED)
-                .count();
-    }
-
 }

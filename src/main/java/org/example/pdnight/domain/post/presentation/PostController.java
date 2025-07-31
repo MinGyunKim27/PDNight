@@ -29,63 +29,63 @@ public class PostController {
 
     private final PostService postService;
 
-
     //추천 게시물 조회
     @GetMapping("/posts/suggestedPosts")
-    public ResponseEntity<ApiResponse<PagedResponse<PostResponseWithApplyStatusDto>>> suggestedPosts(
+    public ResponseEntity<ApiResponse<PagedResponse<PostResponseDto>>> suggestedPosts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @AuthenticationPrincipal CustomUserDetails loginUser
     ) {
         Pageable pageable = PageRequest.of(page, size);
         Long userId = loginUser.getUserId();
-        PagedResponse<PostResponseWithApplyStatusDto> pagedResponse = postService.getSuggestedPosts(userId, pageable);
+        PagedResponse<PostResponseDto> pagedResponse = postService.getSuggestedPosts(userId, pageable);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.ok("게시글 목록이 조회되었습니다.", pagedResponse));
     }
 
     // 내 좋아요 게시글 목록 조회
     @GetMapping("/my/likedPosts")
-    public ResponseEntity<ApiResponse<PagedResponse<PostResponseWithApplyStatusDto>>> getMyLikedPosts(
+    public ResponseEntity<ApiResponse<PagedResponse<PostResponseDto>>> getMyLikedPosts(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PageableDefault(size = 10, page = 0) Pageable pageable
     ) {
         Long id = userDetails.getUserId();
-        PagedResponse<PostResponseWithApplyStatusDto> myLikedPost = postService.findMyLikedPosts(id, pageable);
+        PagedResponse<PostResponseDto> myLikedPost = postService.findMyLikedPosts(id, pageable);
         return ResponseEntity.ok(ApiResponse.ok("내 좋아요 게시글 목록이 조회되었습니다.", myLikedPost));
     }
 
     //내 신청/성사된 게시글 조회
     @GetMapping("/my/confirmedPosts")
-    public ResponseEntity<ApiResponse<PagedResponse<PostWithJoinStatusAndAppliedAtResponseDto>>> getMyConfirmedPosts(
+    public ResponseEntity<ApiResponse<PagedResponse<PostResponseDto>>> getMyConfirmedPosts(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam(required = false) JoinStatus joinStatus,
             @PageableDefault(size = 10, page = 0) Pageable pageable
     ) {
         Long id = userDetails.getUserId();
-        PagedResponse<PostWithJoinStatusAndAppliedAtResponseDto> myLikedPost = postService.findMyConfirmedPosts(id, joinStatus, pageable);
+        PagedResponse<PostResponseDto> myLikedPost = postService.findMyConfirmedPosts(id, joinStatus, pageable);
         return ResponseEntity.ok(ApiResponse.ok("참여 신청한 게시글 목록이 조회되었습니다.", myLikedPost));
     }
 
+    //게시물 단건 조회
     @GetMapping("/posts/{id}")
-    public ResponseEntity<ApiResponse<PostResponseWithApplyStatusDto>> getPostById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<PostResponseDto>> getPostById(@PathVariable Long id) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(ApiResponse.ok("게시글이 조회되었습니다.", postService.findOpenedPost(id)));
+                .body(ApiResponse.ok("게시글이 조회되었습니다.", postService.findPost(id)));
     }
 
     // 내가 작성한 게시글 조회
     @GetMapping("/my/writtenPosts")
-    public ResponseEntity<ApiResponse<PagedResponse<PostResponseWithApplyStatusDto>>> getMyWrittenPosts(
+    public ResponseEntity<ApiResponse<PagedResponse<PostResponseDto>>> getMyWrittenPosts(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PageableDefault(size = 10, page = 0) Pageable pageable
     ) {
         Long id = userDetails.getUserId();
-        PagedResponse<PostResponseWithApplyStatusDto> myLikedPost = postService.findMyWrittenPosts(id, pageable);
+        PagedResponse<PostResponseDto> myLikedPost = postService.findMyWrittenPosts(id, pageable);
         return ResponseEntity.ok(ApiResponse.ok("내가 작성 한 게시물이 조회되었습니다.", myLikedPost));
     }
 
     @GetMapping("/posts")
-    public ResponseEntity<ApiResponse<PagedResponse<PostResponseWithApplyStatusDto>>> searchPosts(
+    public ResponseEntity<ApiResponse<PagedResponse<PostResponseDto>>> searchPosts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "1") Integer maxParticipants,
@@ -95,7 +95,7 @@ public class PostController {
     ) {
         Pageable pageable = PageRequest.of(page, size);
 
-        PagedResponse<PostResponseWithApplyStatusDto> pagedResponse = postService.getPostDtosBySearch(
+        PagedResponse<PostResponseDto> pagedResponse = postService.getPostDtosBySearch(
                 pageable, maxParticipants, ageLimit, jobCategoryLimit, genderLimit );
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.ok("게시글 목록이 조회되었습니다.", pagedResponse));
@@ -116,7 +116,7 @@ public class PostController {
     }
 
     @PostMapping("/posts")
-    public ResponseEntity<ApiResponse<PostCreateAndUpdateResponseDto>> savePost(
+    public ResponseEntity<ApiResponse<PostResponseDto>> savePost(
             @Valid @RequestBody PostRequestDto request,
             @AuthenticationPrincipal CustomUserDetails loginUser
     ) {
@@ -138,13 +138,13 @@ public class PostController {
     }
 
     @PatchMapping("/posts/{id}")
-    public ResponseEntity<ApiResponse<PostCreateAndUpdateResponseDto>> updatePost(
+    public ResponseEntity<ApiResponse<PostResponseDto>> updatePost(
             @PathVariable Long id,
             @RequestBody PostUpdateRequestDto requestDto,
             @AuthenticationPrincipal CustomUserDetails loginUser
     ) {
         Long userId = loginUser.getUserId();
-        PostCreateAndUpdateResponseDto updatedPost = postService.updatePostDetails(userId, id, requestDto);
+        PostResponseDto updatedPost = postService.updatePostDetails(userId, id, requestDto);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.ok("게시글이 수정되었습니다.", updatedPost));
     }

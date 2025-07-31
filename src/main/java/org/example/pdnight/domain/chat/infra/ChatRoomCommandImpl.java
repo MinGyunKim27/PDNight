@@ -15,35 +15,22 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Repository
 @RequiredArgsConstructor
-public class ChatRoomRepositoryImpl implements ChatRoomCommandQuery {
-    private ChatRoomJpaRepository chatRoomJpaRepository;
-    private final RedisMessageListenerContainer redisMessageListener;
-    private final RedisSubscriber redisSubscriber;
-    private Map<String, ChannelTopic> topics = new ConcurrentHashMap<>();
-
-    public void enterChatRoom(String roomId) {
-        ChannelTopic topic = topics.computeIfAbsent(roomId, ChannelTopic::new);
-        redisMessageListener.addMessageListener(redisSubscriber, topic);
-    }
-
-    public ChannelTopic getTopic(String roomId) {
-        return topics.get(roomId);
-    }
-
+public class ChatRoomCommandImpl implements ChatRoomCommandQuery {
+    private final ChatRoomJpaRepository chatRoomJpaRepository;
+    private final ChatRoomRedisRepository chatRoomRedisRepository;
     @Override
     public Optional<ChatRoom> findById(Long chatRoomId) {
         return chatRoomJpaRepository.findById(chatRoomId);
     }
 
     @Override
-    public boolean existsByChatRoomAndUserId(ChatRoom chatRoom, Long authorId) {
-        return true;
-//        chatRoomJpaRepository.findByParticipantsByChat;
+    public ChannelTopic getTopic(String roomId) {
+        return chatRoomRedisRepository.getTopic(roomId);
     }
 
     @Override
-    public void saveParticipant(ChatParticipant chatRoomAuth) {
-
+    public void enterChatRoom(String roomId) {
+        chatRoomRedisRepository.enterChatRoom(roomId);
     }
 
     @Override

@@ -20,7 +20,7 @@ public class ChatRoom {
 
     private Long postId;
 
-    @OneToMany(mappedBy = "chat_rooms", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChatParticipant> participants;
 
     private ChatRoom(String name) {
@@ -38,5 +38,9 @@ public class ChatRoom {
 
     public static ChatRoom createFromPost(String name, Long postId) {
         return new ChatRoom(name, postId);
+    }
+
+    public void addParticipants(ChatParticipant authorId) {
+        participants.add(authorId);
     }
 }

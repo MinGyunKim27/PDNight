@@ -18,9 +18,9 @@ public interface PostService {
 
     PagedResponse<ParticipantResponse> getParticipantListByAccepted(Long loginId, Long postId, int page, int size);
 
-    PostResponseWithApplyStatusDto findOpenedPost(Long id);
+    PostResponseDto findPost(Long id);
 
-    PagedResponse<PostResponseWithApplyStatusDto> getPostDtosBySearch(
+    PagedResponse<PostResponseDto> getPostDtosBySearch(
             Pageable pageable,
             Integer maxParticipants,
             AgeLimit ageLimit,
@@ -28,11 +28,11 @@ public interface PostService {
             Gender genderLimit
     );
 
-    PagedResponse<PostResponseWithApplyStatusDto> findMyLikedPosts(Long userId, Pageable pageable);
+    PagedResponse<PostResponseDto> findMyLikedPosts(Long userId, Pageable pageable);
 
-    PagedResponse<PostWithJoinStatusAndAppliedAtResponseDto> findMyConfirmedPosts(Long userId, JoinStatus joinStatus, Pageable pageable);
+    PagedResponse<PostResponseDto> findMyConfirmedPosts(Long userId, JoinStatus joinStatus, Pageable pageable);
 
-    PagedResponse<PostResponseWithApplyStatusDto> findMyWrittenPosts(Long userId, Pageable pageable);
+    PagedResponse<PostResponseDto> findMyWrittenPosts(Long userId, Pageable pageable);
 
 
 
@@ -43,15 +43,15 @@ public interface PostService {
 
     ParticipantResponse changeStatusParticipant(Long authorId, Long userId, Long postId, String status);
 
-    PostCreateAndUpdateResponseDto createPost(Long userId, PostRequestDto request);
+    PostResponseDto createPost(Long userId, PostRequestDto request);
 
-    PagedResponse<PostResponseWithApplyStatusDto> getSuggestedPosts(Long userId, Pageable pageable);
+    PagedResponse<PostResponseDto> getSuggestedPosts(Long userId, Pageable pageable);
 
     ParticipantResponse applyParticipant(Long loginId, Long age, Gender gender, JobCategory jobCategory, Long postId);
 
     void deletePostById(Long userId, Long id);
 
-    PostCreateAndUpdateResponseDto updatePostDetails(Long userId, Long id, PostUpdateRequestDto request);
+    PostResponseDto updatePostDetails(Long userId, Long id, PostUpdateRequestDto request);
 
     PostResponseDto changeStatus(Long userId, Long id, PostStatusRequestDto request);
 

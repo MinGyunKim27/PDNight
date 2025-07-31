@@ -21,7 +21,6 @@ public class PostUpdateRequestDto {
     private String title;
     private LocalDateTime timeSlot;
     private String publicContent;
-    private String privateContent;
     private PostStatus status;
 
     //maxParticipants 는 1인 이상 검증해야함

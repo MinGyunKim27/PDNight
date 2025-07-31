@@ -3,17 +3,13 @@ package org.example.pdnight.domain.post.infra.post;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.example.pdnight.domain.post.domain.post.Post;
-import org.example.pdnight.domain.post.domain.post.PostParticipant;
-import org.example.pdnight.domain.post.domain.post.PostReader;
+import org.example.pdnight.domain.post.domain.post.*;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.enums.JoinStatus;
 import org.example.pdnight.domain.post.enums.PostStatus;
-import org.example.pdnight.domain.post.presentation.dto.response.PostResponseWithApplyStatusDto;
-import org.example.pdnight.domain.post.presentation.dto.response.PostWithJoinStatusAndAppliedAtResponseDto;
-import org.example.pdnight.domain.post.presentation.dto.response.QPostResponseWithApplyStatusDto;
-import org.example.pdnight.domain.post.presentation.dto.response.QPostWithJoinStatusAndAppliedAtResponseDto;
+import org.example.pdnight.domain.post.presentation.dto.response.PostResponseDto;
+import org.example.pdnight.domain.post.presentation.dto.response.QPostResponseDto;
 import org.example.pdnight.global.common.enums.JobCategory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -24,35 +20,25 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
-import static org.example.pdnight.domain.post.domain.post.QPost.post;
-import static org.example.pdnight.domain.post.domain.post.QPostLike.postLike;
-import static org.example.pdnight.domain.post.domain.post.QPostParticipant.postParticipant;
+import static org.example.pdnight.domain.post.domain.post.QPost.*;
+import static org.example.pdnight.domain.post.domain.post.QPostLike.*;
+import static org.example.pdnight.domain.post.domain.post.QPostParticipant.*;
+
 
 @Repository
 @RequiredArgsConstructor
 public class PostReaderImpl implements PostReader {
+
     private final JPAQueryFactory queryFactory;
-
-    @Override
-    public Page<PostParticipant> findByPostAndStatus(Post post, JoinStatus joinStatus, Pageable pageable) {
-        return null;
-    }
-
-    @Override
-    public PostResponseWithApplyStatusDto getOpenedPostById(Long id) {
-        return null;
-    }
-
 
     // 게시글 단건 조회
     @Override
     public Optional<Post> getPostById(Long postId) {
-
         Post findPost = queryFactory
                 .select(post)
                 .from(post)
-                .where(post.id.eq(postId)
-                        .and(post.status.ne(PostStatus.CLOSED))) // OPEN 상태만 조회
+                .leftJoin(post.postParticipants, postParticipant).fetchJoin()
+                .where(post.id.eq(postId))
                 .fetchOne();
 
         return Optional.ofNullable(findPost);
@@ -60,14 +46,27 @@ public class PostReaderImpl implements PostReader {
 
     // 내 좋아요 게시글 목록 조회
     @Override
-    public Page<PostResponseWithApplyStatusDto> getMyLikePost(Long userId, Pageable pageable) {
+    public Page<PostResponseDto> getMyLikePost(Long userId, Pageable pageable) {
         BooleanBuilder builder = new BooleanBuilder();
         // 닫힌 상태가 아닐 때
         // builder.and(post.status.ne(PostStatus.CLOSED));
         builder.and(postLike.userId.eq(userId));
 
-        List<PostResponseWithApplyStatusDto> contents = queryFactory
-                .select(postResponseDtoProjection())
+        List<PostResponseDto> contents = queryFactory
+                .select(new QPostResponseDto(
+                        post.id,
+                        post.authorId,
+                        post.title,
+                        post.timeSlot,
+                        post.publicContent,
+                        post.status,
+                        post.maxParticipants,
+                        post.genderLimit,
+                        post.jobCategoryLimit,
+                        post.ageLimit,
+                        post.createdAt,
+                        post.updatedAt
+                ))
                 .from(post)
                 .join(postLike).on(postLike.post.eq(post))
                 .where(builder)
@@ -87,22 +86,7 @@ public class PostReaderImpl implements PostReader {
 
     // 참여 신청한 게시글 목록 조회
     @Override
-    public Page<PostWithJoinStatusAndAppliedAtResponseDto> getConfirmedPost(Long userId, JoinStatus joinStatus, Pageable pageable) {
-        QPostWithJoinStatusAndAppliedAtResponseDto qPostWithStatusResponseDto = new QPostWithJoinStatusAndAppliedAtResponseDto(
-                post.id,
-                post.authorId,
-                post.title,
-                post.timeSlot,
-                post.publicContent,
-                post.privateContent,
-                post.status,
-                post.maxParticipants,
-                post.genderLimit,
-                post.jobCategoryLimit,
-                post.ageLimit,
-                postParticipant.status,
-                postParticipant.createdAt
-        );
+    public Page<PostResponseDto> getConfirmedPost(Long userId, JoinStatus joinStatus, Pageable pageable) {
 
         BooleanBuilder builder = new BooleanBuilder();
 
@@ -115,8 +99,23 @@ public class PostReaderImpl implements PostReader {
             builder.and(postParticipant.status.eq(joinStatus));
         }
 
-        List<PostWithJoinStatusAndAppliedAtResponseDto> content = queryFactory
-                .select(qPostWithStatusResponseDto)
+        List<PostResponseDto> content = queryFactory
+                .select(new QPostResponseDto(
+                        post.id,
+                        post.authorId,
+                        post.title,
+                        post.timeSlot,
+                        post.publicContent,
+                        post.status,
+                        post.maxParticipants,
+                        post.genderLimit,
+                        post.jobCategoryLimit,
+                        post.ageLimit,
+                        postParticipant.status,
+                        postParticipant.createdAt,
+                        post.createdAt,
+                        post.updatedAt
+                ))
                 .from(post)
                 .join(postParticipant).on(postParticipant.post.eq(post))
                 .where(builder)
@@ -136,7 +135,7 @@ public class PostReaderImpl implements PostReader {
 
     // 게시글 검색 목록 조회
     @Override
-    public Page<PostResponseWithApplyStatusDto> findPostDtosBySearch(
+    public Page<Post> findPostDtosBySearch(
             Pageable pageable,
             Integer maxParticipants,
             AgeLimit ageLimit,
@@ -163,8 +162,8 @@ public class PostReaderImpl implements PostReader {
             builder.and(post.genderLimit.eq(genderLimit));
         }
 
-        List<PostResponseWithApplyStatusDto> contents = queryFactory
-                .select(postResponseDtoProjection())
+        List<Post> contents = queryFactory
+                .select(post)
                 .from(post)
                 .where(builder)
                 .groupBy(post.id)
@@ -186,7 +185,7 @@ public class PostReaderImpl implements PostReader {
 
     // 내가 작성 한 게시물 조회
     @Override
-    public Page<PostResponseWithApplyStatusDto> getWrittenPost(
+    public Page<Post> getWrittenPost(
             Long userId,
             Pageable pageable
     ) {
@@ -195,8 +194,8 @@ public class PostReaderImpl implements PostReader {
         builder.and(post.authorId.eq(userId));
         builder.and(post.status.ne(PostStatus.CLOSED));
 
-        List<PostResponseWithApplyStatusDto> contents = queryFactory
-                .select(postResponseDtoProjection())
+        List<Post> contents = queryFactory
+                .select(post)
                 .from(post)
                 .where(builder)
                 .offset(pageable.getOffset())
@@ -214,9 +213,9 @@ public class PostReaderImpl implements PostReader {
 
     // 추천 게시글 목록 조회
     @Override
-    public Page<PostResponseWithApplyStatusDto> getSuggestedPost(Long userId, Pageable pageable) {
-        List<PostResponseWithApplyStatusDto> contents = queryFactory
-                .select(postResponseDtoProjection())
+    public Page<Post> getSuggestedPost(Long userId, Pageable pageable) {
+        List<Post> contents = queryFactory
+                .select(post)
                 .from(post)
                 .leftJoin(postLike).on(postLike.post.eq(post)) // 좋아요 조인
                 .groupBy(post.id)
@@ -249,28 +248,6 @@ public class PostReaderImpl implements PostReader {
     @Override
     public List<PostParticipant> findByUserAndPost(Long userId, Post post) {
         return List.of();
-    }
-
-    // -- HELPER 메서드 -- //
-    // DTO 프로젝션 : 참여자 수, 신청자 수
-    private QPostResponseWithApplyStatusDto postResponseDtoProjection() {
-        return new QPostResponseWithApplyStatusDto(
-                post.id,
-                post.authorId,
-                post.title,
-                post.timeSlot,
-                post.publicContent,
-                post.privateContent,
-                post.status,
-                post.maxParticipants,
-                post.genderLimit,
-                post.jobCategoryLimit,
-                post.ageLimit,
-                QuerydslExpressionHelper.participantCount(post), //
-                QuerydslExpressionHelper.acceptedParticipantCount(post),
-                post.createdAt,
-                post.updatedAt
-        );
     }
 
 }
