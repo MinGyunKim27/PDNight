@@ -8,6 +8,7 @@ import org.example.pdnight.domain.user.presentation.dto.reviewDto.response.Revie
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -16,6 +17,7 @@ public class ReviewReaderService {
     private final ReviewReader reviewReader;
 
     // 사용자의 받은 리뷰 리스트 조회
+    @Transactional(readOnly = true)
     public PagedResponse<ReviewResponse> getReceivedReviewsByUser(Long userId, Pageable pageable) {
         Page<Review> reviews = reviewReader.findByReviewee(userId, pageable);
 
@@ -23,6 +25,7 @@ public class ReviewReaderService {
     }
 
     // 사용자의 작성한 리뷰 리스트 조회
+    @Transactional(readOnly = true)
     public PagedResponse<ReviewResponse> getWrittenReviewsByUser(Long userId, Pageable pageable) {
         Page<Review> reviews = reviewReader.findByReviewer(userId, pageable);
 

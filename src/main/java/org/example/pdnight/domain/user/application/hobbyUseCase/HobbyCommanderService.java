@@ -9,6 +9,7 @@ import org.example.pdnight.domain.user.domain.hobbyDomain.HobbyReader;
 import org.example.pdnight.domain.user.presentation.dto.hobbyDto.request.HobbyRequest;
 import org.example.pdnight.domain.user.presentation.dto.hobbyDto.response.HobbyResponse;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -17,6 +18,7 @@ public class HobbyCommanderService {
     private final HobbyCommander hobbyCommander;
     private final HobbyReader hobbyReader;
 
+    @Transactional
     public HobbyResponse createHobby(HobbyRequest dto){
         validateExistHobby(dto.getHobby());
 
@@ -26,6 +28,7 @@ public class HobbyCommanderService {
         return HobbyResponse.from(save);
     }
 
+    // ----------------------------------- HELPER 메서드 ------------------------------------------------------ //
     // validate
     private void validateExistHobby(String hobby) {
         Boolean exists = hobbyReader.existsHobbiesByHobby(hobby);

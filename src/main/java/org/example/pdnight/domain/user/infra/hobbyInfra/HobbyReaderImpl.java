@@ -37,12 +37,12 @@ public class HobbyReaderImpl implements HobbyReader {
 
     @Override
     public List<Hobby> findByIdList(List<Long> ids) {
-
         return queryFactory.selectFrom(qHobby)
                 .where(qHobby.id.in(ids))
                 .fetch();
     }
 
+    @Override
     public Boolean existsHobbiesByHobby(String hobbyName){
 
         Integer existOne = queryFactory
@@ -54,6 +54,7 @@ public class HobbyReaderImpl implements HobbyReader {
         return existOne != null && existOne > 0;
     }
 
+    @Override
     public Hobby findByhobby(String hobbyName){
 
         return  queryFactory

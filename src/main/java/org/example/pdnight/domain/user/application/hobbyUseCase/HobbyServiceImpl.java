@@ -15,10 +15,12 @@ public class HobbyServiceImpl implements HobbyService {
     private final HobbyCommanderService hobbyCommander;
     private final HobbyReaderService hobbyReader;
 
+    @Override
     public HobbyResponse createHobby(HobbyRequest dto) {
         return hobbyCommander.createHobby(dto);
     }
 
+    @Override
     public List<HobbyResponse> searchHobby(String searchHobby) {
         return hobbyReader.searchHobby(searchHobby);
     }

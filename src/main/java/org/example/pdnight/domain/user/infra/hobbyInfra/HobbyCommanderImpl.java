@@ -11,6 +11,7 @@ public class HobbyCommanderImpl implements HobbyCommander {
 
     private final HobbyJpaRepository hobbyJpaRepository;
 
+    @Override
     public Hobby save(Hobby hobby) {
         return hobbyJpaRepository.save(hobby);
     }

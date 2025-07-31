@@ -14,6 +14,7 @@ public class CouponReaderImpl implements CouponReader {
 
     private final JPAQueryFactory queryFactory;
 
+    @Override
     public Optional<Coupon> findById(Long couponId) {
         return queryFactory.selectFrom(coupon)
                 .where(coupon.id.eq(couponId))

@@ -16,11 +16,7 @@ public class UserServiceImpl implements UserService {
     private final UserCommanderService userCommanderService;
     private final UserReaderService userReaderService;
 
-    // ----------------------------------------------------------------------------------------//
-    // ----------------------------------------------------------------------------------------//
     // ---------------------- Command Api -----------------------------------------------------//
-    // ----------------------------------------------------------------------------------------//
-    // ----------------------------------------------------------------------------------------//
 
     public UserResponse updateMyProfile(Long userId, UserUpdateRequest request) {
         return userCommanderService.updateMyProfile(userId, request);
@@ -42,11 +38,7 @@ public class UserServiceImpl implements UserService {
     public UserCouponResponse useCoupon(Long couponId, Long userId) {
         return userCommanderService.useCoupon(couponId, userId);
     }
-    // ----------------------------------------------------------------------------------------//
-    // ----------------------------------------------------------------------------------------//
     // --------------------- Admin Command Api ------------------------------------------------//
-    // ----------------------------------------------------------------------------------------//
-    // ----------------------------------------------------------------------------------------//
 
     public UserCouponResponse giveCouponToUser(GiveCouponRequest request) {
         return userCommanderService.giveCouponToUser(request);
@@ -57,24 +49,25 @@ public class UserServiceImpl implements UserService {
     }
 
     // ----------------------------------------------------------------------------------------//
-    // ----------------------------------------------------------------------------------------//
     // ---------------------- 조회 Api ---------------------------------------------------------//
-    // ----------------------------------------------------------------------------------------//
-    // ----------------------------------------------------------------------------------------//
 
+    @Override
     public UserResponse getMyProfile(Long userId) {
         return userReaderService.getProfile(userId);
     }
 
+    @Override
     public UserResponse getProfile(Long userId) {
         return userReaderService.getProfile(userId);
     }
 
+    @Override
     public UserEvaluationResponse getEvaluation(Long userId) {
         return userReaderService.getEvaluation(userId);
     }
 
     //유저 이름이나 닉네임이나 이메일로 검색
+    @Override
     public PagedResponse<UserResponse> searchUsers(String search, Pageable pageable) {
         return userReaderService.searchUsers(search, pageable);
     }
@@ -89,12 +82,9 @@ public class UserServiceImpl implements UserService {
     public PagedResponse<UserCouponResponse> getValidCoupons(Long userId, Pageable pageable) {
         return userReaderService.getValidCoupons(userId, pageable);
     }
-    // ----------------------------------------------------------------------------------------//
-    // ----------------------------------------------------------------------------------------//
     // --------------------- Admin 조회 Api ----------------------------------------------------//
-    // ----------------------------------------------------------------------------------------//
-    // ----------------------------------------------------------------------------------------//
 
+    @Override
     public PagedResponse<UserResponse> getAllUsers(Pageable pageable) {
         return userReaderService.getAllUsers(pageable);
     }

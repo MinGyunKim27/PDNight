@@ -129,6 +129,7 @@ public class UserReaderImpl implements UserReader {
     }
 
 
+    @Override
     public Page<UserCouponResponse> findUserCoupons(Long userId, LocalDateTime now, Pageable pageable) {
         List<UserCouponResponse> couponList = queryFactory
                 .select(Projections.constructor(UserCouponResponse.class,
@@ -159,6 +160,7 @@ public class UserReaderImpl implements UserReader {
         return PageableExecutionUtils.getPage(couponList, pageable, total::fetchOne);
     }
 
+    @Override
     public Optional<UserCoupon> findUserCoupon(Long userId, Long couponId, LocalDateTime now) {
         return queryFactory
                 .selectFrom(userCoupon)

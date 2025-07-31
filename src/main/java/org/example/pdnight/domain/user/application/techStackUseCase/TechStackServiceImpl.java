@@ -14,10 +14,12 @@ public class TechStackServiceImpl implements TechStackService {
     private final TechStackCommanderService techStackCommanderService;
     private final TechStackReaderService techStackReaderService;
 
+    @Override
     public TechStackResponse createTechStack(TechStackRequest dto) {
         return techStackCommanderService.createTechStack(dto);
     }
 
+    @Override
     public List<TechStackResponse> searchTechStackList(String techStack) {
         return techStackReaderService.searchTechStackList(techStack);
     }

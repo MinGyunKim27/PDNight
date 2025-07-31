@@ -5,8 +5,6 @@ import org.example.pdnight.domain.common.dto.PagedResponse;
 import org.example.pdnight.domain.common.enums.ErrorCode;
 import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.user.domain.entity.User;
-import org.example.pdnight.domain.user.domain.hobbyDomain.HobbyReader;
-import org.example.pdnight.domain.user.domain.teckStackDomain.TechStackReader;
 import org.example.pdnight.domain.user.domain.userDomain.UserReader;
 import org.example.pdnight.domain.user.presentation.dto.userDto.response.FollowingResponse;
 import org.example.pdnight.domain.user.presentation.dto.userDto.response.UserCouponResponse;
@@ -25,17 +23,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserReaderService {
 
+    private final UserInfoAssembler userInfoAssembler;
     private final UserReader userReader;
     // private final HobbyReader hobbyReader;
     // private final TechStackReader techStackReader;
-    private final UserInfoAssembler userInfoAssembler;
 
-    // ----------------------------------------------------------------------------------------//
-    // ----------------------------------------------------------------------------------------//
-    // ---------------------- 조회 Api ---------------------------------------------------------//
-    // ----------------------------------------------------------------------------------------//
-    // ----------------------------------------------------------------------------------------//
-
+    @Transactional(readOnly = true)
     public UserResponse getProfile(Long userId) {
         // id로 유저 조회
         User user = getUserById(userId);
@@ -44,6 +37,7 @@ public class UserReaderService {
         return userInfoAssembler.toDto(user);
     }
 
+    @Transactional(readOnly = true)
     public UserEvaluationResponse getEvaluation(Long userId) {
         // id로 유저 조회
         User user = getUserById(userId);
@@ -52,6 +46,7 @@ public class UserReaderService {
     }
 
     //유저 이름이나 닉네임이나 이메일로 검색
+    @Transactional(readOnly = true)
     public PagedResponse<UserResponse> searchUsers(String search, Pageable pageable) {
         Page<User> page = userReader.searchUsers(search, pageable);
 
@@ -73,11 +68,7 @@ public class UserReaderService {
         return PagedResponse.from(userReader.findUserCoupons(userId, now, pageable));
     }
 
-    // ----------------------------------------------------------------------------------------//
-    // ----------------------------------------------------------------------------------------//
     // --------------------- Admin 조회 Api ----------------------------------------------------//
-    // ----------------------------------------------------------------------------------------//
-    // ----------------------------------------------------------------------------------------//
 
     @Transactional(readOnly = true)
     public PagedResponse<UserResponse> getAllUsers(Pageable pageable) {

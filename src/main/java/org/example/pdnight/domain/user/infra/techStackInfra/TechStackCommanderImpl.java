@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 public class TechStackCommanderImpl implements TechStackCommander {
     private final TechStackJpaRepository techStackJpaRepository;
 
+    @Override
     public TechStack save(TechStack techStack){
         return techStackJpaRepository.save(techStack);
     }

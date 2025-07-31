@@ -51,6 +51,7 @@ public class UserCommanderService {
         return userInfoAssembler.toDto(user);
     }
 
+    @Transactional
     public UserResponse updateNickname(Long userId, UserNicknameUpdate dto){
         User user = getUserById(userId);
 
@@ -61,6 +62,7 @@ public class UserCommanderService {
         return userInfoAssembler.toDto(user);
     }
 
+    @Transactional
     public void delete(Long userId) {
         User user = getUserById(userId);
 
@@ -72,6 +74,7 @@ public class UserCommanderService {
     }
 
     //팔로우
+    @Transactional
     public FollowResponse follow(Long userId, Long loginId) {
 
         User follower = getUserById(loginId);
