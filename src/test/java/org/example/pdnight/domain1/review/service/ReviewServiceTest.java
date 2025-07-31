@@ -1,9 +1,9 @@
 package org.example.pdnight.domain1.review.service;
 
-import org.example.pdnight.domain1.common.dto.PagedResponse;
-import org.example.pdnight.domain1.common.enums.ErrorCode;
-import org.example.pdnight.domain1.common.exception.BaseException;
-import org.example.pdnight.domain1.common.helper.GetHelper;
+import org.example.pdnight.global.common.dto.PagedResponse;
+import org.example.pdnight.global.common.enums.ErrorCode;
+import org.example.pdnight.global.common.exception.BaseException;
+import org.example.pdnight.global.common.helper.GetHelper;
 import org.example.pdnight.domain1.post.entity.Post;
 import org.example.pdnight.domain1.review.dto.request.ReviewRequestDto;
 import org.example.pdnight.domain1.review.dto.response.ReviewResponseDto;

@@ -2,8 +2,8 @@ package org.example.pdnight.domain1.comment.service;
 
 import org.example.pdnight.domain1.comment.entity.Comment;
 import org.example.pdnight.domain1.comment.repository.CommentRepository;
-import org.example.pdnight.domain1.common.enums.ErrorCode;
-import org.example.pdnight.domain1.common.exception.BaseException;
+import org.example.pdnight.global.common.enums.ErrorCode;
+import org.example.pdnight.global.common.exception.BaseException;
 import org.example.pdnight.domain1.post.entity.Post;
 import org.example.pdnight.domain1.post.repository.PostRepository;
 import org.example.pdnight.domain1.user.entity.User;

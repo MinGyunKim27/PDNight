@@ -3,8 +3,8 @@ package org.example.pdnight.domain.post.presentation;
 import org.example.pdnight.domain.post.application.commentUseCase.CommentService;
 import org.example.pdnight.domain.post.presentation.dto.request.CommentRequestDto;
 import org.example.pdnight.domain.post.presentation.dto.response.CommentResponseDto;
-import org.example.pdnight.domain1.common.dto.ApiResponse;
-import org.example.pdnight.domain1.common.dto.PagedResponse;
+import org.example.pdnight.global.common.dto.ApiResponse;
+import org.example.pdnight.global.common.dto.PagedResponse;
 import org.example.pdnight.global.filter.CustomUserDetails;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -31,64 +31,6 @@ public class CommentController {
 
     private final CommentService commentService;
 
-    //댓글 생성 메서드
-    @PostMapping
-    public ResponseEntity<ApiResponse<CommentResponseDto>> saveComment(
-            @PathVariable Long postId,
-            @AuthenticationPrincipal CustomUserDetails loginUser,
-            @RequestBody CommentRequestDto request
-    ) {
-        Long authorId = loginUser.getUserId();
-        CommentResponseDto response = commentService.createComment(postId, authorId, request);
-
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.ok("댓글이 등록되었습니다.", response));
-    }
-
-    //댓글 삭제 메서드
-    @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteComment(
-            @PathVariable Long postId,
-            @PathVariable Long id,
-            @AuthenticationPrincipal CustomUserDetails loginUser
-    ){
-        Long authorId = loginUser.getUserId();
-        commentService.deleteCommentById(postId, id, authorId);
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(ApiResponse.ok("댓글이 삭제되었습니다.", null));
-    }
-
-    //댓글 수정 메서드
-    @PatchMapping("/{id}")
-    public ResponseEntity<ApiResponse<CommentResponseDto>> updateComment(
-            @PathVariable Long postId,
-            @PathVariable Long id,
-            @AuthenticationPrincipal CustomUserDetails loginUser,
-            @Valid @RequestBody CommentRequestDto request
-    ){
-        Long authorId = loginUser.getUserId();
-        CommentResponseDto response = commentService.updateCommentByDto(postId, id, authorId, request);
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(ApiResponse.ok("댓글이 수정되었습니다.", response));
-    }
-
-    //대댓글 생성 메서드
-    @PostMapping("/{id}/comments")
-    public ResponseEntity<ApiResponse<CommentResponseDto>> saveChildComment(
-            @PathVariable Long postId,
-            @PathVariable Long id,
-            @AuthenticationPrincipal CustomUserDetails loginUser,
-            @Valid @RequestBody CommentRequestDto request
-    ) {
-        Long authorId = loginUser.getUserId();
-        CommentResponseDto response = commentService.createChildComment(postId, id, authorId, request);
-
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.ok("대댓글이 등록되었습니다.", response));
-    }
-
     //댓글 다건조회 메서드
     @GetMapping
     public ResponseEntity<ApiResponse<PagedResponse<CommentResponseDto>>> getComments(
@@ -103,6 +45,64 @@ public class CommentController {
                 .body(ApiResponse.ok("댓글이 조회되었습니다.", responses));
     }
 
+    //댓글 생성 메서드
+    @PostMapping
+    public ResponseEntity<ApiResponse<CommentResponseDto>> saveComment(
+            @PathVariable Long postId,
+            @AuthenticationPrincipal CustomUserDetails loginUser,
+            @RequestBody CommentRequestDto request
+    ) {
+        Long loginId = loginUser.getUserId();
+        CommentResponseDto response = commentService.createComment(postId, loginId, request);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.ok("댓글이 등록되었습니다.", response));
+    }
+
+    //댓글 수정 메서드
+    @PatchMapping("/{id}")
+    public ResponseEntity<ApiResponse<CommentResponseDto>> updateComment(
+            @PathVariable Long postId,
+            @PathVariable Long id,
+            @AuthenticationPrincipal CustomUserDetails loginUser,
+            @Valid @RequestBody CommentRequestDto request
+    ){
+        Long loginId = loginUser.getUserId();
+        CommentResponseDto response = commentService.updateCommentByDto(postId, id, loginId, request);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.ok("댓글이 수정되었습니다.", response));
+    }
+
+    //대댓글 생성 메서드
+    @PostMapping("/{id}/comments")
+    public ResponseEntity<ApiResponse<CommentResponseDto>> saveChildComment(
+            @PathVariable Long postId,
+            @PathVariable Long id,
+            @AuthenticationPrincipal CustomUserDetails loginUser,
+            @Valid @RequestBody CommentRequestDto request
+    ) {
+        Long loginId = loginUser.getUserId();
+        CommentResponseDto response = commentService.createChildComment(postId, id, loginId, request);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.ok("대댓글이 등록되었습니다.", response));
+    }
+
+    //댓글 삭제 메서드
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> deleteComment(
+            @PathVariable Long postId,
+            @PathVariable Long id,
+            @AuthenticationPrincipal CustomUserDetails loginUser
+    ){
+        Long loginId = loginUser.getUserId();
+        commentService.deleteCommentById(postId, id, loginId);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.ok("댓글이 삭제되었습니다.", null));
+    }
+
     //   ------ admin ------
     @DeleteMapping("/api/admin/posts/{postId}/comments/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteAdminComment(
@@ -111,9 +111,10 @@ public class CommentController {
             @AuthenticationPrincipal CustomUserDetails loginUser
     ) {
         Long adminId = loginUser.getUserId();
-        CommentService.deleteCommentByAdmin(postId, id, adminId);
+        commentService.deleteCommentByAdmin(postId, id, adminId);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.ok("댓글이 삭제되었습니다.",  null));
     }
+
 }

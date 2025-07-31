@@ -3,7 +3,7 @@ package org.example.pdnight.domain.post.application.commentUseCase;
 import jakarta.validation.Valid;
 import org.example.pdnight.domain.post.presentation.dto.request.CommentRequestDto;
 import org.example.pdnight.domain.post.presentation.dto.response.CommentResponseDto;
-import org.example.pdnight.domain1.common.dto.PagedResponse;
+import org.example.pdnight.global.common.dto.PagedResponse;
 import org.springframework.data.domain.Pageable;
 
 public interface CommentService {

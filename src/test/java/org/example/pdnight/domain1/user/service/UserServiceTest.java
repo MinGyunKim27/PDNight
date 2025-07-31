@@ -1,7 +1,7 @@
 package org.example.pdnight.domain1.user.service;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
-import org.example.pdnight.domain1.common.exception.BaseException;
+import org.example.pdnight.global.common.exception.BaseException;
 import org.example.pdnight.domain1.hobby.entity.Hobby;
 import org.example.pdnight.domain1.hobby.repository.HobbyRepositoryQuery;
 import org.example.pdnight.domain1.techStack.entity.TechStack;

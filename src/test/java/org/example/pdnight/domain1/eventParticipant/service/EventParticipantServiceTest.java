@@ -1,6 +1,6 @@
 package org.example.pdnight.domain1.eventParticipant.service;
 
-import org.example.pdnight.domain1.common.helper.GetHelper;
+import org.example.pdnight.global.common.helper.GetHelper;
 import org.example.pdnight.domain1.event.entity.Event;
 import org.example.pdnight.domain1.event.repository.EventRepository;
 import org.example.pdnight.domain1.eventParticipant.entity.EventParticipant;

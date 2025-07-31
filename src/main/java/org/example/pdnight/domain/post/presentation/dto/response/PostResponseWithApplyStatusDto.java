@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 import org.example.pdnight.domain.post.domain.post.Post;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
-import org.example.pdnight.domain.post.enums.JobCategory;
 import org.example.pdnight.domain.post.enums.PostStatus;
+import org.example.pdnight.global.common.enums.JobCategory;
 
 
 import java.time.LocalDateTime;
@@ -30,8 +30,6 @@ public class PostResponseWithApplyStatusDto {
     private final Gender genderLimit;
     private final JobCategory jobCategoryLimit;
     private final AgeLimit ageLimit;
-    private List<String> hobbyList;
-    private List<String> techStackList;
     private final Long appliedCount;
     private final Long confirmedCount;
     private final LocalDateTime createdAt;
@@ -39,7 +37,7 @@ public class PostResponseWithApplyStatusDto {
 
     private PostResponseWithApplyStatusDto(Post post, Long appliedCount, Long confirmedCount) {
         this.postId = post.getId();
-        this.authorId = post.getAuthor().getId();
+        this.authorId = post.getAuthorId();
         this.title = post.getTitle();
         this.timeSlot = post.getTimeSlot();
         this.publicContent = post.getPublicContent();
@@ -47,14 +45,6 @@ public class PostResponseWithApplyStatusDto {
         this.status = post.getStatus();
         this.maxParticipants = post.getMaxParticipants();
         this.genderLimit = post.getGenderLimit();
-        this.hobbyList = post.getPostHobbies()
-                .stream()
-                .map(hobby -> hobby.getHobby().getHobby())
-                .toList();
-        this.techStackList = post.getPostTechs()
-                .stream()
-                .map(tech -> tech.getTechStack().getTechStack())
-                .toList();
         this.jobCategoryLimit = post.getJobCategoryLimit();
         this.ageLimit = post.getAgeLimit();
         this.createdAt = post.getCreatedAt();

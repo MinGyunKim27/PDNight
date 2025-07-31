@@ -1,7 +1,7 @@
 package org.example.pdnight.domain1.user.service;
 
-import org.example.pdnight.domain1.common.enums.ErrorCode;
-import org.example.pdnight.domain1.common.exception.BaseException;
+import org.example.pdnight.global.common.enums.ErrorCode;
+import org.example.pdnight.global.common.exception.BaseException;
 import org.example.pdnight.domain1.user.dto.request.UserNicknameUpdateDto;
 import org.example.pdnight.domain1.user.dto.response.UserResponseDto;
 import org.example.pdnight.domain1.user.entity.User;

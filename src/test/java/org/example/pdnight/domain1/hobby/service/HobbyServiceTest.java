@@ -1,6 +1,6 @@
 package org.example.pdnight.domain1.hobby.service;
 
-import org.example.pdnight.domain1.common.exception.BaseException;
+import org.example.pdnight.global.common.exception.BaseException;
 import org.example.pdnight.domain.common.presentation.dto.request.HobbyRequest;
 import org.example.pdnight.domain.common.presentation.dto.response.HobbyResponse;
 import org.example.pdnight.domain1.hobby.entity.Hobby;

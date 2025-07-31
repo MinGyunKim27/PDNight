@@ -2,9 +2,9 @@ package org.example.pdnight.global.filter;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.example.pdnight.domain1.common.enums.JobCategory;
-import org.example.pdnight.domain1.common.enums.UserRole;
-import org.example.pdnight.domain1.post.enums.Gender;
+import org.example.pdnight.domain.post.enums.Gender;
+import org.example.pdnight.global.common.enums.JobCategory;
+import org.example.pdnight.global.common.enums.UserRole;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

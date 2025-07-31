@@ -1,10 +1,10 @@
 package org.example.pdnight.domain1.post.service;
 
-import org.example.pdnight.domain1.common.dto.PagedResponse;
-import org.example.pdnight.domain1.common.enums.ErrorCode;
-import org.example.pdnight.domain1.common.enums.JobCategory;
-import org.example.pdnight.domain1.common.enums.JoinStatus;
-import org.example.pdnight.domain1.common.exception.BaseException;
+import org.example.pdnight.global.common.dto.PagedResponse;
+import org.example.pdnight.global.common.enums.ErrorCode;
+import org.example.pdnight.global.common.enums.JobCategory;
+import org.example.pdnight.global.common.enums.JoinStatus;
+import org.example.pdnight.global.common.exception.BaseException;
 import org.example.pdnight.domain1.post.dto.request.PostRequestDto;
 import org.example.pdnight.domain1.post.dto.request.PostUpdateRequestDto;
 import org.example.pdnight.domain1.post.dto.response.PostCreateAndUpdateResponseDto;

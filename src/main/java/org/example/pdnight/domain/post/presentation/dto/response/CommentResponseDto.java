@@ -29,7 +29,7 @@ public class CommentResponseDto {
 
 	private CommentResponseDto(Comment comment) {
 		this.id = comment.getId();
-		this.postId = comment.getPost().getId();
+		this.postId = comment.getPostId();
 		this.authorId = comment.getAuthorId();
 		this.content = comment.getContent();
 		this.createdAt = comment.getCreatedAt();

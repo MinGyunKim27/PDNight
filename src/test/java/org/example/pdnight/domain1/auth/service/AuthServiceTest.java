@@ -3,7 +3,7 @@ package org.example.pdnight.domain1.auth.service;
 import org.example.pdnight.domain1.auth.dto.request.LoginRequestDto;
 import org.example.pdnight.domain1.auth.dto.request.SignupRequestDto;
 import org.example.pdnight.domain1.auth.dto.request.WithdrawRequestDto;
-import org.example.pdnight.domain1.common.exception.BaseException;
+import org.example.pdnight.global.common.exception.BaseException;
 import org.example.pdnight.domain1.user.entity.User;
 import org.example.pdnight.domain1.user.repository.UserRepository;
 import org.example.pdnight.global.config.PasswordEncoder;

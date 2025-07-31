@@ -6,15 +6,10 @@ import lombok.NoArgsConstructor;
 import org.example.pdnight.domain.post.domain.post.Post;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
-import org.example.pdnight.domain.post.enums.JobCategory;
 import org.example.pdnight.domain.post.enums.PostStatus;
-import org.example.pdnight.domain1.hobby.entity.PostHobby;
-import org.example.pdnight.domain1.techStack.entity.PostTech;
-
+import org.example.pdnight.global.common.enums.JobCategory;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Set;
 
 @Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)

@@ -1,7 +1,7 @@
 package org.example.pdnight.domain1.coupon.service;
 
-import org.example.pdnight.domain1.common.enums.ErrorCode;
-import org.example.pdnight.domain1.common.exception.BaseException;
+import org.example.pdnight.global.common.enums.ErrorCode;
+import org.example.pdnight.global.common.exception.BaseException;
 import org.example.pdnight.domain1.coupon.dto.response.CouponResponseDto;
 import org.example.pdnight.domain1.coupon.entity.Coupon;
 import org.example.pdnight.domain1.coupon.repository.CouponRepository;

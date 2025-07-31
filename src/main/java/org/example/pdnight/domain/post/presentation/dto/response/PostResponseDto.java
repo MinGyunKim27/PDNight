@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 import org.example.pdnight.domain.post.domain.post.Post;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
-import org.example.pdnight.domain.post.enums.JobCategory;
 import org.example.pdnight.domain.post.enums.PostStatus;
+import org.example.pdnight.global.common.enums.JobCategory;
 
 
 import java.time.LocalDateTime;
@@ -34,7 +34,7 @@ public class PostResponseDto {
 
     public PostResponseDto(Post post) {
         this.postId = post.getId();
-        this.authorId = post.getAuthor().getId();
+        this.authorId = post.getAuthorId();
         this.title = post.getTitle();
         this.timeSlot = post.getTimeSlot();
         this.publicContent = post.getPublicContent();
@@ -82,7 +82,7 @@ public class PostResponseDto {
     public static PostResponseDto from(Post post) {
         return new PostResponseDto(
                 post.getId(),
-                post.getAuthor().getId(),
+                post.getAuthorId(),
                 post.getTitle(),
                 post.getTimeSlot(),
                 post.getPublicContent(),

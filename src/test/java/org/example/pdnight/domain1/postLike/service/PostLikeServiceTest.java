@@ -1,8 +1,8 @@
 package org.example.pdnight.domain1.postLike.service;
 
-import org.example.pdnight.domain1.common.enums.ErrorCode;
-import org.example.pdnight.domain1.common.exception.BaseException;
-import org.example.pdnight.domain1.common.helper.GetHelper;
+import org.example.pdnight.global.common.enums.ErrorCode;
+import org.example.pdnight.global.common.exception.BaseException;
+import org.example.pdnight.global.common.helper.GetHelper;
 import org.example.pdnight.domain1.post.entity.Post;
 import org.example.pdnight.domain1.postLike.dto.response.PostLikeResponse;
 import org.example.pdnight.domain1.postLike.entity.PostLike;

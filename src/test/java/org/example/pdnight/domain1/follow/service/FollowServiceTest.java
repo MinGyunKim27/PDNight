@@ -1,7 +1,7 @@
 package org.example.pdnight.domain1.follow.service;
 
-import org.example.pdnight.domain1.common.exception.BaseException;
-import org.example.pdnight.domain1.common.helper.GetHelper;
+import org.example.pdnight.global.common.exception.BaseException;
+import org.example.pdnight.global.common.helper.GetHelper;
 import org.example.pdnight.domain1.follow.dto.response.FollowResponseDto;
 import org.example.pdnight.domain1.follow.dto.response.FollowingResponseDto;
 import org.example.pdnight.domain1.follow.entity.Follow;

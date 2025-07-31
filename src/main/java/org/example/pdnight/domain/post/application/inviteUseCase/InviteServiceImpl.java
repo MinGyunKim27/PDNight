@@ -1,78 +1,34 @@
 package org.example.pdnight.domain.post.application.inviteUseCase;
 
-import org.example.pdnight.domain.post.domain.invite.Invite;
-import org.example.pdnight.domain.post.domain.invite.InviteCommandQuery;
-import org.example.pdnight.domain.post.domain.invite.InviteReader;
-import org.example.pdnight.domain.post.domain.post.Post;
-import org.example.pdnight.domain.post.enums.JoinStatus;
+import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.post.presentation.dto.response.InviteResponseDto;
-import org.example.pdnight.domain1.common.dto.PagedResponse;
-import org.example.pdnight.domain1.common.exception.BaseException;
-import org.springframework.data.domain.Page;
+import org.example.pdnight.global.common.dto.PagedResponse;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
-import java.util.Objects;
-
-import static org.example.pdnight.domain1.common.enums.ErrorCode.*;
-
+@Service
+@RequiredArgsConstructor
 public class InviteServiceImpl implements InviteService {
-    private InviteReader inviteReader;
-    private InviteCommandQuery inviteCommandQuery;
+    private final InviteCommanderServcie inviteCommandServcie;
+    private final InviteReaderService inviteQueryService;
 
     @Override
     public InviteResponseDto createInvite(Long postId, Long userId, Long loginUserId) {
-        Post postById = helper.getPostByIdOrElseThrow(postId);
-
-        validateExistInvite(postId, userId, loginUserId);
-        Invite invite = Invite.create(loginUserId, userId, postById);
-
-        inviteCommandQuery.save(invite);
-        return InviteResponseDto.from(invite);
+        return inviteCommandServcie.createInvite(postId, userId, loginUserId);
     }
 
     @Override
-    public void deleteInvite(Long inviteId, Long loginUserId) {
-        Invite invite = getInviteById(inviteId);
-
-        validateMyInvite(loginUserId, invite);
-
-        inviteCommandQuery.delete(invite);
+    public void deleteInvite(Long id, Long loginUserId) {
+        inviteCommandServcie.deleteInvite(id, loginUserId);
     }
 
-    //내가 초대 받은 목록 조회
+    @Override
     public PagedResponse<InviteResponseDto> getMyInvited(Long userId, Pageable pageable) {
-        Page<InviteResponseDto> inviteResponseDtos = inviteReader.getMyInvited(userId, pageable);
-        return PagedResponse.from(inviteResponseDtos);
+        return inviteQueryService.getMyInvited(userId, pageable);
     }
 
-    //내가 초대 한 목록 조회
+    @Override
     public PagedResponse<InviteResponseDto> getMyInvite(Long userId, Pageable pageable) {
-        Page<InviteResponseDto> inviteResponseDtos = inviteReader.getMyInvite(userId, pageable);
-        return PagedResponse.from(inviteResponseDtos);
-    }
-
-    public void deleteAllByPostAndStatus(Post post, JoinStatus joinStatus) {
-        inviteCommandQuery.deleteAllByPostAndStatus(post, joinStatus);
-    }
-
-    // -- HELPER 메서드 -- //
-    // get
-    private Invite getInviteById(Long id) {
-        return inviteReader.findById(id)
-                .orElseThrow(() -> new BaseException(INVITE_NOT_FOUND));
-    }
-
-    // validate
-    private void validateExistInvite(Long postId, Long userId, Long loginUserId) {
-        Boolean inviteExists = inviteReader.existsByPostIdAndInviteeIdAndInviterId(postId, userId, loginUserId);
-        if (inviteExists) {
-            throw new BaseException(INVITE_ALREADY_EXISTS);
-        }
-    }
-
-    private void validateMyInvite(Long loginUserId, Invite invite) {
-        if (!Objects.equals(invite.getInviterId(), loginUserId)) {
-            throw new BaseException(INVITE_UNAUTHORIZED);
-        }
+        return inviteQueryService.getMyInvite(userId, pageable);
     }
 }

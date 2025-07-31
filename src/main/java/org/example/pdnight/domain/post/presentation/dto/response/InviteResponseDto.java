@@ -9,22 +9,19 @@ public class InviteResponseDto {
     private Long id;
     private Long inviteeId;
     private Long postId;
-    private String postTitle;
 
     private InviteResponseDto(Invite invite) {
         this.id = invite.getId();
         this.inviteeId = invite.getInviteeId();
-        this.postId = invite.getPost().getId();
-        this.postTitle = invite.getPost().getTitle();
+        this.postId = invite.getPostId();
     }
 
     @QueryProjection
     public InviteResponseDto(
-            Long id, Long inviteeId, Long postId, String postTitle) {
+            Long id, Long inviteeId, Long postId) {
         this.id = id;
         this.inviteeId = inviteeId;
         this.postId = postId;
-        this.postTitle = postTitle;
     }
 
     public static InviteResponseDto from(Invite invite) {

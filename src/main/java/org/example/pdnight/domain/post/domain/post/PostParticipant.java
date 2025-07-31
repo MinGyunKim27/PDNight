@@ -5,7 +5,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.pdnight.domain.post.enums.JoinStatus;
-import org.example.pdnight.domain1.common.entity.Timestamped;
+import org.example.pdnight.global.common.entity.Timestamped;
 
 
 @Entity
@@ -34,10 +34,6 @@ public class PostParticipant extends Timestamped {
 
     public static PostParticipant create(Post post, Long userId) {
         return new PostParticipant(post, userId, JoinStatus.PENDING);
-    }
-
-    public static PostParticipant createIsFirst(Post post, Long userId) {
-        return new PostParticipant(post, userId, JoinStatus.ACCEPTED);
     }
 
     public void changeStatus(JoinStatus status) {

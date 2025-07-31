@@ -1,6 +1,6 @@
 package org.example.pdnight.domain1.techStack.service;
 
-import org.example.pdnight.domain1.common.exception.BaseException;
+import org.example.pdnight.global.common.exception.BaseException;
 import org.example.pdnight.domain1.techStack.dto.request.TechStackRequestDto;
 import org.example.pdnight.domain1.techStack.dto.response.TechStackResponseDto;
 import org.example.pdnight.domain1.techStack.entity.TechStack;

@@ -1,9 +1,9 @@
 package org.example.pdnight.domain1.participant.service;
 
-import org.example.pdnight.domain1.common.enums.ErrorCode;
-import org.example.pdnight.domain1.common.exception.BaseException;
+import org.example.pdnight.global.common.enums.ErrorCode;
+import org.example.pdnight.global.common.exception.BaseException;
 import org.example.pdnight.domain1.participant.entity.PostParticipant;
-import org.example.pdnight.domain1.common.enums.JoinStatus;
+import org.example.pdnight.global.common.enums.JoinStatus;
 import org.example.pdnight.domain1.participant.repository.ParticipantRepository;
 import org.example.pdnight.domain1.post.entity.Post;
 import org.example.pdnight.domain1.user.entity.User;

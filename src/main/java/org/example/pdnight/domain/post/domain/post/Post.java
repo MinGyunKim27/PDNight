@@ -7,9 +7,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
-import org.example.pdnight.domain.post.enums.JobCategory;
 import org.example.pdnight.domain.post.enums.PostStatus;
-import org.example.pdnight.domain1.common.entity.Timestamped;
+import org.example.pdnight.global.common.entity.Timestamped;
+import org.example.pdnight.global.common.enums.JobCategory;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -60,6 +60,7 @@ public class Post extends Timestamped {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PostLike> postLikes = new ArrayList<>();
 
+    // 참여자 리스트 전체를 가져와서 서버에서 구분하는 것
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PostParticipant> postParticipants = new ArrayList<>();
 
@@ -133,11 +134,15 @@ public class Post extends Timestamped {
     }
 
     public void addLike(PostLike postLike) {
-        this.postLikes.add(postLike);
+        postLikes.add(postLike);
+    }
+
+    public void addParticipants(PostParticipant participant) {
+        postParticipants.add(participant);
     }
 
     public void removeLike(PostLike postLike) {
-        this.postLikes.remove(postLike);
+        postLikes.remove(postLike);
     }
 
 }

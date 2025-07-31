@@ -1,8 +1,8 @@
 package org.example.pdnight.domain1.participant.service;
 
-import org.example.pdnight.domain1.common.enums.JobCategory;
+import org.example.pdnight.global.common.enums.JobCategory;
 import org.example.pdnight.domain1.participant.entity.PostParticipant;
-import org.example.pdnight.domain1.common.enums.JoinStatus;
+import org.example.pdnight.global.common.enums.JoinStatus;
 import org.example.pdnight.domain1.post.entity.Post;
 import org.example.pdnight.domain1.post.enums.AgeLimit;
 import org.example.pdnight.domain1.post.enums.Gender;
