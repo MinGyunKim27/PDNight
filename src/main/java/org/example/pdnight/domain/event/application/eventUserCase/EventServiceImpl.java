@@ -2,11 +2,11 @@ package org.example.pdnight.domain.event.application.eventUserCase;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.pdnight.domain.common.dto.PagedResponse;
 import org.example.pdnight.domain.event.infra.EventJpaRepository;
 import org.example.pdnight.domain.event.presentation.dto.request.EventCreateRequest;
 import org.example.pdnight.domain.event.presentation.dto.response.EventParticipantResponse;
 import org.example.pdnight.domain.event.presentation.dto.response.EventResponse;
+import org.example.pdnight.global.common.dto.PagedResponse;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

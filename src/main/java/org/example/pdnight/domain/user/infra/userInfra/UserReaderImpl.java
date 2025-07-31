@@ -22,8 +22,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static org.example.pdnight.domain.user.domain.entity.QCoupon.coupon;
 import static org.example.pdnight.domain.user.domain.entity.QUserCoupon.userCoupon;
+import static org.example.pdnight.domain.user.domain.entity.QCoupon.coupon;
 
 @Repository
 @RequiredArgsConstructor

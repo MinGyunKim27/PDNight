@@ -1,11 +1,11 @@
 package org.example.pdnight.domain.user.application.couponUseCase;
 
 import lombok.RequiredArgsConstructor;
-import org.example.pdnight.domain.common.enums.ErrorCode;
-import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.user.domain.couponDomain.CouponReader;
 import org.example.pdnight.domain.user.domain.entity.Coupon;
 import org.example.pdnight.domain.user.presentation.dto.couponDto.response.CouponResponse;
+import org.example.pdnight.global.common.enums.ErrorCode;
+import org.example.pdnight.global.common.exception.BaseException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

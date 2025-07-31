@@ -17,12 +17,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
+import static org.example.pdnight.domain.post.domain.post.QPost.post;
+import static org.example.pdnight.domain.post.domain.post.QPostParticipant.postParticipant;
+import static org.example.pdnight.domain.post.domain.post.QPostLike.postLike;
+
 import java.util.List;
 import java.util.Optional;
 
-import static org.example.pdnight.domain.post.domain.post.QPost.*;
-import static org.example.pdnight.domain.post.domain.post.QPostLike.*;
-import static org.example.pdnight.domain.post.domain.post.QPostParticipant.*;
 
 
 @Repository

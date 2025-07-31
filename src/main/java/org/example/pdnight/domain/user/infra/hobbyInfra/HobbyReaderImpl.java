@@ -4,8 +4,8 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.user.domain.entity.Hobby;
-import org.example.pdnight.domain.user.domain.hobbyDomain.HobbyReader;
 import org.example.pdnight.domain.user.domain.entity.QHobby;
+import org.example.pdnight.domain.user.domain.hobbyDomain.HobbyReader;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 

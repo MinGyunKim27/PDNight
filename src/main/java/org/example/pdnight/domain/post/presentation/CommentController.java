@@ -103,7 +103,7 @@ public class CommentController {
                 .body(ApiResponse.ok("댓글이 삭제되었습니다.", null));
     }
 
-    //   ------ admin ------
+    /*//   ------ admin ------
     @DeleteMapping("/api/admin/posts/{postId}/comments/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteAdminComment(
             @PathVariable Long postId,
@@ -115,6 +115,6 @@ public class CommentController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.ok("댓글이 삭제되었습니다.",  null));
-    }
+    }*/
 
 }

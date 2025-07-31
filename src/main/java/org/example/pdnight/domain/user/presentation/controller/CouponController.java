@@ -1,11 +1,11 @@
 package org.example.pdnight.domain.user.presentation.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.example.pdnight.domain.common.dto.ApiResponse;
 import org.example.pdnight.domain.user.application.couponUseCase.CouponService;
 import org.example.pdnight.domain.user.presentation.dto.couponDto.request.CouponRequest;
 import org.example.pdnight.domain.user.presentation.dto.couponDto.request.UpdateCouponRequest;
 import org.example.pdnight.domain.user.presentation.dto.couponDto.response.CouponResponse;
+import org.example.pdnight.global.common.dto.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;

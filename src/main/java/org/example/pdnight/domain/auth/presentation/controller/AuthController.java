@@ -10,7 +10,7 @@ import org.example.pdnight.domain.auth.presentation.dto.request.WithdrawRequest;
 import org.example.pdnight.domain.auth.presentation.dto.response.LoginResponse;
 import org.example.pdnight.domain.auth.presentation.dto.response.SignupResponse;
 import org.example.pdnight.domain.auth.application.authUseCase.AuthService;
-import org.example.pdnight.domain.common.dto.ApiResponse;
+import org.example.pdnight.global.common.dto.ApiResponse;
 import org.example.pdnight.global.filter.CustomUserDetails;
 import org.example.pdnight.global.utils.JwtUtil;
 import org.springframework.http.HttpStatus;

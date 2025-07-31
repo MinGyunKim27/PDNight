@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.example.pdnight.domain.common.enums.UserRole;
+import org.example.pdnight.global.common.enums.UserRole;
 
 import java.time.LocalDateTime;
 

@@ -1,15 +1,15 @@
 package org.example.pdnight.domain.user.application.userUseCase;
 
 import lombok.RequiredArgsConstructor;
-import org.example.pdnight.domain.common.dto.PagedResponse;
-import org.example.pdnight.domain.common.enums.ErrorCode;
-import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.user.domain.entity.User;
 import org.example.pdnight.domain.user.domain.userDomain.UserReader;
 import org.example.pdnight.domain.user.presentation.dto.userDto.response.FollowingResponse;
 import org.example.pdnight.domain.user.presentation.dto.userDto.response.UserCouponResponse;
 import org.example.pdnight.domain.user.presentation.dto.userDto.response.UserEvaluationResponse;
 import org.example.pdnight.domain.user.presentation.dto.userDto.response.UserResponse;
+import org.example.pdnight.global.common.dto.PagedResponse;
+import org.example.pdnight.global.common.enums.ErrorCode;
+import org.example.pdnight.global.common.exception.BaseException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;

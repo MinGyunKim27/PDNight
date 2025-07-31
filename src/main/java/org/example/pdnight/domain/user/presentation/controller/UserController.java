@@ -1,19 +1,16 @@
 package org.example.pdnight.domain.user.presentation.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.example.pdnight.domain.common.dto.ApiResponse;
-import org.example.pdnight.domain.common.dto.PagedResponse;
-import org.example.pdnight.domain.common.enums.JoinStatus;
-import org.example.pdnight.domain.invite.dto.response.InviteResponseDto;
-import org.example.pdnight.domain.invite.service.InviteService;
-import org.example.pdnight.domain.post.dto.response.PostResponseWithApplyStatusDto;
-import org.example.pdnight.domain.post.dto.response.PostWithJoinStatusAndAppliedAtResponseDto;
-import org.example.pdnight.domain.post.service.PostService;
+import org.example.pdnight.domain.post.application.PostUseCase.PostService;
+import org.example.pdnight.domain.post.application.inviteUseCase.InviteService;
+import org.example.pdnight.domain.post.presentation.dto.response.InviteResponseDto;
 import org.example.pdnight.domain.user.application.userUseCase.UserService;
 import org.example.pdnight.domain.user.presentation.dto.userDto.request.GiveCouponRequest;
 import org.example.pdnight.domain.user.presentation.dto.userDto.request.UserNicknameUpdate;
 import org.example.pdnight.domain.user.presentation.dto.userDto.request.UserUpdateRequest;
 import org.example.pdnight.domain.user.presentation.dto.userDto.response.*;
+import org.example.pdnight.global.common.dto.ApiResponse;
+import org.example.pdnight.global.common.dto.PagedResponse;
 import org.example.pdnight.global.filter.CustomUserDetails;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -104,7 +101,7 @@ public class UserController {
 
     // ---------------------- 조회 Api ---------------------------------------------------------//
 
-    //todo: 얘는 포스트 이동?
+    /*//todo: 얘는 포스트 이동?
     // 내 좋아요 게시글 목록 조회
     @GetMapping("/users/my/likedPosts")
     public ResponseEntity<ApiResponse<PagedResponse<PostResponseWithApplyStatusDto>>> getMyLikedPosts(
@@ -139,7 +136,7 @@ public class UserController {
         Long id = userDetails.getUserId();
         PagedResponse<PostResponseWithApplyStatusDto> myLikedPost = postService.findMyWrittenPosts(id, pageable);
         return ResponseEntity.ok(ApiResponse.ok("내가 작성 한 게시물이 조회되었습니다.", myLikedPost));
-    }
+    }*/
 
     // 내 프로필 조회
     @GetMapping("/users/my/profile")

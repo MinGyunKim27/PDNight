@@ -4,13 +4,13 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.example.pdnight.domain.common.entity.Timestamped;
+import org.example.pdnight.global.common.entity.Timestamped;
 
 @Entity
 @Table(name = "hobbies")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Hobby extends Timestamped{
+public class Hobby extends Timestamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

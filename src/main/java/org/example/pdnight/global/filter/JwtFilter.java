@@ -89,8 +89,8 @@ public class JwtFilter implements Filter {
             String roleStr = claims.get("userRole", String.class); // 문자열로 받기
             UserRole userRole = UserRole.valueOf(roleStr); // 문자열 → enum 변환
             Object userNickname = claims.get("userNickname");
-            Object userAge = claims.get("userAge");
-            String genderStr  = claims.get("userGender", String.class);
+            Long userAge = Long.valueOf((Integer) claims.get("age"));
+            String genderStr  = claims.get("gender", String.class);
             Gender userGender = Gender.valueOf(genderStr);
             String jobCategoryStr = claims.get("jobCategory", String.class);
             JobCategory userJobCategory = JobCategory.valueOf(jobCategoryStr);

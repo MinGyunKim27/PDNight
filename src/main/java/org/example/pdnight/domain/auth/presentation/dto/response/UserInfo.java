@@ -1,8 +1,8 @@
 package org.example.pdnight.domain.auth.presentation.dto.response;
 
 import lombok.Getter;
-import org.example.pdnight.domain.common.enums.JobCategory;
 import org.example.pdnight.domain.post.enums.Gender;
+import org.example.pdnight.global.common.enums.JobCategory;
 
 @Getter
 public class UserInfo {

@@ -6,14 +6,15 @@ import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.event.domain.EventReader;
 import org.example.pdnight.domain.event.domain.entity.Event;
 import org.example.pdnight.domain.event.domain.entity.EventParticipant;
-import static org.example.pdnight.domain.event.domain.entity.QEvent.event;
-import static org.example.pdnight.domain.event.domain.entity.QEventParticipant.eventParticipant;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
+
+import static org.example.pdnight.domain.event.domain.entity.QEvent.event;
+import static org.example.pdnight.domain.event.domain.entity.QEventParticipant.eventParticipant;
 
 @Repository
 @RequiredArgsConstructor

@@ -1,11 +1,11 @@
 package org.example.pdnight.domain.user.application.userUseCase;
 
 import lombok.RequiredArgsConstructor;
-import org.example.pdnight.domain.common.dto.PagedResponse;
 import org.example.pdnight.domain.user.presentation.dto.userDto.request.GiveCouponRequest;
 import org.example.pdnight.domain.user.presentation.dto.userDto.request.UserNicknameUpdate;
 import org.example.pdnight.domain.user.presentation.dto.userDto.request.UserUpdateRequest;
 import org.example.pdnight.domain.user.presentation.dto.userDto.response.*;
+import org.example.pdnight.global.common.dto.PagedResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;

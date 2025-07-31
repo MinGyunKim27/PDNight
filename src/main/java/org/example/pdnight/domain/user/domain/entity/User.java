@@ -5,12 +5,12 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.pdnight.domain.auth.presentation.dto.request.SignupRequest;
-import org.example.pdnight.domain.common.entity.Timestamped;
-import org.example.pdnight.domain.common.enums.ErrorCode;
-import org.example.pdnight.domain.common.enums.JobCategory;
-import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.user.domain.enums.Region;
+import org.example.pdnight.global.common.entity.Timestamped;
+import org.example.pdnight.global.common.enums.ErrorCode;
+import org.example.pdnight.global.common.enums.JobCategory;
+import org.example.pdnight.global.common.exception.BaseException;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

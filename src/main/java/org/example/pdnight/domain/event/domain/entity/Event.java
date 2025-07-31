@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.example.pdnight.domain.common.entity.Timestamped;
+import org.example.pdnight.global.common.entity.Timestamped;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

@@ -1,8 +1,8 @@
 package org.example.pdnight.domain.user.presentation.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.example.pdnight.domain.common.dto.ApiResponse;
 import org.example.pdnight.domain.user.application.techStackUseCase.TechStackService;
+import org.example.pdnight.global.common.dto.ApiResponse;
 import org.springframework.http.ResponseEntity;
 
 import org.example.pdnight.domain.user.presentation.dto.techStackDto.request.TechStackRequest;

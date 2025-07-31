@@ -1,8 +1,8 @@
 package org.example.pdnight.domain.user.application.reviewUserCase;
 
-import org.example.pdnight.domain.common.dto.PagedResponse;
 import org.example.pdnight.domain.user.presentation.dto.reviewDto.request.ReviewRequest;
 import org.example.pdnight.domain.user.presentation.dto.reviewDto.response.ReviewResponse;
+import org.example.pdnight.global.common.dto.PagedResponse;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 

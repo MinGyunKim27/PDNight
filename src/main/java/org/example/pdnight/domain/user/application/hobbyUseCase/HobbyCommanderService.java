@@ -1,13 +1,13 @@
 package org.example.pdnight.domain.user.application.hobbyUseCase;
 
 import lombok.RequiredArgsConstructor;
-import org.example.pdnight.domain.common.enums.ErrorCode;
-import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.user.domain.entity.Hobby;
 import org.example.pdnight.domain.user.domain.hobbyDomain.HobbyCommander;
 import org.example.pdnight.domain.user.domain.hobbyDomain.HobbyReader;
 import org.example.pdnight.domain.user.presentation.dto.hobbyDto.request.HobbyRequest;
 import org.example.pdnight.domain.user.presentation.dto.hobbyDto.response.HobbyResponse;
+import org.example.pdnight.global.common.enums.ErrorCode;
+import org.example.pdnight.global.common.exception.BaseException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

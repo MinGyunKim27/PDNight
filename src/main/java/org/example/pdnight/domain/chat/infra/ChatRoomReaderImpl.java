@@ -4,15 +4,12 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.chat.domain.ChatRoom;
 import org.example.pdnight.domain.chat.domain.ChatRoomReader;
-import org.example.pdnight.domain.post.domain.post.Post;
 import org.springframework.stereotype.Repository;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
 import static org.example.pdnight.domain.chat.domain.QChatRoom.chatRoom;
-import static org.example.pdnight.domain.post.domain.post.QPost.post;
 
 @Repository
 @RequiredArgsConstructor

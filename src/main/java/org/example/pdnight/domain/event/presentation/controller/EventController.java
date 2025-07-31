@@ -1,12 +1,12 @@
 package org.example.pdnight.domain.event.presentation.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.example.pdnight.domain.common.dto.ApiResponse;
-import org.example.pdnight.domain.common.dto.PagedResponse;
 import org.example.pdnight.domain.event.application.eventUserCase.EventService;
 import org.example.pdnight.domain.event.presentation.dto.request.EventCreateRequest;
 import org.example.pdnight.domain.event.presentation.dto.response.EventParticipantResponse;
 import org.example.pdnight.domain.event.presentation.dto.response.EventResponse;
+import org.example.pdnight.global.common.dto.ApiResponse;
+import org.example.pdnight.global.common.dto.PagedResponse;
 import org.example.pdnight.global.filter.CustomUserDetails;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;

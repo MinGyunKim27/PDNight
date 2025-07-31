@@ -4,10 +4,10 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
-import org.example.pdnight.domain.common.enums.JobCategory;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.user.domain.enums.Region;
 import org.example.pdnight.global.annotation.ValidEmailPattern;
+import org.example.pdnight.global.common.enums.JobCategory;
 
 import java.util.List;
 

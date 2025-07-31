@@ -1,8 +1,6 @@
 package org.example.pdnight.domain.user.application.userUseCase;
 
 import lombok.RequiredArgsConstructor;
-import org.example.pdnight.domain.common.enums.ErrorCode;
-import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.user.application.port.UserCouponPort;
 import org.example.pdnight.domain.user.domain.entity.Follow;
 import org.example.pdnight.domain.user.domain.entity.User;
@@ -16,11 +14,13 @@ import org.example.pdnight.domain.user.presentation.dto.userDto.request.UserNick
 import org.example.pdnight.domain.user.presentation.dto.userDto.request.UserUpdateRequest;
 import org.example.pdnight.domain.user.presentation.dto.userDto.response.FollowResponse;
 import org.example.pdnight.domain.user.presentation.dto.userDto.response.UserResponse;
+import org.example.pdnight.global.common.enums.ErrorCode;
+import org.example.pdnight.global.common.exception.BaseException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
-import static org.example.pdnight.domain.common.enums.ErrorCode.*;
 
+import static org.example.pdnight.global.common.enums.ErrorCode.*;
 
 @Component
 @RequiredArgsConstructor

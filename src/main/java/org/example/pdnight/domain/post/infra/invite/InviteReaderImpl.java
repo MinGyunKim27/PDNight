@@ -10,7 +10,9 @@ import org.example.pdnight.domain.post.presentation.dto.response.QInviteResponse
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
+import org.springframework.stereotype.Repository;
 
+@Repository
 @RequiredArgsConstructor
 public class InviteReaderImpl implements InviteReader {
     private final JPAQueryFactory queryFactory;

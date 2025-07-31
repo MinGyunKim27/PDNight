@@ -2,11 +2,11 @@ package org.example.pdnight.domain.user.application.userUseCase.event;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.pdnight.domain.common.enums.ErrorCode;
-import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.user.domain.entity.User;
 import org.example.pdnight.domain.user.domain.userDomain.UserCommander;
 import org.example.pdnight.domain.user.domain.userDomain.UserReader;
+import org.example.pdnight.global.common.enums.ErrorCode;
+import org.example.pdnight.global.common.exception.BaseException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;

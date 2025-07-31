@@ -2,10 +2,10 @@ package org.example.pdnight.domain.user.presentation.controller;
 
 
 import lombok.RequiredArgsConstructor;
-import org.example.pdnight.domain.common.dto.ApiResponse;
 import org.example.pdnight.domain.user.application.hobbyUseCase.HobbyService;
 import org.example.pdnight.domain.user.presentation.dto.hobbyDto.request.HobbyRequest;
 import org.example.pdnight.domain.user.presentation.dto.hobbyDto.response.HobbyResponse;
+import org.example.pdnight.global.common.dto.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;

@@ -1,14 +1,14 @@
 package org.example.pdnight.domain.event.application.eventUserCase;
 
 import lombok.RequiredArgsConstructor;
-import org.example.pdnight.domain.common.dto.PagedResponse;
-import org.example.pdnight.domain.common.enums.ErrorCode;
-import org.example.pdnight.domain.common.exception.BaseException;
 import org.example.pdnight.domain.event.domain.EventReader;
 import org.example.pdnight.domain.event.domain.entity.Event;
 import org.example.pdnight.domain.event.domain.entity.EventParticipant;
 import org.example.pdnight.domain.event.presentation.dto.response.EventParticipantResponse;
 import org.example.pdnight.domain.event.presentation.dto.response.EventResponse;
+import org.example.pdnight.global.common.dto.PagedResponse;
+import org.example.pdnight.global.common.enums.ErrorCode;
+import org.example.pdnight.global.common.exception.BaseException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
