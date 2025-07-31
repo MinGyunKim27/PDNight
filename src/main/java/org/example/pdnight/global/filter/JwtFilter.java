@@ -103,7 +103,7 @@ public class JwtFilter implements Filter {
                     (String) userNickname,
                     "",
                     userRole,
-                    (Long) userAge,
+                    userAge,
                     userGender,
                     userJobCategory);
 
