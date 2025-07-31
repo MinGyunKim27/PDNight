@@ -16,4 +16,6 @@ public interface PostCommander {
 
     void deletePost(Post post);
 
+    Post save(Post post);
+
 }

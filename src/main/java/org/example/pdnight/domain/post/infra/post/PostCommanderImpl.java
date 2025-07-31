@@ -39,4 +39,9 @@ public class PostCommanderImpl implements PostCommander {
         postJpaRepository.delete(post);
     }
 
+    @Override
+    public Post save(Post post) {
+        return postJpaRepository.save(post);
+    }
+
 }

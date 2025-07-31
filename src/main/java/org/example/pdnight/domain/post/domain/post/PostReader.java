@@ -26,12 +26,6 @@ public interface PostReader {
 
     Page<Post> getSuggestedPost(Long userId, Pageable pageable);
 
-    Optional<Post> findById(Long postId);
-
-    Optional<Post> findByIdAndStatus(Long postId, PostStatus postStatus);
-
-    List<PostParticipant> findByUserAndPost(Long userId, Post post);
-
     Page<Post> findPostDtosBySearch(
             Pageable pageable,
             Integer maxParticipants,

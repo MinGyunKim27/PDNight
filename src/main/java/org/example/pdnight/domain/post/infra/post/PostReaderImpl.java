@@ -1,9 +1,15 @@
 package org.example.pdnight.domain.post.infra.post;
 
-import com.querydsl.core.BooleanBuilder;
-import com.querydsl.jpa.impl.JPAQueryFactory;
-import lombok.RequiredArgsConstructor;
-import org.example.pdnight.domain.post.domain.post.*;
+import static org.example.pdnight.domain.post.domain.post.QPost.*;
+import static org.example.pdnight.domain.post.domain.post.QPostLike.*;
+import static org.example.pdnight.domain.post.domain.post.QPostParticipant.*;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.example.pdnight.domain.post.domain.post.Post;
+import org.example.pdnight.domain.post.domain.post.PostParticipant;
+import org.example.pdnight.domain.post.domain.post.PostReader;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.enums.JoinStatus;
@@ -17,14 +23,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
-import static org.example.pdnight.domain.post.domain.post.QPost.post;
-import static org.example.pdnight.domain.post.domain.post.QPostParticipant.postParticipant;
-import static org.example.pdnight.domain.post.domain.post.QPostLike.postLike;
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 
-import java.util.List;
-import java.util.Optional;
-
-
+import lombok.RequiredArgsConstructor;
 
 @Repository
 @RequiredArgsConstructor
@@ -167,7 +169,6 @@ public class PostReaderImpl implements PostReader {
                 .select(post)
                 .from(post)
                 .where(builder)
-                .groupBy(post.id)
                 .orderBy(post.createdAt.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -236,19 +237,5 @@ public class PostReaderImpl implements PostReader {
         return PageableExecutionUtils.getPage(contents, pageable, () -> Optional.ofNullable(count).orElse(0L));
     }
 
-    @Override
-    public Optional<Post> findById(Long postId) {
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional<Post> findByIdAndStatus(Long postId, PostStatus postStatus) {
-        return Optional.empty();
-    }
-
-    @Override
-    public List<PostParticipant> findByUserAndPost(Long userId, Post post) {
-        return List.of();
-    }
 
 }

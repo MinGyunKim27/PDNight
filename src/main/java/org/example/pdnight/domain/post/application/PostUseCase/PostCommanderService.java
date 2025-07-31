@@ -156,6 +156,8 @@ public class PostCommanderService {
                 request.getAgeLimit()
         );
 
+        postCommander.save(post);
+
         return PostResponseDto.toDto(post);
     }
 

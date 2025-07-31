@@ -158,11 +158,6 @@ public class PostReaderService {
 
     // ===========================================validate==========================================================
     // 참가자 목록 조회 용 검증 로직
-    private void validateGetParticipantList(Post post, Long loginId) {
-        if (!post.getAuthorId().equals(loginId) && getParticipantByStatus(loginId, post, JoinStatus.ACCEPTED) == null) {
-            throw new BaseException(ErrorCode.NO_VIEWING_PERMISSION);
-        }
-    }
 
     private void validateMyPost(Post post, Long loginId) {
         if (!post.getAuthorId().equals(loginId)) {
@@ -171,20 +166,8 @@ public class PostReaderService {
     }
 
     private Post getPost(Long postId) {
-        return postReader.findById(postId)
+        return postReader.getPostById(postId)
                 .orElseThrow(() -> new BaseException(ErrorCode.POST_NOT_FOUND));
-    }
-
-    private Post getPostWithOpen(Long postId) {
-        return postReader.findByIdAndStatus(postId, PostStatus.OPEN)
-                .orElseThrow(() -> new BaseException(ErrorCode.POST_NOT_FOUND));
-    }
-
-    private PostParticipant getParticipantByStatus(Long userId, Post post, JoinStatus pending) {
-        return postReader.findByUserAndPost(userId, post).stream()
-                .filter(p -> p.getStatus().equals(pending))
-                .findFirst()
-                .orElse(null);
     }
 
     // 리스트를 불러와서 참여자 수
