@@ -24,9 +24,7 @@ public class Comment extends Timestamped {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id")
-    private Post post;
+    private Long postId;
 
     private Long authorId;
 
@@ -45,16 +43,16 @@ public class Comment extends Timestamped {
     private List<Comment> children = new ArrayList<>();
 
     //댓글 생성자
-    private Comment(Post post, Long authorId, String content) {
-        this.post = post;
+    private Comment(Long postId, Long authorId, String content) {
+        this.postId = postId;
         this.authorId = authorId;
         this.content = content;
         this.depth = 0;
     }
 
     //대댓글 생성자
-    private Comment(Post post, Long authorId, String content, Comment parent) {
-        this.post = post;
+    private Comment(Long postId, Long authorId, String content, Comment parent) {
+        this.postId = postId;
         this.authorId = authorId;
         this.content = content;
         this.parent = parent;
@@ -62,17 +60,17 @@ public class Comment extends Timestamped {
     }
 
     //댓글 생성 메서드
-    public static Comment create(Post post, Long authorId, String content) {
-        return new Comment(post, authorId, content);
+    public static Comment create(Long postId, Long authorId, String content) {
+        return new Comment(postId, authorId, content);
     }
 
     //대댓글 생성 메서드
-    public static Comment createChild(Post post, Long authorId, String content, Comment parent) {
+    public static Comment createChild(Long postId, Long authorId, String content, Comment parent) {
         if (parent.depth >= 1) {
             throw new BaseException(ErrorCode.INVALID_COMMENT_DEPTH);
         }
 
-        return new Comment(post, authorId, content, parent);
+        return new Comment(postId, authorId, content, parent);
     }
 
     //댓글 내용 수정 메서드

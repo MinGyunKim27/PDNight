@@ -13,6 +13,7 @@ import org.example.pdnight.domain.post.presentation.dto.request.PostUpdateReques
 import org.example.pdnight.domain.post.presentation.dto.response.*;
 import org.example.pdnight.domain1.common.dto.PagedResponse;
 import org.example.pdnight.domain1.common.enums.ErrorCode;
+import org.example.pdnight.domain1.common.enums.JobCategory;
 import org.example.pdnight.domain1.common.exception.BaseException;
 import org.example.pdnight.global.aop.DistributedLock;
 import org.example.pdnight.global.constant.CacheName;
@@ -115,15 +116,15 @@ public class PostCommandService {
     @Transactional
     public PostLikeResponse addLike(Long id, Long userId) {
 
-        User user = helper.getUserByIdOrElseThrow(userId);
-        Post post = helper.getPostByIdOrElseThrow(id);
+        User user = getUserByIdOrElseThrow(userId);
+        Post post = getPostByIdOrElseThrow(id);
 
         //좋아요 존재 하면 에러
         validateExists(post, user);
 
         PostLike postLike = PostLike.create(post, user);
         post.addLike(postLike);
-        postLikeRepository.save(postLike);
+        postCommandQuery.save(postLike);
 
         return PostLikeResponse.from(postLike);
     }
@@ -132,12 +133,12 @@ public class PostCommandService {
     @Transactional
     public void removeLike(Long id, Long userId) {
 
-        User user = helper.getUserByIdOrElseThrow(userId);
-        Post post = helper.getPostByIdOrElseThrow(id);
+        User user = getUserByIdOrElseThrow(userId);
+        Post post = getPostByIdOrElseThrow(id);
         PostLike like = getPostLikePostAndUser(post, user);
 
         post.removeLike(like);
-        postLikeRepository.delete(like);
+        postCommandQuery.delete(like);
     }
 
     private static AgeLimit determineAgeLimit(Long age) {

@@ -1,9 +1,5 @@
 package org.example.pdnight.domain.post.presentation;
 
-
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-
 import org.example.pdnight.domain.post.application.commentUseCase.CommentService;
 import org.example.pdnight.domain.post.presentation.dto.request.CommentRequestDto;
 import org.example.pdnight.domain.post.presentation.dto.response.CommentResponseDto;
@@ -15,7 +11,18 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/posts/{postId}/comments")
@@ -104,7 +111,7 @@ public class CommentController {
             @AuthenticationPrincipal CustomUserDetails loginUser
     ) {
         Long adminId = loginUser.getUserId();
-        CommentService.deleteAdminCommentByAdmin(postId, id, adminId);
+        CommentService.deleteCommentByAdmin(postId, id, adminId);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.ok("댓글이 삭제되었습니다.",  null));

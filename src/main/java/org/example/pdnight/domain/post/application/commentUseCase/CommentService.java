@@ -18,7 +18,6 @@ public interface CommentService {
 
     PagedResponse<CommentResponseDto> getCommentsByPostId(Long postId, Pageable pageable);
 
-    //   ------ admin ------
-    static void deleteAdminCommentByAdmin(Long postId, Long id, Long adminId) {
-    }
+    void deleteCommentByAdmin(Long postId, Long id, Long adminId);
+
 }
