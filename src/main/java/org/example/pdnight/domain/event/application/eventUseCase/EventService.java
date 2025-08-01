@@ -20,4 +20,6 @@ public interface EventService {
     void addParticipant(Long eventId, Long userId);
 
     PagedResponse<EventParticipantResponse> findEventParticipantList(Long eventId, Pageable pageable);
+
+    PagedResponse<EventResponse> findMyParticipantEvents(Long userId, Pageable pageable);
 }

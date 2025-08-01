@@ -65,7 +65,7 @@ public class UserController {
 
     // --------------- coupons
     // 쿠폰사용
-    @PatchMapping("/coupons/{id}")
+    @PatchMapping("/users/user-coupons/{id}")
     public ResponseEntity<ApiResponse<UserCouponResponse>> useCoupon(
             @PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -90,7 +90,7 @@ public class UserController {
 
     // --------------- coupons
     // 사용자에게 쿠폰 부여
-    @PostMapping("/admin/user/coupons")
+    @PostMapping("/admin/users/coupons")
     public ResponseEntity<ApiResponse<UserCouponResponse>> giveCouponToUser(
             @RequestBody GiveCouponRequest request
     ) {
@@ -164,7 +164,7 @@ public class UserController {
     }
 
     // 내 쿠폰목록 조회
-    @GetMapping("/users/my/coupons")
+    @GetMapping("/users/my/user-coupons")
     public ResponseEntity<ApiResponse<PagedResponse<UserCouponResponse>>> getMyCoupons(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PageableDefault() Pageable pageable

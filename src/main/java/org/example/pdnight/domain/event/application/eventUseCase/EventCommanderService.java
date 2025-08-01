@@ -13,6 +13,8 @@ import org.example.pdnight.global.common.exception.BaseException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 public class EventCommanderService {
@@ -23,15 +25,23 @@ public class EventCommanderService {
     // 이벤트 생성
     @Transactional
     public EventResponse createEvent(EventCreateRequest request) {
-        if(request.getMaxParticipants() < 1){
+        if (request.getMaxParticipants() < 1) {
             throw new BaseException(ErrorCode.EVENT_INVALID_PARTICIPANT);
+        }
+
+        if (request.getEventStartDate().isBefore(LocalDateTime.now())
+                || request.getEventStartDate().isAfter(request.getEventEndDate())
+                || request.getEventEndDate().isBefore(LocalDateTime.now())
+        ) {
+            throw new BaseException(ErrorCode.EVENT_INVALID_DATE);
         }
 
         Event event = Event.from(
                 request.getTitle(),
                 request.getContent(),
                 request.getMaxParticipants(),
-                request.getEventDate()
+                request.getEventStartDate(),
+                request.getEventEndDate()
         );
 
         Event saveEvent = eventCommander.save(event);
@@ -42,7 +52,7 @@ public class EventCommanderService {
     public EventResponse updateEvent(Long id, EventCreateRequest request) {
         Event event = getEventById(id);
 
-        if(request.getMaxParticipants() < 1){
+        if (request.getMaxParticipants() < 1) {
             throw new BaseException(ErrorCode.EVENT_INVALID_PARTICIPANT);
         }
 
@@ -50,7 +60,8 @@ public class EventCommanderService {
                 request.getTitle(),
                 request.getContent(),
                 request.getMaxParticipants(),
-                request.getEventDate()
+                request.getEventStartDate(),
+                request.getEventEndDate()
         );
 
         Event saveEvent = eventCommander.save(event);
@@ -76,7 +87,7 @@ public class EventCommanderService {
 
         // 신청 인원 확인
         Long participantsCount = eventReader.getEventParticipantByEventId(eventId);
-        if (participantsCount.intValue() == event.getMaxParticipants()) {
+        if (participantsCount.intValue() >= event.getMaxParticipants()) {
             throw new BaseException(ErrorCode.EVENT_PARTICIPANT_FULL);
         }
 
@@ -97,12 +108,6 @@ public class EventCommanderService {
     private void validateParticipant(Long eventId, Long userId) {
         if (eventReader.existsEventByIdAndUserId(eventId, userId)) {
             throw new BaseException(ErrorCode.EVENT_ALREADY_PENDING);
-        }
-    }
-
-    private void validateIsFullEvent(int participantsCount, Event event) {
-        if (participantsCount >= event.getMaxParticipants()) {
-            throw new BaseException(ErrorCode.EVENT_PARTICIPANT_FULL);
         }
     }
 }

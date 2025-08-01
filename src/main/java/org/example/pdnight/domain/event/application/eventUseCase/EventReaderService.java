@@ -40,6 +40,11 @@ public class EventReaderService {
         return PagedResponse.from(eventPage.map(EventParticipantResponse::from));
     }
 
+    public PagedResponse<EventResponse> findMyParticipantEvents(Long userId, Pageable pageable) {
+        Page<Event> participantEvents = eventReader.getMyParticipantEvents(userId, pageable);
+        return PagedResponse.from(participantEvents.map(EventResponse::from));
+    }
+
 
     // ----------------------------------- HELPER 메서드 ------------------------------------------------------ //
     // get
@@ -47,18 +52,5 @@ public class EventReaderService {
         return eventReader.findById(id).orElseThrow(
                 () -> new BaseException(ErrorCode.EVENT_NOT_FOUNT)
         );
-    }
-
-    // validate
-    private void validateParticipant(Long eventId, Long userId) {
-        if (eventReader.existsEventByIdAndUserId(eventId, userId)) {
-            throw new BaseException(ErrorCode.EVENT_ALREADY_PENDING);
-        }
-    }
-
-    private void validateIsFullEvent(int participantsCount, Event event) {
-        if (participantsCount >= event.getMaxParticipants()) {
-            throw new BaseException(ErrorCode.EVENT_PARTICIPANT_FULL);
-        }
     }
 }

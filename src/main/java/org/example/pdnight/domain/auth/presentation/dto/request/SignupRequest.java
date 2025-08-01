@@ -21,6 +21,7 @@ public class SignupRequest {
     @NotBlank(message = "이름을 작성해야 합니다.")
     private String name;
 
+    @NotBlank(message = "닉네임을 작성해야 합니다.")
     private String nickname;
 
     @NotNull(message = "성별을 작성해야 합니다.")
