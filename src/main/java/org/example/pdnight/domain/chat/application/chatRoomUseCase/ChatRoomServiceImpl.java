@@ -1,49 +1,43 @@
 package org.example.pdnight.domain.chat.application.chatRoomUseCase;
 
 
-
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.chat.domain.ChatRoom;
-import org.example.pdnight.domain.chat.presentation.dto.request.ChatMessageDto;
-import org.example.pdnight.domain.chat.presentation.dto.response.ChatRoomResponseDto;
+import org.example.pdnight.domain.chat.presentation.dto.response.ChatRoomResponse;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class ChatRoomServiceImpl implements ChatRoomService{
+public class ChatRoomServiceImpl implements ChatRoomService {
 
-    private final ChatRoomReaderService chatRoomCommandService;
-    private final ChatRoomCommanderService chatRoomQueryService;
+    private final ChatRoomReaderService chatRoomReaderService;
+    private final ChatRoomCommanderService chatRoomCommanderService;
 
     @Override
-    public List<ChatRoomResponseDto> list() {
-        return chatRoomCommandService.list();
+    public List<ChatRoomResponse> list() {
+        return chatRoomReaderService.list();
     }
 
     @Override
     public ChatRoom create(String name) {
-        return chatRoomQueryService.create(name);
+        return chatRoomCommanderService.create(name);
     }
 
     @Override
-    public ChatRoomResponseDto roomInfo(Long roomId) {
-        return chatRoomCommandService.roomInfo(roomId);
+    public ChatRoomResponse roomInfo(Long roomId) {
+        return chatRoomReaderService.roomInfo(roomId);
     }
 
     @Override
-    public String chatRoomEnter(Long userId, Long chatRoomId) {
-        return chatRoomQueryService.chatRoomEnter(userId, chatRoomId);
+    public String chatRoomEnterValid(Long userId, Long chatRoomId) {
+        return chatRoomCommanderService.chatRoomEnterValid(userId, chatRoomId);
     }
 
     @Override
-    public void enterChatRoom(String roomId) {
-        chatRoomQueryService.enterChatRoom(roomId);
+    public ChatRoom createFromPost(Long postId) {
+        return chatRoomCommanderService.createFromPost(postId);
     }
 
-    @Override
-    public void sendMessage(ChatMessageDto message) {
-        chatRoomQueryService.sendMessage(message);
-    }
 }

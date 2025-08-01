@@ -2,129 +2,133 @@ package org.example.pdnight.domain.post.application.commentUseCase;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.pdnight.domain.post.application.port.PostPort;
 import org.example.pdnight.domain.post.domain.comment.Comment;
 import org.example.pdnight.domain.post.domain.comment.CommentCommander;
-import org.example.pdnight.domain.post.domain.post.Post;
-import org.example.pdnight.domain.post.presentation.dto.request.CommentRequestDto;
-import org.example.pdnight.domain.post.presentation.dto.response.CommentResponseDto;
+import org.example.pdnight.domain.post.enums.PostStatus;
+import org.example.pdnight.domain.post.presentation.dto.request.CommentRequest;
+import org.example.pdnight.domain.post.presentation.dto.response.CommentResponse;
+import org.example.pdnight.domain.post.presentation.dto.response.PostInfo;
 import org.example.pdnight.global.common.enums.ErrorCode;
 import org.example.pdnight.global.common.exception.BaseException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class CommentCommanderService {
 
-	private final CommentCommander commentCommandQuery;
+    private final CommentCommander commentCommander;
+    private final PostPort postPort;
 
-	//댓글 생성 메서드
-	public CommentResponseDto createComment(Long postId, Long loginId, CommentRequestDto request) {
+    //댓글 생성 메서드
+    public CommentResponse createComment(Long postId, Long loginId, CommentRequest request) {
+        //게시글 존재하는지 검증
+        PostInfo postFromPort = postPort.findById(postId);
 
-		//PostClient로 해당 게시물 조회
+        //닫힘 상태 확인
+        if (postFromPort.getStatus().equals(PostStatus.CLOSED)) {
+            throw new BaseException(ErrorCode.POST_STATUS_CLOSED);
+        }
 
-		//댓글을 기입될 게시글 없을 경우 예외 발생
+        //댓글 엔티티 생성 및 저장
+        Comment comment = Comment.create(postId, loginId, request.getContent());
+        Comment savedComment = commentCommander.save(comment);
 
-		//댓글 엔티티 생성 및 저장
-		Comment comment = Comment.create(postId, loginId, request.getContent());
-		Comment savedComment = commentCommandQuery.save(comment);
+        return CommentResponse.from(savedComment);
+    }
 
-		return CommentResponseDto.from(savedComment);
-	}
+    //댓글 삭제 메서드
+    @Transactional
+    public void deleteCommentById(Long postId, Long id, Long loginId) {
+        if (!postPort.existsById(postId)) {
+            throw new BaseException(ErrorCode.POST_NOT_FOUND);
+        }
 
-	//댓글 삭제 메서드
-	@Transactional
-	public void deleteCommentById(Long postId, Long id, Long loginId) {
-		//댓글을 기입될 게시글 찾아옴 -> 없을 경우 예외 발생 -> 검증 로직
-//		getPostByIdOrElseThrow(postId);
+        //댓글 검증 로직
+        Comment foundComment = getCommentById(id);
+        validateComment(loginId, postId, foundComment);
 
-		// Todo: PostClient로 해당 게시물 조회
+        //부모 댓글 id 기준 자식댓글 일괄 삭제 메서드
+        commentCommander.deleteAllByParentId(id);
+        commentCommander.delete(foundComment);
+    }
 
-		//댓글을 기입될 게시글 없을 경우 예외 발생
+    //댓글 수정 메서드
+    @Transactional
+    public CommentResponse updateCommentByDto(Long postId, Long id, Long loginId, CommentRequest request) {
+        if (!postPort.existsById(postId)) {
+            throw new BaseException(ErrorCode.POST_NOT_FOUND);
+        }
 
-		//댓글 검증 로직
-		Comment foundComment = getCommentById(id);
-		validateComment(loginId, postId, foundComment);
+        //댓글 검증 로직
+        Comment foundComment = getCommentById(id);
+        validateComment(loginId, postId, foundComment);
 
-		//부모 댓글 id 기준 자식댓글 일괄 삭제 메서드
-		commentCommandQuery.deleteAllByParentId(id);
-		commentCommandQuery.delete(foundComment);
-	}
+        if (foundComment.getContent().equals(request.getContent())) {
+            log.info("요청과 기존 댓글 내용이 동일하여 업데이트를 생략합니다. commentId = {}", foundComment.getId());
+            return CommentResponse.from(foundComment);
+        }
 
-	//댓글 수정 메서드
-	@Transactional
-	public CommentResponseDto updateCommentByDto(Long postId, Long id, Long loginId, CommentRequestDto request) {
-		//댓글을 기입될 게시글과, 작성자를 찾아옴 -> 없을 경우 예외 발생 -> 검증 로직
-//		getPostByIdOrElseThrow(postId);
+        foundComment.updateContent(request.getContent());
+        return CommentResponse.from(foundComment);
+    }
 
-		//댓글 검증 로직
-		Comment foundComment = getCommentById(id);
-		validateComment(loginId, postId, foundComment);
+    //대댓글 생성 메서드
+    public CommentResponse createChildComment(Long postId, Long id, Long loginId, CommentRequest request) {
+        //게시글 존재하는지 검증
+        PostInfo postFromPort = postPort.findById(postId);
 
-		if (foundComment.getContent().equals(request.getContent())) {
-			log.info("요청과 기존 댓글 내용이 동일하여 업데이트를 생략합니다. commentId = {}", foundComment.getId());
-			return CommentResponseDto.from(foundComment);
-		}
+        //닫힘 상태 확인
+        if (postFromPort.getStatus().equals(PostStatus.CLOSED)) {
+            throw new BaseException(ErrorCode.POST_STATUS_CLOSED);
+        }
 
-		foundComment.updateContent(request.getContent());
-		return CommentResponseDto.from(foundComment);
-	}
+        Comment foundComment = getCommentById(id);
 
-	//대댓글 생성 메서드
-	public CommentResponseDto createChildComment(Long postId, Long id, Long loginId, CommentRequestDto request) {
-		//댓글을 기입될 게시글과, 작성자를 찾아옴 -> 없을 경우 예외 발생 -> 검증 로직
-//		Post foundPost = getPostByIdOrElseThrow(postId);
+        //대댓글 엔티티 생성 및 저장
+        Comment childComment = Comment.createChild(postId, loginId, request.getContent(), foundComment);
+        Comment savedChildComment = commentCommander.save(childComment);
 
-		Comment foundComment = getCommentById(id);
+        return CommentResponse.from(savedChildComment);
+    }
 
-		//대댓글 엔티티 생성 및 저장
-		Comment childComment = Comment.createChild(postId, loginId, request.getContent(), foundComment);
-		Comment savedChildComment = commentCommandQuery.save(childComment);
+    //어드민 권한 댓글 삭제 메서드
+    @Transactional
+    public void deleteCommentByAdmin(Long postId, Long id, Long adminId) {
+        //해당 게시물이 없으면 예외 쓰로우
+        if (!postPort.existsById(postId)) {
+            throw new BaseException(ErrorCode.POST_NOT_FOUND);
+        }
 
-		return CommentResponseDto.from(savedChildComment);
-	}
+        //해당 댓글이 있는지 검증
+        Comment foundComment = getCommentById(id);
 
-	//어드민 권한 댓글 삭제 메서드
-	@Transactional
-	public void deleteCommentByAdmin(Long postId, Long id, Long adminId) {
-		//해당 게시글이 있는지 검증
-//		validateExistPost(postId);
+        if (!foundComment.getPostId().equals(postId)) {
+            throw new BaseException(ErrorCode.POST_NOT_MATCHED);
+        }
 
-		//해당 댓글이 있는지 검증
-		Comment foundComment = getCommentById(id);
+        //부모 댓글 id 기준 자식댓글 일괄 삭제 메서드
+        commentCommander.deleteAllByParentId(id);
+        commentCommander.delete(foundComment);
+        log.info("{}번 Id 관리자가 댓글을 삭제했습니다.", adminId);
+    }
 
-		if(!foundComment.getPostId().equals(postId)) {
-			throw new BaseException(ErrorCode.POST_NOT_MATCHED);
-		}
+    private Comment getCommentById(Long id) {
+        return commentCommander.findById(id)
+                .orElseThrow(() -> new BaseException(ErrorCode.COMMENT_NOT_FOUND));
+    }
 
-		//부모 댓글 id 기준 자식댓글 일괄 삭제 메서드
-		commentCommandQuery.deleteAllByParentId(id);
-		commentCommandQuery.delete(foundComment);
-		log.info("{}번 Id 관리자가 댓글을 삭제했습니다.", adminId);
-	}
+    // validate
+    private void validateComment(Long loginId, Long postId, Comment comment) {
+        if (!comment.getAuthorId().equals(loginId)) {
+            throw new BaseException(ErrorCode.COMMENT_FORBIDDEN);
+        }
 
-	//웹클라이언트로 받아온 Post 꺼내는 메서드
-	private Post getPostByIdOrElseThrow(Optional<Post> optionalPost)  {
-		return optionalPost.orElseThrow(() -> new BaseException(ErrorCode.POST_NOT_FOUND));
-	}
-
-	private Comment getCommentById(Long id) {
-		return commentCommandQuery.findById(id)
-				.orElseThrow(() -> new BaseException(ErrorCode.COMMENT_NOT_FOUND));
-	}
-
-	// validate
-	private void validateComment(Long loginId, Long postId, Comment comment) {
-		if (!comment.getAuthorId().equals(loginId)) {
-			throw new BaseException(ErrorCode.COMMENT_FORBIDDEN);
-		}
-
-		if (!comment.getPostId().equals(postId)) {
-			throw new BaseException(ErrorCode.POST_NOT_MATCHED);
-		}
-	}
+        if (!comment.getPostId().equals(postId)) {
+            throw new BaseException(ErrorCode.POST_NOT_MATCHED);
+        }
+    }
 
 }

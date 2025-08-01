@@ -10,9 +10,7 @@ public interface PostCommander {
 
     boolean existsById(Long id);
 
-    Optional<Post> findPostById(Long id);
-
-    Optional<Post> getPostById(Long id);
+    Optional<Post> findById(Long id);
 
     void deletePost(Post post);
 

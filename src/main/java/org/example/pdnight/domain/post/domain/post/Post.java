@@ -43,15 +43,13 @@ public class Post extends Timestamped {
     private Integer maxParticipants;
 
     @Enumerated(EnumType.STRING)
-    private Gender genderLimit;
+    private Gender genderLimit = Gender.ALL;
 
     @Enumerated(EnumType.STRING)
-    private JobCategory jobCategoryLimit;
+    private JobCategory jobCategoryLimit = JobCategory.ALL;
 
     @Enumerated(EnumType.STRING)
-    private AgeLimit ageLimit;
-
-    private List<Long> invites = new ArrayList<>();
+    private AgeLimit ageLimit = AgeLimit.ALL;
 
     @Column(nullable = false)
     private Boolean isFirstCome = false;
@@ -63,26 +61,8 @@ public class Post extends Timestamped {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PostParticipant> postParticipants = new ArrayList<>();
 
-    private Post(
-            Long authorId,
-            String title,
-            LocalDateTime timeSlot,
-            String publicContent,
-            Integer maxParticipants,
-            Gender genderLimit,
-            JobCategory jobCategoryLimit,
-            AgeLimit ageLimit
-    ) {
-        this.authorId = authorId;
-        this.title = title;
-        this.timeSlot = timeSlot;
-        this.publicContent = publicContent;
-        this.status = PostStatus.OPEN;
-        this.maxParticipants = maxParticipants;
-        this.genderLimit = genderLimit;
-        this.jobCategoryLimit = jobCategoryLimit;
-        this.ageLimit = ageLimit;
-    }
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Invite> invites = new ArrayList<>();
 
     private Post(
             Long authorId,
@@ -93,8 +73,7 @@ public class Post extends Timestamped {
             Gender genderLimit,
             JobCategory jobCategoryLimit,
             AgeLimit ageLimit,
-            Boolean isFirstCome,
-            PostStatus status
+            Boolean isFirstCome
     ) {
         this.authorId = authorId;
         this.title = title;
@@ -102,33 +81,16 @@ public class Post extends Timestamped {
         this.publicContent = publicContent;
         this.status = PostStatus.OPEN;
         this.maxParticipants = maxParticipants;
-        this.genderLimit = genderLimit;
-        this.jobCategoryLimit = jobCategoryLimit;
-        this.ageLimit = ageLimit;
+        if(genderLimit != null) {
+            this.genderLimit = genderLimit;
+        }
+        if (jobCategoryLimit != null) {
+            this.jobCategoryLimit = jobCategoryLimit;
+        }
+        if(ageLimit != null) {
+            this.ageLimit = ageLimit;
+        }
         this.isFirstCome = isFirstCome;
-        this.status = status;
-    }
-
-    public static Post createPost(
-            Long authorId,
-            String title,
-            LocalDateTime timeSlot,
-            String publicContent,
-            Integer maxParticipants,
-            Gender genderLimit,
-            JobCategory jobCategoryLimit,
-            AgeLimit ageLimit
-    ) {
-        return new Post(
-                authorId,
-                title,
-                timeSlot,
-                publicContent,
-                maxParticipants,
-                genderLimit,
-                jobCategoryLimit,
-                ageLimit
-        );
     }
 
     public static Post createPost(
@@ -140,8 +102,7 @@ public class Post extends Timestamped {
             Gender genderLimit,
             JobCategory jobCategoryLimit,
             AgeLimit ageLimit,
-            Boolean isFirstCome,
-            PostStatus status
+            Boolean isFirstCome
     ) {
         return new Post(
                 authorId,
@@ -152,8 +113,7 @@ public class Post extends Timestamped {
                 genderLimit,
                 jobCategoryLimit,
                 ageLimit,
-                isFirstCome,
-                status
+                isFirstCome
         );
     }
 
@@ -195,5 +155,13 @@ public class Post extends Timestamped {
 
     public void removeParticipant(PostParticipant postParticipant) {
         postParticipants.remove(postParticipant);
+    }
+
+    public void addInvite(Invite invite) {
+        invites.add(invite);
+    }
+
+    public void removeInvite(Invite findInvite) {
+        invites.remove(findInvite);
     }
 }

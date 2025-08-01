@@ -4,6 +4,6 @@ import java.util.List;
 
 public interface CommentReader {
 
-	List<Comment> findByPostIdOrderByIdAsc(Long postId);
+    List<Comment> findByPostIdOrderByIdAsc(Long postId);
 
 }

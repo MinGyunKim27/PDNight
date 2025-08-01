@@ -13,8 +13,4 @@ public interface PostJpaRepository extends JpaRepository<Post, Long> {
 
     boolean existsById(Long id);
 
-    Optional<Post> findPostById(Long id);
-
-    Optional<Post> getPostById(Long id);
-
 }

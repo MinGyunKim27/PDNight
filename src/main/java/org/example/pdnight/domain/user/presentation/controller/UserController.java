@@ -180,4 +180,5 @@ public class UserController {
     ) {
         return ResponseEntity.ok(ApiResponse.ok("전체유저 조회 완료되었습니다.", userService.getAllUsers(pageable)));
     }
+
 }

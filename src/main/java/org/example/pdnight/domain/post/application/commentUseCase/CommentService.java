@@ -1,22 +1,22 @@
 package org.example.pdnight.domain.post.application.commentUseCase;
 
 import jakarta.validation.Valid;
-import org.example.pdnight.domain.post.presentation.dto.request.CommentRequestDto;
-import org.example.pdnight.domain.post.presentation.dto.response.CommentResponseDto;
+import org.example.pdnight.domain.post.presentation.dto.request.CommentRequest;
+import org.example.pdnight.domain.post.presentation.dto.response.CommentResponse;
 import org.example.pdnight.global.common.dto.PagedResponse;
 import org.springframework.data.domain.Pageable;
 
 public interface CommentService {
 
-    CommentResponseDto createComment(Long postId, Long authorId, CommentRequestDto request);
+    CommentResponse createComment(Long postId, Long authorId, CommentRequest request);
 
     void deleteCommentById(Long postId, Long id, Long authorId);
 
-    CommentResponseDto updateCommentByDto(Long postId, Long id, Long authorId, @Valid CommentRequestDto request);
+    CommentResponse updateCommentByDto(Long postId, Long id, Long authorId, @Valid CommentRequest request);
 
-    CommentResponseDto createChildComment(Long postId, Long id, Long authorId, @Valid CommentRequestDto request);
+    CommentResponse createChildComment(Long postId, Long id, Long authorId, @Valid CommentRequest request);
 
-    PagedResponse<CommentResponseDto> getCommentsByPostId(Long postId, Pageable pageable);
+    PagedResponse<CommentResponse> getCommentsByPostId(Long postId, Pageable pageable);
 
     void deleteCommentByAdmin(Long postId, Long id, Long adminId);
 
