@@ -142,7 +142,8 @@ public class EventCommanderServiceTest {
     }
 
     @Test
-    void addParticipant_이미_참가한_유저_예외() {
+    @DisplayName("이벤트 참가 - 이미 참가한 유저 예외")
+    void 이벤트_참가_이미_참가한_유저_예외() {
         // given
         Long eventId = 1L;
         Long userId = 10L;
@@ -156,7 +157,8 @@ public class EventCommanderServiceTest {
     }
 
     @Test
-    void addParticipant_정원_초과_예외() {
+    @DisplayName("이벤트 참가 - 정원 초과")
+    void 이벤트_참가_정원_초과_예외() {
         // given
         Long eventId = 1L;
         Long userId = 10L;
