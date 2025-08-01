@@ -1,7 +1,7 @@
 package org.example.pdnight.domain.user.application.reviewUserCase;
 
 import lombok.RequiredArgsConstructor;
-import org.example.pdnight.domain.user.application.userUseCase.event.UserEvaluationEvent;
+import org.example.pdnight.domain.user.application.userUseCase.event.UserEvaluatedEvent;
 import org.example.pdnight.domain.user.domain.entity.Review;
 import org.example.pdnight.domain.user.domain.reviewDomain.ReviewCommander;
 import org.example.pdnight.domain.user.domain.reviewDomain.ReviewReader;
@@ -30,7 +30,7 @@ public class ReviewCommanderService {
         Review saveReview = reviewCommander.save(review);
 
         // user 평가 갱신 이벤트 발행
-        eventPublisher.publishEvent(UserEvaluationEvent.of(
+        eventPublisher.publishEvent(UserEvaluatedEvent.of(
                 userId,
                 requestDto.getRate()
         ));

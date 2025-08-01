@@ -20,16 +20,18 @@ public class UserEventListener {
     private final UserReader userReader;
 
     @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
-    public void handlerUserSignUpEvent(UserSignUpEvent event) {
+    public void handlerUserSignUpEvent(UserSignedUpEvent event) {
         try {
             User user = User.fromUserSignUpEvent(event.getRequest());
+            log.info("Saving user: {}", user); // 저장 전 정보 출력
             userCommander.save(user);
         } catch (Exception e) {
             log.info("프로필 생성 실패: userId={}, error={}", event.getAuthId(), e.getMessage());
         }
     }
+
     @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
-    public void handleUserDelete(UserDeleteEvent event) {
+    public void handleUserDelete(UserDeletedEvent event) {
         try {
             User user = userReader.findById(event.getAuthId()).orElseThrow(
                     () -> new BaseException(ErrorCode.USER_NOT_FOUND)
@@ -41,7 +43,7 @@ public class UserEventListener {
     }
 
     @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
-    public void handleUserEvaludation(UserEvaluationEvent event) {
+    public void handleUserEvaludation(UserEvaluatedEvent event) {
         try {
             User user = userReader.findById(event.getUserId()).orElseThrow(
                     () -> new BaseException(ErrorCode.USER_NOT_FOUND)

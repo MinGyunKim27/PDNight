@@ -5,11 +5,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 import org.example.pdnight.domain.post.enums.Gender;
-import org.example.pdnight.domain.user.domain.enums.Region;
 import org.example.pdnight.global.annotation.ValidEmailPattern;
 import org.example.pdnight.global.common.enums.JobCategory;
-
-import java.util.List;
 
 @Getter
 @Builder
@@ -24,13 +21,8 @@ public class SignupRequest {
     @NotBlank(message = "이름을 작성해야 합니다.")
     private String name;
 
+    @NotBlank(message = "닉네임을 작성해야 합니다.")
     private String nickname;
-
-//    @NotBlank(message = "취미를 작성해야 합니다.")
-    private List<Long> hobbyIdList;
-
-//    @NotBlank(message = "기술 스택을 작성해야 합니다.")
-    private List<Long> techStackIdList;
 
     @NotNull(message = "성별을 작성해야 합니다.")
     private Gender gender;
@@ -40,13 +32,4 @@ public class SignupRequest {
 
     @NotNull(message = "직업을 작성해야 합니다.")
     private JobCategory jobCategory;
-
-    @NotNull(message = "사는 지역을 작성해야 합니다.")
-    private Region region;
-
-    @NotNull(message = "근무 지역을 작성해야 합니다.")
-    private Region workLocation;
-
-    private String comment;
-
 }

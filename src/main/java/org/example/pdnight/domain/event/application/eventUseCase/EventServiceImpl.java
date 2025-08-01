@@ -1,8 +1,7 @@
-package org.example.pdnight.domain.event.application.eventUserCase;
+package org.example.pdnight.domain.event.application.eventUseCase;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.pdnight.domain.event.infra.EventJpaRepository;
 import org.example.pdnight.domain.event.presentation.dto.request.EventCreateRequest;
 import org.example.pdnight.domain.event.presentation.dto.response.EventParticipantResponse;
 import org.example.pdnight.domain.event.presentation.dto.response.EventResponse;
@@ -16,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class EventServiceImpl implements EventService {
 
-    private final EventJpaRepository eventJpaRepository;
     private final EventCommanderService eventCommanderService;
     private final EventReaderService eventReaderService;
 
@@ -58,5 +56,10 @@ public class EventServiceImpl implements EventService {
     @Override
     public PagedResponse<EventParticipantResponse> findEventParticipantList(Long eventId, Pageable pageable) {
         return eventReaderService.findEventParticipantList(eventId, pageable);
+    }
+
+    @Override
+    public PagedResponse<EventResponse> findMyParticipantEvents(Long userId, Pageable pageable) {
+        return eventReaderService.findMyParticipantEvents(userId, pageable);
     }
 }

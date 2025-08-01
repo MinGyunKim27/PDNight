@@ -20,4 +20,5 @@ public interface EventReader {
 
     Page<EventParticipant> findByEventWithUser(Event event, Pageable pageable);
 
+    Page<Event> getMyParticipantEvents(Long userId, Pageable pageable);
 }

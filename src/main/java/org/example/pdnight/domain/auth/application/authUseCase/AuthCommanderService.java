@@ -1,6 +1,7 @@
 package org.example.pdnight.domain.auth.application.authUseCase;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.auth.application.port.UserQueryPort;
 import org.example.pdnight.domain.auth.domain.AuthCommander;
@@ -13,8 +14,8 @@ import org.example.pdnight.domain.auth.presentation.dto.request.WithdrawRequest;
 import org.example.pdnight.domain.auth.presentation.dto.response.LoginResponse;
 import org.example.pdnight.domain.auth.presentation.dto.response.SignupResponse;
 import org.example.pdnight.domain.auth.presentation.dto.response.UserInfo;
-import org.example.pdnight.domain.user.application.userUseCase.event.UserDeleteEvent;
-import org.example.pdnight.domain.user.application.userUseCase.event.UserSignUpEvent;
+import org.example.pdnight.domain.user.application.userUseCase.event.UserDeletedEvent;
+import org.example.pdnight.domain.user.application.userUseCase.event.UserSignedUpEvent;
 import org.example.pdnight.global.common.enums.ErrorCode;
 import org.example.pdnight.global.common.exception.BaseException;
 import org.example.pdnight.global.config.PasswordEncoder;
@@ -54,7 +55,7 @@ public class AuthCommanderService {
         Auth saveAuth = authCommander.save(auth);
 
         // 회원가입 이벤트 발행
-        eventPublisher.publishEvent(UserSignUpEvent.of(
+        eventPublisher.publishEvent(UserSignedUpEvent.of(
                 auth.getId(),
                 request
         ));
@@ -65,7 +66,6 @@ public class AuthCommanderService {
     @Transactional
     public LoginResponse login(LoginRequest request) {
         Auth auth = getAuthByEmail(request.getEmail());
-
         validateAuth(auth, request.getPassword());
 
         UserInfo userInfo = userQueryPort.getUserInfoById(auth.getId());
@@ -78,20 +78,21 @@ public class AuthCommanderService {
         return LoginResponse.from(token);
     }
 
-    public void logout(String token) {
+    public void logout(HttpServletRequest http) {
+        String bearerJwt = http.getHeader("Authorization");
+        String token = jwtUtil.substringToken(bearerJwt);
         redisTemplate.opsForSet().add(CacheName.BLACKLIST_TOKEN, token);
     }
 
     @Transactional
     public void withdraw(Long userId, WithdrawRequest request) {
         Auth auth = getAuthById(userId);
-
         validateAuth(auth, request.getPassword());
 
         auth.softDelete();
 
         // 회원 탈퇴 이벤트 발행
-        eventPublisher.publishEvent(UserDeleteEvent.of(
+        eventPublisher.publishEvent(UserDeletedEvent.of(
                 auth.getId()
         ));
     }

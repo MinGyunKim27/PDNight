@@ -11,7 +11,8 @@ public class EventResponse {
     private String title;
     private String content;
     private int maxParticipants;
-    private LocalDateTime eventDate;
+    private LocalDateTime eventStartDate;
+    private LocalDateTime eventEndDate;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -20,7 +21,8 @@ public class EventResponse {
         this.title = event.getTitle();
         this.content = event.getContent();
         this.maxParticipants = event.getMaxParticipants();
-        this.eventDate = event.getEventDate();
+        this.eventStartDate = event.getEventStartDate();
+        this.eventEndDate = event.getEventEndDate();
         this.createdAt = event.getCreatedAt();
         this.updatedAt = event.getUpdatedAt();
     }

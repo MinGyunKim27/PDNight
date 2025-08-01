@@ -1,4 +1,4 @@
-package org.example.pdnight.domain.event.application.eventUserCase;
+package org.example.pdnight.domain.event.application.eventUseCase;
 
 import org.example.pdnight.domain.event.presentation.dto.request.EventCreateRequest;
 import org.example.pdnight.domain.event.presentation.dto.response.EventParticipantResponse;
@@ -20,4 +20,6 @@ public interface EventService {
     void addParticipant(Long eventId, Long userId);
 
     PagedResponse<EventParticipantResponse> findEventParticipantList(Long eventId, Pageable pageable);
+
+    PagedResponse<EventResponse> findMyParticipantEvents(Long userId, Pageable pageable);
 }

@@ -34,13 +34,17 @@ public class Event extends Timestamped {
     private Integer maxParticipants;
 
     @Column(nullable = false)
-    private LocalDateTime eventDate;
+    private LocalDateTime eventStartDate;
 
-    protected Event(String title, String content, Integer maxParticipants, LocalDateTime eventDate) {
+    @Column(nullable = false)
+    private LocalDateTime eventEndDate;
+
+    protected Event(String title, String content, Integer maxParticipants, LocalDateTime eventStartDate, LocalDateTime eventEndDate) {
         this.title = title;
         this.content = content;
         this.maxParticipants = maxParticipants;
-        this.eventDate = eventDate;
+        this.eventStartDate = eventStartDate;
+        this.eventEndDate = eventEndDate;
     }
 
     private Event(Long eventId, int i) {
@@ -48,29 +52,30 @@ public class Event extends Timestamped {
         this.maxParticipants = i;
     }
 
-    private Event(Long i, String title, int maxParticipants) {
-        this.id = i;
+    private Event(Long id, String title, int maxParticipants) {
+        this.id = id;
         this.title = title;
         this.maxParticipants = maxParticipants;
     }
 
-    public static Event from(Long eventId, int i) {
-        return new Event(eventId, i);
+    public static Event from(Long eventId, int id) {
+        return new Event(eventId, id);
     }
 
-    public static Event from(String title, String content, Integer maxParticipants, LocalDateTime eventDate) {
-        return new Event(title, content, maxParticipants, eventDate);
+    public static Event from(String title, String content, Integer maxParticipants, LocalDateTime eventStartDate, LocalDateTime eventEndDate) {
+        return new Event(title, content, maxParticipants, eventStartDate, eventEndDate);
     }
 
-    public static Event from(Long i, String title, int maxParticipants) {
-        return new Event(i, title, maxParticipants);
+    public static Event from(Long id, String title, int maxParticipants) {
+        return new Event(id, title, maxParticipants);
     }
 
-    public void updateEvent(String title, String content, Integer maxParticipants, LocalDateTime eventDate) {
+    public void updateEvent(String title, String content, Integer maxParticipants, LocalDateTime eventStartDate, LocalDateTime eventEndDate) {
         if (title != null) this.title = title;
         if (content != null) this.content = content;
         if (maxParticipants != null && maxParticipants >= 1) this.maxParticipants = maxParticipants;
-        if (eventDate != null) this.eventDate = eventDate;
+        if (eventStartDate != null) this.eventStartDate = eventStartDate;
+        if (eventEndDate != null) this.eventEndDate = eventEndDate;
     }
 
     public void addParticipant(EventParticipant eventParticipant) {

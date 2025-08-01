@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -89,5 +90,23 @@ public class EventReaderImpl implements EventReader {
 
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
 
+    }
+
+    @Override
+    public Page<Event> getMyParticipantEvents(Long userId, Pageable pageable) {
+        List<Event> content = queryFactory
+                .selectFrom(event)
+                .leftJoin(event.eventParticipants, eventParticipant).fetchJoin()
+                .where(eventParticipant.userId.eq(userId))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        // Count 쿼리
+        JPAQuery<Long> countQuery = queryFactory
+                .select(event.count())
+                .from(event);
+
+        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
     }
 }

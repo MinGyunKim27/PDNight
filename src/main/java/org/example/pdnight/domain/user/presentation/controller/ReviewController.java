@@ -54,10 +54,10 @@ public class ReviewController {
             Pageable pageable
     ) {
         Long myId = userDetails.getUserId();
-        return ResponseEntity.ok(ApiResponse.ok("사용자가 받은 리뷰 리스트 조회 성공.", reviewService.getReceivedReviewsByUser(myId, pageable)));
+        return ResponseEntity.ok(ApiResponse.ok("내가 받은 리뷰 리스트 조회 성공.", reviewService.getReceivedReviewsByUser(myId, pageable)));
     }
 
-    //내가 받은 리뷰 리스트 조회
+    //내가 작성한 리뷰 리스트 조회
     @GetMapping("/users/my/writtenReview")
     public ResponseEntity<ApiResponse<PagedResponse<ReviewResponse>>> getMyWrittenReviews(
             @AuthenticationPrincipal CustomUserDetails userDetails,
@@ -65,6 +65,6 @@ public class ReviewController {
             Pageable pageable
     ) {
         Long myId = userDetails.getUserId();
-        return ResponseEntity.ok(ApiResponse.ok("사용자가 받은 리뷰 리스트 조회 성공.", reviewService.getWrittenReviewsByUser(myId, pageable)));
+        return ResponseEntity.ok(ApiResponse.ok("작성한 리뷰 리스트 조회 성공.", reviewService.getWrittenReviewsByUser(myId, pageable)));
     }
 }

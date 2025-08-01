@@ -5,7 +5,6 @@ import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.user.domain.entity.User;
 import org.example.pdnight.domain.user.domain.enums.Region;
 import org.example.pdnight.global.common.enums.JobCategory;
-import org.example.pdnight.global.common.enums.UserRole;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -14,8 +13,6 @@ import java.util.List;
 public class UserResponse {
 
     private Long id;
-    private String email;
-    private UserRole role;
     private List<String> hobbyList;
     private List<String> techStackList;
     private String name;
@@ -31,7 +28,7 @@ public class UserResponse {
 
     private UserResponse(User user, List<String> hobbyNames, List<String> techNames) {
         this.id = user.getId();
-        this.hobbyList =hobbyNames;
+        this.hobbyList = hobbyNames;
         this.techStackList = techNames;
         this.name = user.getName();
         this.nickname = user.getNickname();
@@ -46,6 +43,6 @@ public class UserResponse {
     }
 
     public static UserResponse from(User user, List<String> hobbyNames, List<String> techNames) {
-        return new UserResponse(user,hobbyNames,techNames);
+        return new UserResponse(user, hobbyNames, techNames);
     }
 }

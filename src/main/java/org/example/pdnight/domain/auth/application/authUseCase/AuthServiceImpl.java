@@ -1,5 +1,6 @@
 package org.example.pdnight.domain.auth.application.authUseCase;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.auth.presentation.dto.request.LoginRequest;
 import org.example.pdnight.domain.auth.presentation.dto.request.SignupRequest;
@@ -32,8 +33,8 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public void logout(String token) {
-        authCommanderService.logout(token);
+    public void logout(HttpServletRequest http) {
+        authCommanderService.logout(http);
     }
 
     @Override
