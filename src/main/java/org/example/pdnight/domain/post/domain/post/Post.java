@@ -43,13 +43,13 @@ public class Post extends Timestamped {
     private Integer maxParticipants;
 
     @Enumerated(EnumType.STRING)
-    private Gender genderLimit;
+    private Gender genderLimit = Gender.ALL;
 
     @Enumerated(EnumType.STRING)
-    private JobCategory jobCategoryLimit;
+    private JobCategory jobCategoryLimit = JobCategory.ALL;
 
     @Enumerated(EnumType.STRING)
-    private AgeLimit ageLimit;
+    private AgeLimit ageLimit = AgeLimit.ALL;
 
     @Column(nullable = false)
     private Boolean isFirstCome = false;
@@ -81,9 +81,15 @@ public class Post extends Timestamped {
         this.publicContent = publicContent;
         this.status = PostStatus.OPEN;
         this.maxParticipants = maxParticipants;
-        this.genderLimit = genderLimit;
-        this.jobCategoryLimit = jobCategoryLimit;
-        this.ageLimit = ageLimit;
+        if(genderLimit != null) {
+            this.genderLimit = genderLimit;
+        }
+        if (jobCategoryLimit != null) {
+            this.jobCategoryLimit = jobCategoryLimit;
+        }
+        if(ageLimit != null) {
+            this.ageLimit = ageLimit;
+        }
         this.isFirstCome = isFirstCome;
     }
 

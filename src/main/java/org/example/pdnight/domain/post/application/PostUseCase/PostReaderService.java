@@ -32,6 +32,38 @@ public class PostReaderService {
 
     private final PostReader postReader;
 
+
+    // 게시글 단건 조회
+    @Transactional(readOnly = true)
+    @Cacheable(value = CacheName.ONE_POST, key = "#id")
+    public PostResponse findPost(Long id) {
+        Post foundPost = postReader.getPostById(id).orElseThrow(() -> new BaseException(ErrorCode.POST_NOT_FOUND));
+        int participants = acceptedParticipantsCounter(foundPost.getPostParticipants());
+        return PostResponse.toDtoWithCount(foundPost, participants, foundPost.getPostParticipants().size());
+    }
+
+    //게시물 조건 검색
+    @Transactional(readOnly = true)
+    @Cacheable(
+            value = CacheName.SEARCH_POST,
+            key = "{#pageable.pageNumber, #pageable.pageSize, #maxParticipants, #ageLimit, #jobCategoryLimit, #genderLimit, #hobbyIdList, #techStackIdList}"
+    )
+    public PagedResponse<PostResponse> getPostDtosBySearch(
+            Pageable pageable,
+            Integer maxParticipants,
+            AgeLimit ageLimit,
+            JobCategory jobCategoryLimit,
+            Gender genderLimit
+    ) {
+        Page<Post> postSearch = postReader.findPostsBySearch(pageable, maxParticipants,
+                ageLimit, jobCategoryLimit, genderLimit);
+        Page<PostResponse> postDtosBySearch = postSearch.map(search -> {
+            int participantCount = acceptedParticipantsCounter(search.getPostParticipants());
+            return PostResponse.toDtoWithCount(search, search.getPostParticipants().size(), participantCount);
+        });
+        return PagedResponse.from(postDtosBySearch);
+    }
+
     //본인이 작성한 게시글 신청자 목록 조회
     public PagedResponse<ParticipantResponse> getParticipantListByPending(Long loginId, Long postId, int page, int size) {
         Post post = getPost(postId);
@@ -72,15 +104,6 @@ public class PostReaderService {
         Page<ParticipantResponse> pagedPendingParticipants = new PageImpl<>(pendingParticipants, pageable, pendingParticipants.size());
 
         return PagedResponse.from(pagedPendingParticipants);
-    }
-
-    // 게시글 단건 조회
-    @Transactional(readOnly = true)
-    @Cacheable(value = CacheName.ONE_POST, key = "#id")
-    public PostResponse findPost(Long id) {
-        Post foundPost = postReader.getPostById(id).orElseThrow(() -> new BaseException(ErrorCode.POST_NOT_FOUND));
-        int participants = acceptedParticipantsCounter(foundPost.getPostParticipants());
-        return PostResponse.toDtoWithCount(foundPost, foundPost.getPostParticipants().size(), participants);
     }
 
     // 내가 좋아요 누른 게시물 조회
@@ -132,28 +155,6 @@ public class PostReaderService {
             return PostResponse.toDtoWithCount(search, search.getPostParticipants().size(), participantCount);
         });
         return PagedResponse.from(suggestedPost);
-    }
-
-    //게시물 조건 검색
-    @Transactional(readOnly = true)
-    @Cacheable(
-            value = CacheName.SEARCH_POST,
-            key = "{#pageable.pageNumber, #pageable.pageSize, #maxParticipants, #ageLimit, #jobCategoryLimit, #genderLimit, #hobbyIdList, #techStackIdList}"
-    )
-    public PagedResponse<PostResponse> getPostDtosBySearch(
-            Pageable pageable,
-            Integer maxParticipants,
-            AgeLimit ageLimit,
-            JobCategory jobCategoryLimit,
-            Gender genderLimit
-    ) {
-        Page<Post> postSearch = postReader.findPostsBySearch(pageable, maxParticipants,
-                ageLimit, jobCategoryLimit, genderLimit);
-        Page<PostResponse> postDtosBySearch = postSearch.map(search -> {
-            int participantCount = acceptedParticipantsCounter(search.getPostParticipants());
-            return PostResponse.toDtoWithCount(search, search.getPostParticipants().size(), participantCount);
-        });
-        return PagedResponse.from(postDtosBySearch);
     }
 
     // ===========================================validate==========================================================
