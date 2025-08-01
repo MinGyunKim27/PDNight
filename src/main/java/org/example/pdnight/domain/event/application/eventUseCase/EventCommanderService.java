@@ -23,6 +23,10 @@ public class EventCommanderService {
     // 이벤트 생성
     @Transactional
     public EventResponse createEvent(EventCreateRequest request) {
+        if(request.getMaxParticipants() < 1){
+            throw new BaseException(ErrorCode.EVENT_INVALID_PARTICIPANT);
+        }
+
         Event event = Event.from(
                 request.getTitle(),
                 request.getContent(),
@@ -37,6 +41,10 @@ public class EventCommanderService {
     @Transactional
     public EventResponse updateEvent(Long id, EventCreateRequest request) {
         Event event = getEventById(id);
+
+        if(request.getMaxParticipants() < 1){
+            throw new BaseException(ErrorCode.EVENT_INVALID_PARTICIPANT);
+        }
 
         event.updateEvent(
                 request.getTitle(),

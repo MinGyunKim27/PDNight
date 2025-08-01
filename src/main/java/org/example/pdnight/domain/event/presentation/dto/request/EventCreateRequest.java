@@ -20,4 +20,15 @@ public class EventCreateRequest {
 
     @NotNull(message = "이벤트 일자는 필수 입력값입니다.")
     private LocalDateTime eventDate;
+
+    protected EventCreateRequest(String title, String content, Integer maxParticipants, LocalDateTime eventDate) {
+        this.title = title;
+        this.content = content;
+        this.maxParticipants = maxParticipants;
+        this.eventDate = eventDate;
+    }
+
+    public static EventCreateRequest from(String title, String content, Integer maxParticipants, LocalDateTime eventDate) {
+        return new EventCreateRequest(title, content, maxParticipants, eventDate);
+    }
 }

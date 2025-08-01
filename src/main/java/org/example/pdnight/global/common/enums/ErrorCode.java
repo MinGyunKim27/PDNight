@@ -86,6 +86,7 @@ public enum ErrorCode {
     EVENT_NOT_FOUNT(HttpStatus.NOT_FOUND, "존재하지 않는 이벤트입니다."),
     EVENT_ALREADY_PENDING(HttpStatus.CONFLICT, "이미 신청한 이벤트입니다."),
     EVENT_PARTICIPANT_FULL(HttpStatus.CONFLICT, "신청 마감되었습니다."),
+    EVENT_INVALID_PARTICIPANT(HttpStatus.BAD_REQUEST, "이벤트 정원은 1명 이상이어야 합니다."),
 
     // 쿠폰 관련 에러
     COUPON_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 쿠폰입니다."),
