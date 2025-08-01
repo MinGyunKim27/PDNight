@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.example.pdnight.domain.user.domain.entity.QUserCoupon.userCoupon;
-import static org.example.pdnight.domain.user.domain.entity.QCoupon.coupon;
 
 @Repository
 @RequiredArgsConstructor
@@ -145,10 +144,8 @@ public class UserReaderImpl implements UserReader {
     public Page<UserCouponResponse> findUserCoupons(Long userId, LocalDateTime now, Pageable pageable) {
         List<UserCouponResponse> couponList = queryFactory
                 .select(Projections.constructor(UserCouponResponse.class,
-                        userCoupon,
-                        coupon))
+                        userCoupon))
                 .from(userCoupon)
-                .join(coupon).on(userCoupon.couponId.eq(coupon.id))
                 .where(
                         userCoupon.user.id.eq(userId),
                         userCoupon.isUsed.isFalse(),

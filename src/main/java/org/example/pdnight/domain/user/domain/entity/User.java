@@ -107,15 +107,6 @@ public class User extends Timestamped {
         );
     }
 
-    // 어드민 생성 메서드
-    public static User createAdmin(String name) {
-        return new User(
-                name, name, Gender.MALE,
-                25L, JobCategory.BACK_END_DEVELOPER,
-                Region.PANGYO_DONG, Region.PANGYO_DONG,
-                null);
-    }
-
     // ================================== add ==================================
     public void addFollow(User targetUser, Follow follow) {
         this.followedOther.add(follow);      // 내가 팔로잉하는 유저 목록에 추가
