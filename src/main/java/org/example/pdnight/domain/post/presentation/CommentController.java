@@ -25,14 +25,13 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/posts/{postId}/comments")
 @RequiredArgsConstructor
 public class CommentController {
 
     private final CommentService commentService;
 
     //댓글 다건조회 메서드
-    @GetMapping
+    @GetMapping("/api/posts/{postId}/comments")
     public ResponseEntity<ApiResponse<PagedResponse<CommentResponseDto>>> getComments(
             @PathVariable Long postId,
             @RequestParam(defaultValue = "0") int page,
@@ -46,7 +45,7 @@ public class CommentController {
     }
 
     //댓글 생성 메서드
-    @PostMapping
+    @PostMapping("/api/posts/{postId}/comments")
     public ResponseEntity<ApiResponse<CommentResponseDto>> saveComment(
             @PathVariable Long postId,
             @AuthenticationPrincipal CustomUserDetails loginUser,
@@ -60,7 +59,7 @@ public class CommentController {
     }
 
     //댓글 수정 메서드
-    @PatchMapping("/{id}")
+    @PatchMapping("/api/posts/{postId}/comments/{id}")
     public ResponseEntity<ApiResponse<CommentResponseDto>> updateComment(
             @PathVariable Long postId,
             @PathVariable Long id,
@@ -75,7 +74,7 @@ public class CommentController {
     }
 
     //대댓글 생성 메서드
-    @PostMapping("/{id}/comments")
+    @PostMapping("/api/posts/{postId}/comments/{id}/comments")
     public ResponseEntity<ApiResponse<CommentResponseDto>> saveChildComment(
             @PathVariable Long postId,
             @PathVariable Long id,
@@ -90,7 +89,7 @@ public class CommentController {
     }
 
     //댓글 삭제 메서드
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/api/posts/{postId}/comments/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteComment(
             @PathVariable Long postId,
             @PathVariable Long id,
@@ -103,7 +102,7 @@ public class CommentController {
                 .body(ApiResponse.ok("댓글이 삭제되었습니다.", null));
     }
 
-    /*//   ------ admin ------
+    //   ------ admin ------
     @DeleteMapping("/api/admin/posts/{postId}/comments/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteAdminComment(
             @PathVariable Long postId,
@@ -115,6 +114,6 @@ public class CommentController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.ok("댓글이 삭제되었습니다.",  null));
-    }*/
+    }
 
 }

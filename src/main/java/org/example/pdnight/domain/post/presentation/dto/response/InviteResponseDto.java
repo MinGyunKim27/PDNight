@@ -1,10 +1,12 @@
 package org.example.pdnight.domain.post.presentation.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Getter;
-import org.example.pdnight.domain.post.domain.invite.Invite;
+import org.example.pdnight.domain.post.domain.post.Invite;
 
 @Getter
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class InviteResponseDto {
     private Long id;
     private Long inviteeId;

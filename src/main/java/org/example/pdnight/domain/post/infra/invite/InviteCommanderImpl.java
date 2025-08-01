@@ -1,7 +1,7 @@
 package org.example.pdnight.domain.post.infra.invite;
 
 import lombok.RequiredArgsConstructor;
-import org.example.pdnight.domain.post.domain.invite.Invite;
+import org.example.pdnight.domain.post.domain.post.Invite;
 import org.example.pdnight.domain.post.domain.invite.InviteCommander;
 import org.springframework.stereotype.Repository;
 

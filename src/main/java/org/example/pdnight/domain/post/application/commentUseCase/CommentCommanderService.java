@@ -2,6 +2,7 @@ package org.example.pdnight.domain.post.application.commentUseCase;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.pdnight.domain.post.application.port.PostPort;
 import org.example.pdnight.domain.post.domain.comment.Comment;
 import org.example.pdnight.domain.post.domain.comment.CommentCommander;
 import org.example.pdnight.domain.post.domain.post.Post;
@@ -20,19 +21,19 @@ import java.util.Optional;
 public class CommentCommanderService {
 
 	private final CommentCommander commentCommandQuery;
+	private final PostPort postFinderPort;
 
 	//댓글 생성 메서드
 	public CommentResponseDto createComment(Long postId, Long loginId, CommentRequestDto request) {
 
-		//PostClient로 해당 게시물 조회
-
-		//댓글을 기입될 게시글 없을 경우 예외 발생
+		Post postFromPort = getPostByIdOrElseThrow(postFinderPort.findById(postId));
 
 		//댓글 엔티티 생성 및 저장
 		Comment comment = Comment.create(postId, loginId, request.getContent());
 		Comment savedComment = commentCommandQuery.save(comment);
 
 		return CommentResponseDto.from(savedComment);
+
 	}
 
 	//댓글 삭제 메서드

@@ -113,6 +113,26 @@ public class PostServiceImpl implements PostService{
     }
 
     @Override
+    public InviteResponseDto createInvite(Long postId, Long userId, Long loginUserId) {
+        return postCommanderService.createInvite(postId, userId, loginUserId);
+    }
+
+    @Override
+    public void deleteInvite(Long id, Long loginUserId) {
+        postCommanderService.deleteInvite(id, loginUserId);
+    }
+
+    @Override
+    public PagedResponse<InviteResponseDto> getMyInvited(Long userId, Pageable pageable) {
+        return postReaderService.getMyInvited(userId, pageable);
+    }
+
+    @Override
+    public PagedResponse<InviteResponseDto> getMyInvite(Long userId, Pageable pageable) {
+        return postReaderService.getMyInvite(userId, pageable);
+    }
+
+    @Override
     public void deleteAdminPostById(Long id) {
         postCommanderService.deleteAdminPostById(id);
     }

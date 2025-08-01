@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -21,7 +22,7 @@ public class ChatRoom {
     private Long postId;
 
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ChatParticipant> participants;
+    private List<ChatParticipant> participants = new ArrayList<>();
 
     private ChatRoom(String name) {
         chatRoomName = name;
@@ -40,7 +41,7 @@ public class ChatRoom {
         return new ChatRoom(name, postId);
     }
 
-    public void addParticipants(ChatParticipant authorId) {
-        participants.add(authorId);
+    public void addParticipants(ChatParticipant ChatParticipant) {
+        participants.add(ChatParticipant);
     }
 }

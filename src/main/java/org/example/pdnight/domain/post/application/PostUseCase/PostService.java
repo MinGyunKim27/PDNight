@@ -59,4 +59,11 @@ public interface PostService {
 
     void removeLike(Long id, Long userId);
 
+    InviteResponseDto createInvite(Long postId, Long userId, Long loginUserId);
+
+    void deleteInvite(Long id, Long loginUserId);
+
+    PagedResponse<InviteResponseDto> getMyInvited(Long userId, Pageable pageable);
+
+    PagedResponse<InviteResponseDto> getMyInvite(Long userId, Pageable pageable);
 }

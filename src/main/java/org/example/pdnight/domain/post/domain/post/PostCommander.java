@@ -18,4 +18,5 @@ public interface PostCommander {
 
     Post save(Post post);
 
+    void save(Post post);
 }

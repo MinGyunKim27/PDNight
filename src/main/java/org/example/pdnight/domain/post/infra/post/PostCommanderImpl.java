@@ -44,4 +44,9 @@ public class PostCommanderImpl implements PostCommander {
         return postJpaRepository.save(post);
     }
 
+    @Override
+    public void save(Post post) {
+        postJpaRepository.save(post);
+    }
+
 }

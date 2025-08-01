@@ -15,9 +15,7 @@ public interface ChatRoomService {
 
     ChatRoomResponseDto roomInfo(Long roomId);
 
-    String chatRoomEnter(Long userId, Long chatRoomId);
+    String chatRoomEnterValid(Long userId, Long chatRoomId);
 
-    void enterChatRoom(String roomId);
-
-    void sendMessage(ChatMessageDto message);
+    void createFromPost(Long id);
 }

@@ -9,13 +9,13 @@ import org.example.pdnight.domain.chat.enums.MessageType;
 
 
 @Getter
-@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ChatMessageDto {
 
     private MessageType messageType;
     private String roomId;
     private String sender;
+    @Setter
     private String message;
 
     private ChatMessageDto(ChatMessage chatMessage) {

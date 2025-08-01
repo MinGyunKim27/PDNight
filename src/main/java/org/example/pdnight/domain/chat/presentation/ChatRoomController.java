@@ -22,6 +22,8 @@ import java.util.List;
 @RequiredArgsConstructor
 @Controller
 public class ChatRoomController {
+    private final ChatRoomService chatRoomService;
+
     // 채팅 리스트 화면
     @GetMapping("/chat/view")
     public String rooms() {
@@ -35,9 +37,6 @@ public class ChatRoomController {
         return "chat/roomdetail";
     }
 
-
-    private final ChatRoomService chatRoomService;
-
     // 모든 채팅방 목록 반환
     @GetMapping("/chat/list")
     @ResponseBody
@@ -50,6 +49,14 @@ public class ChatRoomController {
     @ResponseBody
     public ResponseEntity<ApiResponse<ChatRoom>> createRoom(@RequestParam String name) {
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok("채팅방이 생성되었습니다.", chatRoomService.create(name)));
+    }
+
+    // 게시글 채팅방 생성
+    @PostMapping("/chat/room/{id}")
+    @ResponseBody
+    public ResponseEntity<ApiResponse<Void>> createRoom(@PathVariable Long id) {
+        chatRoomService.createFromPost(id);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok("채팅방이 생성되었습니다.", null));
     }
 
     // 특정 채팅방 정보 조회
@@ -71,18 +78,8 @@ public class ChatRoomController {
     public ResponseEntity<ApiResponse<Void>> PostChatRoomEnter(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                                @PathVariable Long chatRoomId) {
         Long userId = userDetails.getUserId();
-        String result = chatRoomService.chatRoomEnter(userId, chatRoomId);
+        String result = chatRoomService.chatRoomEnterValid(userId, chatRoomId);
         return ResponseEntity.ok(ApiResponse.ok(result, null));
     }
 
-    // 채팅 메시지 처리
-    @MessageMapping("/chat/message")
-    public ResponseEntity<ApiResponse<Void>> message(ChatMessageDto message) {
-        if (MessageType.ENTER.equals(message.getMessageType())) {
-            chatRoomService.enterChatRoom(message.getRoomId());
-            message.setMessage(message.getSender() + "님이 입장하셨습니다.");
-        }
-        chatRoomService.sendMessage(message);
-        return ResponseEntity.ok(ApiResponse.ok("메시지가 전송되었습니다.", null));
-    }
 }

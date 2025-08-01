@@ -1,5 +1,7 @@
 package org.example.pdnight.domain.post.domain.invite;
 
+import org.example.pdnight.domain.post.domain.post.Invite;
+
 import java.util.Optional;
 
 public interface InviteCommander {

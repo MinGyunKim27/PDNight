@@ -1,4 +1,4 @@
-package org.example.pdnight.domain.post.domain.invite;
+package org.example.pdnight.domain.post.domain.post;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -27,6 +27,10 @@ public class Invite extends Timestamped {
 
     @Column(name = "status")
     private JoinStatus status = JoinStatus.PENDING;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "post_id")
+    private Post post;
 
     private Invite(Long inviterId,Long inviteeId, Long postId){
         this.inviterId = inviterId;

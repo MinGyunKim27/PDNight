@@ -16,11 +16,14 @@ import org.example.pdnight.global.common.enums.JobCategory;
 import org.example.pdnight.global.filter.CustomUserDetails;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.net.URI;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,6 +32,68 @@ public class PostController {
 
     private final PostService postService;
 
+    //region 게시글
+    //region 게시글 조회 제외 메서드들
+    // 게시물 생성
+    @PostMapping("/posts")
+    public ResponseEntity<ApiResponse<PostResponseDto>> savePost(
+            @Valid @RequestBody PostRequestDto request,
+            @AuthenticationPrincipal CustomUserDetails loginUser
+    ) {
+        Long userId = loginUser.getUserId();
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.ok("정상적으로 등록되었습니다.", postService.createPost(userId, request)));
+    }
+
+    // 게시물 수정
+    @PatchMapping("/posts/{id}")
+    public ResponseEntity<ApiResponse<PostResponseDto>> updatePost(
+            @PathVariable Long id,
+            @RequestBody PostUpdateRequestDto requestDto,
+            @AuthenticationPrincipal CustomUserDetails loginUser
+    ) {
+        Long userId = loginUser.getUserId();
+        PostResponseDto updatedPost = postService.updatePostDetails(userId, id, requestDto);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.ok("게시글이 수정되었습니다.", updatedPost));
+    }
+
+    // 게시물 상태 수정
+    @PatchMapping("/posts/{id}/status")
+    public ResponseEntity<ApiResponse<PostResponseDto>> updateStatus(
+            @PathVariable Long id,
+            @RequestBody PostStatusRequestDto requestDto,
+            @AuthenticationPrincipal CustomUserDetails loginUser
+    ) {
+        Long userId = loginUser.getUserId();
+        PostResponseDto updatedPost = postService.changeStatus(userId, id, requestDto);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.ok("게시글 상태가 수정되었습니다.", updatedPost));
+    }
+
+    // 게시물 삭제
+    @DeleteMapping("/posts/{id}")
+    public ResponseEntity<ApiResponse<Void>> deletePost(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CustomUserDetails loginUser
+    ) {
+        Long userId = loginUser.getUserId();
+        postService.deletePostById(userId, id);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.ok("게시글이 삭제되었습니다.", null));
+    }
+
+    // 어드민 - 유저게시물 삭제
+    @DeleteMapping("/admin/posts/{id}")
+    public ResponseEntity<ApiResponse<Void>> deletePost(
+            @PathVariable Long id
+    ) {
+        postService.deleteAdminPostById(id);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.ok("게시글이 삭제되었습니다.", null));
+    }
+    //endregion
+    //region 게시물조회
     //추천 게시물 조회
     @GetMapping("/posts/suggestedPosts")
     public ResponseEntity<ApiResponse<PagedResponse<PostResponseDto>>> suggestedPosts(
@@ -84,6 +149,7 @@ public class PostController {
         return ResponseEntity.ok(ApiResponse.ok("내가 작성 한 게시물이 조회되었습니다.", myLikedPost));
     }
 
+    // 게시물 검색조회
     @GetMapping("/posts")
     public ResponseEntity<ApiResponse<PagedResponse<PostResponseDto>>> searchPosts(
             @RequestParam(defaultValue = "0") int page,
@@ -100,7 +166,11 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.ok("게시글 목록이 조회되었습니다.", pagedResponse));
     }
-
+    //endregion
+    //endregion
+    //region 게시글신청자
+    //region 게시글신청자 조회제외 메서드들
+    // 게시물 참여 신청
     @PostMapping("/posts/{postId}/participate")
     public ResponseEntity<ApiResponse<ParticipantResponse>> applyParticipant(
             @AuthenticationPrincipal CustomUserDetails loginUser,
@@ -115,52 +185,7 @@ public class PostController {
                 .body(ApiResponse.ok("참여 신청되었습니다.", response));
     }
 
-    @PostMapping("/posts")
-    public ResponseEntity<ApiResponse<PostResponseDto>> savePost(
-            @Valid @RequestBody PostRequestDto request,
-            @AuthenticationPrincipal CustomUserDetails loginUser
-    ) {
-        Long userId = loginUser.getUserId();
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.ok("정상적으로 등록되었습니다.", postService.createPost(userId, request)));
-    }
-
-    //------------- PostLikes Controller ------------
-    @PostMapping("/posts/{id}/likes")
-    public ResponseEntity<ApiResponse<PostLikeResponse>> addLike(
-            @PathVariable Long id,
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ) {
-        PostLikeResponse dto = postService.addLike(id, userDetails.getUserId());
-
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.ok("게시글 좋아요가 추가되었습니다.", dto));
-    }
-
-    @PatchMapping("/posts/{id}")
-    public ResponseEntity<ApiResponse<PostResponseDto>> updatePost(
-            @PathVariable Long id,
-            @RequestBody PostUpdateRequestDto requestDto,
-            @AuthenticationPrincipal CustomUserDetails loginUser
-    ) {
-        Long userId = loginUser.getUserId();
-        PostResponseDto updatedPost = postService.updatePostDetails(userId, id, requestDto);
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(ApiResponse.ok("게시글이 수정되었습니다.", updatedPost));
-    }
-
-    @PatchMapping("/posts/{id}/status")
-    public ResponseEntity<ApiResponse<PostResponseDto>> updateStatus(
-            @PathVariable Long id,
-            @RequestBody PostStatusRequestDto requestDto,
-            @AuthenticationPrincipal CustomUserDetails loginUser
-    ) {
-        Long userId = loginUser.getUserId();
-        PostResponseDto updatedPost = postService.changeStatus(userId, id, requestDto);
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(ApiResponse.ok("게시글 상태가 수정되었습니다.", updatedPost));
-    }
-
+    // 게시물 신청 수락 or 거절
     @PatchMapping("/posts/{postId}/participate/users/{userId}")
     public ResponseEntity<ApiResponse<ParticipantResponse>> changeStatusParticipant(
             @AuthenticationPrincipal CustomUserDetails author,
@@ -173,26 +198,7 @@ public class PostController {
                 .body(ApiResponse.ok("신청자가 수락 혹은 거절되었습니다.", response));
     }
 
-    @DeleteMapping("/posts/{id}")
-    public ResponseEntity<ApiResponse<Void>> deletePost(
-            @PathVariable Long id,
-            @AuthenticationPrincipal CustomUserDetails loginUser
-    ) {
-        Long userId = loginUser.getUserId();
-        postService.deletePostById(userId, id);
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(ApiResponse.ok("게시글이 삭제되었습니다.", null));
-    }
-
-    @DeleteMapping("/admin/posts/{id}")
-    public ResponseEntity<ApiResponse<Void>> deletePost(
-            @PathVariable Long id
-    ) {
-        postService.deleteAdminPostById(id);
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(ApiResponse.ok("게시글이 삭제되었습니다.", null));
-    }
-
+    // 게시물 참여 신청 삭제
     @DeleteMapping("/posts/{postId}/participate")
     public ResponseEntity<ApiResponse<Void>> deleteParticipant(
             @AuthenticationPrincipal CustomUserDetails loginUser,
@@ -202,17 +208,9 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.ok("참여 신청이 취소되었습니다.", null));
     }
-
-    @DeleteMapping("posts/{id}/likes")
-    public ResponseEntity<ApiResponse<Void>> removeLike(
-            @PathVariable Long id,
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ) {
-        postService.removeLike(id, userDetails.getUserId());
-
-        return ResponseEntity.ok(ApiResponse.ok("게시글 좋아요가 삭제되었습니다.", null));
-    }
-
+    //endregion
+    //region 게시글신청자 조회 메서드
+    // 신청자 목록 조회
     @GetMapping("/posts/{postId}/participant")
     public ResponseEntity<ApiResponse<PagedResponse<ParticipantResponse>>> getPendingParticipantList(
             @AuthenticationPrincipal CustomUserDetails author,
@@ -225,6 +223,7 @@ public class PostController {
                 .body(ApiResponse.ok("신청자 목록이 조회되었습니다.", response));
     }
 
+    // 참가자 목록 조회
     @GetMapping("/posts/{postId}/participate/confirmed")
     public ResponseEntity<ApiResponse<PagedResponse<ParticipantResponse>>> getAcceptedParticipantList(
             @AuthenticationPrincipal CustomUserDetails loginUser,
@@ -236,5 +235,85 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.ok("참여자 목록이 조회되었습니다.", response));
     }
+    //endregion
+    //endregion
+    //region 게시물좋아요
+    // 게시물 좋아요 생성
+    @PostMapping("/posts/{id}/likes")
+    public ResponseEntity<ApiResponse<PostLikeResponse>> addLike(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        PostLikeResponse dto = postService.addLike(id, userDetails.getUserId());
 
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.ok("게시글 좋아요가 추가되었습니다.", dto));
+    }
+
+    // 게시물 좋아요 삭제
+    @DeleteMapping("/posts/{id}/likes")
+    public ResponseEntity<ApiResponse<Void>> removeLike(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        postService.removeLike(id, userDetails.getUserId());
+
+        return ResponseEntity.ok(ApiResponse.ok("게시글 좋아요가 삭제되었습니다.", null));
+    }
+    //endregion
+    //region 게시물초대
+    //region 게시물초대 조회 제외메서드
+    // 게시물초대 생성
+    @PostMapping("/post/{postId}/users/{userId}/invite")
+    public ResponseEntity<ApiResponse<InviteResponseDto>> inviteUser(
+            @PathVariable Long postId,
+            @PathVariable Long userId,
+            @AuthenticationPrincipal CustomUserDetails loginUser
+    ){
+        Long loginUserId = loginUser.getUserId();
+        InviteResponseDto responseDto = postService.createInvite(postId,userId,loginUserId);
+        URI location = URI.create("/api/posts/" + postId);
+        return ResponseEntity.created(location).body(ApiResponse.ok("초대가 완료되었습니다.", responseDto));
+    }
+
+    // 게시물 초대 삭제
+    @DeleteMapping("/post/{postId}/users/{userId}/invite/{id}")
+    public ResponseEntity<ApiResponse<Void>> deleteInvite(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CustomUserDetails loginUser
+    ) {
+        Long loginUserId = loginUser.getUserId();
+
+        postService.deleteInvite(id, loginUserId);
+        return ResponseEntity.ok(ApiResponse.ok("초대가 삭제되었습니다.", null));
+    }
+    //endregion
+    //region 게시물초대 조회 메서드
+    //내 초대받은 목록 조회
+    @GetMapping("/users/my/invited")
+    public ResponseEntity<ApiResponse<PagedResponse<InviteResponseDto>>> getMyInvited(
+            @AuthenticationPrincipal CustomUserDetails loggedInUser,
+            @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
+            Pageable pageable
+    ) {
+        Long userId = loggedInUser.getUserId();
+        PagedResponse<InviteResponseDto> inviteResponseDto = postService.getMyInvited(userId, pageable);
+
+        return ResponseEntity.ok(ApiResponse.ok("초대 받은 목록 조회가 완료되었습니다", inviteResponseDto));
+    }
+
+    //내가 보낸 초대 목록 조회
+    @GetMapping("/users/my/invite")
+    public ResponseEntity<ApiResponse<PagedResponse<InviteResponseDto>>> getMyInvite(
+            @AuthenticationPrincipal CustomUserDetails loggedInUser,
+            @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
+            Pageable pageable
+    ) {
+        Long userId = loggedInUser.getUserId();
+        PagedResponse<InviteResponseDto> inviteResponseDto = postService.getMyInvite(userId, pageable);
+
+        return ResponseEntity.ok(ApiResponse.ok("초대 받은 목록 조회가 완료되었습니다", inviteResponseDto));
+    }
+    //endregion
+    //endregion
 }

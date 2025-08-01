@@ -1,10 +1,8 @@
 package org.example.pdnight.domain.post.application.PostUseCase;
 
 import lombok.RequiredArgsConstructor;
-import org.example.pdnight.domain.post.domain.post.Post;
-import org.example.pdnight.domain.post.domain.post.PostCommander;
-import org.example.pdnight.domain.post.domain.post.PostLike;
-import org.example.pdnight.domain.post.domain.post.PostParticipant;
+import org.example.pdnight.domain.post.application.PostUseCase.event.PostDeletedEvent;
+import org.example.pdnight.domain.post.domain.post.*;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.enums.JoinStatus;
@@ -12,6 +10,7 @@ import org.example.pdnight.domain.post.enums.PostStatus;
 import org.example.pdnight.domain.post.presentation.dto.request.PostRequestDto;
 import org.example.pdnight.domain.post.presentation.dto.request.PostStatusRequestDto;
 import org.example.pdnight.domain.post.presentation.dto.request.PostUpdateRequestDto;
+import org.example.pdnight.domain.post.presentation.dto.response.InviteResponseDto;
 import org.example.pdnight.domain.post.presentation.dto.response.ParticipantResponse;
 import org.example.pdnight.domain.post.presentation.dto.response.PostLikeResponse;
 import org.example.pdnight.domain.post.presentation.dto.response.PostResponseDto;
@@ -22,10 +21,12 @@ import org.example.pdnight.global.common.exception.BaseException;
 import org.example.pdnight.global.constant.CacheName;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 import static org.example.pdnight.global.common.enums.ErrorCode.*;
 
@@ -34,109 +35,9 @@ import static org.example.pdnight.global.common.enums.ErrorCode.*;
 public class PostCommanderService {
 
     private final PostCommander postCommander;
+    private final ApplicationEventPublisher publisher;
 
-    // region  게시물 신청자
-    //참가 신청
-    @Transactional
-    @CacheEvict(value = CacheName.CONFIRMED_POST, allEntries = true)
-    @DistributedLock(key = "#postId", timeoutMs = 5000)
-    public ParticipantResponse applyParticipant(Long loginId, Long age, Gender gender, JobCategory jobCategory, Long postId) {
-        Post foundPost = getPostWithOpen(postId);
-
-        // 신청 안되는지 확인
-        validForCreateParticipant(loginId, age, gender, jobCategory, foundPost);
-
-        //선착순 포스트인 경우
-        PostParticipant participant = handleJoinRequest(foundPost, loginId);
-
-        // 정상 신청
-        foundPost.addParticipants(participant);
-
-        return ParticipantResponse.from(
-                loginId,
-                postId,
-                participant.getStatus(),
-                participant.getCreatedAt(),
-                participant.getUpdatedAt()
-        );
-    }
-
-    //참가 취소
-    @Transactional
-    @DistributedLock(key = "#postId", timeoutMs = 5000)
-    public void deleteParticipant(Long loginId, Long postId) {
-        Post post = getPostWithOpen(postId);
-
-        PostParticipant pending = getParticipantByStatus(loginId, post, JoinStatus.PENDING);
-
-        // 삭제 안됨 : 신청하지 않거나, 이미 수락 혹은 거절당했을때
-        if (pending == null) {
-            throw new BaseException(ErrorCode.CANNOT_CANCEL);
-        }
-
-        // 정상 삭제
-        post.removeParticipant(pending);
-    }
-
-    //참가 확정(작성자)
-    @Transactional
-    @CacheEvict(value = CacheName.CONFIRMED_POST, allEntries = true)
-    @DistributedLock(key = "#postId", timeoutMs = 5000)
-    public ParticipantResponse changeStatusParticipant(Long authorId, Long userId, Long postId, String status) {
-        Post post = getPostWithOpen(postId);
-        JoinStatus joinStatus = JoinStatus.of(status);
-
-        PostParticipant pending = getParticipantByStatus(userId, post, JoinStatus.PENDING);
-
-        // 상태 변경할 수 있는지 확인
-        validForChangeStatusParticipant(authorId, post, pending, joinStatus);
-
-        // 상태변경
-        pending.changeStatus(joinStatus);
-
-        // 게시글 인원이 꽉차게 되면 게시글 상태를 마감으로 변경 (CONFIRMED)
-        changePostStatusForConfirmed(postId, post);
-
-        return ParticipantResponse.from(
-                userId,
-                postId,
-                pending.getStatus(),
-                pending.getCreatedAt(),
-                pending.getUpdatedAt()
-        );
-    }
-    //endregion
-
-    //region 게시물 좋아요
-    @CacheEvict(value = CacheName.LIKED_POST, allEntries = true)
-    @Transactional
-    public PostLikeResponse addLike(Long id, Long userId) {
-
-        Post post = getPostByIdOrElseThrow(id);
-
-        //좋아요 존재 하면 에러
-        validateExists(post, userId);
-
-        PostLike postLike = PostLike.create(post, userId);
-        post.addLike(postLike);
-
-        return PostLikeResponse.from(postLike);
-    }
-
-    @CacheEvict(value = CacheName.LIKED_POST, allEntries = true)
-    @Transactional
-    public void removeLike(Long id, Long userId) {
-
-        Post post = getPostByIdOrElseThrow(id);
-        PostLike like = getPostLikePostAndUser(post, userId);
-
-        post.removeLike(like);
-    }
-
-    //endregion
-
-    //region 게시글
-    //포스트 작성
+    // region  게시물
     @Transactional
     @Caching(evict = {
             @CacheEvict(value = CacheName.SEARCH_POST, allEntries = true),
@@ -178,6 +79,7 @@ public class PostCommanderService {
         // commentRepository.deleteAllByChildrenPostId(id);
         //postId 기준 댓글 일괄 삭제 메서드 외래키 제약 제거
         // commentRepository.deleteAllByPostId(id);
+        publisher.publishEvent(PostDeletedEvent.of(id));
         postCommander.deletePost(foundPost);
     }
 
@@ -218,21 +120,12 @@ public class PostCommanderService {
     })
     public PostResponseDto changePostStatus(Long userId, Long id, PostStatusRequestDto request) {
         //상태값 변경은 어떤 상태라도 불러와서 수정
-        Post foundPost = getPostByIdWithoutStatusLimit(id);
+        Post foundPost = getPostByIdOrElseThrow(id);
         validateAuthor(userId, foundPost);
 
         //변동사항 있을시에만 업데이트
         if (!foundPost.getStatus().equals(request.getStatus())) {
             foundPost.updateStatus(request.getStatus());
-//            //모임 성사로 변경시 채팅방 생성      -> 이벤트 처리
-//            if (request.getStatus().equals(PostStatus.CONFIRMED)) {
-//                // 게시글로 생성된 채팅방이 없는 경우 생성
-//                if (!chattingService.checkPostChatRoom(foundPost.getId())) {
-//                    chattingService.createFromPost(foundPost.getId());
-//                }
-//                chattingService.registration(foundPost);
-//
-//            }
         }
 
         return PostResponseDto.toDto(foundPost);
@@ -241,42 +134,163 @@ public class PostCommanderService {
     public void deleteAdminPostById(Long id) {
         postCommander.deletePost(getPostByIdOrElseThrow(id));
     }
+    // endregion
+
+    // region  게시물 신청자
+    //참가 신청
+    @Transactional
+    @CacheEvict(value = CacheName.CONFIRMED_POST, allEntries = true)
+    @DistributedLock(key = "#postId", timeoutMs = 5000)
+    public ParticipantResponse applyParticipant(Long loginId, Long age, Gender gender, JobCategory jobCategory, Long postId) {
+        Post foundPost = getOpenPostById(postId);
+
+        // 신청 안되는지 확인
+        validateJoinConditions(loginId, age, gender, jobCategory, foundPost);
+
+        //선착순 포스트인 경우
+        PostParticipant participant = handleJoinRequest(foundPost, loginId);
+
+        // 정상 신청
+        foundPost.addParticipants(participant);
+
+        return ParticipantResponse.from(
+                loginId,
+                postId,
+                participant.getStatus(),
+                participant.getCreatedAt(),
+                participant.getUpdatedAt()
+        );
+    }
+
+    //참가 취소
+    @Transactional
+    @DistributedLock(key = "#postId", timeoutMs = 5000)
+    public void deleteParticipant(Long loginId, Long postId) {
+        Post post = getOpenPostById(postId);
+
+        PostParticipant pending = getParticipantByStatus(loginId, post, JoinStatus.PENDING);
+
+        // 삭제 안됨 : 신청하지 않거나, 이미 수락 혹은 거절당했을때
+        if (pending == null) {
+            throw new BaseException(ErrorCode.CANNOT_CANCEL);
+        }
+
+        // 정상 삭제
+        post.removeParticipant(pending);
+    }
+
+    //참가 확정(작성자)
+    @Transactional
+    @CacheEvict(value = CacheName.CONFIRMED_POST, allEntries = true)
+    @DistributedLock(key = "#postId", timeoutMs = 5000)
+    public ParticipantResponse changeStatusParticipant(Long authorId, Long userId, Long postId, String status) {
+        Post post = getOpenPostById(postId);
+        JoinStatus joinStatus = JoinStatus.of(status);
+
+        PostParticipant pending = getParticipantByStatus(userId, post, JoinStatus.PENDING);
+
+        // 상태 변경할 수 있는지 확인
+        validateStatusChangePermission(authorId, post, pending, joinStatus);
+
+        // 상태변경
+        pending.changeStatus(joinStatus);
+
+        // 게시글 인원이 꽉차게 되면 게시글 상태를 마감으로 변경 (CONFIRMED)
+        updatePostStatusIfFull(post);
+
+        return ParticipantResponse.from(
+                userId,
+                postId,
+                pending.getStatus(),
+                pending.getCreatedAt(),
+                pending.getUpdatedAt()
+        );
+    }
+    //endregion
+
+    //region 게시물 좋아요
+    @CacheEvict(value = CacheName.LIKED_POST, allEntries = true)
+    @Transactional
+    public PostLikeResponse addLike(Long id, Long userId) {
+
+        Post post = getPostByIdOrElseThrow(id);
+
+        //좋아요 존재 하면 에러
+        validateAlreadyLiked(post, userId);
+
+        PostLike postLike = PostLike.create(post, userId);
+        post.addLike(postLike);
+
+        return PostLikeResponse.from(postLike);
+    }
+
+    @CacheEvict(value = CacheName.LIKED_POST, allEntries = true)
+    @Transactional
+    public void removeLike(Long id, Long userId) {
+
+        Post post = getPostByIdOrElseThrow(id);
+        PostLike like = getUserLikeForPost(post, userId);
+
+        post.removeLike(like);
+    }
+
+    //endregion
+
+    //region 게시물 초대
+    // 초대생성
+    public InviteResponseDto createInvite(Long postId, Long userId, Long loginUserId) {
+        Post post = getOpenPostById(postId);
+        validateNotAlreadyInvited(post, userId, loginUserId);
+
+        Invite invite = Invite.create(loginUserId, userId, postId);
+        post.addInvite(invite);
+
+        return InviteResponseDto.from(invite);
+    }
+
+    // 초대삭제
+    public void deleteInvite(Long id, Long loginUserId) {
+        Post post = postCommander.getPostById(id).orElseThrow(() -> new BaseException(POST_NOT_FOUND));
+        Invite findInvite = post.getInvites().stream()
+                .filter(invite -> invite.getInviterId().equals(loginUserId)).findFirst()
+                .orElseThrow(()->new BaseException(INVITE_UNAUTHORIZED));
+
+        post.removeInvite(findInvite);
+    }
     //endregion
 
     //region ----------------------------------- HELPER 메서드 ------------------------------------------------------
 
-    private PostLike getPostLikePostAndUser(Post post, Long userId) {
+    // 게시물 좋아요가 있는지 확인
+    private PostLike getUserLikeForPost(Post post, Long userId) {
         return post.getPostLikes().stream()
                 .filter(postLike -> postLike.getUserId().equals(userId)).findFirst()
                 .orElseThrow(() -> new BaseException(POSTLIKE_NOT_FOUND));
     }
 
-    // validate
-    private void validateExists(Post post, Long userId) {
-        if (post.getPostLikes().stream().noneMatch(postLike -> postLike.getUserId().equals(userId))) {
+    // 이미 좋아요를 눌렀는지 검증
+    private void validateAlreadyLiked(Post post, Long userId) {
+        if (post.getPostLikes().stream().anyMatch(postLike -> postLike.getUserId().equals(userId))) {
             throw new BaseException(ErrorCode.ALREADY_LIKED);
         }
     }
 
+    // 게시물 있는지 확인
     private Post getPostByIdOrElseThrow(Long postId) {
         return postCommander.findPostById(postId)
                 .orElseThrow(() -> new BaseException(POST_NOT_FOUND));
     }
 
-    private Post getPostWithOpen(Long postId) {
+    // 오픈된 해당 게시물이 있는지 확인
+    private Post getOpenPostById(Long postId) {
         return postCommander.findByIdAndStatus(postId, PostStatus.OPEN)
-                .orElseThrow(() -> new BaseException(POST_NOT_FOUND));
-    }
-
-    private Post getPostByIdWithoutStatusLimit(Long id) {
-        return postCommander.findPostById(id)
                 .orElseThrow(() -> new BaseException(POST_NOT_FOUND));
     }
 
     //참가자 생성, 추가 메서드
     private PostParticipant handleJoinRequest(Post post, Long userId) {
 
-        int count = acceptedParticipantsCounter(post.getPostParticipants());
+        int count = countAcceptedParticipants(post.getPostParticipants());
 
         if (count == post.getMaxParticipants()) {
             throw new BaseException(CANNOT_PARTICIPATE_POST);
@@ -298,7 +312,7 @@ public class PostCommanderService {
     }
 
     // 리스트를 불러와서 참여자 수
-    private int acceptedParticipantsCounter(List<PostParticipant> participants) {
+    private int countAcceptedParticipants(List<PostParticipant> participants) {
         return (int) participants.stream()
                 .filter(participant -> participant.getStatus() == JoinStatus.ACCEPTED)
                 .count();
@@ -313,7 +327,7 @@ public class PostCommanderService {
     }
 
     // 참가 요건 확인 (신청 할 때 validate)
-    private void validForCreateParticipant(Long userId, Long age, Gender gender, JobCategory jobCategory, Post post) {
+    private void validateJoinConditions(Long userId, Long age, Gender gender, JobCategory jobCategory, Post post) {
 
         // 신청 안됨 : 본인 게시글에 본인이 신청하는 경우
         if (post.getAuthorId().equals(userId)) {
@@ -338,16 +352,17 @@ public class PostCommanderService {
 
         // 신청 안됨 : 이미 신청함 - JoinStatus status 가 대기중 or 수락됨 인 경우
         PostParticipant pending = getParticipantByStatus(userId, post, JoinStatus.PENDING);
-        PostParticipant accepted = getParticipantByStatus(userId, post, JoinStatus.ACCEPTED);
-
         if (pending != null) {
             throw new BaseException(ErrorCode.POST_ALREADY_PENDING);
         }
+
+        PostParticipant accepted = getParticipantByStatus(userId, post, JoinStatus.ACCEPTED);
         if (accepted != null) {
             throw new BaseException(ErrorCode.POST_ALREADY_ACCEPTED);
         }
     }
 
+    // 게시물 신청자 상태 확인하여 가져오기
     private PostParticipant getParticipantByStatus(Long userId, Post post, JoinStatus joinStatus) {
         List<PostParticipant> postParticipants = post.getPostParticipants();
         return postParticipants.stream()
@@ -357,17 +372,10 @@ public class PostCommanderService {
     }
 
     // 게시글 인원이 꽉차게 되면 게시글 상태를 마감으로 변경 (CONFIRMED)
-    private void changePostStatusForConfirmed(Long postId, Post post) {
-        int participantSize = acceptedParticipantsCounter(post.getPostParticipants());
+    private void updatePostStatusIfFull(Post post) {
+        int participantSize = countAcceptedParticipants(post.getPostParticipants());
         if (post.getMaxParticipants().equals(participantSize)) {
             post.updateStatus(PostStatus.CONFIRMED);
-            // 이벤트 발생
-//            inviteService.deleteAllByPostAndStatus(post, JoinStatus.PENDING);
-//            // 채팅방 생성
-//            if (!chattingService.checkPostChatRoom(postId)) {
-//                chattingService.createFromPost(postId);
-//            }
-//            chattingService.registration(post);
         }
     }
 
@@ -379,7 +387,7 @@ public class PostCommanderService {
     }
 
     // 상태 변경 가능 확인 (상태가 변경될 때 validate)
-    private void validForChangeStatusParticipant(Long authorId, Post post, PostParticipant pending, JoinStatus joinStatus) {
+    private void validateStatusChangePermission(Long authorId, Post post, PostParticipant pending, JoinStatus joinStatus) {
         // 상태변경 안됨 : 게시글이 본인것이 아님
         if (!post.getAuthorId().equals(authorId)) {
             throw new BaseException(ErrorCode.NO_UPDATE_PERMISSION);
@@ -396,6 +404,19 @@ public class PostCommanderService {
         }
     }
 
+    // 이미 초대되었는지 검증
+    private void validateNotAlreadyInvited(Post post, Long userId, Long loginUserId) {
+        if (post.getInvites().stream()
+                .anyMatch(invite -> invite.getInviteeId().equals(userId) && invite.getInviterId().equals(loginUserId))) {
+            throw new BaseException(INVITE_ALREADY_EXISTS);
+        }
+    }
 
+    // 로그인 유저가 초대한게 맞는지 검증
+    private void validateMyInvite(Long loginUserId, Invite invite) {
+        if (!Objects.equals(invite.getInviterId(), loginUserId)) {
+            throw new BaseException(INVITE_UNAUTHORIZED);
+        }
+    }
     //endregion
 }

@@ -51,8 +51,6 @@ public class Post extends Timestamped {
     @Enumerated(EnumType.STRING)
     private AgeLimit ageLimit;
 
-    private List<Long> invites = new ArrayList<>();
-
     @Column(nullable = false)
     private Boolean isFirstCome = false;
 
@@ -62,6 +60,9 @@ public class Post extends Timestamped {
     // 참여자 리스트 전체를 가져와서 서버에서 구분하는 것
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PostParticipant> postParticipants = new ArrayList<>();
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Invite> invites = new ArrayList<>();
 
     private Post(
             Long authorId,
@@ -195,5 +196,13 @@ public class Post extends Timestamped {
 
     public void removeParticipant(PostParticipant postParticipant) {
         postParticipants.remove(postParticipant);
+    }
+
+    public void addInvite(Invite invite) {
+        invites.add(invite);
+    }
+
+    public void removeInvite(Invite findInvite) {
+        invites.remove(findInvite);
     }
 }

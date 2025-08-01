@@ -8,14 +8,16 @@ import java.util.List;
 import java.util.Optional;
 
 import org.example.pdnight.domain.post.domain.post.Post;
-import org.example.pdnight.domain.post.domain.post.PostParticipant;
 import org.example.pdnight.domain.post.domain.post.PostReader;
+import org.example.pdnight.domain.post.domain.post.QPost;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.enums.JoinStatus;
 import org.example.pdnight.domain.post.enums.PostStatus;
+import org.example.pdnight.domain.post.presentation.dto.response.InviteResponseDto;
 import org.example.pdnight.domain.post.presentation.dto.response.PostResponseDto;
 import org.example.pdnight.domain.post.presentation.dto.response.QPostResponseDto;
+import org.example.pdnight.global.common.dto.PagedResponse;
 import org.example.pdnight.global.common.enums.JobCategory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -237,5 +239,21 @@ public class PostReaderImpl implements PostReader {
         return PageableExecutionUtils.getPage(contents, pageable, () -> Optional.ofNullable(count).orElse(0L));
     }
 
+    @Override
+    public Optional<Post> findById(Long postId) {
+        Post post = queryFactory.select(QPost.post).from(QPost.post).where(QPost.post.id.eq(postId)).fetchFirst();
+        return Optional.ofNullable(post);
+    }
+
+    @Override
+    public PagedResponse<InviteResponseDto> getMyinvited(Long userId, Pageable pageable) {
+        queryFactory.select(new InviteResponseDto(
+        )
+    }
+
+    @Override
+    public PagedResponse<InviteResponseDto> getMyInvite(Long userId, Pageable pageable) {
+        return null;
+    }
 
 }

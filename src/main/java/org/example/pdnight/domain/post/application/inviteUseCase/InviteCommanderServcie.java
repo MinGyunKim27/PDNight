@@ -1,7 +1,7 @@
 package org.example.pdnight.domain.post.application.inviteUseCase;
 
 import lombok.RequiredArgsConstructor;
-import org.example.pdnight.domain.post.domain.invite.Invite;
+import org.example.pdnight.domain.post.domain.post.Invite;
 import org.example.pdnight.domain.post.domain.invite.InviteCommander;
 import org.example.pdnight.domain.post.presentation.dto.response.InviteResponseDto;
 import org.example.pdnight.global.common.exception.BaseException;

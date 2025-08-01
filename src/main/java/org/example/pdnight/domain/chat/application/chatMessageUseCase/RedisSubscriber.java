@@ -1,4 +1,4 @@
-package org.example.pdnight.domain.chat.application.chatRoomUseCase;
+package org.example.pdnight.domain.chat.application.chatMessageUseCase;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;

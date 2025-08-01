@@ -47,7 +47,7 @@ public class InviteController {
 
     // -------------------- 내 초대 API -----------------------------------------//
     //내 초대받은 목록 조회
-    @GetMapping("/api/users/my/invited")
+    @GetMapping("/users/my/invited")
     public ResponseEntity<ApiResponse<PagedResponse<InviteResponseDto>>> getMyInvited(
             @AuthenticationPrincipal CustomUserDetails loggedInUser,
             @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
@@ -60,7 +60,7 @@ public class InviteController {
     }
 
     //내가 보낸 초대 목록 조회
-    @GetMapping("/api/users/my/invite")
+    @GetMapping("/users/my/invite")
     public ResponseEntity<ApiResponse<PagedResponse<InviteResponseDto>>> getMyInvite(
             @AuthenticationPrincipal CustomUserDetails loggedInUser,
             @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC)

@@ -8,6 +8,7 @@ import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.enums.JoinStatus;
 import org.example.pdnight.domain.post.enums.PostStatus;
+import org.example.pdnight.domain.post.presentation.dto.response.InviteResponseDto;
 import org.example.pdnight.domain.post.presentation.dto.response.ParticipantResponse;
 import org.example.pdnight.domain.post.presentation.dto.response.PostResponseDto;
 import org.example.pdnight.global.common.dto.PagedResponse;
@@ -177,4 +178,13 @@ public class PostReaderService {
                 .count();
     }
 
+    public PagedResponse<InviteResponseDto> getMyInvited(Long userId, Pageable pageable) {
+        // PagedResponse<InviteResponseDto> myInvited = postReader.getMyinvited(userId, pageable);
+        return postReader.getMyinvited(userId, pageable);
+    }
+
+    public PagedResponse<InviteResponseDto> getMyInvite(Long userId, Pageable pageable) {
+        // PagedResponse<InviteResponseDto> myInvite = postReader.getMyInvite(userId, pageable);
+        return postReader.getMyInvite(userId, pageable);
+    }
 }
