@@ -78,19 +78,20 @@ public class UserCommanderService {
     @Transactional
     public FollowResponse follow(Long userId, Long loginId) {
 
-        User targerUser = getUserByIdWithFollow(userId);
+        User targetUser = getUserByIdWithFollow(userId);
         User loginUser = getUserByIdWithFollow(loginId);
 
         // 자기 자신 팔로우 방지
-        loginUser.validateIsSelfFollow(targerUser, INVALID_FOLLOW_SELF);
+        loginUser.validateIsSelfFollow(targetUser, INVALID_FOLLOW_SELF);
 
         // 중복 팔로우 방지
-        loginUser.validateExistFollowing(targerUser);
+        loginUser.validateExistFollowing(targetUser);
 
-        Follow follow = Follow.create(follower, following);
+        //follower to fromUser, following to toUser
+        Follow follow = Follow.create(loginUser, targetUser);
 
         // 팔로우 추가
-        loginUser.addFollow(targerUser, follow);
+        loginUser.addFollow(targetUser, follow);
         return FollowResponse.from(follow);
     }
 

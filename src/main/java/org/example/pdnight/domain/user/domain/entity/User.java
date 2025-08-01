@@ -64,9 +64,12 @@ public class User extends Timestamped {
     @OneToMany(mappedBy = "user", cascade = ALL, orphanRemoval = true)
     private List<UserCoupon> userCoupons = new ArrayList<>();
 
-    //유저 삭제하면 팔로우 알아서 삭제 되도록
+    /**
+     * 내가 팔로우 하는 사람 목록<br>
+     * 언팔로우 시 검증 하게 됨
+     */
     @OneToMany(mappedBy = "follower", cascade = ALL, orphanRemoval = true)
-    private List<Follow> followList = new ArrayList<>();
+    private List<Follow> followedOther = new ArrayList<>();
 
     /**
      * 나를 팔로우 하는 사람 목록

@@ -13,20 +13,26 @@ public class Follow {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /**
+     * 팔로우 하는 사람
+     */
     @ManyToOne
     @JoinColumn(name = "follower_id")
     private User follower;
 
+    /**
+     * 팔로우 받는 사람
+     */
     @ManyToOne
     @JoinColumn(name = "following_id")
     private User following;
 
-    private Follow(User loginUser, User targerUser){
+    private Follow(User loginUser, User targetUser){
         this.follower = loginUser;
-        this.following = targerUser;
+        this.following = targetUser;
     }
 
-    public static Follow create(User loginUser, User targerUser){
-        return new Follow(loginUser, targerUser);
+    public static Follow create(User loginUser, User targetUser){
+        return new Follow(loginUser, targetUser);
     }
 }
