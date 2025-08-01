@@ -7,10 +7,6 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-//동일한 유저가 같은 사람 중복팔로우하는 경우 방지
-@Table(name = "follows", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"follower_id", "following_id"})
-})
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Follow {
     @Id
@@ -25,12 +21,12 @@ public class Follow {
     @JoinColumn(name = "following_id")
     private User following;
 
-    private Follow(User follower,User following){
-        this.follower = follower;
-        this.following = following;
+    private Follow(User loginUser, User targerUser){
+        this.follower = loginUser;
+        this.following = targerUser;
     }
 
-    public static Follow create(User follower,User following){
-        return new Follow(follower,following);
+    public static Follow create(User loginUser, User targerUser){
+        return new Follow(loginUser, targerUser);
     }
 }

@@ -43,6 +43,19 @@ public class UserReaderImpl implements UserReader {
     }
 
     @Override
+    public Optional<User> findByIdWithFollow(Long id) {
+        QUser user = QUser.user;
+
+        return queryFactory
+                .selectFrom(user)
+                .leftJoin(user.followedOther)
+                .where(user.id.eq(id))
+                .distinct()
+                .stream()
+                .findFirst();
+    }
+
+    @Override
     public Page<User> searchUsers(String search, Pageable pageable) {
         QUser user = QUser.user;
 

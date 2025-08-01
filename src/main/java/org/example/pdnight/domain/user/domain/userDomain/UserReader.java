@@ -13,6 +13,8 @@ import java.util.Optional;
 public interface UserReader {
     Optional<User> findById(Long id);
 
+    Optional<User> findByIdWithFollow(Long id);
+
     Page<User> searchUsers(String search, Pageable pageable);
 
     //포스트 도메인에 사용할 임시 메서드 유저도메인에 해당 메서드 추가시 삭제

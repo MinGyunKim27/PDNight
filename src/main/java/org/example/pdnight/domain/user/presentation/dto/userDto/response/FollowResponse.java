@@ -5,11 +5,9 @@ import org.example.pdnight.domain.user.domain.entity.Follow;
 
 @Getter
 public class FollowResponse {
-    private Long id;
     private Long following_id;
 
     private FollowResponse(Follow follow) {
-        this.id = follow.getId();
         this.following_id = follow.getFollowing().getId();
     }
 

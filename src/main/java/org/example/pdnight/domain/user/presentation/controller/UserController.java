@@ -49,7 +49,8 @@ public class UserController {
             @AuthenticationPrincipal CustomUserDetails loginUser
     ) {
         FollowResponse follow = userService.follow(userId, loginUser.getUserId());
-        return ResponseEntity.ok(ApiResponse.ok("팔로우 했습니다.", follow));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.ok("팔로우 했습니다.", follow));
     }
 
     //언팔로우
@@ -69,7 +70,8 @@ public class UserController {
             @RequestBody GiveCouponRequest request
     ) {
         UserCouponResponse response = userService.giveCouponToUser(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok("쿠폰이 등록되었습니다.", response));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.ok("쿠폰이 등록되었습니다.", response));
     }
 
     // 쿠폰사용

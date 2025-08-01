@@ -68,9 +68,11 @@ public class User extends Timestamped {
     @OneToMany(mappedBy = "follower", cascade = ALL, orphanRemoval = true)
     private List<Follow> followList = new ArrayList<>();
 
-    //유저 삭제하면 팔로잉 알아서 삭제 되도록
+    /**
+     * 나를 팔로우 하는 사람 목록
+     */
     @OneToMany(mappedBy = "following", cascade = ALL, orphanRemoval = true)
-    private List<Follow> followingList = new ArrayList<>();
+    private List<Follow> followingMe = new ArrayList<>();
 
     private Boolean isDeleted = false;
     private LocalDateTime deletedAt;
@@ -98,8 +100,7 @@ public class User extends Timestamped {
         return new User(
                 request.getName(), request.getNickname(), request.getGender(),
                 request.getAge(), request.getJobCategory(),
-                request.getRegion(), request.getWorkLocation(),
-                request.getComment()
+                null, null, null
         );
     }
 
@@ -114,8 +115,8 @@ public class User extends Timestamped {
 
     // ================================== add ==================================
     public void addFollow(User targetUser, Follow follow) {
-        this.followingList.add(follow);      // 내가 팔로잉하는 유저 목록에 추가
-        targetUser.followList.add(follow);   // 상대 유저가 나를 팔로우하는 목록에 추가
+        this.followedOther.add(follow);      // 내가 팔로잉하는 유저 목록에 추가
+        targetUser.followingMe.add(follow);   // 상대 유저가 나를 팔로우하는 목록에 추가
     }
 
     public void addCoupon(UserCoupon userCoupon) {
@@ -186,7 +187,7 @@ public class User extends Timestamped {
     }
 
     public void validateExistFollowing(User targetUser) {
-        boolean isAlreadyFollowing = this.followingList.stream()
+        boolean isAlreadyFollowing = this.followedOther.stream()
                 .anyMatch(follow -> follow.getFollowing().getId().equals(targetUser.getId()));
 
         if (isAlreadyFollowing) {
@@ -195,7 +196,7 @@ public class User extends Timestamped {
     }
 
     public void validateIsNotFollowing(User targetUser, ErrorCode error) {
-        boolean isFollowing = this.followingList.stream()
+        boolean isFollowing = this.followedOther.stream()
                 .anyMatch(follow -> follow.getFollowing().getId().equals(targetUser.getId()));
 
         if (!isFollowing) {
@@ -210,14 +211,14 @@ public class User extends Timestamped {
     }
 
     public void unfollow(User targetUser) {
-        Follow toRemove = this.followingList.stream()
+        Follow toRemove = this.followedOther.stream()
                 .filter(follow -> follow.getFollowing().getId().equals(targetUser.getId()))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("팔로우하지 않은 유저입니다."));
 
         // 양쪽에서 연결 끊기
-        this.followingList.remove(toRemove);
-        targetUser.followList.remove(toRemove);
+        this.followedOther.remove(toRemove);
+        targetUser.followingMe.remove(toRemove);
     }
 
     // ----------------  테스트용 ------------------
