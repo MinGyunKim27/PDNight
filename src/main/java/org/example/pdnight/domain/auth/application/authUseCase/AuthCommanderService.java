@@ -14,8 +14,8 @@ import org.example.pdnight.domain.auth.presentation.dto.request.WithdrawRequest;
 import org.example.pdnight.domain.auth.presentation.dto.response.LoginResponse;
 import org.example.pdnight.domain.auth.presentation.dto.response.SignupResponse;
 import org.example.pdnight.domain.auth.presentation.dto.response.UserInfo;
-import org.example.pdnight.domain.user.application.userUseCase.event.UserDeleteEvent;
-import org.example.pdnight.domain.user.application.userUseCase.event.UserSignUpEvent;
+import org.example.pdnight.domain.user.application.userUseCase.event.UserDeletedEvent;
+import org.example.pdnight.domain.user.application.userUseCase.event.UserSignedUpEvent;
 import org.example.pdnight.global.common.enums.ErrorCode;
 import org.example.pdnight.global.common.exception.BaseException;
 import org.example.pdnight.global.config.PasswordEncoder;
@@ -55,7 +55,7 @@ public class AuthCommanderService {
         Auth saveAuth = authCommander.save(auth);
 
         // 회원가입 이벤트 발행
-        eventPublisher.publishEvent(UserSignUpEvent.of(
+        eventPublisher.publishEvent(UserSignedUpEvent.of(
                 auth.getId(),
                 request
         ));
@@ -92,7 +92,7 @@ public class AuthCommanderService {
         auth.softDelete();
 
         // 회원 탈퇴 이벤트 발행
-        eventPublisher.publishEvent(UserDeleteEvent.of(
+        eventPublisher.publishEvent(UserDeletedEvent.of(
                 auth.getId()
         ));
     }

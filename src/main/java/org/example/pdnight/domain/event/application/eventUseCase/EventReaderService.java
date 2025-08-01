@@ -1,4 +1,4 @@
-package org.example.pdnight.domain.event.application.eventUserCase;
+package org.example.pdnight.domain.event.application.eventUseCase;
 
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.event.domain.EventReader;
