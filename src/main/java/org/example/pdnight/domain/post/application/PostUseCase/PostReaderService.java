@@ -32,7 +32,7 @@ public class PostReaderService {
 
     private final PostReader postReader;
 
-
+    //region 게시글 조회
     // 게시글 단건 조회
     @Transactional(readOnly = true)
     @Cacheable(value = CacheName.ONE_POST, key = "#id")
@@ -59,11 +59,62 @@ public class PostReaderService {
                 ageLimit, jobCategoryLimit, genderLimit);
         Page<PostResponse> postDtosBySearch = postSearch.map(search -> {
             int participantCount = acceptedParticipantsCounter(search.getPostParticipants());
-            return PostResponse.toDtoWithCount(search, search.getPostParticipants().size(), participantCount);
+            return PostResponse.toDtoWithCount(search, participantCount, search.getPostParticipants().size());
         });
         return PagedResponse.from(postDtosBySearch);
     }
 
+    // 내 성사된/ 신청한 게시물 조회
+    @Cacheable(
+            value = CacheName.CONFIRMED_POST,
+            key = "{#pageable.pageNumber, #pageable.pageSize, #userId, #joinStatus}"
+    )
+    public PagedResponse<PostResponse> findMyConfirmedPosts(Long userId, JoinStatus joinStatus, Pageable pageable) {
+        Page<PostResponse> myLikePost = postReader.getConfirmedPost(userId, joinStatus, pageable);
+        return PagedResponse.from(myLikePost);
+    }
+
+    //내 작성 게시물 조회
+    @Cacheable(
+            value = CacheName.WRITTEN_POST,
+            key = "{#pageable.pageNumber, #pageable.pageSize, #userId}"
+    )
+    public PagedResponse<PostResponse> findMyWrittenPosts(Long userId, Pageable pageable) {
+        Page<Post> postSearch = postReader.getWrittenPost(userId, pageable);
+        Page<PostResponse> myLikePost = postSearch.map(search -> {
+            int participantCount = acceptedParticipantsCounter(search.getPostParticipants());
+            return PostResponse.toDtoWithCount(search, participantCount, search.getPostParticipants().size());
+        });
+
+        return PagedResponse.from(myLikePost);
+    }
+
+    //추천 게시물 조회
+    @Cacheable(
+            value = CacheName.SUGGESTED_POST,
+            key = "{#pageable.pageNumber, #pageable.pageSize, #userId}"
+    )
+    public PagedResponse<PostResponse> getSuggestedPosts(Long userId, Pageable pageable) {
+        Page<Post> postSearch = postReader.getSuggestedPost(userId, pageable);
+        Page<PostResponse> suggestedPost = postSearch.map(search -> {
+            int participantCount = acceptedParticipantsCounter(search.getPostParticipants());
+            return PostResponse.toDtoWithCount(search, participantCount, search.getPostParticipants().size());
+        });
+        return PagedResponse.from(suggestedPost);
+    }
+
+    // 내가 좋아요 누른 게시물 조회
+    @Cacheable(
+            value = CacheName.LIKED_POST,
+            key = "{#pageable.pageNumber, #pageable.pageSize, #userId}"
+    )
+    public PagedResponse<PostResponse> findMyLikedPosts(Long userId, Pageable pageable) {
+        Page<PostResponse> myLikePost = postReader.getMyLikePost(userId, pageable);
+        return PagedResponse.from(myLikePost);
+    }
+    //endregion
+
+    //region 신청자목록조회
     //본인이 작성한 게시글 신청자 목록 조회
     public PagedResponse<ParticipantResponse> getParticipantListByPending(Long loginId, Long postId, int page, int size) {
         Post post = getPost(postId);
@@ -105,59 +156,21 @@ public class PostReaderService {
 
         return PagedResponse.from(pagedPendingParticipants);
     }
+    //endregion
+    //region 게시물초대 조회
+    public PagedResponse<InviteResponse> getMyInvited(Long userId, Pageable pageable) {
+        Page<InviteResponse> myInvited = postReader.getMyInvited(userId, pageable);
 
-    // 내가 좋아요 누른 게시물 조회
-    @Cacheable(
-            value = CacheName.LIKED_POST,
-            key = "{#pageable.pageNumber, #pageable.pageSize, #userId}"
-    )
-    public PagedResponse<PostResponse> findMyLikedPosts(Long userId, Pageable pageable) {
-        Page<PostResponse> myLikePost = postReader.getMyLikePost(userId, pageable);
-        return PagedResponse.from(myLikePost);
+        return PagedResponse.from(myInvited);
     }
 
-    // 내 성사된/ 신청한 게시물 조회
-    @Cacheable(
-            value = CacheName.CONFIRMED_POST,
-            key = "{#pageable.pageNumber, #pageable.pageSize, #userId, #joinStatus}"
-    )
+    public PagedResponse<InviteResponse> getMyInvite(Long userId, Pageable pageable) {
+        Page<InviteResponse> myInvite = postReader.getMyInvite(userId, pageable);
 
-    // 내가 참여한 게시물 조회
-    public PagedResponse<PostResponse> findMyConfirmedPosts(Long userId, JoinStatus joinStatus, Pageable pageable) {
-        Page<PostResponse> myLikePost = postReader.getConfirmedPost(userId, joinStatus, pageable);
-        return PagedResponse.from(myLikePost);
+        return PagedResponse.from(myInvite);
     }
-
-    //내 작성 게시물 조회
-    @Cacheable(
-            value = CacheName.WRITTEN_POST,
-            key = "{#pageable.pageNumber, #pageable.pageSize, #userId}"
-    )
-    public PagedResponse<PostResponse> findMyWrittenPosts(Long userId, Pageable pageable) {
-        Page<Post> postSearch = postReader.getWrittenPost(userId, pageable);
-        Page<PostResponse> myLikePost = postSearch.map(search -> {
-            int participantCount = acceptedParticipantsCounter(search.getPostParticipants());
-            return PostResponse.toDtoWithCount(search, search.getPostParticipants().size(), participantCount);
-        });
-
-        return PagedResponse.from(myLikePost);
-    }
-
-    //추천 게시물 조회
-    @Cacheable(
-            value = CacheName.SUGGESTED_POST,
-            key = "{#pageable.pageNumber, #pageable.pageSize, #userId}"
-    )
-    public PagedResponse<PostResponse> getSuggestedPosts(Long userId, Pageable pageable) {
-        Page<Post> postSearch = postReader.getSuggestedPost(userId, pageable);
-        Page<PostResponse> suggestedPost = postSearch.map(search -> {
-            int participantCount = acceptedParticipantsCounter(search.getPostParticipants());
-            return PostResponse.toDtoWithCount(search, search.getPostParticipants().size(), participantCount);
-        });
-        return PagedResponse.from(suggestedPost);
-    }
-
-    // ===========================================validate==========================================================
+    //endregion
+    //region 헬퍼메서드
     // 참가자 목록 조회 용 검증 로직
 
     private void validateMyPost(Post post, Long loginId) {
@@ -177,16 +190,6 @@ public class PostReaderService {
                 .filter(participant -> participant.getStatus() == JoinStatus.ACCEPTED)
                 .count();
     }
+    //endregion
 
-    public PagedResponse<InviteResponse> getMyInvited(Long userId, Pageable pageable) {
-        Page<InviteResponse> myInvited = postReader.getMyInvited(userId, pageable);
-
-        return PagedResponse.from(myInvited);
-    }
-
-    public PagedResponse<InviteResponse> getMyInvite(Long userId, Pageable pageable) {
-        Page<InviteResponse> myInvite = postReader.getMyInvite(userId, pageable);
-
-        return PagedResponse.from(myInvite);
-    }
 }

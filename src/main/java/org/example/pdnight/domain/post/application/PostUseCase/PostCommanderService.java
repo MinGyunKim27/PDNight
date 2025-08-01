@@ -146,9 +146,6 @@ public class PostCommanderService {
         //선착순 포스트인 경우
         PostParticipant participant = handleJoinRequest(foundPost, loginId, foundPost.getIsFirstCome());
 
-        // 정상 신청
-        foundPost.addParticipants(participant);
-
         return ParticipantResponse.from(
                 loginId,
                 postId,
