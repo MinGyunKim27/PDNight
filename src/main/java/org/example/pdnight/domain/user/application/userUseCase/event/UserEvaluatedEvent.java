@@ -5,17 +5,17 @@ import lombok.Getter;
 import java.math.BigDecimal;
 
 @Getter
-public class UserEvaluationEvent {
+public class UserEvaluatedEvent {
 
     private final Long userId;
     private final BigDecimal rate;
 
-    private UserEvaluationEvent(Long userId, BigDecimal rate) {
+    private UserEvaluatedEvent(Long userId, BigDecimal rate) {
         this.userId = userId;
         this.rate = rate;
     }
 
-    public static UserEvaluationEvent of(Long userId, BigDecimal rate) {
-        return new UserEvaluationEvent(userId, rate);
+    public static UserEvaluatedEvent of(Long userId, BigDecimal rate) {
+        return new UserEvaluatedEvent(userId, rate);
     }
 }

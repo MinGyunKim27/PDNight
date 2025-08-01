@@ -1,4 +1,4 @@
-package org.example.pdnight.domain.event.application.eventUserCase;
+package org.example.pdnight.domain.event.application.eventUseCase;
 
 import org.example.pdnight.domain.event.presentation.dto.request.EventCreateRequest;
 import org.example.pdnight.domain.event.presentation.dto.response.EventParticipantResponse;

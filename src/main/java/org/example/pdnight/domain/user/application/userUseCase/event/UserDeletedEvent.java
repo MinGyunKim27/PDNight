@@ -3,14 +3,14 @@ package org.example.pdnight.domain.user.application.userUseCase.event;
 import lombok.Getter;
 
 @Getter
-public class UserDeleteEvent {
+public class UserDeletedEvent {
     private final Long authId;
 
-    private UserDeleteEvent(Long authId){
+    private UserDeletedEvent(Long authId){
         this.authId = authId;
     }
 
-    public static UserDeleteEvent of(Long authId){
-        return new UserDeleteEvent(authId);
+    public static UserDeletedEvent of(Long authId){
+        return new UserDeletedEvent(authId);
     }
 }
