@@ -12,8 +12,8 @@ import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.enums.JoinStatus;
 import org.example.pdnight.domain.post.enums.PostStatus;
-import org.example.pdnight.domain.post.presentation.dto.response.InviteResponseDto;
-import org.example.pdnight.domain.post.presentation.dto.response.PostResponseDto;
+import org.example.pdnight.domain.post.presentation.dto.response.InviteResponse;
+import org.example.pdnight.domain.post.presentation.dto.response.PostResponse;
 import org.example.pdnight.domain.post.presentation.dto.response.QInviteResponseDto;
 import org.example.pdnight.domain.post.presentation.dto.response.QPostResponseDto;
 import org.example.pdnight.global.common.enums.JobCategory;
@@ -51,13 +51,13 @@ public class PostReaderImpl implements PostReader {
 
     // 내 좋아요 게시글 목록 조회
     @Override
-    public Page<PostResponseDto> getMyLikePost(Long userId, Pageable pageable) {
+    public Page<PostResponse> getMyLikePost(Long userId, Pageable pageable) {
         BooleanBuilder builder = new BooleanBuilder();
         // 닫힌 상태가 아닐 때
         // builder.and(post.status.ne(PostStatus.CLOSED));
         builder.and(postLike.userId.eq(userId));
 
-        List<PostResponseDto> contents = queryFactory
+        List<PostResponse> contents = queryFactory
                 .select(new QPostResponseDto(
                         post.id,
                         post.authorId,
@@ -92,7 +92,7 @@ public class PostReaderImpl implements PostReader {
 
     // 참여 신청한 게시글 목록 조회
     @Override
-    public Page<PostResponseDto> getConfirmedPost(Long userId, JoinStatus joinStatus, Pageable pageable) {
+    public Page<PostResponse> getConfirmedPost(Long userId, JoinStatus joinStatus, Pageable pageable) {
 
         BooleanBuilder builder = new BooleanBuilder();
 
@@ -105,7 +105,7 @@ public class PostReaderImpl implements PostReader {
             builder.and(postParticipant.status.eq(joinStatus));
         }
 
-        List<PostResponseDto> content = queryFactory
+        List<PostResponse> content = queryFactory
                 .select(new QPostResponseDto(
                         post.id,
                         post.authorId,
@@ -249,10 +249,10 @@ public class PostReaderImpl implements PostReader {
 
     // 초대받은 리스트
     @Override
-    public Page<InviteResponseDto> getMyInvited(Long userId, Pageable pageable) {
+    public Page<InviteResponse> getMyInvited(Long userId, Pageable pageable) {
         QInvite invite = QInvite.invite;
 
-        JPQLQuery<InviteResponseDto> query = queryFactory
+        JPQLQuery<InviteResponse> query = queryFactory
                 .select(new QInviteResponseDto(
                         invite.id,
                         invite.inviteeId,
@@ -273,11 +273,11 @@ public class PostReaderImpl implements PostReader {
 
     // 내가 초대한 리스트
     @Override
-    public Page<InviteResponseDto> getMyInvite(Long userId, Pageable pageable) {
+    public Page<InviteResponse> getMyInvite(Long userId, Pageable pageable) {
 
         QInvite invite = QInvite.invite;
 
-        JPQLQuery<InviteResponseDto> query = queryFactory
+        JPQLQuery<InviteResponse> query = queryFactory
                 .select(new QInviteResponseDto(
                         invite.id,
                         invite.inviteeId,

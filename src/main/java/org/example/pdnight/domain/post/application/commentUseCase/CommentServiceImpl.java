@@ -1,7 +1,7 @@
 package org.example.pdnight.domain.post.application.commentUseCase;
 
-import org.example.pdnight.domain.post.presentation.dto.request.CommentRequestDto;
-import org.example.pdnight.domain.post.presentation.dto.response.CommentResponseDto;
+import org.example.pdnight.domain.post.presentation.dto.request.CommentRequest;
+import org.example.pdnight.domain.post.presentation.dto.response.CommentResponse;
 import org.example.pdnight.global.common.dto.PagedResponse;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -18,7 +18,7 @@ public class CommentServiceImpl implements CommentService {
 	private final CommentCommanderService commentCommandService;
 
 	@Override
-	public CommentResponseDto createComment(Long postId, Long loginId, CommentRequestDto request) {
+	public CommentResponse createComment(Long postId, Long loginId, CommentRequest request) {
 		return commentCommandService.createComment(postId, loginId, request);
 	}
 
@@ -28,12 +28,12 @@ public class CommentServiceImpl implements CommentService {
 	}
 
 	@Override
-	public CommentResponseDto updateCommentByDto(Long postId, Long id, Long loginId, CommentRequestDto request) {
+	public CommentResponse updateCommentByDto(Long postId, Long id, Long loginId, CommentRequest request) {
 		return commentCommandService.updateCommentByDto(postId, id, loginId, request);
 	}
 
 	@Override
-	public CommentResponseDto createChildComment(Long postId, Long id, Long loginId, CommentRequestDto request) {
+	public CommentResponse createChildComment(Long postId, Long id, Long loginId, CommentRequest request) {
 		return commentCommandService.createChildComment(postId, id, loginId, request);
 	}
 
@@ -43,7 +43,7 @@ public class CommentServiceImpl implements CommentService {
 	}
 
 	@Override
-	public PagedResponse<CommentResponseDto> getCommentsByPostId(Long postId, Pageable pageable) {
+	public PagedResponse<CommentResponse> getCommentsByPostId(Long postId, Pageable pageable) {
 		return commentQueryService.getCommentsByPostId(postId, pageable);
 	}
 

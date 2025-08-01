@@ -1,38 +1,35 @@
 package org.example.pdnight.domain.post.presentation.dto.request;
 
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
+import org.example.pdnight.domain.post.enums.PostStatus;
 import org.example.pdnight.global.common.enums.JobCategory;
 
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+//업데이트에 사용될 DTO, Null 아닌 필드만 업데이트
 @Getter
 @Builder
 @AllArgsConstructor
-public class PostRequestDto {
+public class PostUpdateRequest {
 
-    @NotBlank(message = "제목은 필수 입력값입니다.")
     private String title;
-
-    @NotNull(message = "시간은 필수 입력값입니다.")
     private LocalDateTime timeSlot;
-
     private String publicContent;
+    private PostStatus status;
 
-    @Min(value = 1, message = "참가인원은 최소 1인이상입니다.")
+    //maxParticipants 는 1인 이상 검증해야함
     private Integer maxParticipants;
-
     private Gender genderLimit;
     private JobCategory jobCategoryLimit;
     private AgeLimit ageLimit;
-    private boolean isFirstCome;
+
+    private List<Long> hobbyIdList;
+    private List<Long> techStackIdList;
 
 }

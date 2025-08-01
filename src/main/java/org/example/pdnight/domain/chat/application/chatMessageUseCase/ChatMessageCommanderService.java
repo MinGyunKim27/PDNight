@@ -1,9 +1,8 @@
 package org.example.pdnight.domain.chat.application.chatMessageUseCase;
 
 import lombok.RequiredArgsConstructor;
-import org.example.pdnight.domain.chat.domain.ChatMessage;
 import org.example.pdnight.domain.chat.domain.ChatMessageCommander;
-import org.example.pdnight.domain.chat.presentation.dto.request.ChatMessageDto;
+import org.example.pdnight.domain.chat.presentation.dto.request.ChatMessage;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.stereotype.Service;
@@ -14,9 +13,9 @@ public class ChatMessageCommanderService {
     private final ChatMessageCommander chatMessageCommandQuery;
 
     // 메시지 보내기
-    public void sendMessage(ChatMessageDto message) {
+    public void sendMessage(ChatMessage message) {
         // 메시지 기록
-        ChatMessage chatMessage = ChatMessage.from(message.getRoomId(), message.getSender(), message.getMessage(), message.getMessageType());
+        org.example.pdnight.domain.chat.domain.ChatMessage chatMessage = org.example.pdnight.domain.chat.domain.ChatMessage.from(message.getRoomId(), message.getSender(), message.getMessage(), message.getMessageType());
         chatMessageCommandQuery.save(chatMessage);
 
         ChannelTopic topic = chatMessageCommandQuery.getTopic(message.getRoomId());
@@ -24,7 +23,7 @@ public class ChatMessageCommanderService {
         publish(topic, message);
     }
 
-    private ChannelTopic getOrSubscribeTopic(ChannelTopic topic, ChatMessageDto message) {
+    private ChannelTopic getOrSubscribeTopic(ChannelTopic topic, ChatMessage message) {
         // 토픽이 없으면 구독 등록 후 다시 가져오기
         if (topic == null) {
             chatMessageCommandQuery.enterChatRoom(message.getRoomId());
@@ -38,7 +37,7 @@ public class ChatMessageCommanderService {
     private final RedisTemplate<String, Object> redisTemplate;
 
     // 메시지를 발행
-    public void publish(ChannelTopic topic, ChatMessageDto message) {
+    public void publish(ChannelTopic topic, ChatMessage message) {
         redisTemplate.convertAndSend(topic.getTopic(), message);
     }
 

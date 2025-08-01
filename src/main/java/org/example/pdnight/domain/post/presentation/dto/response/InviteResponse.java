@@ -7,26 +7,26 @@ import org.example.pdnight.domain.post.domain.post.Invite;
 
 @Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class InviteResponseDto {
+public class InviteResponse {
     private Long id;
     private Long inviteeId;
     private Long postId;
 
-    private InviteResponseDto(Invite invite) {
+    private InviteResponse(Invite invite) {
         this.id = invite.getId();
         this.inviteeId = invite.getInviteeId();
         this.postId = invite.getPost().getId();
     }
 
     @QueryProjection
-    public InviteResponseDto(
+    public InviteResponse(
             Long id, Long inviteeId, Long postId) {
         this.id = id;
         this.inviteeId = inviteeId;
         this.postId = postId;
     }
 
-    public static InviteResponseDto from(Invite invite) {
-        return new InviteResponseDto(invite);
+    public static InviteResponse from(Invite invite) {
+        return new InviteResponse(invite);
     }
 }

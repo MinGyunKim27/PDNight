@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 @Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @NoArgsConstructor(force = true)
-public class PostResponseDto {
+public class PostResponse {
 
     private final Long postId;
     private final Long authorId;
@@ -37,7 +37,7 @@ public class PostResponseDto {
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
 
-    private PostResponseDto(Post post) {
+    private PostResponse(Post post) {
         this.postId = post.getId();
         this.authorId = post.getAuthorId();
         this.title = post.getTitle();
@@ -53,7 +53,7 @@ public class PostResponseDto {
         this.updatedAt = post.getUpdatedAt();
     }
 
-    private PostResponseDto(Post post, Integer acceptedParticipantsCount, Integer participantsCount) {
+    private PostResponse(Post post, Integer acceptedParticipantsCount, Integer participantsCount) {
         this.postId = post.getId();
         this.authorId = post.getAuthorId();
         this.title = post.getTitle();
@@ -71,16 +71,16 @@ public class PostResponseDto {
         this.updatedAt = post.getUpdatedAt();
     }
 
-    public static PostResponseDto toDto(Post post) {
-        return new PostResponseDto(post);
+    public static PostResponse toDto(Post post) {
+        return new PostResponse(post);
     }
 
-    public static PostResponseDto toDtoWithCount(Post post, int acceptedParticipantsCount, int participantsCount) {
-        return new PostResponseDto(post, acceptedParticipantsCount, participantsCount);
+    public static PostResponse toDtoWithCount(Post post, int acceptedParticipantsCount, int participantsCount) {
+        return new PostResponse(post, acceptedParticipantsCount, participantsCount);
     }
 
     @QueryProjection
-    public PostResponseDto(
+    public PostResponse(
             Long id,
             Long authorId,
             String title,
@@ -111,7 +111,7 @@ public class PostResponseDto {
     }
 
     @QueryProjection
-    public PostResponseDto(
+    public PostResponse(
             Long id,
             Long authorId,
             String title,

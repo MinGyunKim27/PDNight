@@ -7,9 +7,9 @@ import org.example.pdnight.domain.post.domain.post.PostReader;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.enums.JoinStatus;
-import org.example.pdnight.domain.post.presentation.dto.response.InviteResponseDto;
+import org.example.pdnight.domain.post.presentation.dto.response.InviteResponse;
 import org.example.pdnight.domain.post.presentation.dto.response.ParticipantResponse;
-import org.example.pdnight.domain.post.presentation.dto.response.PostResponseDto;
+import org.example.pdnight.domain.post.presentation.dto.response.PostResponse;
 import org.example.pdnight.global.common.dto.PagedResponse;
 import org.example.pdnight.global.common.enums.ErrorCode;
 import org.example.pdnight.global.common.enums.JobCategory;
@@ -77,10 +77,10 @@ public class PostReaderService {
     // 게시글 단건 조회
     @Transactional(readOnly = true)
     @Cacheable(value = CacheName.ONE_POST, key = "#id")
-    public PostResponseDto findPost(Long id) {
+    public PostResponse findPost(Long id) {
         Post foundPost = postReader.getPostById(id).orElseThrow(() -> new BaseException(ErrorCode.POST_NOT_FOUND));
         int participants = acceptedParticipantsCounter(foundPost.getPostParticipants());
-        return PostResponseDto.toDtoWithCount(foundPost, foundPost.getPostParticipants().size(), participants);
+        return PostResponse.toDtoWithCount(foundPost, foundPost.getPostParticipants().size(), participants);
     }
 
     // 내가 좋아요 누른 게시물 조회
@@ -88,8 +88,8 @@ public class PostReaderService {
             value = CacheName.LIKED_POST,
             key = "{#pageable.pageNumber, #pageable.pageSize, #userId}"
     )
-    public PagedResponse<PostResponseDto> findMyLikedPosts(Long userId, Pageable pageable) {
-        Page<PostResponseDto> myLikePost = postReader.getMyLikePost(userId, pageable);
+    public PagedResponse<PostResponse> findMyLikedPosts(Long userId, Pageable pageable) {
+        Page<PostResponse> myLikePost = postReader.getMyLikePost(userId, pageable);
         return PagedResponse.from(myLikePost);
     }
 
@@ -100,8 +100,8 @@ public class PostReaderService {
     )
 
     // 내가 참여한 게시물 조회
-    public PagedResponse<PostResponseDto> findMyConfirmedPosts(Long userId, JoinStatus joinStatus, Pageable pageable) {
-        Page<PostResponseDto> myLikePost = postReader.getConfirmedPost(userId, joinStatus, pageable);
+    public PagedResponse<PostResponse> findMyConfirmedPosts(Long userId, JoinStatus joinStatus, Pageable pageable) {
+        Page<PostResponse> myLikePost = postReader.getConfirmedPost(userId, joinStatus, pageable);
         return PagedResponse.from(myLikePost);
     }
 
@@ -110,11 +110,11 @@ public class PostReaderService {
             value = CacheName.WRITTEN_POST,
             key = "{#pageable.pageNumber, #pageable.pageSize, #userId}"
     )
-    public PagedResponse<PostResponseDto> findMyWrittenPosts(Long userId, Pageable pageable) {
+    public PagedResponse<PostResponse> findMyWrittenPosts(Long userId, Pageable pageable) {
         Page<Post> postSearch = postReader.getWrittenPost(userId, pageable);
-        Page<PostResponseDto> myLikePost = postSearch.map(search -> {
+        Page<PostResponse> myLikePost = postSearch.map(search -> {
             int participantCount = acceptedParticipantsCounter(search.getPostParticipants());
-            return PostResponseDto.toDtoWithCount(search, search.getPostParticipants().size(), participantCount);
+            return PostResponse.toDtoWithCount(search, search.getPostParticipants().size(), participantCount);
         });
 
         return PagedResponse.from(myLikePost);
@@ -125,11 +125,11 @@ public class PostReaderService {
             value = CacheName.SUGGESTED_POST,
             key = "{#pageable.pageNumber, #pageable.pageSize, #userId}"
     )
-    public PagedResponse<PostResponseDto> getSuggestedPosts(Long userId, Pageable pageable) {
+    public PagedResponse<PostResponse> getSuggestedPosts(Long userId, Pageable pageable) {
         Page<Post> postSearch = postReader.getSuggestedPost(userId, pageable);
-        Page<PostResponseDto> suggestedPost = postSearch.map(search -> {
+        Page<PostResponse> suggestedPost = postSearch.map(search -> {
             int participantCount = acceptedParticipantsCounter(search.getPostParticipants());
-            return PostResponseDto.toDtoWithCount(search, search.getPostParticipants().size(), participantCount);
+            return PostResponse.toDtoWithCount(search, search.getPostParticipants().size(), participantCount);
         });
         return PagedResponse.from(suggestedPost);
     }
@@ -140,7 +140,7 @@ public class PostReaderService {
             value = CacheName.SEARCH_POST,
             key = "{#pageable.pageNumber, #pageable.pageSize, #maxParticipants, #ageLimit, #jobCategoryLimit, #genderLimit, #hobbyIdList, #techStackIdList}"
     )
-    public PagedResponse<PostResponseDto> getPostDtosBySearch(
+    public PagedResponse<PostResponse> getPostDtosBySearch(
             Pageable pageable,
             Integer maxParticipants,
             AgeLimit ageLimit,
@@ -149,9 +149,9 @@ public class PostReaderService {
     ) {
         Page<Post> postSearch = postReader.findPostsBySearch(pageable, maxParticipants,
                 ageLimit, jobCategoryLimit, genderLimit);
-        Page<PostResponseDto> postDtosBySearch = postSearch.map(search -> {
+        Page<PostResponse> postDtosBySearch = postSearch.map(search -> {
             int participantCount = acceptedParticipantsCounter(search.getPostParticipants());
-            return PostResponseDto.toDtoWithCount(search, search.getPostParticipants().size(), participantCount);
+            return PostResponse.toDtoWithCount(search, search.getPostParticipants().size(), participantCount);
         });
         return PagedResponse.from(postDtosBySearch);
     }
@@ -177,14 +177,14 @@ public class PostReaderService {
                 .count();
     }
 
-    public PagedResponse<InviteResponseDto> getMyInvited(Long userId, Pageable pageable) {
-        Page<InviteResponseDto> myInvited = postReader.getMyInvited(userId, pageable);
+    public PagedResponse<InviteResponse> getMyInvited(Long userId, Pageable pageable) {
+        Page<InviteResponse> myInvited = postReader.getMyInvited(userId, pageable);
 
         return PagedResponse.from(myInvited);
     }
 
-    public PagedResponse<InviteResponseDto> getMyInvite(Long userId, Pageable pageable) {
-        Page<InviteResponseDto> myInvite = postReader.getMyInvite(userId, pageable);
+    public PagedResponse<InviteResponse> getMyInvite(Long userId, Pageable pageable) {
+        Page<InviteResponse> myInvite = postReader.getMyInvite(userId, pageable);
 
         return PagedResponse.from(myInvite);
     }

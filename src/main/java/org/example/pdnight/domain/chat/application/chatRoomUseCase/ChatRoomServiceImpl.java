@@ -4,7 +4,7 @@ package org.example.pdnight.domain.chat.application.chatRoomUseCase;
 
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.chat.domain.ChatRoom;
-import org.example.pdnight.domain.chat.presentation.dto.response.ChatRoomResponseDto;
+import org.example.pdnight.domain.chat.presentation.dto.response.ChatRoomResponse;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,7 +17,7 @@ public class ChatRoomServiceImpl implements ChatRoomService{
     private final ChatRoomCommanderService chatRoomCommanderService;
 
     @Override
-    public List<ChatRoomResponseDto> list() {
+    public List<ChatRoomResponse> list() {
         return chatRoomReaderService.list();
     }
 
@@ -27,7 +27,7 @@ public class ChatRoomServiceImpl implements ChatRoomService{
     }
 
     @Override
-    public ChatRoomResponseDto roomInfo(Long roomId) {
+    public ChatRoomResponse roomInfo(Long roomId) {
         return chatRoomReaderService.roomInfo(roomId);
     }
 

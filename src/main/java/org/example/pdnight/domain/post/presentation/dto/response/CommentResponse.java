@@ -10,7 +10,7 @@ import java.util.List;
 
 @Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class CommentResponseDto {
+public class CommentResponse {
 
 	private final Long id;
 	private final Long postId;
@@ -25,9 +25,9 @@ public class CommentResponseDto {
 
 	//리스트가 비어있으면 반환 안됨
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
-	private final List<CommentResponseDto> children = new ArrayList<>();
+	private final List<CommentResponse> children = new ArrayList<>();
 
-	private CommentResponseDto(Comment comment) {
+	private CommentResponse(Comment comment) {
 		this.id = comment.getId();
 		this.postId = comment.getPostId();
 		this.authorId = comment.getAuthorId();
@@ -37,12 +37,12 @@ public class CommentResponseDto {
 		this.parentId = comment.getParent() != null ? comment.getParent().getId() : null;
 	}
 
-	public static CommentResponseDto from(Comment comment) {
-		return new CommentResponseDto(comment);
+	public static CommentResponse from(Comment comment) {
+		return new CommentResponse(comment);
 	}
 
 	//댓글응답에 대댓글 추가 메서드
-	public void addChild(CommentResponseDto commentResponseDto) {
+	public void addChild(CommentResponse commentResponseDto) {
 		children.add(commentResponseDto);
 	}
 

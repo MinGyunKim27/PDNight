@@ -2,16 +2,13 @@ package org.example.pdnight.domain.chat.presentation;
 
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.chat.application.chatRoomUseCase.ChatRoomService;
-import org.example.pdnight.domain.chat.enums.MessageType;
 import org.example.pdnight.domain.chat.domain.ChatRoom;
-import org.example.pdnight.domain.chat.presentation.dto.request.ChatMessageDto;
-import org.example.pdnight.domain.chat.presentation.dto.response.ChatRoomResponseDto;
-import org.example.pdnight.domain.chat.presentation.dto.response.NicknameResponseDto;
+import org.example.pdnight.domain.chat.presentation.dto.response.ChatRoomResponse;
+import org.example.pdnight.domain.chat.presentation.dto.response.NicknameResponse;
 import org.example.pdnight.global.common.dto.ApiResponse;
 import org.example.pdnight.global.filter.CustomUserDetails;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -40,7 +37,7 @@ public class ChatRoomController {
     // 모든 채팅방 목록 반환
     @GetMapping("/chat/list")
     @ResponseBody
-    public ResponseEntity<ApiResponse<List<ChatRoomResponseDto>>> room() {
+    public ResponseEntity<ApiResponse<List<ChatRoomResponse>>> room() {
         return ResponseEntity.ok(ApiResponse.ok("채팅방 목록이 조회되었습니다.", chatRoomService.list()));
     }
 
@@ -62,15 +59,15 @@ public class ChatRoomController {
     // 특정 채팅방 정보 조회
     @GetMapping("/chat/room/{roomId}")
     @ResponseBody
-    public ResponseEntity<ApiResponse<ChatRoomResponseDto>> roomInfo(@PathVariable Long roomId) {
+    public ResponseEntity<ApiResponse<ChatRoomResponse>> roomInfo(@PathVariable Long roomId) {
         return ResponseEntity.ok(ApiResponse.ok("채팅방 정보가 조회되었습니다.", chatRoomService.roomInfo(roomId)));
     }
 
     // 채팅방 접속시 닉네임 정보 조회
     @GetMapping("/chat/enter/me")
     @ResponseBody
-    public ResponseEntity<ApiResponse<NicknameResponseDto>> nicknameInfo(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ResponseEntity.ok(ApiResponse.ok("닉네임이 조회되었습니다", NicknameResponseDto.from(userDetails.getUsername())));
+    public ResponseEntity<ApiResponse<NicknameResponse>> nicknameInfo(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ResponseEntity.ok(ApiResponse.ok("닉네임이 조회되었습니다", NicknameResponse.from(userDetails.getUsername())));
     }
 
     // 채팅방 입장 시도

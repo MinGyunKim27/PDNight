@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 
 @Getter
-public class CommentRequestDto {
+public class CommentRequest {
 
 	@NotBlank(message = "변경내용은 필수값입니다.")
 	private String content;

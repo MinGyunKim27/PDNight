@@ -6,8 +6,8 @@ import org.example.pdnight.domain.post.application.port.PostPort;
 import org.example.pdnight.domain.post.domain.comment.Comment;
 import org.example.pdnight.domain.post.domain.comment.CommentCommander;
 import org.example.pdnight.domain.post.enums.PostStatus;
-import org.example.pdnight.domain.post.presentation.dto.request.CommentRequestDto;
-import org.example.pdnight.domain.post.presentation.dto.response.CommentResponseDto;
+import org.example.pdnight.domain.post.presentation.dto.request.CommentRequest;
+import org.example.pdnight.domain.post.presentation.dto.response.CommentResponse;
 import org.example.pdnight.domain.post.presentation.dto.response.PostInfo;
 import org.example.pdnight.global.common.enums.ErrorCode;
 import org.example.pdnight.global.common.exception.BaseException;
@@ -23,7 +23,7 @@ public class CommentCommanderService {
 	private final PostPort postPort;
 
 	//댓글 생성 메서드
-	public CommentResponseDto createComment(Long postId, Long loginId, CommentRequestDto request) {
+	public CommentResponse createComment(Long postId, Long loginId, CommentRequest request) {
 		//게시글 존재하는지 검증
 		PostInfo postFromPort = postPort.findById(postId);
 
@@ -36,7 +36,7 @@ public class CommentCommanderService {
 		Comment comment = Comment.create(postId, loginId, request.getContent());
 		Comment savedComment = commentCommandQuery.save(comment);
 
-		return CommentResponseDto.from(savedComment);
+		return CommentResponse.from(savedComment);
 	}
 
 	//댓글 삭제 메서드
@@ -57,7 +57,7 @@ public class CommentCommanderService {
 
 	//댓글 수정 메서드
 	@Transactional
-	public CommentResponseDto updateCommentByDto(Long postId, Long id, Long loginId, CommentRequestDto request) {
+	public CommentResponse updateCommentByDto(Long postId, Long id, Long loginId, CommentRequest request) {
 		if (postPort.existsById(postId)){
 			throw new BaseException(ErrorCode.POST_NOT_FOUND);
 		}
@@ -68,15 +68,15 @@ public class CommentCommanderService {
 
 		if (foundComment.getContent().equals(request.getContent())) {
 			log.info("요청과 기존 댓글 내용이 동일하여 업데이트를 생략합니다. commentId = {}", foundComment.getId());
-			return CommentResponseDto.from(foundComment);
+			return CommentResponse.from(foundComment);
 		}
 
 		foundComment.updateContent(request.getContent());
-		return CommentResponseDto.from(foundComment);
+		return CommentResponse.from(foundComment);
 	}
 
 	//대댓글 생성 메서드
-	public CommentResponseDto createChildComment(Long postId, Long id, Long loginId, CommentRequestDto request) {
+	public CommentResponse createChildComment(Long postId, Long id, Long loginId, CommentRequest request) {
 		//게시글 존재하는지 검증
 		PostInfo postFromPort = postPort.findById(postId);
 
@@ -91,7 +91,7 @@ public class CommentCommanderService {
 		Comment childComment = Comment.createChild(postId, loginId, request.getContent(), foundComment);
 		Comment savedChildComment = commentCommandQuery.save(childComment);
 
-		return CommentResponseDto.from(savedChildComment);
+		return CommentResponse.from(savedChildComment);
 	}
 
 	//어드민 권한 댓글 삭제 메서드

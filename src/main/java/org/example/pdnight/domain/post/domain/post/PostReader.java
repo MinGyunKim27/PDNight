@@ -3,11 +3,10 @@ package org.example.pdnight.domain.post.domain.post;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.enums.JoinStatus;
-import org.example.pdnight.domain.post.presentation.dto.response.InviteResponseDto;
-import org.example.pdnight.domain.post.presentation.dto.response.PostResponseDto;
+import org.example.pdnight.domain.post.presentation.dto.response.InviteResponse;
+import org.example.pdnight.domain.post.presentation.dto.response.PostResponse;
 
 
-import org.example.pdnight.global.common.dto.PagedResponse;
 import org.example.pdnight.global.common.enums.JobCategory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,9 +17,9 @@ public interface PostReader {
 
     Optional<Post> getPostById(Long id);
 
-    Page<PostResponseDto> getMyLikePost(Long userId, Pageable pageable);
+    Page<PostResponse> getMyLikePost(Long userId, Pageable pageable);
 
-    Page<PostResponseDto> getConfirmedPost(Long userId, JoinStatus joinStatus, Pageable pageable);
+    Page<PostResponse> getConfirmedPost(Long userId, JoinStatus joinStatus, Pageable pageable);
 
     Page<Post> getWrittenPost(Long userId, Pageable pageable);
 
@@ -36,7 +35,7 @@ public interface PostReader {
 
     Optional<Post> findById(Long postId);
 
-    Page<InviteResponseDto> getMyInvited(Long userId, Pageable pageable);
+    Page<InviteResponse> getMyInvited(Long userId, Pageable pageable);
 
-    Page<InviteResponseDto> getMyInvite(Long userId, Pageable pageable);
+    Page<InviteResponse> getMyInvite(Long userId, Pageable pageable);
 }

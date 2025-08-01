@@ -5,9 +5,9 @@ import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.enums.JoinStatus;
-import org.example.pdnight.domain.post.presentation.dto.request.PostRequestDto;
-import org.example.pdnight.domain.post.presentation.dto.request.PostStatusRequestDto;
-import org.example.pdnight.domain.post.presentation.dto.request.PostUpdateRequestDto;
+import org.example.pdnight.domain.post.presentation.dto.request.PostRequest;
+import org.example.pdnight.domain.post.presentation.dto.request.PostStatusRequest;
+import org.example.pdnight.domain.post.presentation.dto.request.PostUpdateRequest;
 import org.example.pdnight.domain.post.presentation.dto.response.*;
 import org.example.pdnight.global.common.dto.PagedResponse;
 import org.example.pdnight.global.common.enums.JobCategory;
@@ -32,27 +32,27 @@ public class PostServiceImpl implements PostService{
     }
 
     @Override
-    public PostResponseDto findPost(Long id) {
+    public PostResponse findPost(Long id) {
         return postReaderService.findPost(id);
     };
 
     @Override
-    public PagedResponse<PostResponseDto> findMyLikedPosts(Long userId, Pageable pageable) {
+    public PagedResponse<PostResponse> findMyLikedPosts(Long userId, Pageable pageable) {
         return postReaderService.findMyLikedPosts(userId, pageable);
     }
 
     @Override
-    public PagedResponse<PostResponseDto> findMyConfirmedPosts(Long userId, JoinStatus joinStatus, Pageable pageable) {
+    public PagedResponse<PostResponse> findMyConfirmedPosts(Long userId, JoinStatus joinStatus, Pageable pageable) {
         return postReaderService.findMyConfirmedPosts(userId, joinStatus, pageable);
     }
 
     @Override
-    public PagedResponse<PostResponseDto> findMyWrittenPosts(Long userId, Pageable pageable) {
+    public PagedResponse<PostResponse> findMyWrittenPosts(Long userId, Pageable pageable) {
         return postReaderService.findMyWrittenPosts(userId, pageable);
     }
 
     @Override
-    public PagedResponse<PostResponseDto> getSuggestedPosts(Long userId, Pageable pageable) {
+    public PagedResponse<PostResponse> getSuggestedPosts(Long userId, Pageable pageable) {
         return postReaderService.getSuggestedPosts(userId, pageable);
     }
 
@@ -72,12 +72,12 @@ public class PostServiceImpl implements PostService{
     }
 
     @Override
-    public PostResponseDto createPost(Long userId, PostRequestDto request) {
+    public PostResponse createPost(Long userId, PostRequest request) {
         return postCommanderService.createPost(userId, request);
     }
 
     @Override
-    public PagedResponse<PostResponseDto> getPostDtosBySearch(
+    public PagedResponse<PostResponse> getPostDtosBySearch(
             Pageable pageable,
             Integer maxParticipants,
             AgeLimit ageLimit,
@@ -93,12 +93,12 @@ public class PostServiceImpl implements PostService{
     }
 
     @Override
-    public PostResponseDto updatePostDetails(Long userId, Long id, PostUpdateRequestDto request) {
+    public PostResponse updatePostDetails(Long userId, Long id, PostUpdateRequest request) {
         return postCommanderService.updatePostDetails(userId, id, request);
     }
 
     @Override
-    public PostResponseDto changeStatus(Long userId, Long id, PostStatusRequestDto request) {
+    public PostResponse changeStatus(Long userId, Long id, PostStatusRequest request) {
         return postCommanderService.changePostStatus(userId, id, request);
     }
 
@@ -113,7 +113,7 @@ public class PostServiceImpl implements PostService{
     }
 
     @Override
-    public InviteResponseDto createInvite(Long postId, Long userId, Long loginUserId) {
+    public InviteResponse createInvite(Long postId, Long userId, Long loginUserId) {
         return postCommanderService.createInvite(postId, userId, loginUserId);
     }
 
@@ -133,12 +133,12 @@ public class PostServiceImpl implements PostService{
     };
 
     @Override
-    public PagedResponse<InviteResponseDto> getMyInvited(Long userId, Pageable pageable) {
+    public PagedResponse<InviteResponse> getMyInvited(Long userId, Pageable pageable) {
         return postReaderService.getMyInvited(userId, pageable);
     }
 
     @Override
-    public PagedResponse<InviteResponseDto> getMyInvite(Long userId, Pageable pageable) {
+    public PagedResponse<InviteResponse> getMyInvite(Long userId, Pageable pageable) {
         return postReaderService.getMyInvite(userId, pageable);
     }
 

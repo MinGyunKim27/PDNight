@@ -1,12 +1,12 @@
 package org.example.pdnight.domain.chat.application.chatMessageUseCase;
 
 
-import org.example.pdnight.domain.chat.presentation.dto.request.ChatMessageDto;
+import org.example.pdnight.domain.chat.presentation.dto.request.ChatMessage;
 
 import java.util.List;
 
 public interface ChatMessageService {
-    List<ChatMessageDto> messageRecord(String roomId);
+    List<ChatMessage> messageRecord(String roomId);
 
-    void sendMessage(ChatMessageDto message);
+    void sendMessage(ChatMessage message);
 }

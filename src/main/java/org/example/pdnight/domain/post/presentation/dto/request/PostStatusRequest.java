@@ -7,7 +7,7 @@ import org.example.pdnight.domain.post.enums.PostStatus;
 
 @Getter
 @AllArgsConstructor
-public class PostStatusRequestDto {
+public class PostStatusRequest {
 
     @NotBlank(message = "변경할 상태값은 필수입력값입니다.")
     private PostStatus status;

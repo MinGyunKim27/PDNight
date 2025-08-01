@@ -4,13 +4,12 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.example.pdnight.domain.chat.domain.ChatMessage;
 import org.example.pdnight.domain.chat.enums.MessageType;
 
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ChatMessageDto {
+public class ChatMessage {
 
     private MessageType messageType;
     private String roomId;
@@ -18,14 +17,14 @@ public class ChatMessageDto {
     @Setter
     private String message;
 
-    private ChatMessageDto(ChatMessage chatMessage) {
+    private ChatMessage(org.example.pdnight.domain.chat.domain.ChatMessage chatMessage) {
         this.messageType = chatMessage.getMessageType();
         this.roomId = chatMessage.getRoomId();
         this.sender = chatMessage.getSender();
         this.message = chatMessage.getMessage();
     }
 
-    public static ChatMessageDto from(ChatMessage chatMessage) {
-        return new ChatMessageDto(chatMessage);
+    public static ChatMessage from(org.example.pdnight.domain.chat.domain.ChatMessage chatMessage) {
+        return new ChatMessage(chatMessage);
     }
 }

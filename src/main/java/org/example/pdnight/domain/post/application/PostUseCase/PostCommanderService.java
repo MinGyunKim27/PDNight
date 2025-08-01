@@ -7,13 +7,13 @@ import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.enums.JoinStatus;
 import org.example.pdnight.domain.post.enums.PostStatus;
-import org.example.pdnight.domain.post.presentation.dto.request.PostRequestDto;
-import org.example.pdnight.domain.post.presentation.dto.request.PostStatusRequestDto;
-import org.example.pdnight.domain.post.presentation.dto.request.PostUpdateRequestDto;
-import org.example.pdnight.domain.post.presentation.dto.response.InviteResponseDto;
+import org.example.pdnight.domain.post.presentation.dto.request.PostRequest;
+import org.example.pdnight.domain.post.presentation.dto.request.PostStatusRequest;
+import org.example.pdnight.domain.post.presentation.dto.request.PostUpdateRequest;
+import org.example.pdnight.domain.post.presentation.dto.response.InviteResponse;
 import org.example.pdnight.domain.post.presentation.dto.response.ParticipantResponse;
 import org.example.pdnight.domain.post.presentation.dto.response.PostLikeResponse;
-import org.example.pdnight.domain.post.presentation.dto.response.PostResponseDto;
+import org.example.pdnight.domain.post.presentation.dto.response.PostResponse;
 import org.example.pdnight.global.aop.DistributedLock;
 import org.example.pdnight.global.common.enums.ErrorCode;
 import org.example.pdnight.global.common.enums.JobCategory;
@@ -44,7 +44,7 @@ public class PostCommanderService {
             @CacheEvict(value = CacheName.SUGGESTED_POST, allEntries = true),
             @CacheEvict(value = CacheName.WRITTEN_POST, allEntries = true)
     })
-    public PostResponseDto createPost(Long userId, PostRequestDto request) {
+    public PostResponse createPost(Long userId, PostRequest request) {
 
         Post post = Post.createPost(
                 userId,
@@ -60,7 +60,7 @@ public class PostCommanderService {
 
         postCommander.save(post);
 
-        return PostResponseDto.toDto(post);
+        return PostResponse.toDto(post);
     }
 
     @Transactional
@@ -93,7 +93,7 @@ public class PostCommanderService {
             @CacheEvict(value = CacheName.WRITTEN_POST, allEntries = true),
             @CacheEvict(value = CacheName.SUGGESTED_POST, allEntries = true),
     })
-    public PostResponseDto updatePostDetails(Long userId, Long postId, PostUpdateRequestDto request) {
+    public PostResponse updatePostDetails(Long userId, Long postId, PostUpdateRequest request) {
         Post foundPost = getPostByIdOrElseThrow(postId);
         validateAuthor(userId, foundPost);
 
@@ -107,7 +107,7 @@ public class PostCommanderService {
                 request.getAgeLimit()
         );
 
-        return PostResponseDto.toDto(foundPost);
+        return PostResponse.toDto(foundPost);
     }
 
     @Transactional
@@ -119,7 +119,7 @@ public class PostCommanderService {
             @CacheEvict(value = CacheName.WRITTEN_POST, allEntries = true),
             @CacheEvict(value = CacheName.SUGGESTED_POST, allEntries = true),
     })
-    public PostResponseDto changePostStatus(Long userId, Long postId, PostStatusRequestDto request) {
+    public PostResponse changePostStatus(Long userId, Long postId, PostStatusRequest request) {
         //상태값 변경은 어떤 상태라도 불러와서 수정
         Post foundPost = getPostByIdOrElseThrow(postId);
         validateAuthor(userId, foundPost);
@@ -129,7 +129,7 @@ public class PostCommanderService {
             foundPost.updateStatus(request.getStatus());
         }
 
-        return PostResponseDto.toDto(foundPost);
+        return PostResponse.toDto(foundPost);
     }
 
     public void deleteAdminPostById(Long id) {
@@ -240,14 +240,14 @@ public class PostCommanderService {
     //region 게시물 초대
     // 초대생성
     @Transactional
-    public InviteResponseDto createInvite(Long postId, Long userId, Long loginUserId) {
+    public InviteResponse createInvite(Long postId, Long userId, Long loginUserId) {
         Post post = getOpenPostById(postId);
         validateNotAlreadyInvited(post, userId, loginUserId);
 
         Invite invite = Invite.create(loginUserId, userId, post);
         post.addInvite(invite);
 
-        return InviteResponseDto.from(invite);
+        return InviteResponse.from(invite);
     }
 
     // 초대삭제
