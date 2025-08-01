@@ -64,7 +64,7 @@ public class UserController {
 
     // --------------- coupons
     // 사용자에게 쿠폰 부여
-    @PostMapping("/admin/coupons")
+    @PostMapping("/admin/user/coupons")
     public ResponseEntity<ApiResponse<UserCouponResponse>> giveCouponToUser(
             @RequestBody GiveCouponRequest request
     ) {
