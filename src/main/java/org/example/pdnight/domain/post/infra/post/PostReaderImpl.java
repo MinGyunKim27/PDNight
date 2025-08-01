@@ -4,7 +4,7 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.example.pdnight.domain.post.domain.invite.QInvite;
+import org.example.pdnight.domain.post.domain.post.QInvite;
 import org.example.pdnight.domain.post.domain.post.Post;
 import org.example.pdnight.domain.post.domain.post.PostReader;
 import org.example.pdnight.domain.post.domain.post.QPost;
@@ -69,6 +69,7 @@ public class PostReaderImpl implements PostReader {
                         post.genderLimit,
                         post.jobCategoryLimit,
                         post.ageLimit,
+                        post.isFirstCome,
                         post.createdAt,
                         post.updatedAt
                 ))
@@ -116,6 +117,7 @@ public class PostReaderImpl implements PostReader {
                         post.genderLimit,
                         post.jobCategoryLimit,
                         post.ageLimit,
+                        post.isFirstCome,
                         postParticipant.status,
                         postParticipant.createdAt,
                         post.createdAt,
@@ -254,7 +256,7 @@ public class PostReaderImpl implements PostReader {
                 .select(new QInviteResponseDto(
                         invite.id,
                         invite.inviteeId,
-                        invite.postId
+                        invite.post.id
                 ))
                 .from(invite)
                 .where(invite.inviteeId.eq(userId)) // 내가 초대 받은 경우
@@ -272,13 +274,14 @@ public class PostReaderImpl implements PostReader {
     // 내가 초대한 리스트
     @Override
     public Page<InviteResponseDto> getMyInvite(Long userId, Pageable pageable) {
+
         QInvite invite = QInvite.invite;
 
         JPQLQuery<InviteResponseDto> query = queryFactory
                 .select(new QInviteResponseDto(
                         invite.id,
                         invite.inviteeId,
-                        invite.postId
+                        invite.post.id
                 ))
                 .from(invite)
                 .where(invite.inviterId.eq(userId)) // 내가 초대한 경우

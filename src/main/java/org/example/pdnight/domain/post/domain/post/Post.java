@@ -72,30 +72,8 @@ public class Post extends Timestamped {
             Integer maxParticipants,
             Gender genderLimit,
             JobCategory jobCategoryLimit,
-            AgeLimit ageLimit
-    ) {
-        this.authorId = authorId;
-        this.title = title;
-        this.timeSlot = timeSlot;
-        this.publicContent = publicContent;
-        this.status = PostStatus.OPEN;
-        this.maxParticipants = maxParticipants;
-        this.genderLimit = genderLimit;
-        this.jobCategoryLimit = jobCategoryLimit;
-        this.ageLimit = ageLimit;
-    }
-
-    private Post(
-            Long authorId,
-            String title,
-            LocalDateTime timeSlot,
-            String publicContent,
-            Integer maxParticipants,
-            Gender genderLimit,
-            JobCategory jobCategoryLimit,
             AgeLimit ageLimit,
-            Boolean isFirstCome,
-            PostStatus status
+            Boolean isFirstCome
     ) {
         this.authorId = authorId;
         this.title = title;
@@ -107,29 +85,6 @@ public class Post extends Timestamped {
         this.jobCategoryLimit = jobCategoryLimit;
         this.ageLimit = ageLimit;
         this.isFirstCome = isFirstCome;
-        this.status = status;
-    }
-
-    public static Post createPost(
-            Long authorId,
-            String title,
-            LocalDateTime timeSlot,
-            String publicContent,
-            Integer maxParticipants,
-            Gender genderLimit,
-            JobCategory jobCategoryLimit,
-            AgeLimit ageLimit
-    ) {
-        return new Post(
-                authorId,
-                title,
-                timeSlot,
-                publicContent,
-                maxParticipants,
-                genderLimit,
-                jobCategoryLimit,
-                ageLimit
-        );
     }
 
     public static Post createPost(
@@ -141,8 +96,7 @@ public class Post extends Timestamped {
             Gender genderLimit,
             JobCategory jobCategoryLimit,
             AgeLimit ageLimit,
-            Boolean isFirstCome,
-            PostStatus status
+            Boolean isFirstCome
     ) {
         return new Post(
                 authorId,
@@ -153,8 +107,7 @@ public class Post extends Timestamped {
                 genderLimit,
                 jobCategoryLimit,
                 ageLimit,
-                isFirstCome,
-                status
+                isFirstCome
         );
     }
 

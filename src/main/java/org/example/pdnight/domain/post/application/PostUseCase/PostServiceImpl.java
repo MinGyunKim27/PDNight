@@ -103,13 +103,13 @@ public class PostServiceImpl implements PostService{
     }
 
     @Override
-    public PostLikeResponse addLike(Long id, Long userId) {
-        return postCommanderService.addLike(id, userId);
+    public PostLikeResponse addLike(Long postId, Long userId) {
+        return postCommanderService.addLike(postId, userId);
     }
 
     @Override
-    public void removeLike(Long id, Long userId) {
-        postCommanderService.removeLike(id, userId);
+    public void removeLike(Long postId, Long userId) {
+        postCommanderService.removeLike(postId, userId);
     }
 
     @Override
@@ -118,9 +118,19 @@ public class PostServiceImpl implements PostService{
     }
 
     @Override
-    public void deleteInvite(Long id, Long loginUserId) {
-        postCommanderService.deleteInvite(id, loginUserId);
+    public void deleteInvite(Long postId, Long userId, Long loginUserId) {
+        postCommanderService.deleteInvite(postId, userId, loginUserId);
     }
+
+    @Override
+    public void acceptForInvite(Long postId, Long loginUserId) {
+        postCommanderService.decisionForInvite(postId, loginUserId);
+    }
+
+    @Override
+    public void rejectForInvite(Long postId, Long loginUserId){
+        postCommanderService.rejectForInvite(postId, loginUserId);
+    };
 
     @Override
     public PagedResponse<InviteResponseDto> getMyInvited(Long userId, Pageable pageable) {
@@ -136,6 +146,7 @@ public class PostServiceImpl implements PostService{
     public void deleteAdminPostById(Long id) {
         postCommanderService.deleteAdminPostById(id);
     }
+
 
 
 }

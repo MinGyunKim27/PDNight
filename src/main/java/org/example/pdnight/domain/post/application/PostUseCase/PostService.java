@@ -65,6 +65,9 @@ public interface PostService {
 
     InviteResponseDto createInvite(Long postId, Long userId, Long loginUserId);
 
-    void deleteInvite(Long id, Long loginUserId);
+    void deleteInvite(Long postId, Long userId, Long loginUserId);
 
+    void acceptForInvite(Long postId, Long loginUserId);
+
+    void rejectForInvite(Long postId, Long loginUserId);
 }

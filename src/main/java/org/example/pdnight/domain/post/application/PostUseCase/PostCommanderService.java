@@ -54,7 +54,8 @@ public class PostCommanderService {
                 request.getMaxParticipants(),
                 request.getGenderLimit(),
                 request.getJobCategoryLimit(),
-                request.getAgeLimit()
+                request.getAgeLimit(),
+                request.isFirstCome()
         );
 
         postCommander.save(post);
@@ -148,7 +149,7 @@ public class PostCommanderService {
         validateJoinConditions(loginId, age, gender, jobCategory, foundPost);
 
         //선착순 포스트인 경우
-        PostParticipant participant = handleJoinRequest(foundPost, loginId);
+        PostParticipant participant = handleJoinRequest(foundPost, loginId, foundPost.getIsFirstCome());
 
         // 정상 신청
         foundPost.addParticipants(participant);
@@ -163,8 +164,8 @@ public class PostCommanderService {
     }
 
     //참가 취소
+    // @DistributedLock(key = "#postId", timeoutMs = 5000)
     @Transactional
-    @DistributedLock(key = "#postId", timeoutMs = 5000)
     public void deleteParticipant(Long loginId, Long postId) {
         Post post = getOpenPostById(postId);
 
@@ -238,6 +239,7 @@ public class PostCommanderService {
 
     //region 게시물 초대
     // 초대생성
+    @Transactional
     public InviteResponseDto createInvite(Long postId, Long userId, Long loginUserId) {
         Post post = getOpenPostById(postId);
         validateNotAlreadyInvited(post, userId, loginUserId);
@@ -249,15 +251,46 @@ public class PostCommanderService {
     }
 
     // 초대삭제
-    public void deleteInvite(Long postId, Long loginUserId) {
-        Post post = postCommander.getPostById(postId).orElseThrow(() -> new BaseException(POST_NOT_FOUND));
+    @Transactional
+    public void deleteInvite(Long postId, Long userId, Long loginUserId) {
+        Post post = postCommander.findById(postId).orElseThrow(() -> new BaseException(POST_NOT_FOUND));
         Invite findInvite = post.getInvites().stream()
-                .filter(invite -> invite.getInviterId().equals(loginUserId)).findFirst()
+                .filter(invite -> invite.getInviterId().equals(loginUserId) && invite.getInviteeId().equals(userId))
+                .findFirst()
                 .orElseThrow(()->new BaseException(INVITE_UNAUTHORIZED));
 
         post.removeInvite(findInvite);
     }
     //endregion
+
+    //내가 받은 초대 승인
+    @Transactional
+    @DistributedLock(key = "#postId", timeoutMs = 5000)
+    public void decisionForInvite(Long postId, Long loginUserId) {
+        Post post = postCommander.findById(postId).orElseThrow(() -> new BaseException(POST_NOT_FOUND));
+
+        Invite findInvite = post.getInvites().stream()
+                .filter(invite -> invite.getInviteeId().equals(loginUserId))
+                .findFirst()
+                .orElseThrow(()->new BaseException(INVITE_NOT_FOUND));
+
+        handleJoinRequest(post, loginUserId, true);
+
+        post.removeInvite(findInvite);
+    }
+
+    //내가 받은초대 거절
+    @Transactional
+    public void rejectForInvite(Long postId, Long loginUserId) {
+        Post post = postCommander.findById(postId).orElseThrow(() -> new BaseException(POST_NOT_FOUND));
+
+        Invite findInvite = post.getInvites().stream()
+                .filter(invite -> invite.getInviteeId().equals(loginUserId))
+                .findFirst()
+                .orElseThrow(()->new BaseException(INVITE_NOT_FOUND));
+
+        post.removeInvite(findInvite);
+    }
 
     //region ----------------------------------- HELPER 메서드 ------------------------------------------------------
 
@@ -277,7 +310,7 @@ public class PostCommanderService {
 
     // 게시물 있는지 확인
     private Post getPostByIdOrElseThrow(Long postId) {
-        return postCommander.findPostById(postId)
+        return postCommander.findById(postId)
                 .orElseThrow(() -> new BaseException(POST_NOT_FOUND));
     }
 
@@ -288,7 +321,7 @@ public class PostCommanderService {
     }
 
     //참가자 생성, 추가 메서드
-    private PostParticipant handleJoinRequest(Post post, Long userId) {
+    private PostParticipant handleJoinRequest(Post post, Long userId, boolean acceptImmediately) {
 
         int count = countAcceptedParticipants(post.getPostParticipants());
 
@@ -298,7 +331,7 @@ public class PostCommanderService {
 
         PostParticipant participant = PostParticipant.create(post, userId);
 
-        if (post.getIsFirstCome()) {
+        if (acceptImmediately) {
             participant.changeStatus(JoinStatus.ACCEPTED);
 
             if (count + 1 == post.getMaxParticipants()) {
@@ -418,5 +451,6 @@ public class PostCommanderService {
             throw new BaseException(INVITE_UNAUTHORIZED);
         }
     }
+
     //endregion
 }

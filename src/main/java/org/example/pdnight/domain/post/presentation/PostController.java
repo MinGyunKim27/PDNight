@@ -277,14 +277,15 @@ public class PostController {
     }
 
     // 게시물 초대 삭제
-    @DeleteMapping("/post/{postId}/users/{userId}/invite/{id}")
+    @DeleteMapping("/post/{postId}/users/{userId}/invite")
     public ResponseEntity<ApiResponse<Void>> deleteInvite(
-            @PathVariable Long id,
+            @PathVariable Long postId,
+            @PathVariable Long userId,
             @AuthenticationPrincipal CustomUserDetails loginUser
     ) {
         Long loginUserId = loginUser.getUserId();
 
-        postService.deleteInvite(id, loginUserId);
+        postService.deleteInvite(postId, userId, loginUserId);
         return ResponseEntity.ok(ApiResponse.ok("초대가 삭제되었습니다.", null));
     }
     //endregion
@@ -315,5 +316,28 @@ public class PostController {
         return ResponseEntity.ok(ApiResponse.ok("초대 받은 목록 조회가 완료되었습니다", inviteResponseDto));
     }
     //endregion
+
+    @PostMapping("/post/{postId}/invite/accept")
+    public ResponseEntity<ApiResponse<Void>> acceptForInvite(
+            @PathVariable Long postId,
+            @AuthenticationPrincipal CustomUserDetails loginUser
+    ){
+        Long loginUserId = loginUser.getUserId();
+        postService.acceptForInvite(postId, loginUserId);
+
+        return ResponseEntity.ok(ApiResponse.ok("초대를 수락하였습니다.", null));
+    }
+
+    @PostMapping("/post/{postId}/invite/reject")
+    public ResponseEntity<ApiResponse<Void>> rejectForInvite(
+            @PathVariable Long postId,
+            @AuthenticationPrincipal CustomUserDetails loginUser
+    ){
+        Long loginUserId = loginUser.getUserId();
+        postService.rejectForInvite(postId, loginUserId);
+
+        return ResponseEntity.ok(ApiResponse.ok("초대를 거절하였습니다.", null));
+    }
+
     //endregion
 }

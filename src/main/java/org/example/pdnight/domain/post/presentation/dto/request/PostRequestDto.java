@@ -33,7 +33,6 @@ public class PostRequestDto {
     private Gender genderLimit;
     private JobCategory jobCategoryLimit;
     private AgeLimit ageLimit;
+    private boolean isFirstCome;
 
-    private List<Long> hobbyIdList;
-    private List<Long> techStackIdList;
 }

@@ -33,6 +33,7 @@ public class PostResponseDto {
     private Integer participantsCount;
     private JoinStatus joinStatus;
     private LocalDateTime appliedAt;
+    private final boolean isFirstCome;
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
 
@@ -47,6 +48,7 @@ public class PostResponseDto {
         this.genderLimit = post.getGenderLimit();
         this.jobCategoryLimit = post.getJobCategoryLimit();
         this.ageLimit = post.getAgeLimit();
+        this.isFirstCome = post.getIsFirstCome();
         this.createdAt = post.getCreatedAt();
         this.updatedAt = post.getUpdatedAt();
     }
@@ -62,6 +64,7 @@ public class PostResponseDto {
         this.genderLimit = post.getGenderLimit();
         this.jobCategoryLimit = post.getJobCategoryLimit();
         this.ageLimit = post.getAgeLimit();
+        this.isFirstCome = post.getIsFirstCome();
         this.acceptedParticipantsCount = acceptedParticipantsCount;
         this.participantsCount = participantsCount;
         this.createdAt = post.getCreatedAt();
@@ -88,6 +91,7 @@ public class PostResponseDto {
             Gender genderLimit,
             JobCategory jobCategoryLimit,
             AgeLimit ageLimit,
+            boolean isFirstCome,
             LocalDateTime createdAt,
             LocalDateTime updatedAt
     ) {
@@ -101,6 +105,7 @@ public class PostResponseDto {
         this.genderLimit = genderLimit;
         this.jobCategoryLimit = jobCategoryLimit;
         this.ageLimit = ageLimit;
+        this.isFirstCome = isFirstCome;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
@@ -117,6 +122,7 @@ public class PostResponseDto {
             Gender genderLimit,
             JobCategory jobCategoryLimit,
             AgeLimit ageLimit,
+            boolean isFirstCome,
             JoinStatus joinStatus,
             LocalDateTime appliedAt,
             LocalDateTime createdAt,
@@ -132,6 +138,7 @@ public class PostResponseDto {
         this.genderLimit = genderLimit;
         this.jobCategoryLimit = jobCategoryLimit;
         this.ageLimit = ageLimit;
+        this.isFirstCome = isFirstCome;
         this.joinStatus = joinStatus;
         this.appliedAt = appliedAt;
         this.createdAt = createdAt;

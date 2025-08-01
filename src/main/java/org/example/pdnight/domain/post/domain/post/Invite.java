@@ -23,9 +23,6 @@ public class Invite extends Timestamped {
 
     private Long inviteeId;
 
-    @Column(name = "status")
-    private JoinStatus status = JoinStatus.PENDING;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")
     private Post post;
@@ -37,7 +34,7 @@ public class Invite extends Timestamped {
     }
 
     public static Invite create(Long inviterId,Long inviteeId,Post post) {
-        return new Invite( inviterId,inviteeId, post);
+        return new Invite(inviterId, inviteeId, post);
     }
 
 }

@@ -20,6 +20,7 @@ public class PostInfo {
     private Gender genderLimit;
     private JobCategory jobCategoryLimit;
     private AgeLimit ageLimit;
+    private boolean isFirstCome;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -34,6 +35,7 @@ public class PostInfo {
             Gender genderLimit,
             JobCategory jobCategoryLimit,
             AgeLimit ageLimit,
+            boolean isFirstCome,
             LocalDateTime createdAt,
             LocalDateTime updatedAt
     ) {
@@ -47,6 +49,7 @@ public class PostInfo {
         this.genderLimit = genderLimit;
         this.jobCategoryLimit = jobCategoryLimit;
         this.ageLimit = ageLimit;
+        this.isFirstCome = isFirstCome;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
@@ -62,6 +65,7 @@ public class PostInfo {
             Gender genderLimit,
             JobCategory jobCategoryLimit,
             AgeLimit ageLimit,
+            boolean isFirstCome,
             LocalDateTime createdAt,
             LocalDateTime updatedAt
     ) {
@@ -76,6 +80,7 @@ public class PostInfo {
                 genderLimit,
                 jobCategoryLimit,
                 ageLimit,
+                isFirstCome,
                 createdAt,
                 updatedAt
         );

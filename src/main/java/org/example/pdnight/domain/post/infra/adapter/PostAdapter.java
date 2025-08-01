@@ -21,6 +21,7 @@ public class PostAdapter implements PostPort {
     public PostInfo findById(Long postId) {
         Post post = postReader.findById(postId)
                 .orElseThrow(()-> new BaseException(ErrorCode.POST_NOT_FOUND));
+
         return PostInfo.toDto(
                 post.getId(),
                 post.getAuthorId(),
@@ -32,8 +33,10 @@ public class PostAdapter implements PostPort {
                 post.getGenderLimit(),
                 post.getJobCategoryLimit(),
                 post.getAgeLimit(),
+                post.getIsFirstCome(),
                 post.getCreatedAt(),
-                post.getUpdatedAt());
+                post.getUpdatedAt()
+        );
     }
 
     @Override

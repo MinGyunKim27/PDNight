@@ -25,13 +25,8 @@ public class PostCommanderImpl implements PostCommander {
     }
 
     @Override
-    public Optional<Post> findPostById(Long id) {
-        return postJpaRepository.findPostById(id);
-    }
-
-    @Override
-    public Optional<Post> getPostById(Long id) {
-        return postJpaRepository.getPostById(id);
+    public Optional<Post> findById(Long id) {
+        return postJpaRepository.findById(id);
     }
 
     @Override
