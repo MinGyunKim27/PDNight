@@ -26,7 +26,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Objects;
 
 import static org.example.pdnight.global.common.enums.ErrorCode.*;
 
@@ -76,10 +75,6 @@ public class PostCommanderService {
         Post foundPost = getPostByIdOrElseThrow(postId);
         validateAuthor(userId, foundPost);
 
-        //자식 댓글들 먼저 일괄 삭제 외래키 제약 제거 todo: 추후 이벤트 처리를 통해서 게시글 댓글 삭제 초대 삭제등
-        // commentRepository.deleteAllByChildrenPostId(postId);
-        //postId 기준 댓글 일괄 삭제 메서드 외래키 제약 제거
-        // commentRepository.deleteAllByPostId(postId);
         publisher.publishEvent(PostDeletedEvent.of(postId));
         postCommander.deletePost(foundPost);
     }
@@ -257,7 +252,7 @@ public class PostCommanderService {
         Invite findInvite = post.getInvites().stream()
                 .filter(invite -> invite.getInviterId().equals(loginUserId) && invite.getInviteeId().equals(userId))
                 .findFirst()
-                .orElseThrow(()->new BaseException(INVITE_UNAUTHORIZED));
+                .orElseThrow(() -> new BaseException(INVITE_UNAUTHORIZED));
 
         post.removeInvite(findInvite);
     }
@@ -272,7 +267,7 @@ public class PostCommanderService {
         Invite findInvite = post.getInvites().stream()
                 .filter(invite -> invite.getInviteeId().equals(loginUserId))
                 .findFirst()
-                .orElseThrow(()->new BaseException(INVITE_NOT_FOUND));
+                .orElseThrow(() -> new BaseException(INVITE_NOT_FOUND));
 
         handleJoinRequest(post, loginUserId, true);
 
@@ -287,7 +282,7 @@ public class PostCommanderService {
         Invite findInvite = post.getInvites().stream()
                 .filter(invite -> invite.getInviteeId().equals(loginUserId))
                 .findFirst()
-                .orElseThrow(()->new BaseException(INVITE_NOT_FOUND));
+                .orElseThrow(() -> new BaseException(INVITE_NOT_FOUND));
 
         post.removeInvite(findInvite);
     }
@@ -442,13 +437,6 @@ public class PostCommanderService {
         if (post.getInvites().stream()
                 .anyMatch(invite -> invite.getInviteeId().equals(userId) && invite.getInviterId().equals(loginUserId))) {
             throw new BaseException(INVITE_ALREADY_EXISTS);
-        }
-    }
-
-    // 로그인 유저가 초대한게 맞는지 검증
-    private void validateMyInvite(Long loginUserId, Invite invite) {
-        if (!Objects.equals(invite.getInviterId(), loginUserId)) {
-            throw new BaseException(INVITE_UNAUTHORIZED);
         }
     }
 

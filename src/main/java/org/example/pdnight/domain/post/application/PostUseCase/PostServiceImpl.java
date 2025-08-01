@@ -1,14 +1,16 @@
 package org.example.pdnight.domain.post.application.PostUseCase;
 
 import lombok.RequiredArgsConstructor;
-
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.enums.JoinStatus;
 import org.example.pdnight.domain.post.presentation.dto.request.PostRequest;
 import org.example.pdnight.domain.post.presentation.dto.request.PostStatusRequest;
 import org.example.pdnight.domain.post.presentation.dto.request.PostUpdateRequest;
-import org.example.pdnight.domain.post.presentation.dto.response.*;
+import org.example.pdnight.domain.post.presentation.dto.response.InviteResponse;
+import org.example.pdnight.domain.post.presentation.dto.response.ParticipantResponse;
+import org.example.pdnight.domain.post.presentation.dto.response.PostLikeResponse;
+import org.example.pdnight.domain.post.presentation.dto.response.PostResponse;
 import org.example.pdnight.global.common.dto.PagedResponse;
 import org.example.pdnight.global.common.enums.JobCategory;
 import org.springframework.data.domain.Pageable;
@@ -16,7 +18,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class PostServiceImpl implements PostService{
+public class PostServiceImpl implements PostService {
 
     private final PostReaderService postReaderService;
     private final PostCommanderService postCommanderService;
@@ -34,7 +36,7 @@ public class PostServiceImpl implements PostService{
     @Override
     public PostResponse findPost(Long id) {
         return postReaderService.findPost(id);
-    };
+    }
 
     @Override
     public PagedResponse<PostResponse> findMyLikedPosts(Long userId, Pageable pageable) {
@@ -67,7 +69,7 @@ public class PostServiceImpl implements PostService{
     }
 
     @Override
-    public ParticipantResponse changeStatusParticipant(Long authorId, Long userId, Long postId, String status){
+    public ParticipantResponse changeStatusParticipant(Long authorId, Long userId, Long postId, String status) {
         return postCommanderService.changeStatusParticipant(authorId, userId, postId, status);
     }
 
@@ -128,9 +130,9 @@ public class PostServiceImpl implements PostService{
     }
 
     @Override
-    public void rejectForInvite(Long postId, Long loginUserId){
+    public void rejectForInvite(Long postId, Long loginUserId) {
         postCommanderService.rejectForInvite(postId, loginUserId);
-    };
+    }
 
     @Override
     public PagedResponse<InviteResponse> getMyInvited(Long userId, Pageable pageable) {
@@ -146,7 +148,6 @@ public class PostServiceImpl implements PostService{
     public void deleteAdminPostById(Long id) {
         postCommanderService.deleteAdminPostById(id);
     }
-
 
 
 }

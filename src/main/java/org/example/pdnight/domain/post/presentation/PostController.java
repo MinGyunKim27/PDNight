@@ -9,7 +9,10 @@ import org.example.pdnight.domain.post.enums.JoinStatus;
 import org.example.pdnight.domain.post.presentation.dto.request.PostRequest;
 import org.example.pdnight.domain.post.presentation.dto.request.PostStatusRequest;
 import org.example.pdnight.domain.post.presentation.dto.request.PostUpdateRequest;
-import org.example.pdnight.domain.post.presentation.dto.response.*;
+import org.example.pdnight.domain.post.presentation.dto.response.InviteResponse;
+import org.example.pdnight.domain.post.presentation.dto.response.ParticipantResponse;
+import org.example.pdnight.domain.post.presentation.dto.response.PostLikeResponse;
+import org.example.pdnight.domain.post.presentation.dto.response.PostResponse;
 import org.example.pdnight.global.common.dto.ApiResponse;
 import org.example.pdnight.global.common.dto.PagedResponse;
 import org.example.pdnight.global.common.enums.JobCategory;
@@ -92,10 +95,11 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.ok("게시글이 삭제되었습니다.", null));
     }
+
     //endregion
     //region 게시물조회
     //추천 게시물 조회
-    @GetMapping("/posts/suggestedPosts")
+    @GetMapping("/posts/suggested-posts")
     public ResponseEntity<ApiResponse<PagedResponse<PostResponse>>> suggestedPosts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -109,7 +113,7 @@ public class PostController {
     }
 
     // 내 좋아요 게시글 목록 조회
-    @GetMapping("/my/likedPosts")
+    @GetMapping("/my/likes")
     public ResponseEntity<ApiResponse<PagedResponse<PostResponse>>> getMyLikedPosts(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PageableDefault(size = 10, page = 0) Pageable pageable
@@ -120,7 +124,7 @@ public class PostController {
     }
 
     //내 신청/성사된 게시글 조회
-    @GetMapping("/my/confirmedPosts")
+    @GetMapping("/my/confirmed-posts")
     public ResponseEntity<ApiResponse<PagedResponse<PostResponse>>> getMyConfirmedPosts(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam(required = false) JoinStatus joinStatus,
@@ -139,7 +143,7 @@ public class PostController {
     }
 
     // 내가 작성한 게시글 조회
-    @GetMapping("/my/writtenPosts")
+    @GetMapping("/my/written-posts")
     public ResponseEntity<ApiResponse<PagedResponse<PostResponse>>> getMyWrittenPosts(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PageableDefault(size = 10, page = 0) Pageable pageable
@@ -149,7 +153,7 @@ public class PostController {
         return ResponseEntity.ok(ApiResponse.ok("내가 작성 한 게시물이 조회되었습니다.", myLikedPost));
     }
 
-    // 게시물 검색조회
+    // 게시물 조건 조회
     @GetMapping("/posts")
     public ResponseEntity<ApiResponse<PagedResponse<PostResponse>>> searchPosts(
             @RequestParam(defaultValue = "0") int page,
@@ -162,10 +166,11 @@ public class PostController {
         Pageable pageable = PageRequest.of(page, size);
 
         PagedResponse<PostResponse> pagedResponse = postService.getPostDtosBySearch(
-                pageable, maxParticipants, ageLimit, jobCategoryLimit, genderLimit );
+                pageable, maxParticipants, ageLimit, jobCategoryLimit, genderLimit);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.ok("게시글 목록이 조회되었습니다.", pagedResponse));
     }
+
     //endregion
     //endregion
     //region 게시글신청자
@@ -194,8 +199,9 @@ public class PostController {
             @RequestParam String status
     ) {
         ParticipantResponse response = postService.changeStatusParticipant(author.getUserId(), userId, postId, status);
+
         return ResponseEntity.status(HttpStatus.OK)
-                .body(ApiResponse.ok("신청자가 수락 혹은 거절되었습니다.", response));
+                .body(ApiResponse.ok("신청자의 상태가 변경되었습니다.", response));
     }
 
     // 게시물 참여 신청 삭제
@@ -208,6 +214,7 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.ok("참여 신청이 취소되었습니다.", null));
     }
+
     //endregion
     //region 게시글신청자 조회 메서드
     // 신청자 목록 조회
@@ -235,6 +242,7 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.ok("참여자 목록이 조회되었습니다.", response));
     }
+
     //endregion
     //endregion
     //region 게시물좋아요
@@ -260,6 +268,7 @@ public class PostController {
 
         return ResponseEntity.ok(ApiResponse.ok("게시글 좋아요가 삭제되었습니다.", null));
     }
+
     //endregion
     //region 게시물초대
     //region 게시물초대 조회 제외메서드
@@ -269,14 +278,14 @@ public class PostController {
             @PathVariable Long postId,
             @PathVariable Long userId,
             @AuthenticationPrincipal CustomUserDetails loginUser
-    ){
+    ) {
         Long loginUserId = loginUser.getUserId();
-        InviteResponse responseDto = postService.createInvite(postId,userId,loginUserId);
+        InviteResponse responseDto = postService.createInvite(postId, userId, loginUserId);
         URI location = URI.create("/api/posts/" + postId);
         return ResponseEntity.created(location).body(ApiResponse.ok("초대가 완료되었습니다.", responseDto));
     }
 
-    // 게시물 초대 삭제
+    // 게시물 초대 취소
     @DeleteMapping("/posts/{postId}/users/{userId}/invite")
     public ResponseEntity<ApiResponse<Void>> deleteInvite(
             @PathVariable Long postId,
@@ -286,12 +295,13 @@ public class PostController {
         Long loginUserId = loginUser.getUserId();
 
         postService.deleteInvite(postId, userId, loginUserId);
-        return ResponseEntity.ok(ApiResponse.ok("초대가 삭제되었습니다.", null));
+        return ResponseEntity.ok(ApiResponse.ok("초대가 취소되었습니다.", null));
     }
+
     //endregion
     //region 게시물초대 조회 메서드
     //내 초대받은 목록 조회
-    @GetMapping("/users/my/invited")
+    @GetMapping("/my/invited")
     public ResponseEntity<ApiResponse<PagedResponse<InviteResponse>>> getMyInvited(
             @AuthenticationPrincipal CustomUserDetails loggedInUser,
             @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
@@ -304,7 +314,7 @@ public class PostController {
     }
 
     //내가 보낸 초대 목록 조회
-    @GetMapping("/users/my/invite")
+    @GetMapping("/my/invite")
     public ResponseEntity<ApiResponse<PagedResponse<InviteResponse>>> getMyInvite(
             @AuthenticationPrincipal CustomUserDetails loggedInUser,
             @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
@@ -313,7 +323,7 @@ public class PostController {
         Long userId = loggedInUser.getUserId();
         PagedResponse<InviteResponse> inviteResponseDto = postService.getMyInvite(userId, pageable);
 
-        return ResponseEntity.ok(ApiResponse.ok("초대 받은 목록 조회가 완료되었습니다", inviteResponseDto));
+        return ResponseEntity.ok(ApiResponse.ok("초대 보낸 목록 조회가 완료되었습니다", inviteResponseDto));
     }
     //endregion
 
@@ -321,7 +331,7 @@ public class PostController {
     public ResponseEntity<ApiResponse<Void>> acceptForInvite(
             @PathVariable Long postId,
             @AuthenticationPrincipal CustomUserDetails loginUser
-    ){
+    ) {
         Long loginUserId = loginUser.getUserId();
         postService.acceptForInvite(postId, loginUserId);
 
@@ -332,7 +342,7 @@ public class PostController {
     public ResponseEntity<ApiResponse<Void>> rejectForInvite(
             @PathVariable Long postId,
             @AuthenticationPrincipal CustomUserDetails loginUser
-    ){
+    ) {
         Long loginUserId = loginUser.getUserId();
         postService.rejectForInvite(postId, loginUserId);
 

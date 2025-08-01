@@ -5,8 +5,6 @@ import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.enums.JoinStatus;
 import org.example.pdnight.domain.post.presentation.dto.response.InviteResponse;
 import org.example.pdnight.domain.post.presentation.dto.response.PostResponse;
-
-
 import org.example.pdnight.global.common.enums.JobCategory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

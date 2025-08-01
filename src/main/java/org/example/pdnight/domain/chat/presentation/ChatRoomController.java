@@ -44,16 +44,19 @@ public class ChatRoomController {
     // 채팅방 생성
     @PostMapping("/chat/room")
     @ResponseBody
-    public ResponseEntity<ApiResponse<ChatRoom>> createRoom(@RequestParam String name) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok("채팅방이 생성되었습니다.", chatRoomService.create(name)));
+    public ResponseEntity<ApiResponse<ChatRoomResponse>> createRoom(@RequestParam String name) {
+        ChatRoom chatRoom = chatRoomService.create(name);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse
+                .ok("채팅방이 생성되었습니다.", ChatRoomResponse.create(chatRoom.getId(), chatRoom.getChatRoomName())));
     }
 
     // 게시글 채팅방 생성
-    @PostMapping("/chat/room/{id}")
+    @PostMapping("/chat/room/{postId}")
     @ResponseBody
-    public ResponseEntity<ApiResponse<Void>> createRoom(@PathVariable Long id) {
-        chatRoomService.createFromPost(id);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok("채팅방이 생성되었습니다.", null));
+    public ResponseEntity<ApiResponse<ChatRoomResponse>> createRoom(@PathVariable Long postId) {
+        ChatRoom postChatRoom = chatRoomService.createFromPost(postId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse
+                .ok("채팅방이 생성되었습니다.", ChatRoomResponse.create(postChatRoom.getId(), postChatRoom.getChatRoomName())));
     }
 
     // 특정 채팅방 정보 조회
@@ -71,7 +74,7 @@ public class ChatRoomController {
     }
 
     // 채팅방 입장 시도
-    @GetMapping("/chatRoom/enter/{chatRoomId}")
+    @GetMapping("/chat-room/enter/{chatRoomId}")
     public ResponseEntity<ApiResponse<Void>> PostChatRoomEnter(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                                @PathVariable Long chatRoomId) {
         Long userId = userDetails.getUserId();

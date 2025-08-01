@@ -1,5 +1,7 @@
 package org.example.pdnight.domain.post.presentation;
 
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.post.application.commentUseCase.CommentService;
 import org.example.pdnight.domain.post.presentation.dto.request.CommentRequest;
 import org.example.pdnight.domain.post.presentation.dto.response.CommentResponse;
@@ -11,17 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -64,7 +56,7 @@ public class CommentController {
             @PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetails loginUser,
             @Valid @RequestBody CommentRequest request
-    ){
+    ) {
         Long loginId = loginUser.getUserId();
         CommentResponse response = commentService.updateCommentByDto(postId, id, loginId, request);
 
@@ -93,7 +85,7 @@ public class CommentController {
             @PathVariable Long postId,
             @PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetails loginUser
-    ){
+    ) {
         Long loginId = loginUser.getUserId();
         commentService.deleteCommentById(postId, id, loginId);
 
@@ -112,7 +104,7 @@ public class CommentController {
         commentService.deleteCommentByAdmin(postId, id, adminId);
 
         return ResponseEntity.status(HttpStatus.OK)
-                .body(ApiResponse.ok("댓글이 삭제되었습니다.",  null));
+                .body(ApiResponse.ok("댓글이 삭제되었습니다.", null));
     }
 
 }

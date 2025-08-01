@@ -11,7 +11,6 @@ import org.example.pdnight.domain.post.enums.JoinStatus;
 import org.example.pdnight.domain.post.enums.PostStatus;
 import org.example.pdnight.global.common.enums.JobCategory;
 
-
 import java.time.LocalDateTime;
 
 @Getter

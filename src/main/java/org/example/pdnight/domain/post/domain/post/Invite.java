@@ -5,7 +5,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.example.pdnight.domain.post.enums.JoinStatus;
 import org.example.pdnight.global.common.entity.Timestamped;
 
 
@@ -27,13 +26,13 @@ public class Invite extends Timestamped {
     @JoinColumn(name = "post_id")
     private Post post;
 
-    private Invite(Long inviterId,Long inviteeId, Post post){
+    private Invite(Long inviterId, Long inviteeId, Post post) {
         this.inviterId = inviterId;
         this.inviteeId = inviteeId;
         this.post = post;
     }
 
-    public static Invite create(Long inviterId,Long inviteeId,Post post) {
+    public static Invite create(Long inviterId, Long inviteeId, Post post) {
         return new Invite(inviterId, inviteeId, post);
     }
 

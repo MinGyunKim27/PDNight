@@ -10,7 +10,6 @@ import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.global.common.enums.JobCategory;
 
-
 import java.time.LocalDateTime;
 
 @Getter

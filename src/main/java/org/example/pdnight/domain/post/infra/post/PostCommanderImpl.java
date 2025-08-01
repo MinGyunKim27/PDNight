@@ -15,12 +15,12 @@ public class PostCommanderImpl implements PostCommander {
     private final PostJpaRepository postJpaRepository;
 
     @Override
-    public Optional<Post> findByIdAndStatus(Long id, PostStatus status){
+    public Optional<Post> findByIdAndStatus(Long id, PostStatus status) {
         return postJpaRepository.findByIdAndStatus(id, status);
     }
 
     @Override
-    public boolean existsById(Long id){
+    public boolean existsById(Long id) {
         return postJpaRepository.existsById(id);
     }
 

@@ -12,38 +12,38 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CommentResponse {
 
-	private final Long id;
-	private final Long postId;
-	private final Long authorId;
-	private final String content;
+    private final Long id;
+    private final Long postId;
+    private final Long authorId;
+    private final String content;
 
-	//대댓글일 경우에만 기입
-	private final Long parentId;
+    //대댓글일 경우에만 기입
+    private final Long parentId;
 
-	private final LocalDateTime createdAt;
-	private final LocalDateTime updatedAt;
+    private final LocalDateTime createdAt;
+    private final LocalDateTime updatedAt;
 
-	//리스트가 비어있으면 반환 안됨
-	@JsonInclude(JsonInclude.Include.NON_EMPTY)
-	private final List<CommentResponse> children = new ArrayList<>();
+    //리스트가 비어있으면 반환 안됨
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private final List<CommentResponse> children = new ArrayList<>();
 
-	private CommentResponse(Comment comment) {
-		this.id = comment.getId();
-		this.postId = comment.getPostId();
-		this.authorId = comment.getAuthorId();
-		this.content = comment.getContent();
-		this.createdAt = comment.getCreatedAt();
-		this.updatedAt = comment.getUpdatedAt();
-		this.parentId = comment.getParent() != null ? comment.getParent().getId() : null;
-	}
+    private CommentResponse(Comment comment) {
+        this.id = comment.getId();
+        this.postId = comment.getPostId();
+        this.authorId = comment.getAuthorId();
+        this.content = comment.getContent();
+        this.createdAt = comment.getCreatedAt();
+        this.updatedAt = comment.getUpdatedAt();
+        this.parentId = comment.getParent() != null ? comment.getParent().getId() : null;
+    }
 
-	public static CommentResponse from(Comment comment) {
-		return new CommentResponse(comment);
-	}
+    public static CommentResponse from(Comment comment) {
+        return new CommentResponse(comment);
+    }
 
-	//댓글응답에 대댓글 추가 메서드
-	public void addChild(CommentResponse commentResponseDto) {
-		children.add(commentResponseDto);
-	}
+    //댓글응답에 대댓글 추가 메서드
+    public void addChild(CommentResponse commentResponseDto) {
+        children.add(commentResponseDto);
+    }
 
 }

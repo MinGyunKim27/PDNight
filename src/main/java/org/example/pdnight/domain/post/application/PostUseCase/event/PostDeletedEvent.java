@@ -6,7 +6,7 @@ import lombok.Getter;
 public class PostDeletedEvent {
     private final Long postId;
 
-    private PostDeletedEvent (Long postId) {
+    private PostDeletedEvent(Long postId) {
         this.postId = postId;
     }
 

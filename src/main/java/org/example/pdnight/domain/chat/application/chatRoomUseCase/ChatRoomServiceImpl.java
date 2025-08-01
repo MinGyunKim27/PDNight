@@ -1,7 +1,6 @@
 package org.example.pdnight.domain.chat.application.chatRoomUseCase;
 
 
-
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.chat.domain.ChatRoom;
 import org.example.pdnight.domain.chat.presentation.dto.response.ChatRoomResponse;
@@ -11,7 +10,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class ChatRoomServiceImpl implements ChatRoomService{
+public class ChatRoomServiceImpl implements ChatRoomService {
 
     private final ChatRoomReaderService chatRoomReaderService;
     private final ChatRoomCommanderService chatRoomCommanderService;
@@ -37,8 +36,8 @@ public class ChatRoomServiceImpl implements ChatRoomService{
     }
 
     @Override
-    public void createFromPost(Long id) {
-        chatRoomCommanderService.createFromPost(id);
+    public ChatRoom createFromPost(Long postId) {
+        return chatRoomCommanderService.createFromPost(postId);
     }
 
 }

@@ -6,7 +6,7 @@ import lombok.Getter;
 @Getter
 public class CommentRequest {
 
-	@NotBlank(message = "변경내용은 필수값입니다.")
-	private String content;
+    @NotBlank(message = "변경내용은 필수값입니다.")
+    private String content;
 
 }

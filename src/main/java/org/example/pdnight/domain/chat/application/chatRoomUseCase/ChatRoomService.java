@@ -15,5 +15,5 @@ public interface ChatRoomService {
 
     String chatRoomEnterValid(Long userId, Long chatRoomId);
 
-    void createFromPost(Long id);
+    ChatRoom createFromPost(Long postId);
 }

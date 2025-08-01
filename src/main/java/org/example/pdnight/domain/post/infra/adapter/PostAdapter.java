@@ -20,7 +20,7 @@ public class PostAdapter implements PostPort {
     @Override
     public PostInfo findById(Long postId) {
         Post post = postReader.findById(postId)
-                .orElseThrow(()-> new BaseException(ErrorCode.POST_NOT_FOUND));
+                .orElseThrow(() -> new BaseException(ErrorCode.POST_NOT_FOUND));
 
         return PostInfo.toDto(
                 post.getId(),

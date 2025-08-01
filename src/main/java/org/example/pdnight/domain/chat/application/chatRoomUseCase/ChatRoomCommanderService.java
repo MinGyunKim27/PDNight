@@ -30,21 +30,22 @@ public class ChatRoomCommanderService {
 
     // 게시글 채팅방 생성
     @Transactional
-    public void createFromPost(Long postId) {
+    public ChatRoom createFromPost(Long postId) {
         PostInfoResponse post = postStatusConfirmedPort.getPostInfoById(postId);
 
         ChatRoom findByPostId = chatRoomCommandQuery.findByPostId(postId);
-        if(findByPostId == null) {
-            ChatRoom chatRoom = ChatRoom.createFromPost(post.getTitle(), postId);
-            chatRoomCommandQuery.save(chatRoom);
+        if (findByPostId == null) {
+            findByPostId = ChatRoom.createFromPost(post.getTitle(), postId);
+            chatRoomCommandQuery.save(findByPostId);
         }
 
         registration(findByPostId, post);
+        return findByPostId;
     }
 
     // 게시글 참여자 목록을 채팅방 참여자 목록에 저장
     @Transactional
-    public void registration(ChatRoom chatRoom , PostInfoResponse post) {
+    public void registration(ChatRoom chatRoom, PostInfoResponse post) {
         // 게시글 작성자 등록
         postAuthorRegistration(chatRoom, post.getAuthorId());
 

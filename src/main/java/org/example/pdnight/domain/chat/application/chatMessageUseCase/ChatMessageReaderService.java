@@ -11,6 +11,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ChatMessageReaderService {
     private final ChatMessageReader chatMessageReader;
+
     // 채팅방 기록 출력
     public List<ChatMessage> messageRecord(String roomId) {
         List<org.example.pdnight.domain.chat.domain.ChatMessage> messages = chatMessageReader.findByRoomId(roomId);
