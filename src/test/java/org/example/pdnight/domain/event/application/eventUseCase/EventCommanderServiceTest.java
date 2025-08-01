@@ -37,16 +37,17 @@ public class EventCommanderServiceTest {
     @Test
     @DisplayName("이벤트 생성 확인 테스트")
     void 이벤트_생성_성공() {
-        LocalDateTime eventDate = LocalDateTime.now();  // 기준 시점 저장
+        LocalDateTime fixedDateTime = LocalDateTime.of(2025, 8, 1, 12, 0);
 
         EventCreateRequest request = EventCreateRequest.from(
-                "title", "content", 50, eventDate
+                "title", "content", 50, fixedDateTime, fixedDateTime.plusDays(10)
         );
         Event event = Event.from(
                 request.getTitle(),
                 request.getContent(),
                 request.getMaxParticipants(),
-                request.getEventDate()
+                request.getEventStartDate(),
+                request.getEventEndDate()
         );
         // 테스트용 id 직접 세팅
         ReflectionTestUtils.setField(event, "id", 1L);
@@ -58,16 +59,30 @@ public class EventCommanderServiceTest {
         assertThat(response.getTitle()).isEqualTo("title");
         assertThat(response.getContent()).isEqualTo("content");
         assertThat(response.getMaxParticipants()).isEqualTo(50);
-        assertThat(response.getEventDate()).isEqualTo(eventDate);
+        assertThat(response.getEventStartDate()).isEqualTo(fixedDateTime);
+        assertThat(response.getEventEndDate()).isEqualTo(fixedDateTime.plusDays(10));
+    }
+
+    @Test
+    @DisplayName("이벤트 생성 실패 - 이상한 날짜")
+    void 이벤트_생성_실패_날짜_오류(){
+        LocalDateTime fixedDateTime = LocalDateTime.of(2023, 6, 1, 12, 0);
+        EventCreateRequest request = EventCreateRequest.from(
+                "title", "content", 50, fixedDateTime, fixedDateTime.plusDays(10)
+        );
+
+        assertThatThrownBy(() -> eventCommanderService.createEvent(request))
+                .isInstanceOf(BaseException.class)
+                .hasMessage("이벤트 일자가 잘못되었습니다.");
     }
 
     @Test
     @DisplayName("이벤트 생성 실패 - 이상한 정원")
     void 이벤트_생성_실패_이상한_정원(){
-        LocalDateTime eventDate = LocalDateTime.now();  // 기준 시점 저장
+        LocalDateTime fixedDateTime = LocalDateTime.of(2025, 8, 1, 12, 0);
 
         EventCreateRequest request = EventCreateRequest.from(
-                "title", "content", 0, eventDate
+                "title", "content", 0, fixedDateTime, fixedDateTime.plusDays(10)
         );
 
         assertThatThrownBy(() -> eventCommanderService.createEvent(request))
@@ -78,13 +93,15 @@ public class EventCommanderServiceTest {
     @Test
     @DisplayName("이벤트 수정 성공")
     void 이벤트_수정_성공(){
+        LocalDateTime fixedDateTime = LocalDateTime.of(2025, 8, 1, 12, 0);
+
         Event event = Event.from(
-                "title", "content", 50, LocalDateTime.now()
+                "title", "content", 50, fixedDateTime, fixedDateTime.plusDays(10)
         );
         ReflectionTestUtils.setField(event, "id", 1L);
 
         EventCreateRequest request = EventCreateRequest.from(
-                "updated title", "updated content", 100, LocalDateTime.now()
+                "updated title", "updated content", 100, fixedDateTime, fixedDateTime.plusDays(10)
         );
 
         when(eventCommander.save(any(Event.class))).thenReturn(event);
@@ -100,8 +117,10 @@ public class EventCommanderServiceTest {
     @Test
     @DisplayName("이벤트 삭제 성공")
     void 이벤트_삭제_성공(){
+        LocalDateTime fixedDateTime = LocalDateTime.of(2025, 8, 1, 12, 0);
+
         Event event = Event.from(
-                "title", "content", 50, LocalDateTime.now()
+                "title", "content", 50, fixedDateTime, fixedDateTime.plusDays(10)
         );
         ReflectionTestUtils.setField(event, "id", 1L);
 
@@ -115,8 +134,10 @@ public class EventCommanderServiceTest {
     @Test
     @DisplayName("이벤트 참가 신청 성공")
     void 이밴트_참가_신청_성공(){
+        LocalDateTime fixedDateTime = LocalDateTime.of(2025, 8, 1, 12, 0);
+
         Event event = Event.from(
-                "title", "content", 50, LocalDateTime.now()
+                "title", "content", 50, fixedDateTime, fixedDateTime.plusDays(10)
         );
         ReflectionTestUtils.setField(event, "id", 1L);
 
@@ -130,12 +151,12 @@ public class EventCommanderServiceTest {
 
     @Test
     void createEvent_참가인원_0명_예외() {
-        // given
+        LocalDateTime fixedDateTime = LocalDateTime.of(2025, 8, 1, 12, 0);
+
         EventCreateRequest request = EventCreateRequest.from(
-                "제목", "내용", 0, LocalDateTime.now().plusDays(1)
+                "제목", "내용", 0,fixedDateTime, fixedDateTime.plusDays(1)
         );
 
-        // when & then
         assertThatThrownBy(() -> eventCommanderService.createEvent(request))
                 .isInstanceOf(BaseException.class)
                 .hasMessage(ErrorCode.EVENT_INVALID_PARTICIPANT.getMessage());
@@ -159,11 +180,13 @@ public class EventCommanderServiceTest {
     @Test
     @DisplayName("이벤트 참가 - 정원 초과")
     void 이벤트_참가_정원_초과_예외() {
+        LocalDateTime fixedDateTime = LocalDateTime.of(2025, 8, 1, 12, 0);
+
         // given
         Long eventId = 1L;
         Long userId = 10L;
 
-        Event event = Event.from("제목", "내용", 2, LocalDateTime.now().plusDays(1));
+        Event event = Event.from("제목", "내용", 2, fixedDateTime, fixedDateTime.plusDays(1));
 
         when(eventReader.existsEventByIdAndUserId(eventId, userId)).thenReturn(false);
         when(eventReader.findById(eventId)).thenReturn(Optional.of(event));
