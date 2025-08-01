@@ -14,8 +14,8 @@ import org.example.pdnight.domain.post.enums.JoinStatus;
 import org.example.pdnight.domain.post.enums.PostStatus;
 import org.example.pdnight.domain.post.presentation.dto.response.InviteResponse;
 import org.example.pdnight.domain.post.presentation.dto.response.PostResponse;
-import org.example.pdnight.domain.post.presentation.dto.response.QInviteResponseDto;
-import org.example.pdnight.domain.post.presentation.dto.response.QPostResponseDto;
+import org.example.pdnight.domain.post.presentation.dto.response.QInviteResponse;
+import org.example.pdnight.domain.post.presentation.dto.response.QPostResponse;
 import org.example.pdnight.global.common.enums.JobCategory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -58,7 +58,7 @@ public class PostReaderImpl implements PostReader {
         builder.and(postLike.userId.eq(userId));
 
         List<PostResponse> contents = queryFactory
-                .select(new QPostResponseDto(
+                .select(new QPostResponse(
                         post.id,
                         post.authorId,
                         post.title,
@@ -106,7 +106,7 @@ public class PostReaderImpl implements PostReader {
         }
 
         List<PostResponse> content = queryFactory
-                .select(new QPostResponseDto(
+                .select(new QPostResponse(
                         post.id,
                         post.authorId,
                         post.title,
@@ -253,7 +253,7 @@ public class PostReaderImpl implements PostReader {
         QInvite invite = QInvite.invite;
 
         JPQLQuery<InviteResponse> query = queryFactory
-                .select(new QInviteResponseDto(
+                .select(new QInviteResponse(
                         invite.id,
                         invite.inviteeId,
                         invite.post.id
@@ -278,7 +278,7 @@ public class PostReaderImpl implements PostReader {
         QInvite invite = QInvite.invite;
 
         JPQLQuery<InviteResponse> query = queryFactory
-                .select(new QInviteResponseDto(
+                .select(new QInviteResponse(
                         invite.id,
                         invite.inviteeId,
                         invite.post.id
