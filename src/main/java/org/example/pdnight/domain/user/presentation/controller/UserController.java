@@ -49,7 +49,8 @@ public class UserController {
             @AuthenticationPrincipal CustomUserDetails loginUser
     ) {
         FollowResponse follow = userService.follow(userId, loginUser.getUserId());
-        return ResponseEntity.ok(ApiResponse.ok("팔로우 했습니다.", follow));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.ok("팔로우 했습니다.", follow));
     }
 
     //언팔로우
@@ -63,15 +64,6 @@ public class UserController {
     }
 
     // --------------- coupons
-    // 사용자에게 쿠폰 부여
-    @PostMapping("/admin/user/coupons")
-    public ResponseEntity<ApiResponse<UserCouponResponse>> giveCouponToUser(
-            @RequestBody GiveCouponRequest request
-    ) {
-        UserCouponResponse response = userService.giveCouponToUser(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok("쿠폰이 등록되었습니다.", response));
-    }
-
     // 쿠폰사용
     @PatchMapping("/coupons/{id}")
     public ResponseEntity<ApiResponse<UserCouponResponse>> useCoupon(
@@ -94,6 +86,17 @@ public class UserController {
     public ResponseEntity<ApiResponse<Void>> adminDeleteUser(@PathVariable Long id) {
         userService.delete(id);
         return ResponseEntity.ok(ApiResponse.ok("회원탈퇴 시켰습니다.", null));
+    }
+
+    // --------------- coupons
+    // 사용자에게 쿠폰 부여
+    @PostMapping("/admin/user/coupons")
+    public ResponseEntity<ApiResponse<UserCouponResponse>> giveCouponToUser(
+            @RequestBody GiveCouponRequest request
+    ) {
+        UserCouponResponse response = userService.giveCouponToUser(request);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.ok("쿠폰이 등록되었습니다.", response));
     }
 
     // ---------------------- 조회 Api ---------------------------------------------------------//

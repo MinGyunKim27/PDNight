@@ -1,7 +1,9 @@
 package org.example.pdnight.domain.user.presentation.dto.couponDto.response;
 
+import lombok.Getter;
 import org.example.pdnight.domain.user.domain.entity.Coupon;
 
+@Getter
 public class CouponResponse {
     private Long id;
     private String couponInfo;
