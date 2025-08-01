@@ -34,6 +34,10 @@ public interface PostService {
 
     PagedResponse<PostResponseDto> findMyWrittenPosts(Long userId, Pageable pageable);
 
+    PagedResponse<InviteResponseDto> getMyInvited(Long userId, Pageable pageable);
+
+    PagedResponse<InviteResponseDto> getMyInvite(Long userId, Pageable pageable);
+
 
 
     //----------쓰기 메서드
@@ -63,7 +67,4 @@ public interface PostService {
 
     void deleteInvite(Long id, Long loginUserId);
 
-    PagedResponse<InviteResponseDto> getMyInvited(Long userId, Pageable pageable);
-
-    PagedResponse<InviteResponseDto> getMyInvite(Long userId, Pageable pageable);
 }

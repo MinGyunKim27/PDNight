@@ -3,7 +3,6 @@ package org.example.pdnight.domain.post.domain.post;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.enums.JoinStatus;
-import org.example.pdnight.domain.post.enums.PostStatus;
 import org.example.pdnight.domain.post.presentation.dto.response.InviteResponseDto;
 import org.example.pdnight.domain.post.presentation.dto.response.PostResponseDto;
 
@@ -13,7 +12,6 @@ import org.example.pdnight.global.common.enums.JobCategory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface PostReader {
@@ -28,7 +26,7 @@ public interface PostReader {
 
     Page<Post> getSuggestedPost(Long userId, Pageable pageable);
 
-    Page<Post> findPostDtosBySearch(
+    Page<Post> findPostsBySearch(
             Pageable pageable,
             Integer maxParticipants,
             AgeLimit ageLimit,
@@ -38,7 +36,7 @@ public interface PostReader {
 
     Optional<Post> findById(Long postId);
 
-    PagedResponse<InviteResponseDto> getMyinvited(Long userId, Pageable pageable);
+    Page<InviteResponseDto> getMyInvited(Long userId, Pageable pageable);
 
-    PagedResponse<InviteResponseDto> getMyInvite(Long userId, Pageable pageable);
+    Page<InviteResponseDto> getMyInvite(Long userId, Pageable pageable);
 }

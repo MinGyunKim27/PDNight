@@ -2,8 +2,6 @@ package org.example.pdnight.domain.user.presentation.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.post.application.PostUseCase.PostService;
-import org.example.pdnight.domain.post.application.inviteUseCase.InviteService;
-import org.example.pdnight.domain.post.presentation.dto.response.InviteResponseDto;
 import org.example.pdnight.domain.user.application.userUseCase.UserService;
 import org.example.pdnight.domain.user.presentation.dto.userDto.request.GiveCouponRequest;
 import org.example.pdnight.domain.user.presentation.dto.userDto.request.UserNicknameUpdate;
@@ -28,7 +26,7 @@ public class UserController {
 
     private final UserService userService;
     private final PostService postService;
-    private final InviteService inviteService;
+    //private final InviteService inviteService;
 
     // -------------------------- Command Api -------------------------------------------------//
 
@@ -231,28 +229,28 @@ public class UserController {
 
     //todo: Invite로 이동 해야함.
     //내 초대받은 목록 조회
-    @GetMapping("/users/my/invited")
-    public ResponseEntity<ApiResponse<PagedResponse<InviteResponseDto>>> getMyInvited(
-            @AuthenticationPrincipal CustomUserDetails loggedInUser,
-            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
-            Pageable pageable
-    ) {
-        Long userId = loggedInUser.getUserId();
-        PagedResponse<InviteResponseDto> inviteResponseDto = inviteService.getMyInvited(userId, pageable);
-
-        return ResponseEntity.ok(ApiResponse.ok("초대 받은 목록 조회가 완료되었습니다", inviteResponseDto));
-    }
-
-    //내가 보낸 초대 목록 조회
-    @GetMapping("/users/my/invite")
-    public ResponseEntity<ApiResponse<PagedResponse<InviteResponseDto>>> getMyInvite(
-            @AuthenticationPrincipal CustomUserDetails loggedInUser,
-            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
-            Pageable pageable
-    ) {
-        Long userId = loggedInUser.getUserId();
-        PagedResponse<InviteResponseDto> inviteResponseDto = inviteService.getMyInvite(userId, pageable);
-
-        return ResponseEntity.ok(ApiResponse.ok("초대 받은 목록 조회가 완료되었습니다", inviteResponseDto));
-    }
+//    @GetMapping("/users/my/invited")
+//    public ResponseEntity<ApiResponse<PagedResponse<InviteResponseDto>>> getMyInvited(
+//            @AuthenticationPrincipal CustomUserDetails loggedInUser,
+//            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
+//            Pageable pageable
+//    ) {
+//        Long userId = loggedInUser.getUserId();
+//        PagedResponse<InviteResponseDto> inviteResponseDto = inviteService.getMyInvited(userId, pageable);
+//
+//        return ResponseEntity.ok(ApiResponse.ok("초대 받은 목록 조회가 완료되었습니다", inviteResponseDto));
+//    }
+//
+//    //내가 보낸 초대 목록 조회
+//    @GetMapping("/users/my/invite")
+//    public ResponseEntity<ApiResponse<PagedResponse<InviteResponseDto>>> getMyInvite(
+//            @AuthenticationPrincipal CustomUserDetails loggedInUser,
+//            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
+//            Pageable pageable
+//    ) {
+//        Long userId = loggedInUser.getUserId();
+//        PagedResponse<InviteResponseDto> inviteResponseDto = inviteService.getMyInvite(userId, pageable);
+//
+//        return ResponseEntity.ok(ApiResponse.ok("초대 받은 목록 조회가 완료되었습니다", inviteResponseDto));
+//    }
 }

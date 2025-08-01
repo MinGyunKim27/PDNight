@@ -23,8 +23,6 @@ public class Invite extends Timestamped {
 
     private Long inviteeId;
 
-    private Long postId;
-
     @Column(name = "status")
     private JoinStatus status = JoinStatus.PENDING;
 
@@ -32,14 +30,14 @@ public class Invite extends Timestamped {
     @JoinColumn(name = "post_id")
     private Post post;
 
-    private Invite(Long inviterId,Long inviteeId, Long postId){
+    private Invite(Long inviterId,Long inviteeId, Post post){
         this.inviterId = inviterId;
         this.inviteeId = inviteeId;
-        this.postId = postId;
+        this.post = post;
     }
 
-    public static Invite create(Long inviterId,Long inviteeId,Long postId) {
-        return new Invite( inviterId,inviteeId, postId);
+    public static Invite create(Long inviterId,Long inviteeId,Post post) {
+        return new Invite( inviterId,inviteeId, post);
     }
 
 }

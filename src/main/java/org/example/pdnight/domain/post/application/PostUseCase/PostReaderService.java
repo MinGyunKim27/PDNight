@@ -7,7 +7,6 @@ import org.example.pdnight.domain.post.domain.post.PostReader;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.enums.JoinStatus;
-import org.example.pdnight.domain.post.enums.PostStatus;
 import org.example.pdnight.domain.post.presentation.dto.response.InviteResponseDto;
 import org.example.pdnight.domain.post.presentation.dto.response.ParticipantResponse;
 import org.example.pdnight.domain.post.presentation.dto.response.PostResponseDto;
@@ -148,7 +147,7 @@ public class PostReaderService {
             JobCategory jobCategoryLimit,
             Gender genderLimit
     ) {
-        Page<Post> postSearch = postReader.findPostDtosBySearch(pageable, maxParticipants,
+        Page<Post> postSearch = postReader.findPostsBySearch(pageable, maxParticipants,
                 ageLimit, jobCategoryLimit, genderLimit);
         Page<PostResponseDto> postDtosBySearch = postSearch.map(search -> {
             int participantCount = acceptedParticipantsCounter(search.getPostParticipants());
@@ -179,12 +178,14 @@ public class PostReaderService {
     }
 
     public PagedResponse<InviteResponseDto> getMyInvited(Long userId, Pageable pageable) {
-        // PagedResponse<InviteResponseDto> myInvited = postReader.getMyinvited(userId, pageable);
-        return postReader.getMyinvited(userId, pageable);
+        Page<InviteResponseDto> myInvited = postReader.getMyInvited(userId, pageable);
+
+        return PagedResponse.from(myInvited);
     }
 
     public PagedResponse<InviteResponseDto> getMyInvite(Long userId, Pageable pageable) {
-        // PagedResponse<InviteResponseDto> myInvite = postReader.getMyInvite(userId, pageable);
-        return postReader.getMyInvite(userId, pageable);
+        Page<InviteResponseDto> myInvite = postReader.getMyInvite(userId, pageable);
+
+        return PagedResponse.from(myInvite);
     }
 }

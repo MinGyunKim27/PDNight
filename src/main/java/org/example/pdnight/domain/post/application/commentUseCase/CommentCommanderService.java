@@ -5,15 +5,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.pdnight.domain.post.application.port.PostPort;
 import org.example.pdnight.domain.post.domain.comment.Comment;
 import org.example.pdnight.domain.post.domain.comment.CommentCommander;
-import org.example.pdnight.domain.post.domain.post.Post;
+import org.example.pdnight.domain.post.enums.PostStatus;
 import org.example.pdnight.domain.post.presentation.dto.request.CommentRequestDto;
 import org.example.pdnight.domain.post.presentation.dto.response.CommentResponseDto;
+import org.example.pdnight.domain.post.presentation.dto.response.PostInfo;
 import org.example.pdnight.global.common.enums.ErrorCode;
 import org.example.pdnight.global.common.exception.BaseException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -21,30 +20,31 @@ import java.util.Optional;
 public class CommentCommanderService {
 
 	private final CommentCommander commentCommandQuery;
-	private final PostPort postFinderPort;
+	private final PostPort postPort;
 
 	//댓글 생성 메서드
 	public CommentResponseDto createComment(Long postId, Long loginId, CommentRequestDto request) {
+		//게시글 존재하는지 검증
+		PostInfo postFromPort = postPort.findById(postId);
 
-		Post postFromPort = getPostByIdOrElseThrow(postFinderPort.findById(postId));
+		//닫힘 상태 확인
+		if (postFromPort.getStatus().equals(PostStatus.CLOSED)){
+			throw new BaseException(ErrorCode.POST_STATUS_CLOSED);
+		}
 
 		//댓글 엔티티 생성 및 저장
 		Comment comment = Comment.create(postId, loginId, request.getContent());
 		Comment savedComment = commentCommandQuery.save(comment);
 
 		return CommentResponseDto.from(savedComment);
-
 	}
 
 	//댓글 삭제 메서드
 	@Transactional
 	public void deleteCommentById(Long postId, Long id, Long loginId) {
-		//댓글을 기입될 게시글 찾아옴 -> 없을 경우 예외 발생 -> 검증 로직
-//		getPostByIdOrElseThrow(postId);
-
-		// Todo: PostClient로 해당 게시물 조회
-
-		//댓글을 기입될 게시글 없을 경우 예외 발생
+		if (postPort.existsById(postId)){
+			throw new BaseException(ErrorCode.POST_NOT_FOUND);
+		}
 
 		//댓글 검증 로직
 		Comment foundComment = getCommentById(id);
@@ -58,8 +58,9 @@ public class CommentCommanderService {
 	//댓글 수정 메서드
 	@Transactional
 	public CommentResponseDto updateCommentByDto(Long postId, Long id, Long loginId, CommentRequestDto request) {
-		//댓글을 기입될 게시글과, 작성자를 찾아옴 -> 없을 경우 예외 발생 -> 검증 로직
-//		getPostByIdOrElseThrow(postId);
+		if (postPort.existsById(postId)){
+			throw new BaseException(ErrorCode.POST_NOT_FOUND);
+		}
 
 		//댓글 검증 로직
 		Comment foundComment = getCommentById(id);
@@ -76,8 +77,13 @@ public class CommentCommanderService {
 
 	//대댓글 생성 메서드
 	public CommentResponseDto createChildComment(Long postId, Long id, Long loginId, CommentRequestDto request) {
-		//댓글을 기입될 게시글과, 작성자를 찾아옴 -> 없을 경우 예외 발생 -> 검증 로직
-//		Post foundPost = getPostByIdOrElseThrow(postId);
+		//게시글 존재하는지 검증
+		PostInfo postFromPort = postPort.findById(postId);
+
+		//닫힘 상태 확인
+		if (postFromPort.getStatus().equals(PostStatus.CLOSED)){
+			throw new BaseException(ErrorCode.POST_STATUS_CLOSED);
+		}
 
 		Comment foundComment = getCommentById(id);
 
@@ -91,8 +97,10 @@ public class CommentCommanderService {
 	//어드민 권한 댓글 삭제 메서드
 	@Transactional
 	public void deleteCommentByAdmin(Long postId, Long id, Long adminId) {
-		//해당 게시글이 있는지 검증
-//		validateExistPost(postId);
+		//해당 게시물이 없으면 예외 쓰로우
+		if(!postPort.existsById(postId)){
+			throw new BaseException(ErrorCode.POST_NOT_FOUND);
+		}
 
 		//해당 댓글이 있는지 검증
 		Comment foundComment = getCommentById(id);
@@ -105,11 +113,6 @@ public class CommentCommanderService {
 		commentCommandQuery.deleteAllByParentId(id);
 		commentCommandQuery.delete(foundComment);
 		log.info("{}번 Id 관리자가 댓글을 삭제했습니다.", adminId);
-	}
-
-	//웹클라이언트로 받아온 Post 꺼내는 메서드
-	private Post getPostByIdOrElseThrow(Optional<Post> optionalPost)  {
-		return optionalPost.orElseThrow(() -> new BaseException(ErrorCode.POST_NOT_FOUND));
 	}
 
 	private Comment getCommentById(Long id) {

@@ -65,35 +65,35 @@ public class PostCommanderService {
     @Transactional
     @Caching(evict = {
             @CacheEvict(value = CacheName.SEARCH_POST, allEntries = true),
-            @CacheEvict(value = CacheName.ONE_POST, key = "#id"),
+            @CacheEvict(value = CacheName.ONE_POST, key = "#postId"),
             @CacheEvict(value = CacheName.LIKED_POST, allEntries = true),
             @CacheEvict(value = CacheName.CONFIRMED_POST, allEntries = true),
             @CacheEvict(value = CacheName.WRITTEN_POST, allEntries = true),
             @CacheEvict(value = CacheName.SUGGESTED_POST, allEntries = true),
     })
-    public void deletePostById(Long userId, Long id) {
-        Post foundPost = getPostByIdOrElseThrow(id);
+    public void deletePostById(Long userId, Long postId) {
+        Post foundPost = getPostByIdOrElseThrow(postId);
         validateAuthor(userId, foundPost);
 
         //자식 댓글들 먼저 일괄 삭제 외래키 제약 제거 todo: 추후 이벤트 처리를 통해서 게시글 댓글 삭제 초대 삭제등
-        // commentRepository.deleteAllByChildrenPostId(id);
+        // commentRepository.deleteAllByChildrenPostId(postId);
         //postId 기준 댓글 일괄 삭제 메서드 외래키 제약 제거
-        // commentRepository.deleteAllByPostId(id);
-        publisher.publishEvent(PostDeletedEvent.of(id));
+        // commentRepository.deleteAllByPostId(postId);
+        publisher.publishEvent(PostDeletedEvent.of(postId));
         postCommander.deletePost(foundPost);
     }
 
     @Transactional
     @Caching(evict = {
             @CacheEvict(value = CacheName.SEARCH_POST, allEntries = true),
-            @CacheEvict(value = CacheName.ONE_POST, key = "#id"),
+            @CacheEvict(value = CacheName.ONE_POST, key = "#postId"),
             @CacheEvict(value = CacheName.LIKED_POST, allEntries = true),
             @CacheEvict(value = CacheName.CONFIRMED_POST, allEntries = true),
             @CacheEvict(value = CacheName.WRITTEN_POST, allEntries = true),
             @CacheEvict(value = CacheName.SUGGESTED_POST, allEntries = true),
     })
-    public PostResponseDto updatePostDetails(Long userId, Long id, PostUpdateRequestDto request) {
-        Post foundPost = getPostByIdOrElseThrow(id);
+    public PostResponseDto updatePostDetails(Long userId, Long postId, PostUpdateRequestDto request) {
+        Post foundPost = getPostByIdOrElseThrow(postId);
         validateAuthor(userId, foundPost);
 
         foundPost.updatePostIfNotNull(
@@ -112,15 +112,15 @@ public class PostCommanderService {
     @Transactional
     @Caching(evict = {
             @CacheEvict(value = CacheName.SEARCH_POST, allEntries = true),
-            @CacheEvict(value = CacheName.ONE_POST, key = "#id"),
+            @CacheEvict(value = CacheName.ONE_POST, key = "#postId"),
             @CacheEvict(value = CacheName.LIKED_POST, allEntries = true),
             @CacheEvict(value = CacheName.CONFIRMED_POST, allEntries = true),
             @CacheEvict(value = CacheName.WRITTEN_POST, allEntries = true),
             @CacheEvict(value = CacheName.SUGGESTED_POST, allEntries = true),
     })
-    public PostResponseDto changePostStatus(Long userId, Long id, PostStatusRequestDto request) {
+    public PostResponseDto changePostStatus(Long userId, Long postId, PostStatusRequestDto request) {
         //상태값 변경은 어떤 상태라도 불러와서 수정
-        Post foundPost = getPostByIdOrElseThrow(id);
+        Post foundPost = getPostByIdOrElseThrow(postId);
         validateAuthor(userId, foundPost);
 
         //변동사항 있을시에만 업데이트
@@ -242,15 +242,15 @@ public class PostCommanderService {
         Post post = getOpenPostById(postId);
         validateNotAlreadyInvited(post, userId, loginUserId);
 
-        Invite invite = Invite.create(loginUserId, userId, postId);
+        Invite invite = Invite.create(loginUserId, userId, post);
         post.addInvite(invite);
 
         return InviteResponseDto.from(invite);
     }
 
     // 초대삭제
-    public void deleteInvite(Long id, Long loginUserId) {
-        Post post = postCommander.getPostById(id).orElseThrow(() -> new BaseException(POST_NOT_FOUND));
+    public void deleteInvite(Long postId, Long loginUserId) {
+        Post post = postCommander.getPostById(postId).orElseThrow(() -> new BaseException(POST_NOT_FOUND));
         Invite findInvite = post.getInvites().stream()
                 .filter(invite -> invite.getInviterId().equals(loginUserId)).findFirst()
                 .orElseThrow(()->new BaseException(INVITE_UNAUTHORIZED));

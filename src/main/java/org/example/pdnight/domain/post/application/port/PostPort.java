@@ -1,11 +1,11 @@
 package org.example.pdnight.domain.post.application.port;
 
-import org.example.pdnight.domain.post.domain.post.Post;
-
-import java.util.Optional;
+import org.example.pdnight.domain.post.presentation.dto.response.PostInfo;
 
 public interface PostPort {
 
-    Optional<Post> findById(Long postId);
+    PostInfo findById(Long postId);
+
+    boolean existsById(Long postId);
 
 }

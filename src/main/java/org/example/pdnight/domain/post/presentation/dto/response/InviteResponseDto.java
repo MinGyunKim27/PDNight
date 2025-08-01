@@ -15,7 +15,7 @@ public class InviteResponseDto {
     private InviteResponseDto(Invite invite) {
         this.id = invite.getId();
         this.inviteeId = invite.getInviteeId();
-        this.postId = invite.getPostId();
+        this.postId = invite.getPost().getId();
     }
 
     @QueryProjection
