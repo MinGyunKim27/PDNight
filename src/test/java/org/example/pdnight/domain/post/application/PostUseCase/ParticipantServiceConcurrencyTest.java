@@ -205,8 +205,8 @@ public class ParticipantServiceConcurrencyTest {
             postCommanderService.createInvite(InviteTestPost.getId(), userId, authId);
         }
 
-        ExecutorService executor = Executors.newFixedThreadPool(10);
-        CountDownLatch latch = new CountDownLatch(10);
+        ExecutorService executor = Executors.newFixedThreadPool(50);
+        CountDownLatch latch = new CountDownLatch(50);
         List<Future<String>> futures = new ArrayList<>();
 
         for (long i = 0L; i < 50L; i++) {
