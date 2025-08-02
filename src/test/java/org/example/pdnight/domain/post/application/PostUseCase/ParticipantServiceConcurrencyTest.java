@@ -53,12 +53,12 @@ public class ParticipantServiceConcurrencyTest {
         );
         testPost = postCommander.save(testPost);
     }
+
     //테스트 참가 신청 동시성 테스트
     @Test
     void testConcurrentApplyParticipant() throws InterruptedException {
         ExecutorService executor = Executors.newFixedThreadPool(50);
         CountDownLatch latch = new CountDownLatch(200);
-
         List<Future<String>> futures = new ArrayList<>();
 
         for (long i = 0L ; i < 200L; i++ ) {
@@ -77,7 +77,6 @@ public class ParticipantServiceConcurrencyTest {
 
         latch.await();
         executor.shutdown();
-
         // 결과 출력
         long successCount = futures.stream()
                 .map(f -> {
@@ -103,5 +102,62 @@ public class ParticipantServiceConcurrencyTest {
 
         assertEquals(postAfter.getMaxParticipants().intValue(), acceptedCount);
         assertEquals(successCount, acceptedCount);
+    }
+
+    @Test
+    void testConcurrentRejectAndCancel() throws InterruptedException {
+        // 먼저 신청 10명
+        for (long i = 0L ; i < 10L; i++ ) {
+            Long userId = i;
+            postCommanderService.applyParticipant(userId, 20L, Gender.MALE, JobCategory.BACK_END_DEVELOPER, testPost.getId());
+        }
+
+        ExecutorService executor = Executors.newFixedThreadPool(20);
+        CountDownLatch latch = new CountDownLatch(20);
+
+        // 게시자 (authorUser)와 참가자(user) 각각 동시에 거절, 취소 시도
+        List<Future<String>> futures = new ArrayList<>();
+
+        // 참가자 취소 요청 (pending 상태라고 가정)
+        for (long i = 0L ; i < 20L; i++ ) {
+            Long userId = i;
+            futures.add(executor.submit(() -> {
+                try {
+                    postCommanderService.deleteParticipant(userId, testPost.getId());
+                    return "CANCEL_SUCCESS:" + userId;
+                } catch (BaseException e) {
+                    return "CANCEL_FAIL:" + userId + ":" + e.getMessage();
+                } finally {
+                    latch.countDown();
+                }
+            }));
+        }
+
+        // 게시자 거절 요청 (pending -> rejected)
+        for (long i = 0L ; i < 20L; i++ ) {
+            Long userId = i;
+            futures.add(executor.submit(() -> {
+                try {
+                    postCommanderService.changeStatusParticipant(500L, userId, testPost.getId(), "REJECTED");
+                    return "REJECT_SUCCESS:" + userId;
+                } catch (BaseException e) {
+                    return "REJECT_FAIL:" + userId + ":" + e.getMessage();
+                } finally {
+                    latch.countDown();
+                }
+            }));
+        }
+
+        latch.await();
+        executor.shutdown();
+
+        // 결과 출력
+        for (Future<String> f : futures) {
+            try {
+                System.out.println(f.get());
+            } catch (Exception e) {
+                System.out.println("ERROR");
+            }
+        }
     }
 }

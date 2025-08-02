@@ -1,5 +1,6 @@
 package org.example.pdnight.domain.post.presentation.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,6 +12,7 @@ import java.time.LocalDateTime;
 @Getter
 @Builder
 @AllArgsConstructor(staticName = "from")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ParticipantResponse {
 
     private Long userId;
