@@ -10,6 +10,7 @@ import org.example.pdnight.global.common.enums.ErrorCode;
 import org.example.pdnight.global.common.enums.JobCategory;
 import org.example.pdnight.global.common.exception.BaseException;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -35,13 +36,14 @@ public class ParticipantServiceConcurrencyTest {
     @Autowired
     PostCommanderService postCommanderService;
 
-    private Post testPost;
-    private Post testPost2;
+    private Post firstComeTestPost;
+    private Post requestTestPost;
+    private Post InviteTestPost;
 
     @BeforeEach
     void setUp() {
         // 선착순 포스트 생성
-        testPost = Post.createPost(
+        firstComeTestPost = Post.createPost(
                 500L,
                 "테스트 제목",
                 LocalDateTime.now().plusDays(1),
@@ -52,10 +54,10 @@ public class ParticipantServiceConcurrencyTest {
                 AgeLimit.ALL,
                 true
         );
-        testPost = postCommander.save(testPost);
+        firstComeTestPost = postCommander.save(firstComeTestPost);
 
         // 포스트 생성
-        testPost2 = Post.createPost(
+        requestTestPost = Post.createPost(
                 500L,
                 "테스트 일반 게시글",
                 LocalDateTime.now().plusDays(1),
@@ -66,11 +68,26 @@ public class ParticipantServiceConcurrencyTest {
                 AgeLimit.ALL,
                 false
         );
-        testPost2 = postCommander.save(testPost2);
+        requestTestPost = postCommander.save(requestTestPost);
+
+        // 포스트 생성
+        InviteTestPost = Post.createPost(
+                50L,
+                "테스트 일반 게시글",
+                LocalDateTime.now().plusDays(1),
+                "공개 내용",
+                25,
+                Gender.ALL,
+                JobCategory.ALL,
+                AgeLimit.ALL,
+                false
+        );
+        InviteTestPost = postCommander.save(InviteTestPost);
     }
 
     //테스트 참가 신청 동시성 테스트
     @Test
+    @DisplayName("선착순 게시물 동시성 테스트")
     void testConcurrentApplyParticipant() throws InterruptedException {
         ExecutorService executor = Executors.newFixedThreadPool(50);
         CountDownLatch latch = new CountDownLatch(200);
@@ -80,7 +97,7 @@ public class ParticipantServiceConcurrencyTest {
             Long userId = i;
             futures.add(executor.submit(() -> {
                 try {
-                    postCommanderService.applyParticipant(userId, 20L, Gender.MALE, JobCategory.BACK_END_DEVELOPER, testPost.getId());
+                    postCommanderService.applyParticipant(userId, 20L, Gender.MALE, JobCategory.BACK_END_DEVELOPER, firstComeTestPost.getId());
                     return "SUCCESS:" + userId;
                 } catch (BaseException e) {
                     return "FAIL:" + userId + ":" + e.getMessage();
@@ -108,7 +125,7 @@ public class ParticipantServiceConcurrencyTest {
 
         // 저장소에서 최신 상태 조회
 
-        Post postAfter = postCommander.findByIdAndStatus(testPost.getId(), PostStatus.CONFIRMED)
+        Post postAfter = postCommander.findByIdAndStatus(firstComeTestPost.getId(), PostStatus.CONFIRMED)
                 .orElseThrow(() -> new BaseException(ErrorCode.POST_NOT_FOUND));
 
         long acceptedCount = postAfter.getPostParticipants().stream()
@@ -120,11 +137,12 @@ public class ParticipantServiceConcurrencyTest {
     }
 
     @Test
+    @DisplayName("참가자 취소, 게시자 거절 요청이 동시에 요청하는 경우 동시성 테스트")
     void testConcurrentRejectAndCancel() throws InterruptedException {
         // 먼저 신청 10명
         for (long i = 0L; i < 10L; i++) {
             Long userId = i;
-            postCommanderService.applyParticipant(userId, 20L, Gender.MALE, JobCategory.BACK_END_DEVELOPER, testPost2.getId());
+            postCommanderService.applyParticipant(userId, 20L, Gender.MALE, JobCategory.BACK_END_DEVELOPER, requestTestPost.getId());
         }
 
         ExecutorService executor = Executors.newFixedThreadPool(20);
@@ -138,7 +156,7 @@ public class ParticipantServiceConcurrencyTest {
             Long userId = i;
             futures.add(executor.submit(() -> {
                 try {
-                    postCommanderService.deleteParticipant(userId, testPost2.getId());
+                    postCommanderService.deleteParticipant(userId, requestTestPost.getId());
                     return "CANCEL_SUCCESS:" + userId;
                 } catch (BaseException e) {
                     return "CANCEL_FAIL:" + userId + ":" + e.getMessage();
@@ -153,7 +171,7 @@ public class ParticipantServiceConcurrencyTest {
             Long userId = i;
             futures.add(executor.submit(() -> {
                 try {
-                    postCommanderService.changeStatusParticipant(500L, userId, testPost2.getId(), "REJECTED");
+                    postCommanderService.changeStatusParticipant(500L, userId, requestTestPost.getId(), "REJECTED");
                     return "REJECT_SUCCESS:" + userId;
                 } catch (BaseException e) {
                     return "REJECT_FAIL:" + userId + ":" + e.getMessage();
@@ -174,5 +192,62 @@ public class ParticipantServiceConcurrencyTest {
                 System.out.println("ERROR");
             }
         }
+    }
+
+    @Test
+    @DisplayName("게시글 초대 수락 동시성 테스트")
+    void testInviteApplyParticipant() throws InterruptedException {
+        Long authId = 50L;
+
+        // 게시글 초대 50명에게 생성
+        for (long i = 0L; i < 50L; i++) {
+            Long userId = i;
+            postCommanderService.createInvite(InviteTestPost.getId(), userId, authId);
+        }
+
+        ExecutorService executor = Executors.newFixedThreadPool(10);
+        CountDownLatch latch = new CountDownLatch(10);
+        List<Future<String>> futures = new ArrayList<>();
+
+        for (long i = 0L; i < 50L; i++) {
+            Long userId = i;
+            futures.add(executor.submit(() -> {
+                try {
+                    postCommanderService.decisionForInvite(InviteTestPost.getId(), userId);
+                    return "SUCCESS:" + userId;
+                } catch (BaseException e) {
+                    return "FAIL:" + userId + ":" + e.getMessage();
+                } finally {
+                    latch.countDown();
+                }
+            }));
+        }
+
+        latch.await();
+        executor.shutdown();
+        // 결과 출력
+        long successCount = futures.stream()
+                .map(f -> {
+                    try {
+                        return f.get();
+                    } catch (Exception e) {
+                        return "ERROR";
+                    }
+                })
+                .filter(res -> res.startsWith("SUCCESS"))
+                .count();
+
+        System.out.println("성공 참가자 수: " + successCount);
+
+        // 저장소에서 최신 상태 조회
+        Post postAfter = postCommander.findByIdAndStatus(InviteTestPost.getId(), PostStatus.CONFIRMED)
+                .orElseThrow(() -> new BaseException(ErrorCode.POST_NOT_FOUND));
+
+        long acceptedCount = postAfter.getPostParticipants().stream()
+                .filter(p -> p.getStatus() == JoinStatus.ACCEPTED)
+                .count();
+
+        assertEquals(postAfter.getMaxParticipants().intValue(), acceptedCount);
+        assertEquals(successCount, acceptedCount);
     }
 }
