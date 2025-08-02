@@ -107,6 +107,24 @@ public class EventReaderServiceTest {
     @Test
     @DisplayName("내가 신청한 이벤트 목록 조회")
     void 내가_신청한_이벤트_목록(){
+        Event event1 = Event.from(
+                "title1", "content1", 50, LocalDateTime.now(), LocalDateTime.now().plusDays(10)
+        );
+        Event event2 = Event.from(
+                "title2", "content2", 50, LocalDateTime.now(), LocalDateTime.now().plusDays(10)
+        );
+        ReflectionTestUtils.setField(event1, "id", 1L);
+        ReflectionTestUtils.setField(event2, "id", 2L);
 
+        Pageable pageable = PageRequest.of(0, 10);
+
+        List<Event> events = Lists.newArrayList(event1, event2);
+        Page<Event> page = new PageImpl<>(events, pageable, events.size());
+        when(eventReader.findAllEvent(pageable)).thenReturn(page);
+        PagedResponse<EventResponse> result = eventReaderService.findEventList(pageable);
+
+        assertNotNull(result);
+        assertEquals(2, result.contents().size());
+        assertEquals(event1.getId(), result.contents().get(0).getId());
     }
 }
