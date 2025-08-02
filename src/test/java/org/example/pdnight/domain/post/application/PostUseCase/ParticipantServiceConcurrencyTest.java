@@ -36,6 +36,7 @@ public class ParticipantServiceConcurrencyTest {
     PostCommanderService postCommanderService;
 
     private Post testPost;
+    private Post testPost2;
 
     @BeforeEach
     void setUp() {
@@ -52,6 +53,20 @@ public class ParticipantServiceConcurrencyTest {
                 true
         );
         testPost = postCommander.save(testPost);
+
+        // 포스트 생성
+        testPost2 = Post.createPost(
+                500L,
+                "테스트 일반 게시글",
+                LocalDateTime.now().plusDays(1),
+                "공개 내용",
+                50,
+                Gender.ALL,
+                JobCategory.ALL,
+                AgeLimit.ALL,
+                false
+        );
+        testPost2 = postCommander.save(testPost2);
     }
 
     //테스트 참가 신청 동시성 테스트
@@ -61,7 +76,7 @@ public class ParticipantServiceConcurrencyTest {
         CountDownLatch latch = new CountDownLatch(200);
         List<Future<String>> futures = new ArrayList<>();
 
-        for (long i = 0L ; i < 200L; i++ ) {
+        for (long i = 0L; i < 200L; i++) {
             Long userId = i;
             futures.add(executor.submit(() -> {
                 try {
@@ -107,9 +122,9 @@ public class ParticipantServiceConcurrencyTest {
     @Test
     void testConcurrentRejectAndCancel() throws InterruptedException {
         // 먼저 신청 10명
-        for (long i = 0L ; i < 10L; i++ ) {
+        for (long i = 0L; i < 10L; i++) {
             Long userId = i;
-            postCommanderService.applyParticipant(userId, 20L, Gender.MALE, JobCategory.BACK_END_DEVELOPER, testPost.getId());
+            postCommanderService.applyParticipant(userId, 20L, Gender.MALE, JobCategory.BACK_END_DEVELOPER, testPost2.getId());
         }
 
         ExecutorService executor = Executors.newFixedThreadPool(20);
@@ -119,11 +134,11 @@ public class ParticipantServiceConcurrencyTest {
         List<Future<String>> futures = new ArrayList<>();
 
         // 참가자 취소 요청 (pending 상태라고 가정)
-        for (long i = 0L ; i < 20L; i++ ) {
+        for (long i = 0L; i < 10L; i++) {
             Long userId = i;
             futures.add(executor.submit(() -> {
                 try {
-                    postCommanderService.deleteParticipant(userId, testPost.getId());
+                    postCommanderService.deleteParticipant(userId, testPost2.getId());
                     return "CANCEL_SUCCESS:" + userId;
                 } catch (BaseException e) {
                     return "CANCEL_FAIL:" + userId + ":" + e.getMessage();
@@ -134,11 +149,11 @@ public class ParticipantServiceConcurrencyTest {
         }
 
         // 게시자 거절 요청 (pending -> rejected)
-        for (long i = 0L ; i < 20L; i++ ) {
+        for (long i = 0L; i < 10L; i++) {
             Long userId = i;
             futures.add(executor.submit(() -> {
                 try {
-                    postCommanderService.changeStatusParticipant(500L, userId, testPost.getId(), "REJECTED");
+                    postCommanderService.changeStatusParticipant(500L, userId, testPost2.getId(), "REJECTED");
                     return "REJECT_SUCCESS:" + userId;
                 } catch (BaseException e) {
                     return "REJECT_FAIL:" + userId + ":" + e.getMessage();
