@@ -6,4 +6,13 @@ import lombok.Getter;
 public class GiveCouponRequest {
     Long userId;
     Long couponId;
+
+    private GiveCouponRequest(Long userId,Long couponId){
+        this.userId = userId;
+        this.couponId = couponId;
+    }
+
+    public static GiveCouponRequest from(Long userId,Long couponId){
+        return new GiveCouponRequest(userId,couponId);
+    }
 }
