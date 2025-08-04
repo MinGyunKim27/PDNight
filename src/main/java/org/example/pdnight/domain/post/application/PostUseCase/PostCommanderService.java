@@ -138,7 +138,7 @@ public class PostCommanderService {
     @CacheEvict(value = CacheName.CONFIRMED_POST, allEntries = true)
     @DistributedLock(key = "#postId", timeoutMs = 5000)
     public ParticipantResponse applyParticipant(Long loginId, Long age, Gender gender, JobCategory jobCategory, Long postId) {
-        Post foundPost = getOpenPostById(postId);
+        Post foundPost = getPostByIdOrElseThrow(postId);
 
         // 신청 안되는지 확인
         validateJoinConditions(loginId, age, gender, jobCategory, foundPost);
@@ -373,6 +373,10 @@ public class PostCommanderService {
         //직업군 조건 안 맞으면 신청 불가
         if (post.getJobCategoryLimit() != JobCategory.ALL && post.getJobCategoryLimit() != jobCategory) {
             throw new BaseException(ErrorCode.JOB_CATEGORY_LIMIT_NOT_SATISFIED);
+        }
+
+        if (post.getStatus() != PostStatus.OPEN) {
+            throw new BaseException(POST_ALREADY_CONFIRMED);
         }
 
         // 신청 안됨 : 이미 신청함 - JoinStatus status 가 대기중 or 수락됨 인 경우
