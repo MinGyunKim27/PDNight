@@ -10,6 +10,7 @@ import org.example.pdnight.global.common.dto.PagedResponse;
 import org.example.pdnight.global.filter.CustomUserDetails;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -76,9 +77,9 @@ public class EventController {
     public ResponseEntity<ApiResponse<EventResponse>> createEvent(
             @RequestBody EventCreateRequest request
     ) {
-        return ResponseEntity.ok(
-                ApiResponse.ok("이벤트 생성 성공했습니다.", eventService.createEvent(request))
-        );
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.ok("이벤트 생성 성공했습니다.", eventService.createEvent(request)));
     }
 
     // 이벤트 수정

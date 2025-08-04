@@ -13,7 +13,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.convert.DataSizeUnit;
 import org.springframework.test.util.ReflectionTestUtils;
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -37,7 +36,7 @@ public class EventCommanderServiceTest {
     @Test
     @DisplayName("이벤트 생성 확인 테스트")
     void 이벤트_생성_성공() {
-        LocalDateTime fixedDateTime = LocalDateTime.of(2025, 8, 1, 12, 0);
+        LocalDateTime fixedDateTime = LocalDateTime.of(2025, 9, 20, 12, 0);
 
         EventCreateRequest request = EventCreateRequest.from(
                 "title", "content", 50, fixedDateTime, fixedDateTime.plusDays(10)

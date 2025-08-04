@@ -51,6 +51,7 @@ public class EventConcurrencyTest {
         );
         eventCommander.save(event);
     }
+
     @Test
     void 동시에20명이신청하면10명만성공한다() throws InterruptedException {
         // given
@@ -70,7 +71,8 @@ public class EventConcurrencyTest {
 
         // when - 20명의 유저가 동시에 신청 시도
         for (int i = 0; i < threadCount; i++) {
-            final Long userId = Long.valueOf(i + 1);
+            final Long userId = Long.valueOf(i + 2);
+            // 각 스레드에서 이벤트 신청 시도
             executorService.submit(() -> {
                 try {
                     eventCommanderService.addParticipant(eventId, userId);
@@ -80,6 +82,7 @@ public class EventConcurrencyTest {
                 } catch (Exception e) {
                     failedUsers.put(userId, "Unknown error: " + e.getMessage());
                 } finally {
+                    // 각 스레드 작업 완료 후 latch 감소
                     latch.countDown();
                 }
             });
@@ -90,7 +93,7 @@ public class EventConcurrencyTest {
         executorService.shutdown();
 
         // then - 결과 확인
-        System.out.println("----- 테스트 결과 -----");
+        System.out.println("--------- 테스트 결과 ----------");
         System.out.println("성공한 유저 수: " + successUsers.size());
         System.out.println("실패한 유저 수: " + failedUsers.size());
         System.out.println("성공한 유저 목록: " + successUsers);
