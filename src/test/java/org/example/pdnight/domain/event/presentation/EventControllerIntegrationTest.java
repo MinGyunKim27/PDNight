@@ -1,6 +1,7 @@
 package org.example.pdnight.domain.event.presentation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.jsonpath.JsonPath;
 import org.example.pdnight.domain.auth.domain.AuthCommander;
 import org.example.pdnight.domain.auth.domain.entity.Auth;
 import org.example.pdnight.domain.auth.presentation.dto.request.SignupRequest;
@@ -57,7 +58,7 @@ class EventControllerIntegrationTest {
     @Test
     @Order(1)
     @DisplayName("이벤트 생성 성공")
-    void 이벤트_생성_단건_조회_성공() throws Exception {
+    void 이벤트생성단건조회성공() throws Exception {
         String token = login();
         ResultActions eventPerform = createEvent(token);
 
@@ -65,13 +66,14 @@ class EventControllerIntegrationTest {
         eventPerform.andExpect(status().isCreated())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data.title").value("Test Event"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("이벤트 생성 성공했습니다."));
-
+        String content = eventPerform.andReturn().getResponse().getContentAsString();
+        int eventId = JsonPath.read(content, "$.data.id");
 
         //when
-        ResultActions eventUpdatePerform = mockMvc.perform(get("/api/events/1")
+        ResultActions eventUpdatePerform = mockMvc.perform(get("/api/events/" + eventId)
                 .header("Authorization", "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON)
-                );
+        );
 
         //then
         eventUpdatePerform.andExpect(status().isOk())
