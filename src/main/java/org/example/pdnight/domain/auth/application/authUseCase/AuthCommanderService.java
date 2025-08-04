@@ -124,7 +124,7 @@ public class AuthCommanderService {
 
     // validate
     private void validateAuth(Auth auth, String password) {
-        if (auth.getDeletedAt() != null) {
+        if (auth.getIsDeleted()) {
             throw new BaseException(ErrorCode.AUTH_DEACTIVATED);
         }
 

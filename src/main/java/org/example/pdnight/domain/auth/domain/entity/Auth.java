@@ -27,7 +27,7 @@ public class Auth {
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
-    private boolean isDeleted = false;
+    private Boolean isDeleted = false;
 
     private LocalDateTime deletedAt;
 

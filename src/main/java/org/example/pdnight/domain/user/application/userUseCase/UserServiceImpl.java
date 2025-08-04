@@ -73,7 +73,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Page<FollowingResponse> getFollowings(Long myId, Pageable pageable) {
+    public PagedResponse<FollowingResponse> getFollowings(Long myId, Pageable pageable) {
         return userReaderService.getFollowings(myId, pageable);
     }
 

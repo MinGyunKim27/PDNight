@@ -41,7 +41,7 @@ public interface UserService {
     //유저 이름이나 닉네임이나 이메일로 검색
     PagedResponse<UserResponse> searchUsers(String search, Pageable pageable);
 
-    Page<FollowingResponse> getFollowings(Long myId, Pageable pageable);
+    PagedResponse<FollowingResponse> getFollowings(Long myId, Pageable pageable);
 
     PagedResponse<UserCouponResponse> getValidCoupons(Long userId, Pageable pageable);
 

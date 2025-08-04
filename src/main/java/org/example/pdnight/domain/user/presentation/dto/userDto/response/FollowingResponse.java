@@ -15,4 +15,7 @@ public class FollowingResponse {
         this.nickname = nickname;
     }
 
+    public static FollowingResponse create(Long userId, String nickname){
+        return new FollowingResponse(userId,nickname);
+    }
 }

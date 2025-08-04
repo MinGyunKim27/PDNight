@@ -25,8 +25,6 @@ public class UserReaderService {
 
     private final UserInfoAssembler userInfoAssembler;
     private final UserReader userReader;
-    // private final HobbyReader hobbyReader;
-    // private final TechStackReader techStackReader;
 
     @Transactional(readOnly = true)
     public UserResponse getProfile(Long userId) {
@@ -57,8 +55,9 @@ public class UserReaderService {
         return PagedResponse.from(dtos);
     }
 
-    public Page<FollowingResponse> getFollowings(Long myId, Pageable pageable) {
-        return userReader.findFollowingsByUserId(myId, pageable);
+    public PagedResponse<FollowingResponse> getFollowings(Long myId, Pageable pageable) {
+        Page<FollowingResponse> followingsByUserId = userReader.findFollowingsByUserId(myId, pageable);
+        return PagedResponse.from(followingsByUserId);
     }
 
     //  보유한 사용가능한 쿠폰 조회

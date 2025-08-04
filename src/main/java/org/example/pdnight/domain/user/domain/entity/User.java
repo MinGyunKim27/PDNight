@@ -1,9 +1,7 @@
 package org.example.pdnight.domain.user.domain.entity;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.example.pdnight.domain.auth.presentation.dto.request.SignupRequest;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.user.domain.enums.Region;
@@ -25,6 +23,7 @@ import static jakarta.persistence.CascadeType.ALL;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends Timestamped {
 
+    @Setter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

@@ -157,10 +157,9 @@ public class UserController {
             Pageable pageable
     ) {
         Long myId = loggedInUser.getUserId();
-        Page<FollowingResponse> followings = userService.getFollowings(myId, pageable);
-        PagedResponse<FollowingResponse> dtoPagedResponse = PagedResponse.from(followings);
+        PagedResponse<FollowingResponse> followings = userService.getFollowings(myId, pageable);
 
-        return ResponseEntity.ok(ApiResponse.ok("팔로잉 목록 조회가 완료되었습니다.", dtoPagedResponse));
+        return ResponseEntity.ok(ApiResponse.ok("팔로잉 목록 조회가 완료되었습니다.", followings));
     }
 
     // 내 쿠폰목록 조회
