@@ -68,8 +68,4 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponse.ok("회원탈퇴 되었습니다.", null));
     }
 
-    @GetMapping("/login")
-    public String loginPage() {
-        return "login";  // templates/login.ftl 을 찾음
-    }
 }
