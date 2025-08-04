@@ -57,7 +57,7 @@ class EventControllerIntegrationTest {
     @Test
     @Order(1)
     @DisplayName("이벤트 생성 성공")
-    void 이벤트_생성_성공() throws Exception {
+    void 이벤트_생성_단건_조회_성공() throws Exception {
         String token = login();
         ResultActions eventPerform = createEvent(token);
 
@@ -65,13 +65,7 @@ class EventControllerIntegrationTest {
         eventPerform.andExpect(status().isCreated())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data.title").value("Test Event"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("이벤트 생성 성공했습니다."));
-    }
 
-    @Test
-    @Order(2)
-    @DisplayName("이벤트_단건_조회 성공")
-    void 이벤트_단건_조회_성공() throws Exception {
-        String token = login();
 
         //when
         ResultActions eventUpdatePerform = mockMvc.perform(get("/api/events/1")
