@@ -20,6 +20,11 @@ import java.util.List;
 @Controller
 public class ChatRoomController {
     private final ChatRoomService chatRoomService;
+    // 로그인 화면
+    @GetMapping("/login")
+    public String loginPage() {
+        return "login";  // templates/login.ftl 을 찾음
+    }
 
     // 채팅 리스트 화면
     @GetMapping("/chat/view")

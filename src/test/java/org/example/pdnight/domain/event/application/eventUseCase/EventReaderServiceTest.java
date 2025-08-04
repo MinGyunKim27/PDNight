@@ -37,7 +37,7 @@ public class EventReaderServiceTest {
     @Test
     @DisplayName("이벤트 조회")
     void 이벤트_조회(){
-        LocalDateTime fixedDateTime = LocalDateTime.of(2025, 8, 1, 12, 0);
+        LocalDateTime fixedDateTime = LocalDateTime.now().plusDays(1);
         Event event = Event.from("title", "content", 50, fixedDateTime, fixedDateTime.plusDays(10));
         ReflectionTestUtils.setField(event, "id", 1L);
 
@@ -57,7 +57,7 @@ public class EventReaderServiceTest {
     @Test
     @DisplayName("이벤트 리스트 조회")
     void 이벤트_리스트_조회 () {
-        LocalDateTime fixedDateTime = LocalDateTime.of(2025, 8, 1, 12, 0);
+        LocalDateTime fixedDateTime = LocalDateTime.now().plusDays(1);
         Event event1 = Event.from("title1", "content1", 50, fixedDateTime, fixedDateTime.plusDays(10));
         ReflectionTestUtils.setField(event1, "id", 1L);
         Event event2 = Event.from("title2", "content2", 50, fixedDateTime, fixedDateTime.plusDays(10));
