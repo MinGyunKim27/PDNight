@@ -36,6 +36,7 @@ public enum ErrorCode {
 
     // 게시물 신청 관련 에러
     CANNOT_PARTICIPATE_SELF(HttpStatus.BAD_REQUEST, "본인 게시글엔 신청할 수 없습니다."),
+    POST_ALREADY_CONFIRMED(HttpStatus.CONFLICT, "이미 마감된 게시글입니다."),
     POST_ALREADY_PENDING(HttpStatus.CONFLICT, "이미 신청했습니다."),
     POST_ALREADY_ACCEPTED(HttpStatus.CONFLICT, "이미 가입되어있습니다."),
     CANNOT_CANCEL(HttpStatus.BAD_REQUEST, "취소할 수 없습니다."),
