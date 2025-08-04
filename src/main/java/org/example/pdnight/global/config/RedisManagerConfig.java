@@ -4,8 +4,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import org.example.pdnight.domain.common.dto.PagedResponse;
-import org.example.pdnight.domain.post.dto.response.PostResponseWithApplyStatusDto;
+import org.example.pdnight.domain.post.presentation.dto.response.PostResponse;
+import org.example.pdnight.global.common.dto.PagedResponse;
 import org.example.pdnight.global.constant.CacheName;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -61,7 +61,7 @@ public class RedisManagerConfig {
                 .serializeKeysWith(getKeySerializer()) // key 직렬화
                 .serializeValuesWith(RedisSerializationContext.SerializationPair
                         .fromSerializer(new Jackson2JsonRedisSerializer<>(
-                                OBJECT_MAPPER, PostResponseWithApplyStatusDto.class)
+                                OBJECT_MAPPER, PostResponse.class)
                         )) // value 직렬화
                 .entryTtl(Duration.ofMinutes(10)); // 캐시 시간
     }

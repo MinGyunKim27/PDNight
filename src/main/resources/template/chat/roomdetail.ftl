@@ -100,7 +100,7 @@
             this.roomId = localStorage.getItem("wschat.roomId");
             this.sender = localStorage.getItem("wschat.sender");
             // 1) 채팅방 참여자 목록에 본인 등록 API 호출
-            axios.get(`/chatRoom/enter/${roomId}`)
+            axios.get(`/chat-room/enter/${roomId}`)
                 .then(() => {
                     // 참여자 등록 완료 후 다른 초기화 작업 진행
                     this.fetchRoomInfo();
