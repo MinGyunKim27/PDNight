@@ -23,7 +23,7 @@ import java.util.concurrent.Executors;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
-@ActiveProfiles("EventConcurrencyTest")
+@ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
