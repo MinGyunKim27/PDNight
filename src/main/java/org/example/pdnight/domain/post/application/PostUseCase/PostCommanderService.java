@@ -1,7 +1,7 @@
 package org.example.pdnight.domain.post.application.PostUseCase;
 
 import lombok.RequiredArgsConstructor;
-import org.example.pdnight.domain.post.application.PostUseCase.event.PostDeletedEvent;
+import org.example.pdnight.domain.post.application.PostUseCase.event.PostEventPublisher;
 import org.example.pdnight.domain.post.domain.post.*;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
@@ -21,7 +21,6 @@ import org.example.pdnight.global.common.exception.BaseException;
 import org.example.pdnight.global.constant.CacheName;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,7 +33,7 @@ import static org.example.pdnight.global.common.enums.ErrorCode.*;
 public class PostCommanderService {
 
     private final PostCommander postCommander;
-    private final ApplicationEventPublisher publisher;
+    private final PostEventPublisher publisher;
 
     // region  게시물
     @Transactional
@@ -75,7 +74,7 @@ public class PostCommanderService {
         Post foundPost = getPostByIdOrElseThrow(postId);
         validateAuthor(userId, foundPost);
 
-        publisher.publishEvent(PostDeletedEvent.of(postId));
+        publisher.PostDeletedEvent(postId);
         postCommander.deletePost(foundPost);
     }
 
