@@ -1,4 +1,4 @@
-package org.example.pdnight.domain.post.application.PostUseCase.event;
+package org.example.pdnight.domain.post.application.PostUseCase;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

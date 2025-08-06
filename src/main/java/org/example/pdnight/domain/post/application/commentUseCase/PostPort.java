@@ -1,4 +1,4 @@
-package org.example.pdnight.domain.post.application.port;
+package org.example.pdnight.domain.post.application.commentUseCase;
 
 import org.example.pdnight.domain.post.presentation.dto.response.PostInfo;
 

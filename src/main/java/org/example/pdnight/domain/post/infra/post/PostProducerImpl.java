@@ -1,4 +1,4 @@
-package org.example.pdnight.domain.post.infra.produce;
+package org.example.pdnight.domain.post.infra.post;
 
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.post.domain.post.PostProducer;

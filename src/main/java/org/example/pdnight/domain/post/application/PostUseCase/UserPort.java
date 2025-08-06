@@ -1,4 +1,4 @@
-package org.example.pdnight.domain.post.application.port;
+package org.example.pdnight.domain.post.application.PostUseCase;
 
 import org.springframework.stereotype.Component;
 

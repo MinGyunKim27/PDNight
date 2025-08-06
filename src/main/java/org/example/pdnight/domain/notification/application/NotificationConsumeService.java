@@ -8,7 +8,7 @@ import org.example.pdnight.domain.notification.domain.NotificationReader;
 import org.example.pdnight.domain.notification.enums.NotificationType;
 import org.example.pdnight.domain.notification.infra.NotificationSocketSender;
 import org.example.pdnight.domain.notification.presentation.dto.NotificationResponse;
-import org.example.pdnight.domain.notification.presentation.dto.event.PostConfirmedEvent;
+import org.example.pdnight.global.event.PostConfirmedEvent;
 import org.example.pdnight.global.common.exception.BaseException;
 import org.example.pdnight.global.event.*;
 import org.springframework.http.HttpStatus;

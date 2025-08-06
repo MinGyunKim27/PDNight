@@ -1,4 +1,4 @@
-package org.example.pdnight.domain.notification.presentation.dto.event;
+package org.example.pdnight.global.event;
 
 import java.util.List;
 

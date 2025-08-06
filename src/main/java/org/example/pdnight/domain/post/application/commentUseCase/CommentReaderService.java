@@ -1,7 +1,6 @@
 package org.example.pdnight.domain.post.application.commentUseCase;
 
 import lombok.RequiredArgsConstructor;
-import org.example.pdnight.domain.post.application.port.PostPort;
 import org.example.pdnight.domain.post.domain.comment.Comment;
 import org.example.pdnight.domain.post.domain.comment.CommentReader;
 import org.example.pdnight.domain.post.presentation.dto.response.CommentResponse;

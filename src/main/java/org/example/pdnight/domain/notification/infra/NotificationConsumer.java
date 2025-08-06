@@ -2,7 +2,7 @@ package org.example.pdnight.domain.notification.infra;
 
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.notification.application.NotificationConsumeService;
-import org.example.pdnight.domain.notification.presentation.dto.event.PostConfirmedEvent;
+import org.example.pdnight.global.event.PostConfirmedEvent;
 import org.example.pdnight.global.event.*;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;

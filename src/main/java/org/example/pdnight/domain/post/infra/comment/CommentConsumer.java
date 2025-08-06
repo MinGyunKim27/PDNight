@@ -1,7 +1,7 @@
-package org.example.pdnight.domain.post.infra.consume;
+package org.example.pdnight.domain.post.infra.comment;
 
 import lombok.RequiredArgsConstructor;
-import org.example.pdnight.domain.post.application.commentUseCase.event.CommentConsumerService;
+import org.example.pdnight.domain.post.application.commentUseCase.CommentConsumerService;
 import org.example.pdnight.global.event.PostDeletedEvent;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;

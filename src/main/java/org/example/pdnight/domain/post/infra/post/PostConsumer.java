@@ -1,7 +1,7 @@
-package org.example.pdnight.domain.post.infra.consume;
+package org.example.pdnight.domain.post.infra.post;
 
 import lombok.RequiredArgsConstructor;
-import org.example.pdnight.domain.post.application.PostUseCase.event.PostConsumerService;
+import org.example.pdnight.domain.post.application.PostUseCase.PostConsumerService;
 import org.springframework.stereotype.Component;
 
 @Component
