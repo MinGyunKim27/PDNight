@@ -36,6 +36,7 @@ public class KafkaConfig {
 
     /**
      * 컨수머 팩토리 설정<br>
+     * 추후에 추가 되면 메서드가 하나씩 추가 되어야 할 듯.
      */
     @Bean
     public ConsumerFactory<String, Object> consumerFactory() {
