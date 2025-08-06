@@ -2,13 +2,14 @@ package org.example.pdnight.domain.chat.application.chatRoomUseCase;
 
 
 import lombok.RequiredArgsConstructor;
-import org.example.pdnight.domain.chat.application.port.ChatPort;
 import org.example.pdnight.domain.chat.domain.ChatParticipant;
 import org.example.pdnight.domain.chat.domain.ChatRoom;
 import org.example.pdnight.domain.chat.domain.ChatRoomCommander;
+import org.example.pdnight.domain.chat.domain.ChatRoomProducer;
 import org.example.pdnight.domain.chat.presentation.dto.response.PostInfoResponse;
 import org.example.pdnight.domain.post.domain.post.PostParticipant;
 import org.example.pdnight.global.common.enums.ErrorCode;
+import org.example.pdnight.global.common.enums.KafkaTopic;
 import org.example.pdnight.global.common.exception.BaseException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +22,7 @@ import java.util.List;
 public class ChatRoomCommanderService {
     private final ChatRoomCommander chatRoomCommandQuery;
     private final ChatPort postStatusConfirmedPort;
+    private final ChatRoomProducer producer;
 
     // 채팅방 생성
     public ChatRoom create(String name) {
@@ -40,6 +42,8 @@ public class ChatRoomCommanderService {
         }
 
         registration(findByPostId, post);
+
+        producer.produce(KafkaTopic.CHATROOM_CREATED.topicName(), findByPostId.getParticipants());
         return findByPostId;
     }
 

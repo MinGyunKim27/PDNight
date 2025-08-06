@@ -9,8 +9,6 @@ import org.example.pdnight.global.common.entity.Timestamped;
 @Table(name = "notifications")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
-@Builder
 public class Notification extends Timestamped {
 
     @Id
@@ -40,7 +38,30 @@ public class Notification extends Timestamped {
         this.isRead = true;
     }
 
-    public static Notification from(Long id,Long receiver,String content,Long sender,NotificationType type){
-        return new Notification(id,receiver,content,sender,type,false);
+    private Notification(
+            Long receiver,
+            String content,
+            Long sender,
+            NotificationType type
+    ) {
+        this.receiver = receiver;
+        this.content = content;
+        this.sender = sender;
+        this.type = type;
     }
+
+    public static Notification from(
+            Long receiver,
+            String content,
+            Long sender,
+            NotificationType type
+    ) {
+        return new Notification(
+                receiver,
+                content,
+                sender,
+                type
+        );
+    }
+
 }

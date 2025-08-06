@@ -2,7 +2,6 @@ package org.example.pdnight.domain.auth.application.authUseCase;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
 import org.example.pdnight.domain.auth.domain.AuthCommander;
-import org.example.pdnight.domain.auth.domain.AuthReader;
 import org.example.pdnight.domain.auth.domain.entity.Auth;
 import org.example.pdnight.domain.auth.presentation.dto.request.LoginRequest;
 import org.example.pdnight.domain.auth.presentation.dto.request.SignupRequest;
@@ -18,7 +17,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.Optional;
 
@@ -33,16 +31,11 @@ public class AuthCommanderServiceTest {
     private AuthCommanderService authService;
 
     @Mock
-    private AuthReader authReader;
-
-    @Mock
     private AuthCommander authCommander;
 
     @Mock
     private PasswordEncoder passwordEncoder;
 
-    @Mock
-    private ApplicationEventPublisher eventPublisher;
 
     @Test
     @DisplayName("중복 이메일로 회원가입 테스트")
@@ -52,7 +45,7 @@ public class AuthCommanderServiceTest {
         Auth auth = mock(Auth.class);
         lenient().when(auth.getId()).thenReturn(authId);
 
-        when(authReader.findByEmail(any())).thenReturn(Optional.of(auth));
+        when(authCommander.findByEmail(any())).thenReturn(Optional.of(auth));
 
         //when
         BaseException exception = assertThrows(BaseException.class, () ->
@@ -74,7 +67,7 @@ public class AuthCommanderServiceTest {
 
         // Auth auth = getAuthByEmail(request.getEmail());
         Auth auth = mock(Auth.class);
-        when(authReader.findByEmail(request.getEmail())).thenReturn(Optional.of(auth));
+        when(authCommander.findByEmail(request.getEmail())).thenReturn(Optional.of(auth));
 
         // validateAuth(auth, request.getPassword());
         when(auth.getIsDeleted()).thenReturn(true);
@@ -95,7 +88,7 @@ public class AuthCommanderServiceTest {
         //given
         // Auth auth = getAuthByEmail(request.getEmail());
         Auth auth = mock(Auth.class);
-        when(authReader.findByEmail(any())).thenReturn(Optional.of(auth));
+        when(authCommander.findByEmail(any())).thenReturn(Optional.of(auth));
 
         // validateAuth(auth, request.getPassword());
         when(auth.getIsDeleted()).thenReturn(false);
@@ -118,7 +111,7 @@ public class AuthCommanderServiceTest {
         Long userId = 1L;
         // Auth auth = getAuthById(userId);
         Auth auth = mock(Auth.class);
-        when(authReader.findById(any())).thenReturn(Optional.of(auth));
+        when(authCommander.findById(any())).thenReturn(Optional.of(auth));
 
         // validateAuth(auth, request.getPassword());
         when(auth.getIsDeleted()).thenReturn(false);
@@ -147,7 +140,7 @@ public class AuthCommanderServiceTest {
         when(request.getNewPassword()).thenReturn(newPassword);
 
         // Auth auth = getAuthById(userId);
-        when(authReader.findById(userId)).thenReturn(Optional.of(auth));
+        when(authCommander.findById(userId)).thenReturn(Optional.of(auth));
 
         //when
         authService.updatePassword(userId, request);

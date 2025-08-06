@@ -4,7 +4,7 @@ import org.example.pdnight.domain.user.domain.entity.User;
 import org.example.pdnight.domain.user.domain.entity.UserCoupon;
 import org.example.pdnight.domain.user.domain.userDomain.UserCommander;
 import org.example.pdnight.domain.user.domain.userDomain.UserReader;
-import org.example.pdnight.domain.user.infra.adaptor.UserCouponAdapter;
+import org.example.pdnight.domain.user.infra.userInfra.UserCouponAdapter;
 import org.example.pdnight.domain.user.presentation.dto.userDto.request.GiveCouponRequest;
 import org.example.pdnight.domain.user.presentation.dto.userDto.request.UserNicknameUpdate;
 import org.example.pdnight.domain.user.presentation.dto.userDto.request.UserUpdateRequest;

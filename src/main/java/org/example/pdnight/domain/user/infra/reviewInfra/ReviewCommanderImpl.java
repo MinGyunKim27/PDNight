@@ -16,4 +16,9 @@ public class ReviewCommanderImpl implements ReviewCommander {
         return reviewJpaRepository.save(review);
     }
 
+    @Override
+    public boolean isExistsByUsersAndPost(Long reviewerId, Long revieweeId, Long postId) {
+        return reviewJpaRepository.existsByReviewerIdAndRevieweeIdAndPostId(reviewerId, revieweeId, postId);
+    }
+
 }

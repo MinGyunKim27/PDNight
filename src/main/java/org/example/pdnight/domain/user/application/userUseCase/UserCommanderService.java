@@ -6,7 +6,7 @@ import org.example.pdnight.domain.user.domain.entity.Follow;
 import org.example.pdnight.domain.user.domain.entity.User;
 import org.example.pdnight.domain.user.domain.entity.UserCoupon;
 import org.example.pdnight.domain.user.domain.userDomain.UserCommander;
-import org.example.pdnight.domain.user.domain.userDomain.UserReader;
+import org.example.pdnight.domain.user.domain.userDomain.UserProducer;
 import org.example.pdnight.domain.user.presentation.dto.userDto.request.GiveCouponRequest;
 import org.example.pdnight.domain.user.presentation.dto.userDto.request.UserNicknameUpdate;
 import org.example.pdnight.domain.user.presentation.dto.userDto.request.UserUpdateRequest;
@@ -15,7 +15,9 @@ import org.example.pdnight.domain.user.presentation.dto.userDto.response.FollowR
 import org.example.pdnight.domain.user.presentation.dto.userDto.response.UserCouponResponse;
 import org.example.pdnight.domain.user.presentation.dto.userDto.response.UserResponse;
 import org.example.pdnight.global.common.enums.ErrorCode;
+import org.example.pdnight.global.common.enums.KafkaTopic;
 import org.example.pdnight.global.common.exception.BaseException;
+import org.example.pdnight.global.event.CouponIssuedEvent;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,10 +29,10 @@ import static org.example.pdnight.global.common.enums.ErrorCode.*;
 @RequiredArgsConstructor
 public class UserCommanderService {
 
-    private final UserReader userReader;
     private final UserCommander userCommander;
     private final UserInfoAssembler userInfoAssembler;
     private final UserCouponPort userCouponPort;
+    private final UserProducer producer;
 
     @Transactional
     public UserResponse updateMyProfile(Long userId, UserUpdateRequest request) {
@@ -78,8 +80,8 @@ public class UserCommanderService {
     @Transactional
     public FollowResponse follow(Long userId, Long loginId) {
 
-        User targetUser = getUserByIdWithFollow(userId);
-        User loginUser = getUserByIdWithFollow(loginId);
+        User targetUser = getUserById(userId);
+        User loginUser = getUserById(loginId);
 
         // 자기 자신 팔로우 방지
         loginUser.validateIsSelfFollow(targetUser, INVALID_FOLLOW_SELF);
@@ -98,8 +100,8 @@ public class UserCommanderService {
     //언팔로우
     @Transactional
     public void unfollow(Long userId, Long loginId) {
-        User follower = getUserByIdWithFollow(loginId);
-        User following = getUserByIdWithFollow(userId);
+        User follower = getUserById(loginId);
+        User following = getUserById(userId);
 
         // 자기 자신 언팔 방지
         follower.validateIsSelfFollow(following, INVALID_UNFOLLOW_SELF);
@@ -118,7 +120,7 @@ public class UserCommanderService {
 
         UserCoupon userCoupon = UserCoupon.create(user, request.getCouponId(), couponInfo.getDefaultDeadlineDays());
         user.addCoupon(userCoupon);
-
+        producer.produce(KafkaTopic.COUPON_ISSUED.topicName(), new CouponIssuedEvent(user.getId()));
         return UserCouponResponse.from(userCoupon);
     }
 
@@ -128,8 +130,21 @@ public class UserCommanderService {
         LocalDateTime now = LocalDateTime.now();
 
         // 유저가 가지는 쿠폰 하나 가져옴
-        UserCoupon userCoupon = userReader.findUserCoupon(userId, couponId, now)
-                .orElseThrow(() -> new BaseException(COUPON_NOT_FOUND));
+        User user = userCommander.findByIdWithUserCoupon(userId)
+                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+
+        UserCoupon userCoupon = user.getUserCoupons().stream()
+                .filter(coupon -> coupon.getId().equals(couponId))
+                .findFirst()
+                .orElse(null);
+
+        if (userCoupon == null) {
+            throw new BaseException(COUPON_NOT_FOUND);
+        }
+
+        if (userCoupon.getDeadlineAt().isBefore(now)) {
+            throw new BaseException(COUPON_EXPIRED);
+        }
 
         // 쿠폰 사용 처리
         userCoupon.use();
@@ -145,14 +160,8 @@ public class UserCommanderService {
 
     // get
     private User getUserById(Long id) {
-        return userReader.findById(id).orElseThrow(
-                () -> new BaseException(ErrorCode.USER_NOT_FOUND));
+        return userCommander.findById(id)
+                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
     }
-
-    private User getUserByIdWithFollow(Long id) {
-        return userReader.findByIdWithFollow(id).orElseThrow(
-                () -> new BaseException(ErrorCode.USER_NOT_FOUND));
-    }
-
 
 }

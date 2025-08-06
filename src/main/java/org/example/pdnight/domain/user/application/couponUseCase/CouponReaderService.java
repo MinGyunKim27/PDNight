@@ -30,4 +30,5 @@ public class CouponReaderService {
                 () -> new BaseException(ErrorCode.COUPON_NOT_FOUND)
         );
     }
+
 }

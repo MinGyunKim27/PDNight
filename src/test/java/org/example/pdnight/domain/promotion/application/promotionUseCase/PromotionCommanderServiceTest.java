@@ -140,8 +140,8 @@ public class PromotionCommanderServiceTest {
         );
         ReflectionTestUtils.setField(promotion, "id", 1L);
 
-        when(promotionReader.findById(1L)).thenReturn(Optional.of(promotion));
-        when(promotionReader.getPromotionParticipantByPromotionId(1L)).thenReturn(1L);
+        when(promotionCommander.findById(1L)).thenReturn(Optional.of(promotion));
+        when(promotion.getPromotionParticipants().size()).thenReturn(1);
 
         promotionCommanderService.addParticipant(1L, 1L);
 
@@ -167,9 +167,13 @@ public class PromotionCommanderServiceTest {
         // given
         Long promotionId = 1L;
         Long userId = 10L;
+        LocalDateTime fixedDateTime = LocalDateTime.now().plusDays(1);
+        Promotion promotion = Promotion.from("제목", "내용", 2, fixedDateTime, fixedDateTime.plusDays(1));
 
-        when(promotionReader.existsPromotionByIdAndUserId(promotionId, userId)).thenReturn(true);
 
+        when(promotionCommander.findById(promotionId)).thenReturn(Optional.of(promotion));
+
+        when(promotion.getPromotionParticipants().stream().anyMatch(any())).thenReturn(true);
         // when & then
         assertThatThrownBy(() -> promotionCommanderService.addParticipant(promotionId, userId))
                 .isInstanceOf(BaseException.class)
@@ -187,9 +191,9 @@ public class PromotionCommanderServiceTest {
 
         Promotion promotion = Promotion.from("제목", "내용", 2, fixedDateTime, fixedDateTime.plusDays(1));
 
-        when(promotionReader.existsPromotionByIdAndUserId(promotionId, userId)).thenReturn(false);
-        when(promotionReader.findById(promotionId)).thenReturn(Optional.of(promotion));
-        when(promotionReader.getPromotionParticipantByPromotionId(promotionId)).thenReturn(2L); // 이미 정원 초과
+        when(promotion.getPromotionParticipants().stream().anyMatch(any())).thenReturn(false);
+        when(promotionCommander.findById(promotionId)).thenReturn(Optional.of(promotion));
+        when(promotion.getPromotionParticipants().size()).thenReturn(2); // 이미 정원 초과
 
         // when & then
         assertThatThrownBy(() -> promotionCommanderService.addParticipant(promotionId, userId))

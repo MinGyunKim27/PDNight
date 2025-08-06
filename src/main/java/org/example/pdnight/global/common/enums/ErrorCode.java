@@ -105,7 +105,11 @@ public enum ErrorCode {
 
     // lock 관련 에러
     LOCK_TIMEOUT(HttpStatus.REQUEST_TIMEOUT, "시간 초과입니다."),
-    LOCK_GET_FAILED(HttpStatus.BAD_REQUEST, "락 획득에 실패했습니다.")
+    LOCK_GET_FAILED(HttpStatus.BAD_REQUEST, "락 획득에 실패했습니다."),
+
+    // 알림 관련
+    ALREADY_READ_NOTIFICATION(HttpStatus.BAD_REQUEST, "이미 읽은 알림입니다."),
+    NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "알림을 찾을 수 없습니다.")
 
     ;
     private final HttpStatus status;// HTTP 상태 코드

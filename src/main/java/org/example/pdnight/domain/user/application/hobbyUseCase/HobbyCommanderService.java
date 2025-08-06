@@ -16,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class HobbyCommanderService {
 
     private final HobbyCommander hobbyCommander;
-    private final HobbyReader hobbyReader;
 
     @Transactional
     public HobbyResponse createHobby(HobbyRequest dto){
@@ -31,8 +30,7 @@ public class HobbyCommanderService {
     // ----------------------------------- HELPER 메서드 ------------------------------------------------------ //
     // validate
     private void validateExistHobby(String hobby) {
-        Boolean exists = hobbyReader.existsHobbiesByHobby(hobby);
-        if (exists){
+        if (!hobbyCommander.existsHobbiesByHobby(hobby)){
             throw new BaseException(ErrorCode.HOBBY_ALREADY_EXISTS);
         }
     }

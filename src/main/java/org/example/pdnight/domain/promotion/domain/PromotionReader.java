@@ -10,15 +10,12 @@ import java.util.Optional;
 
 public interface PromotionReader {
 
-    Optional<Promotion> findById(Long id);
-
     Page<Promotion> findAllPromotion(Pageable pageable);
 
-    boolean existsPromotionByIdAndUserId(Long promotionId, Long userId);
-
-    Long getPromotionParticipantByPromotionId(Long promotionId);
 
     Page<PromotionParticipant> findByPromotionWithUser(Promotion promotion, Pageable pageable);
 
     Page<Promotion> getMyParticipantPromotions(Long userId, Pageable pageable);
+
+    Optional<Promotion> findById(Long id);
 }

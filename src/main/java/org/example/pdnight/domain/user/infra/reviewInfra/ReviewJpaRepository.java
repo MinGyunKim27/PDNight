@@ -4,4 +4,7 @@ import org.example.pdnight.domain.user.domain.entity.Review;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ReviewJpaRepository extends JpaRepository<Review, Long> {
+
+    boolean existsByReviewerIdAndRevieweeIdAndPostId(Long reviewerId, Long revieweeId, Long postId);
+
 }

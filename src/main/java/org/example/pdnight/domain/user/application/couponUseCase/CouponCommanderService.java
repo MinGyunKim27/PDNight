@@ -2,6 +2,7 @@ package org.example.pdnight.domain.user.application.couponUseCase;
 
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.user.domain.couponDomain.CouponCommander;
+import org.example.pdnight.domain.user.domain.couponDomain.CouponProducer;
 import org.example.pdnight.domain.user.domain.couponDomain.CouponReader;
 import org.example.pdnight.domain.user.domain.entity.Coupon;
 import org.example.pdnight.domain.user.presentation.dto.couponDto.request.CouponRequest;
@@ -17,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CouponCommanderService {
 
     private final CouponCommander couponCommander;
-    private final CouponReader couponReader;
+    private final CouponProducer producer;
 
     // --------------------- Admin Api ------------------------------------------------//
     // 쿠폰생성
@@ -25,6 +26,7 @@ public class CouponCommanderService {
     public CouponResponse createCoupon(CouponRequest dto) {
         Coupon coupon = Coupon.create(dto.getCouponInfo(), dto.getDefaultDeadlineDays());
         couponCommander.save(coupon);
+
         return CouponResponse.from(coupon);
     }
 
@@ -46,7 +48,7 @@ public class CouponCommanderService {
     // ----------------------------------- HELPER 메서드 ------------------------------------------------------ //
     // get
     private Coupon getCouponById(Long couponId) {
-        return couponReader.findById(couponId).orElseThrow(
+        return couponCommander.findById(couponId).orElseThrow(
                 () -> new BaseException(ErrorCode.COUPON_NOT_FOUND)
         );
     }

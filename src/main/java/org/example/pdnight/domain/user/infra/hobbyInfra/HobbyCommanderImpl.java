@@ -15,4 +15,10 @@ public class HobbyCommanderImpl implements HobbyCommander {
     public Hobby save(Hobby hobby) {
         return hobbyJpaRepository.save(hobby);
     }
+
+    @Override
+    public boolean existsHobbiesByHobby(String hobby) {
+        return hobbyJpaRepository.existsByHobby(hobby);
+    }
+
 }

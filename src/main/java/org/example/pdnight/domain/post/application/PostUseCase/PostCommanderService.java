@@ -1,13 +1,13 @@
 package org.example.pdnight.domain.post.application.PostUseCase;
 
 import lombok.RequiredArgsConstructor;
-import org.example.pdnight.domain.notification.presentation.dto.event.PostConfirmedEvent;
+import org.example.pdnight.global.event.PostConfirmedEvent;
 import org.example.pdnight.domain.post.domain.post.*;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.enums.JoinStatus;
 import org.example.pdnight.domain.post.enums.PostStatus;
-import org.example.pdnight.domain.post.infra.produce.PostProducer;
+import org.example.pdnight.domain.post.infra.post.PostProducer;
 import org.example.pdnight.domain.post.presentation.dto.request.PostRequest;
 import org.example.pdnight.domain.post.presentation.dto.request.PostStatusRequest;
 import org.example.pdnight.domain.post.presentation.dto.request.PostUpdateRequest;
@@ -26,6 +26,7 @@ import org.springframework.cache.annotation.Caching;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 
 import java.util.List;
 
