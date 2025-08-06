@@ -6,7 +6,6 @@ import org.example.pdnight.domain.notification.domain.Notification;
 import org.example.pdnight.domain.notification.domain.NotificationCommander;
 import org.example.pdnight.domain.notification.domain.NotificationReader;
 import org.example.pdnight.domain.notification.enums.NotificationType;
-import org.example.pdnight.domain.notification.presentation.NotificationSocketSender;
 import org.example.pdnight.domain.notification.presentation.dto.NotificationResponse;
 import org.example.pdnight.domain.notification.presentation.dto.event.PostConfirmedEvent;
 import org.example.pdnight.global.common.exception.BaseException;
@@ -40,7 +39,7 @@ public class NotificationConsumeService {
             Notification notification = Notification.from(null, userId, "모임이 확정되었습니다!", event.authorId(), NotificationType.POST_CONFIRMED);
             NotificationResponse dto = NotificationResponse.from(notification);
             notificationCommander.save(notification);
-            log.info("알림 저장 완료");
+            log.info("모임 확정 알림 저장 완료 userId : {}",userId);
             webSocketSender.sendToUser(userId, dto);
         }
 
@@ -48,8 +47,7 @@ public class NotificationConsumeService {
         Notification notification = Notification.from(null, event.authorId(), "모임이 확정되었습니다!", event.authorId(), NotificationType.POST_CONFIRMED);
         NotificationResponse dto = NotificationResponse.from(notification);
         notificationCommander.save(notification);
-        log.info("알림 저장 완료");
+        log.info("모임 확정 알림 저장 완료 userId : {}",event.authorId());
         webSocketSender.sendToUser(event.authorId(), dto);
-
     }
 }
