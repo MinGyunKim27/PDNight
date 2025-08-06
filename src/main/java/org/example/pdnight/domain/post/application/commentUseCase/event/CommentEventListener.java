@@ -2,7 +2,7 @@ package org.example.pdnight.domain.post.application.commentUseCase.event;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.pdnight.domain.post.application.PostUseCase.event.PostDeletedEvent;
+import org.example.pdnight.global.event.PostDeletedEvent;
 import org.example.pdnight.domain.post.domain.comment.CommentCommander;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
