@@ -34,7 +34,7 @@ public class Notification extends Timestamped {
 
     // 읽음 여부
     @Column(nullable = false)
-    private boolean isRead = false;
+    private Boolean isRead = false;
 
     public void markAsRead() {
         this.isRead = true;
