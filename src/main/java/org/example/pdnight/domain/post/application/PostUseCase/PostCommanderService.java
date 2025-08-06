@@ -1,6 +1,7 @@
 package org.example.pdnight.domain.post.application.PostUseCase;
 
 import lombok.RequiredArgsConstructor;
+import org.example.pdnight.domain.notification.presentation.dto.event.PostConfirmedEvent;
 import org.example.pdnight.domain.post.application.PostUseCase.event.PostDeletedEvent;
 import org.example.pdnight.domain.post.domain.post.*;
 import org.example.pdnight.domain.post.enums.AgeLimit;
@@ -19,9 +20,11 @@ import org.example.pdnight.global.common.enums.ErrorCode;
 import org.example.pdnight.global.common.enums.JobCategory;
 import org.example.pdnight.global.common.exception.BaseException;
 import org.example.pdnight.global.constant.CacheName;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +38,8 @@ public class PostCommanderService {
 
     private final PostCommander postCommander;
     private final ApplicationEventPublisher publisher;
+    @Autowired
+    private KafkaTemplate<String, Object> kafkaTemplate;
 
     // region  게시물
     @Transactional
@@ -405,6 +410,14 @@ public class PostCommanderService {
         int participantSize = countAcceptedParticipants(post.getPostParticipants());
         if (post.getMaxParticipants().equals(participantSize)) {
             post.updateStatus(PostStatus.CONFIRMED);
+
+            // Kafka 이벤트 발행
+            List<Long> confirmedUserIds = post.getPostParticipants().stream()
+                    .filter(p -> p.getStatus() == JoinStatus.ACCEPTED)
+                    .map(PostParticipant::getUserId)
+                    .toList();
+
+            kafkaTemplate.send("post.participant.confirmed", new PostConfirmedEvent(post.getId(), post.getAuthorId(), confirmedUserIds));
         }
     }
 
