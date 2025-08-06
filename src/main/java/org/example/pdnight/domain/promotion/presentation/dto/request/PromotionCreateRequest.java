@@ -17,10 +17,10 @@ public class PromotionCreateRequest {
     @NotNull(message = "정원은 필수 입력값입니다.")
     private Integer maxParticipants;
 
-    @NotNull(message = "이벤트 시작 날짜는 필수 입력값입니다.")
+    @NotNull(message = "프로모션 시작 날짜는 필수 입력값입니다.")
     private LocalDateTime promotionStartDate;
 
-    @NotNull(message = "이벤트 종료 날짜는 필수 입력값입니다.")
+    @NotNull(message = "프로모션 종료 날짜는 필수 입력값입니다.")
     private LocalDateTime promotionEndDate;
 
     protected PromotionCreateRequest(String title, String content, Integer maxParticipants, LocalDateTime promotionStartDate, LocalDateTime promotionEndDate) {

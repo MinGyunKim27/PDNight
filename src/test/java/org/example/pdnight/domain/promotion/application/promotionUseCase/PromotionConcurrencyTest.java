@@ -41,9 +41,9 @@ public class PromotionConcurrencyTest {
 
     @BeforeEach
     void setUp() {
-        // 이벤트 초기화
+        // 프로모션 초기화
         Promotion promotion = Promotion.from(
-                "동시성 테스트 이벤트",
+                "동시성 테스트 프로모션",
                 "설명",
                 10, // 정원 10명
                 LocalDateTime.now().plusDays(1),
@@ -61,7 +61,7 @@ public class PromotionConcurrencyTest {
         // 모든 스레드가 끝날 때까지 기다리기 위한 동기화 도구
         CountDownLatch latch = new CountDownLatch(threadCount);
 
-        // 테스트 대상 이벤트 ID 추출
+        // 테스트 대상 프로모션 ID 추출
         Long promotionId = promotionReader.findAllPromotion(PageRequest.of(0, 1))
                 .getContent().get(0).getId();
 
@@ -72,7 +72,7 @@ public class PromotionConcurrencyTest {
         // when - 20명의 유저가 동시에 신청 시도
         for (int i = 0; i < threadCount; i++) {
             final Long userId = Long.valueOf(i + 2);
-            // 각 스레드에서 이벤트 신청 시도
+            // 각 스레드에서 프로모션 신청 시도
             executorService.submit(() -> {
                 try {
                     promotionCommanderService.addParticipant(promotionId, userId);

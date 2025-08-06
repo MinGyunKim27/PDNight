@@ -22,7 +22,7 @@ public class PromotionController {
 
     private final PromotionService promotionService;
 
-    // 이벤트 조회
+    // 프로모션 조회
     @GetMapping("/promotions/{id}")
     public ResponseEntity<ApiResponse<PromotionResponse>> findPromotionById(
             @PathVariable Long id
@@ -32,7 +32,7 @@ public class PromotionController {
         );
     }
 
-    // 이벤트 리스트 조회
+    // 프로모션 리스트 조회
     @GetMapping("/promotions")
     public ResponseEntity<ApiResponse<PagedResponse<PromotionResponse>>> findPromotionById(
             @RequestParam(defaultValue = "0") int page,
@@ -44,7 +44,7 @@ public class PromotionController {
         );
     }
 
-    // 이벤트 참가 신청
+    // 프로모션 참가 신청
     @PostMapping("/promotions/{id}/participants")
     public ResponseEntity<ApiResponse<Void>> addParticipant(
             @PathVariable Long id,
@@ -57,7 +57,7 @@ public class PromotionController {
         );
     }
 
-    // 내가 참가한 이벤트 조회
+    // 내가 참가한 프로모션 조회
     @GetMapping("/my/participant-promotions")
     public ResponseEntity<ApiResponse<PagedResponse<PromotionResponse>>> getMyParticipantPromotions(
             @AuthenticationPrincipal CustomUserDetails loginUser,
@@ -66,13 +66,13 @@ public class PromotionController {
         Long userId = loginUser.getUserId();
         PagedResponse<PromotionResponse> myParticipantPromotions = promotionService.findMyParticipantPromotions(userId, pageable);
         return ResponseEntity.ok(
-                ApiResponse.ok("프로모션 이벤트 목록 조회 성공했습니다.", myParticipantPromotions)
+                ApiResponse.ok("프로모션 목록 조회 성공했습니다.", myParticipantPromotions)
         );
     }
 
     // ------------------------------ Admin 컨트롤러 합치기 -----------------------------
 
-    // 이벤트 생성
+    // 프로모션 생성
     @PostMapping("/admin/promotions")
     public ResponseEntity<ApiResponse<PromotionResponse>> createPromotion(
             @RequestBody PromotionCreateRequest request
@@ -82,7 +82,7 @@ public class PromotionController {
                 .body(ApiResponse.ok("프로모션 생성 성공했습니다.", promotionService.createPromotion(request)));
     }
 
-    // 이벤트 수정
+    // 프로모션 수정
     @PatchMapping("/admin/promotions/{id}")
     public ResponseEntity<ApiResponse<PromotionResponse>> updatePromotion(
             @PathVariable Long id,
@@ -93,7 +93,7 @@ public class PromotionController {
         );
     }
 
-    // 이벤트 삭제
+    // 프로모션 삭제
     @DeleteMapping("/admin/promotions/{id}")
     public ResponseEntity<ApiResponse<Void>> deletePromotion(
             @PathVariable Long id
@@ -104,7 +104,7 @@ public class PromotionController {
         );
     }
 
-    // 이벤트 참가 인원 리스트 조회
+    // 프로모션 참가 인원 리스트 조회
     @GetMapping("/admin/promotions/{id}/participants")
     public ResponseEntity<ApiResponse<PagedResponse<PromotionParticipantResponse>>> getPromotionParticipants(
             @PathVariable Long id,

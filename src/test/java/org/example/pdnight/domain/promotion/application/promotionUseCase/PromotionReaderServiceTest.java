@@ -35,8 +35,8 @@ public class PromotionReaderServiceTest {
     private PromotionReader promotionReader;
 
     @Test
-    @DisplayName("이벤트 조회")
-    void 이벤트_조회(){
+    @DisplayName("프로모션 조회")
+    void 프로모션_조회(){
         LocalDateTime fixedDateTime = LocalDateTime.now().plusDays(1);
         Promotion promotion = Promotion.from("title", "content", 50, fixedDateTime, fixedDateTime.plusDays(10));
         ReflectionTestUtils.setField(promotion, "id", 1L);
@@ -55,8 +55,8 @@ public class PromotionReaderServiceTest {
     }
 
     @Test
-    @DisplayName("이벤트 리스트 조회")
-    void 이벤트_리스트_조회 () {
+    @DisplayName("프로모션 리스트 조회")
+    void 프로모션_리스트_조회 () {
         LocalDateTime fixedDateTime = LocalDateTime.now().plusDays(1);
         Promotion promotion1 = Promotion.from("title1", "content1", 50, fixedDateTime, fixedDateTime.plusDays(10));
         ReflectionTestUtils.setField(promotion1, "id", 1L);
@@ -77,8 +77,8 @@ public class PromotionReaderServiceTest {
     }
 
     @Test
-    @DisplayName("이벤트 참가 신청 유저 목록 조회")
-    void 이벤트_참가_신청_유저_목록(){
+    @DisplayName("프로모션 참가 신청 유저 목록 조회")
+    void 프로모션_참가_신청_유저_목록(){
         Long promotionId = 1L;
         Pageable pageable = PageRequest.of(0, 10);
 
@@ -105,8 +105,8 @@ public class PromotionReaderServiceTest {
     }
 
     @Test
-    @DisplayName("내가 신청한 이벤트 목록 조회")
-    void 내가_신청한_이벤트_목록(){
+    @DisplayName("내가 신청한 프로모션 목록 조회")
+    void 내가_신청한_프로모션_목록(){
         Promotion promotion1 = Promotion.from(
                 "title1", "content1", 50, LocalDateTime.now(), LocalDateTime.now().plusDays(10)
         );

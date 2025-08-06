@@ -22,7 +22,7 @@ public class PromotionCommanderService {
     private final PromotionCommander promotionCommander;
     private final PromotionReader promotionReader;
 
-    // 이벤트 생성
+    // 프로모션 생성
     @Transactional
     public PromotionResponse createPromotion(PromotionCreateRequest request) {
         if (request.getMaxParticipants() < 1) {

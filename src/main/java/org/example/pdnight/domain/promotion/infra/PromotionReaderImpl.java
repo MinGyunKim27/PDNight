@@ -64,7 +64,7 @@ public class PromotionReaderImpl implements PromotionReader {
     }
 
 
-    // 이벤트에 현재 참가된 인원 수
+    // 프로모션에 현재 참가된 인원 수
     @Override
     public Long getPromotionParticipantByPromotionId(Long promotionId) {
         return queryFactory
@@ -74,7 +74,7 @@ public class PromotionReaderImpl implements PromotionReader {
                 .fetchFirst();
     }
 
-    // 이벤트에 참가 신청한 유저 목록 조회
+    // 프로모션에 참가 신청한 유저 목록 조회
     @Override
     public Page<PromotionParticipant> findByPromotionWithUser(Promotion promotion, Pageable pageable) {
         List<PromotionParticipant> content = queryFactory

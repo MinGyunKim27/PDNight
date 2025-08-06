@@ -34,8 +34,8 @@ public class PromotionCommanderServiceTest {
     private PromotionReader promotionReader;
 
     @Test
-    @DisplayName("이벤트 생성 확인 테스트")
-    void 이벤트_생성_성공() {
+    @DisplayName("프로모션 생성 확인 테스트")
+    void 프로모션_생성_성공() {
         LocalDateTime fixedDateTime = LocalDateTime.now().plusDays(1);
 
         PromotionCreateRequest request = PromotionCreateRequest.from(
@@ -63,8 +63,8 @@ public class PromotionCommanderServiceTest {
     }
 
     @Test
-    @DisplayName("이벤트 생성 실패 - 이상한 날짜")
-    void 이벤트_생성_실패_날짜_오류(){
+    @DisplayName("프로모션 생성 실패 - 이상한 날짜")
+    void 프로모션_생성_실패_날짜_오류(){
         LocalDateTime fixedDateTime = LocalDateTime.now().minusYears(1);
         PromotionCreateRequest request = PromotionCreateRequest.from(
                 "title", "content", 50, fixedDateTime, fixedDateTime.plusDays(10)
@@ -72,12 +72,12 @@ public class PromotionCommanderServiceTest {
 
         assertThatThrownBy(() -> promotionCommanderService.createPromotion(request))
                 .isInstanceOf(BaseException.class)
-                .hasMessage("이벤트 일자가 잘못되었습니다.");
+                .hasMessage("프로모션 일자가 잘못되었습니다.");
     }
 
     @Test
-    @DisplayName("이벤트 생성 실패 - 이상한 정원")
-    void 이벤트_생성_실패_이상한_정원(){
+    @DisplayName("프로모션 생성 실패 - 이상한 정원")
+    void 프로모션_생성_실패_이상한_정원(){
         LocalDateTime fixedDateTime = LocalDateTime.now().plusDays(1);
 
         PromotionCreateRequest request = PromotionCreateRequest.from(
@@ -86,12 +86,12 @@ public class PromotionCommanderServiceTest {
 
         assertThatThrownBy(() -> promotionCommanderService.createPromotion(request))
                 .isInstanceOf(BaseException.class)
-                .hasMessage("이벤트 정원은 1명 이상이어야 합니다.");
+                .hasMessage("프로모션 정원은 1명 이상이어야 합니다.");
     }
 
     @Test
-    @DisplayName("이벤트 수정 성공")
-    void 이벤트_수정_성공(){
+    @DisplayName("프로모션 수정 성공")
+    void 프로모션_수정_성공(){
         LocalDateTime fixedDateTime = LocalDateTime.now().plusDays(1);
 
         Promotion promotion = Promotion.from(
@@ -114,8 +114,8 @@ public class PromotionCommanderServiceTest {
     }
 
     @Test
-    @DisplayName("이벤트 삭제 성공")
-    void 이벤트_삭제_성공(){
+    @DisplayName("프로모션 삭제 성공")
+    void 프로모션_삭제_성공(){
         LocalDateTime fixedDateTime = LocalDateTime.now().plusDays(1);
 
         Promotion promotion = Promotion.from(
@@ -131,8 +131,8 @@ public class PromotionCommanderServiceTest {
     }
 
     @Test
-    @DisplayName("이벤트 참가 신청 성공")
-    void 이밴트_참가_신청_성공(){
+    @DisplayName("프로모션 참가 신청 성공")
+    void 프로모션_참가_신청_성공(){
         LocalDateTime fixedDateTime = LocalDateTime.now().plusDays(1);
 
         Promotion promotion = Promotion.from(
@@ -162,8 +162,8 @@ public class PromotionCommanderServiceTest {
     }
 
     @Test
-    @DisplayName("이벤트 참가 - 이미 참가한 유저 예외")
-    void 이벤트_참가_이미_참가한_유저_예외() {
+    @DisplayName("프로모션 참가 - 이미 참가한 유저 예외")
+    void 프로모션_참가_이미_참가한_유저_예외() {
         // given
         Long promotionId = 1L;
         Long userId = 10L;
@@ -177,8 +177,8 @@ public class PromotionCommanderServiceTest {
     }
 
     @Test
-    @DisplayName("이벤트 참가 - 정원 초과")
-    void 이벤트_참가_정원_초과_예외() {
+    @DisplayName("프로모션 참가 - 정원 초과")
+    void 프로모션_참가_정원_초과_예외() {
         LocalDateTime fixedDateTime = LocalDateTime.now().plusDays(1);
 
         // given

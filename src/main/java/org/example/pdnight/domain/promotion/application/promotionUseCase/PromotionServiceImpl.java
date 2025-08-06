@@ -23,7 +23,7 @@ public class PromotionServiceImpl implements PromotionService {
         return promotionCommanderService.createPromotion(request);
     }
 
-    // 이벤트 조회
+    // 프로모션 조회
     @Override
     public PromotionResponse findPromotionById(Long id) {
         return promotionReaderService.findPromotionById(id);
@@ -34,13 +34,13 @@ public class PromotionServiceImpl implements PromotionService {
         return promotionReaderService.findPromotionList(pageable);
     }
 
-    // 이벤트 수정
+    // 프로모션 수정
     @Override
     public PromotionResponse updatePromotion(Long id, PromotionCreateRequest request) {
         return promotionCommanderService.updatePromotion(id, request);
     }
 
-    // 이벤트 삭제
+    // 프로모션 삭제
     @Override
     public void deletePromotionById(Long id) {
         promotionCommanderService.deletePromotionById(id);
