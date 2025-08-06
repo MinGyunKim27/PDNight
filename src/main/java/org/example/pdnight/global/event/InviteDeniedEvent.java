@@ -1,6 +1,6 @@
 package org.example.pdnight.global.event;
 
-public record InviteSentEvent(
+public record InviteDeniedEvent(
         Long authorId,
         Long userId,
         Long postId

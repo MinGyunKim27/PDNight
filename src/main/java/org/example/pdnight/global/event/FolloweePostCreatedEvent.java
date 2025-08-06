@@ -1,7 +1,10 @@
 package org.example.pdnight.global.event;
 
-public record FolloweePostCreatedEvent (
+import java.util.List;
+
+public record FolloweePostCreatedEvent(
         Long authorId,
-        Long postId
-){
+        Long postId,
+        List<Long> followeeIds
+) {
 }

@@ -24,7 +24,7 @@ public class NotificationConsumer {
         notificationConsumeService.handlePostApplied(event);
     }
 
-    //모임
+    // 팔로우한 사람이 게시물 작성
     @KafkaListener(topics = "followee.post.created", groupId = "alert-group")
     public void consumeFolloweePostCreatedEvent(FolloweePostCreatedEvent event) {
         notificationConsumeService.handleFolloweePostCreated(event);
@@ -42,12 +42,6 @@ public class NotificationConsumer {
         notificationConsumeService.handlePostApplyDeniedEvent(event);
     }
 
-    // 팔로우한 사람이 게시물 작성
-    @KafkaListener(topics = "followee.post.created", groupId = "alert-group")
-    public void consumeApplyFolloweePostCreatedEvent(FolloweePostCreatedEvent event) {
-        notificationConsumeService.handleFolloweePostCreated(event);
-    }
-
     // 초대 전송
     @KafkaListener(topics = "invite.sent", groupId = "alert-group")
     public void consumeApplyInviteSentEvent(InviteSentEvent event) {
@@ -55,13 +49,19 @@ public class NotificationConsumer {
     }
 
     // 초대 수락
+    @KafkaListener(topics = "invite.accepted", groupId = "alert-group")
+    public void consumeApplyInviteAcceptedEvent(InviteAcceptedEvent event) {
+        notificationConsumeService.handleInviteAcceptedEvent(event);
+    }
 
-
-    // 누가 작성 하신거지 이거 알림 관련 아닌 것들은 여기 있을 필요 없습니다.
     // 초대 거절
+    @KafkaListener(topics = "invite.denied", groupId = "alert-group")
+    public void consumeApplyInviteDeniedEvent(InviteDeniedEvent event) {
+        notificationConsumeService.handleInviteDeniedEvent(event);
+    }
+
     // 리뷰 작성
     // 채팅방 생성
-    // 회원탈퇴
     // 댓글 작성
     // 대댓글 작성
     // 쿠폰 발행
