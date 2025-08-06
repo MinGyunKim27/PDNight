@@ -26,7 +26,7 @@ public class NotificationResponse {
                 .receiverId(notification.getReceiver())
                 .content(notification.getContent())
                 .type(notification.getType())
-                .isRead(notification.isRead())
+                .isRead(notification.getIsRead())
                 .createdAt(notification.getCreatedAt())
                 .build();
     }

@@ -163,10 +163,10 @@
 | [관리자] 강제 회원 탈퇴 | `DELETE` | /api/admin/users/{id} | 강제 회원 탈퇴     | ADMIN |
 | [관리자] 전체 유저 조회 | `GET` | /api/admin/users | 전체 유저 조회     | ADMIN |
 | [관리자] 게시글 삭제 | `DELETE` | /api/admin/posts/{id} | 게시글 삭제       | ADMIN |
-| [관리자] 이벤트 추가 | `POST` | /api/admin/events | 이벤트 추가       | ADMIN |
-| [관리자] 이벤트 수정  | `PATCH` | /api/admin/events/{id} | 이벤트 수정       | ADMIN |
-| [관리자] 이벤트 삭제 | `DELETE` | /api/admin/events/{id} | 이벤트 삭제       | ADMIN |
-| [관리자] 이벤트 참가자 조회 | `GET` | /api/admin/events/{id}/participants | 사용자가 특정 이벤트에 참가 신청을 합니다 | ADMIN |
+| [관리자] 이벤트 추가 | `POST` | /api/admin/promotions | 이벤트 추가       | ADMIN |
+| [관리자] 이벤트 수정  | `PATCH` | /api/admin/promotions/{id} | 이벤트 수정       | ADMIN |
+| [관리자] 이벤트 삭제 | `DELETE` | /api/admin/promotions/{id} | 이벤트 삭제       | ADMIN |
+| [관리자] 이벤트 참가자 조회 | `GET` | /api/admin/promotions/{id}/participants | 사용자가 특정 이벤트에 참가 신청을 합니다 | ADMIN |
 | [관리자] 쿠폰 생성 | `POST` | /api/admin/coupons | 관리자가 새로운 쿠폰을 등록   | ADMIN |
 | [관리자] 쿠폰 수정 | `PATCH` | /api/admin/coupons/{id} | 쿠폰 수정        | ADMIN |
 | [관리자] 쿠폰 삭제 | `DELETE` | /api/admin/coupons/{id} | 쿠폰 삭제        | ADMIN |
