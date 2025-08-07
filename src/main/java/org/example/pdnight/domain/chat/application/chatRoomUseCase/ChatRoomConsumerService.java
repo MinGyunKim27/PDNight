@@ -1,5 +1,6 @@
 package org.example.pdnight.domain.chat.application.chatRoomUseCase;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.chat.domain.ChatParticipant;
 import org.example.pdnight.domain.chat.domain.ChatRoom;
@@ -15,6 +16,7 @@ public class ChatRoomConsumerService {
 
     private final ChatRoomCommander chatRoomCommander;
 
+    @Transactional
     public void handlePostConfirmed(PostConfirmedEvent event) {
 
         ChatRoom findByPostId = chatRoomCommander.findByPostId(event.postId());

@@ -2,8 +2,8 @@ package org.example.pdnight.domain.user.domain.userDomain;
 
 import org.example.pdnight.domain.user.domain.entity.User;
 import org.example.pdnight.domain.user.domain.entity.UserCoupon;
-import org.example.pdnight.domain.user.presentation.dto.userDto.response.UserCouponResponse;
 import org.example.pdnight.domain.user.presentation.dto.userDto.response.FollowingResponse;
+import org.example.pdnight.domain.user.presentation.dto.userDto.response.UserCouponResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -25,6 +25,8 @@ public interface UserReader {
     Page<UserCouponResponse> findUserCoupons(Long userId, LocalDateTime now, Pageable pageable);
 
     Optional<UserCoupon> findUserCoupon(Long userId, Long couponId, LocalDateTime now);
+
+    List<Long> findFollowers(Long userId);
 
     List<UserCoupon> findByDeadlineAtBetween(LocalDateTime start, LocalDateTime end);
 }

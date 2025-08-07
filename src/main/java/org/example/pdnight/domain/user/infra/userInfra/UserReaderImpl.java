@@ -170,6 +170,23 @@ public class UserReaderImpl implements UserReader {
                 .findFirst();
     }
 
+    /**
+     * 나를 팔로우 하는 사람들 아이디 조회하는 메서드
+     *
+     * @param userId 내 id
+     * @return 나를 팔로우 하는 사람들 아이디들
+     */
+    @Override
+    public List<Long> findFollowers(Long userId) {
+        QFollow follow = QFollow.follow;
+
+        return queryFactory
+                .select(follow.follower.id)
+                .from(follow)
+                .where(follow.following.id.eq(userId))
+                .fetch();
+    }
+
     @Override
     public List<UserCoupon> findByDeadlineAtBetween(LocalDateTime start, LocalDateTime end) {
         return queryFactory

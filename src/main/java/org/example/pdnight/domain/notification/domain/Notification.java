@@ -1,7 +1,9 @@
 package org.example.pdnight.domain.notification.domain;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.example.pdnight.domain.notification.enums.NotificationType;
 import org.example.pdnight.global.common.entity.Timestamped;
 

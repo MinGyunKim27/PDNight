@@ -1,8 +1,6 @@
 package org.example.pdnight.domain.post.application.PostUseCase;
 
 import lombok.RequiredArgsConstructor;
-import org.example.pdnight.global.common.enums.KafkaTopic;
-import org.example.pdnight.global.event.PostConfirmedEvent;
 import org.example.pdnight.domain.post.domain.post.*;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
@@ -18,15 +16,14 @@ import org.example.pdnight.domain.post.presentation.dto.response.PostResponse;
 import org.example.pdnight.global.aop.DistributedLock;
 import org.example.pdnight.global.common.enums.ErrorCode;
 import org.example.pdnight.global.common.enums.JobCategory;
+import org.example.pdnight.global.common.enums.KafkaTopic;
 import org.example.pdnight.global.common.exception.BaseException;
 import org.example.pdnight.global.constant.CacheName;
 import org.example.pdnight.global.event.*;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 
 import java.util.List;
 
@@ -38,7 +35,7 @@ public class PostCommanderService {
 
     private final PostCommander postCommander;
     private final PostProducer postProducer;
-    private final ApplicationEventPublisher publisher;
+    private final UserPort userPort;
 
     // region  게시물
     @Transactional
@@ -64,10 +61,11 @@ public class PostCommanderService {
         postCommander.save(post);
 
         // Kafka 이벤트 발행
-        // 게시자를 팔로우 중인 사람들에게 알림 전달
-        Long authorId = post.getAuthorId();
-        postProducer.produce("followee.post.created", new FolloweePostCreatedEvent(authorId, post.getId()));
-
+        List<Long> followeeIds = userPort.findFollowersOf(userId);
+        if (!followeeIds.isEmpty()) {
+            Long authorId = post.getAuthorId();
+            postProducer.produce("followee.post.created", new FolloweePostCreatedEvent(authorId, post.getId(), followeeIds));
+        }
         return PostResponse.toDto(post);
     }
 
@@ -84,7 +82,7 @@ public class PostCommanderService {
         Post foundPost = getPostByIdOrElseThrow(postId);
         validateAuthor(userId, foundPost);
 
-        publisher.publishEvent(PostDeletedEvent.of(postId));
+        postProducer.produce("post.deleted", PostDeletedEvent.of(postId));
         postCommander.deletePost(foundPost);
     }
 
@@ -131,7 +129,9 @@ public class PostCommanderService {
         //변동사항 있을시에만 업데이트
         if (!foundPost.getStatus().equals(request.getStatus())) {
             foundPost.updateStatus(request.getStatus());
+            // 참가자들에게 이벤트 발행
             if(request.getStatus().equals(PostStatus.CONFIRMED)){
+                // Kafka 이벤트 발행
                 postProducer.produce(KafkaTopic.POST_CONFIRMED.topicName(),
                         new PostConfirmedEvent(
                                 foundPost.getId(),
@@ -162,7 +162,7 @@ public class PostCommanderService {
         // 신청 안되는지 확인
         validateJoinConditions(loginId, age, gender, jobCategory, foundPost);
 
-        //선착순 포스트인 경우
+        // 참가 신청 처리
         PostParticipant participant = handleJoinRequest(foundPost, loginId, foundPost.getIsFirstCome());
         postProducer.produce("post.participant.applied", new PostParticipateAppliedEvent(foundPost.getId(), foundPost.getAuthorId(), loginId));
 
@@ -209,11 +209,11 @@ public class PostCommanderService {
         pending.changeStatus(joinStatus);
         // 모임 참여 수락
         if (joinStatus.equals(JoinStatus.ACCEPTED)) {
-            postProducer.produce("post.participant.accepted", new PostApplyAcceptedEvent(postId,authorId,userId));
+            postProducer.produce("post.participant.accepted", new PostApplyAcceptedEvent(postId, authorId, userId));
         }
         // 모임 참여 거절
         if (joinStatus.equals(JoinStatus.REJECTED)) {
-            postProducer.produce("post.participant.denied", new PostApplyDeniedEvent(postId,authorId,userId));
+            postProducer.produce("post.participant.denied", new PostApplyDeniedEvent(postId, authorId, userId));
         }
 
         // 게시글 인원이 꽉차게 되면 게시글 상태를 마감으로 변경 (CONFIRMED)
@@ -268,7 +268,7 @@ public class PostCommanderService {
         post.addInvite(invite);
 
         // 초대 전송
-        postProducer.produce("invite.sent", new InviteSentEvent(post.getAuthorId(), postId));
+        postProducer.produce("invite.sent", new InviteSentEvent(loginUserId, userId, postId));
 
         return InviteResponse.from(invite);
     }
@@ -300,6 +300,7 @@ public class PostCommanderService {
         handleJoinRequest(post, loginUserId, true);
 
         // 초대 수락
+        postProducer.produce("invite.accepted", new InviteAcceptedEvent(post.getAuthorId(), loginUserId, postId));
 
         post.removeInvite(findInvite);
     }
@@ -315,6 +316,8 @@ public class PostCommanderService {
                 .orElseThrow(() -> new BaseException(INVITE_NOT_FOUND));
 
         post.removeInvite(findInvite);
+
+        postProducer.produce("invite.denied", new InviteDeniedEvent(post.getAuthorId(), loginUserId, postId));
     }
 
     //region ----------------------------------- HELPER 메서드 ------------------------------------------------------
@@ -445,6 +448,8 @@ public class PostCommanderService {
                     .map(PostParticipant::getUserId)
                     .toList();
 
+            // Kafka 이벤트 발행
+            postProducer.produce("post.confirmed", new PostConfirmedEvent(post.getId(), post.getAuthorId(), post.getTitle(), confirmedUserIds));
             postProducer.produce("post.participant.confirmed", new PostConfirmedEvent(post.getId(), post.getAuthorId(), post.getTitle(), confirmedUserIds));
         }
     }
