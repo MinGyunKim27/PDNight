@@ -64,6 +64,9 @@ public class Post extends Timestamped {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Invite> invites = new ArrayList<>();
 
+    private Boolean isDeleted = false;
+    private LocalDateTime deletedAt;
+
     private Post(
             Long authorId,
             String title,
@@ -81,13 +84,13 @@ public class Post extends Timestamped {
         this.publicContent = publicContent;
         this.status = PostStatus.OPEN;
         this.maxParticipants = maxParticipants;
-        if(genderLimit != null) {
+        if (genderLimit != null) {
             this.genderLimit = genderLimit;
         }
         if (jobCategoryLimit != null) {
             this.jobCategoryLimit = jobCategoryLimit;
         }
-        if(ageLimit != null) {
+        if (ageLimit != null) {
             this.ageLimit = ageLimit;
         }
         this.isFirstCome = isFirstCome;
@@ -137,6 +140,11 @@ public class Post extends Timestamped {
     }
 
     //상태 변경 메서드
+    public void softDelete() {
+        isDeleted = true;
+        deletedAt = LocalDateTime.now();
+    }
+
     public void updateStatus(PostStatus status) {
         this.status = status;
     }

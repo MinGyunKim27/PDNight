@@ -1,8 +1,14 @@
 package org.example.pdnight.domain.notification.domain;
 
-import org.example.pdnight.domain.notification.infra.NotificationCommanderImpl;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
-public interface NotificationCommander extends NotificationCommanderImpl {
+public interface NotificationCommander {
+
+    void save(Notification notification);
+
+    Optional<Notification> findByIdIsReadFalse(Long id);
+
 }

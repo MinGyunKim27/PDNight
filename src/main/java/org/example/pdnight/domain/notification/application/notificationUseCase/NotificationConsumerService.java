@@ -1,17 +1,13 @@
-package org.example.pdnight.domain.notification.application;
+package org.example.pdnight.domain.notification.application.notificationUseCase;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.pdnight.domain.notification.domain.Notification;
 import org.example.pdnight.domain.notification.domain.NotificationCommander;
-import org.example.pdnight.domain.notification.domain.NotificationReader;
 import org.example.pdnight.domain.notification.enums.NotificationType;
 import org.example.pdnight.domain.notification.infra.NotificationSocketSender;
 import org.example.pdnight.domain.notification.presentation.dto.NotificationResponse;
-import org.example.pdnight.global.event.PostConfirmedEvent;
-import org.example.pdnight.global.common.exception.BaseException;
 import org.example.pdnight.global.event.*;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,20 +15,10 @@ import java.util.List;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class NotificationConsumeService {
-    private final NotificationReader notificationReader;
+public class NotificationConsumerService {
+
     private final NotificationCommander notificationCommander;
     private final NotificationSocketSender webSocketSender;
-
-    public void isReadCheck(Long id, Long userid) {
-        Notification notification = notificationReader.findByIdIsReadFalse(id);
-        if (userid.equals(notification.getReceiver())) {
-            notification.markAsRead();
-        } else {
-            throw new BaseException(HttpStatus.BAD_REQUEST, "본인이 아닙니다!");
-        }
-        notificationCommander.save(notification);
-    }
 
     public void handlePostConfirmed(PostConfirmedEvent event) {
         String message;

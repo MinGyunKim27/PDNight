@@ -13,7 +13,7 @@ import java.util.Optional;
 
 public interface PostReader {
 
-    Optional<Post> getPostById(Long id);
+    Optional<Post> findByIdWithParticipants(Long id);
 
     Page<PostResponse> getMyLikePost(Long userId, Pageable pageable);
 

@@ -24,9 +24,9 @@ public enum ErrorCode {
 
     // 게시물 관련 에러 (400 Bad Request,  404 NOT_FOUND)
     POST_NOT_FOUND(HttpStatus.NOT_FOUND, "게시물을 찾을 수 없습니다"),
-    TASK_DEACTIVATED(HttpStatus.UNAUTHORIZED, "삭제 된 Task 입니다."),
-    TASK_STATE_NOT_REVERSIBLE(HttpStatus.BAD_REQUEST, "Task 상태는 이전 단계로 되돌릴 수 없습니다"),
-    TASK_STATE_FLOW_ERROR(HttpStatus.BAD_REQUEST, "Task 상태 변경 흐름이 올바르지 않습니다."),
+    POST_DEACTIVATED(HttpStatus.UNAUTHORIZED, "삭제 된 게시물 입니다."),
+    POST_STATE_NOT_REVERSIBLE(HttpStatus.BAD_REQUEST, "게시물 상태는 이전 단계로 되돌릴 수 없습니다"),
+    POST_STATE_FLOW_ERROR(HttpStatus.BAD_REQUEST, "게시물 상태 변경 흐름이 올바르지 않습니다."),
     POST_FORBIDDEN(HttpStatus.FORBIDDEN, "작성자만 접근할 수 있습니다."),
     POST_STATUS_CLOSED(HttpStatus.BAD_REQUEST, "닫힌 상태의 게시글입니다."),
 
@@ -44,7 +44,7 @@ public enum ErrorCode {
     NOT_CHANGE_PENDING(HttpStatus.BAD_REQUEST, "대기 상태로 만들 수 없습니다."),
     NO_VIEWING_PERMISSION(HttpStatus.FORBIDDEN, "조회 권한이 없습니다."),
     NO_UPDATE_PERMISSION(HttpStatus.FORBIDDEN, "수정 권한이 없습니다."),
-    CANNOT_PARTICIPATE_POST(HttpStatus.FORBIDDEN,"참가 인원이 모두 찼습니다."),
+    CANNOT_PARTICIPATE_POST(HttpStatus.FORBIDDEN, "참가 인원이 모두 찼습니다."),
 
     // 게시물 신청 조건 불일치
     AGE_LIMIT_NOT_SATISFIED(HttpStatus.FORBIDDEN, "요구하는 연령대 조건에 부합하지 않습니다."),
@@ -52,9 +52,9 @@ public enum ErrorCode {
     JOB_CATEGORY_LIMIT_NOT_SATISFIED(HttpStatus.FORBIDDEN, "요구하는 직군 조건에 부합하지 않습니다."),
 
     //초대 관련 에러
-    INVITE_ALREADY_EXISTS(HttpStatus.CONFLICT,"이미 초대 한 사람입니다."),
-    INVITE_NOT_FOUND(HttpStatus.NOT_FOUND,"초대가 존재하지 않습니다."),
-    INVITE_UNAUTHORIZED(HttpStatus.FORBIDDEN,"본인이 한 초대가 아닙니다."),
+    INVITE_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 초대 한 사람입니다."),
+    INVITE_NOT_FOUND(HttpStatus.NOT_FOUND, "초대가 존재하지 않습니다."),
+    INVITE_UNAUTHORIZED(HttpStatus.FORBIDDEN, "본인이 한 초대가 아닙니다."),
 
     // 사용자 리뷰 관련 에러
     CANNOT_REVIEW_SELF(HttpStatus.BAD_REQUEST, "리뷰 작성자는 본인을 평가할 수 없습니다."),
@@ -74,11 +74,11 @@ public enum ErrorCode {
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "처리 중 오류가 발생했습니다"),
 
     //취미 관련 오류
-    HOBBY_ALREADY_EXISTS(HttpStatus.CONFLICT,"이미 존재하는 취미 입니다"),
+    HOBBY_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 존재하는 취미 입니다"),
     HOBBY_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 취미입니다."),
 
     //기술 스택 관련 오류
-    TECH_STACK_ALREADY_EXISTS(HttpStatus.CONFLICT,"이미 존재하는 기술 스택입니다"),
+    TECH_STACK_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 존재하는 기술 스택입니다"),
     TECH_STACK_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 기술 스택입니다."),
 
     CHAT_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 채팅방입니다."),
@@ -98,16 +98,14 @@ public enum ErrorCode {
     COUPON_FORBIDDEN(HttpStatus.FORBIDDEN, "본인의 쿠폰만 사용할 수 있습니다."),
 
     //팔로우 관련 오류
-    INVALID_FOLLOW_SELF(HttpStatus.BAD_REQUEST,"자기 자신을 팔로우 할 수 없습니다"),
-    ALREADY_FOLLOWING(HttpStatus.CONFLICT,"팔로우를 이미 하고 있습니다!"),
-    INVALID_UNFOLLOW_SELF(HttpStatus.BAD_REQUEST,"자기 자신을 팔로우 할 수 없습니다"),
-    NOT_FOLLOWING(HttpStatus.BAD_REQUEST,"팔로우 중이 아닙니다."),
+    INVALID_FOLLOW_SELF(HttpStatus.BAD_REQUEST, "자기 자신을 팔로우 할 수 없습니다"),
+    ALREADY_FOLLOWING(HttpStatus.CONFLICT, "팔로우를 이미 하고 있습니다!"),
+    INVALID_UNFOLLOW_SELF(HttpStatus.BAD_REQUEST, "자기 자신을 팔로우 할 수 없습니다"),
+    NOT_FOLLOWING(HttpStatus.BAD_REQUEST, "팔로우 중이 아닙니다."),
 
     // lock 관련 에러
     LOCK_TIMEOUT(HttpStatus.REQUEST_TIMEOUT, "시간 초과입니다."),
-    LOCK_GET_FAILED(HttpStatus.BAD_REQUEST, "락 획득에 실패했습니다.")
-
-    ;
+    LOCK_GET_FAILED(HttpStatus.BAD_REQUEST, "락 획득에 실패했습니다.");
     private final HttpStatus status;// HTTP 상태 코드
     private final String message;// 에러 메시지
 }

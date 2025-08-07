@@ -25,9 +25,8 @@ public class CommentReaderService {
     //댓글 다건 조회 메서드 : 해당게시글의 댓글리스트
     @Transactional(readOnly = true)
     public PagedResponse<CommentResponse> getCommentsByPostId(Long postId, Pageable pageable) {
-        if (!postPort.existsById(postId)) {
-            throw new BaseException(ErrorCode.POST_NOT_FOUND);
-        }
+
+        validateIsExistPost(postId);
 
         //1. 전체 댓글을 리스트로 반환 Id 기준으로 오름차순 정렬
         List<Comment> foundComments = commentReader.findByPostIdOrderByIdAsc(postId);
@@ -59,5 +58,12 @@ public class CommentReaderService {
         return PagedResponse.from(pagedCommentDtos);
     }
 
+    //----------------------------------- HELPER 메서드 ------------------------------------------------------
+    // validate
+    private void validateIsExistPost(Long postId) {
+        if (!postPort.existsById(postId)) {
+            throw new BaseException(ErrorCode.POST_NOT_FOUND);
+        }
+    }
 
 }

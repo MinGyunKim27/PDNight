@@ -28,7 +28,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.example.pdnight.global.common.enums.ErrorCode.*;
+import static org.example.pdnight.global.common.enums.ErrorCode.NO_VIEWING_PERMISSION;
+import static org.example.pdnight.global.common.enums.ErrorCode.POST_NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -49,7 +50,7 @@ class PostReaderServiceTest {
         Long postId = 1L;
         Post post = getParticipants(2, 1);
 
-        when(postReader.getPostById(postId)).thenReturn(Optional.of(post));
+        when(postReader.findByIdWithParticipants(postId)).thenReturn(Optional.of(post));
 
         // when
         PostResponse response = postReaderService.findPost(postId);
@@ -64,7 +65,7 @@ class PostReaderServiceTest {
     @DisplayName("게시글 단건 조회 예외 - 게시글이 없는 경우")
     void findPost_게시글_단건_조회_예외() {
         // given
-        when(postReader.getPostById(anyLong())).thenReturn(Optional.empty());
+        when(postReader.findByIdWithParticipants(anyLong())).thenReturn(Optional.empty());
 
         // when & then
         BaseException exception = assertThrows(BaseException.class, () -> {
@@ -202,7 +203,7 @@ class PostReaderServiceTest {
         Long loginId = 1L;
         Post post = getParticipants(4, 1);
 
-        when(postReader.getPostById(postId)).thenReturn(Optional.of(post));
+        when(postReader.findByIdWithParticipants(postId)).thenReturn(Optional.of(post));
 
         // when
         PagedResponse<ParticipantResponse> result = postReaderService.getParticipantListByPending(loginId, postId, 0, 10);
@@ -219,7 +220,7 @@ class PostReaderServiceTest {
         Long loginId = 2L;
         Post post = getParticipants(4, 1);
 
-        when(postReader.getPostById(postId)).thenReturn(Optional.of(post));
+        when(postReader.findByIdWithParticipants(postId)).thenReturn(Optional.of(post));
 
         // when
         BaseException exception = assertThrows(BaseException.class, () -> {
@@ -228,6 +229,7 @@ class PostReaderServiceTest {
 
         assertEquals(NO_VIEWING_PERMISSION.getMessage(), exception.getMessage());
     }
+
     @Test
     @DisplayName("게시글 참가자 목록 조회 성공")
     void getParticipantListByAccepted_게시글_참가자_목록_조회_성공() {
@@ -236,7 +238,7 @@ class PostReaderServiceTest {
         Long loginId = 1L;
         Post post = getParticipants(4, 1);
 
-        when(postReader.getPostById(postId)).thenReturn(Optional.of(post));
+        when(postReader.findByIdWithParticipants(postId)).thenReturn(Optional.of(post));
 
         // when
         PagedResponse<ParticipantResponse> result = postReaderService.getParticipantListByAccepted(loginId, postId, 0, 10);
@@ -253,7 +255,7 @@ class PostReaderServiceTest {
         Long loginId = 2L;
         Post post = getParticipants(4, 1);
 
-        when(postReader.getPostById(postId)).thenReturn(Optional.of(post));
+        when(postReader.findByIdWithParticipants(postId)).thenReturn(Optional.of(post));
 
         // when
         BaseException exception = assertThrows(BaseException.class, () -> {
