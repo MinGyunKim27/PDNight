@@ -2,8 +2,8 @@ package org.example.pdnight.domain.notification.presentation.dto;
 
 import lombok.Builder;
 import lombok.Getter;
-import org.example.pdnight.domain.notification.enums.NotificationType;
 import org.example.pdnight.domain.notification.domain.Notification;
+import org.example.pdnight.domain.notification.enums.NotificationType;
 
 import java.time.LocalDateTime;
 
@@ -22,8 +22,8 @@ public class NotificationResponse {
     public static NotificationResponse from(Notification notification) {
         return NotificationResponse.builder()
                 .notificationId(notification.getId())
-                .senderId(notification.getSender())
-                .receiverId(notification.getReceiver())
+                .senderId(notification.getSenderId())
+                .receiverId(notification.getReceiverId())
                 .content(notification.getContent())
                 .type(notification.getType())
                 .isRead(notification.getIsRead())

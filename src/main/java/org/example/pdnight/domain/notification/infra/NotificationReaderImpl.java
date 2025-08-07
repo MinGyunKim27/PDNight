@@ -39,7 +39,7 @@ public class NotificationReaderImpl implements NotificationReader {
         List<Notification> result = queryFactory
                 .select(notification)
                 .from(notification)
-                .where(notification.receiver.eq(userId))
+                .where(notification.receiverId.eq(userId))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -47,7 +47,7 @@ public class NotificationReaderImpl implements NotificationReader {
         JPAQuery<Long> countQuery = queryFactory
                 .select(notification.count())
                 .from(notification).
-                where(notification.receiver.eq(userId));
+                where(notification.receiverId.eq(userId));
 
         return PageableExecutionUtils.getPage(result, pageable, countQuery::fetchOne);
     }
@@ -59,7 +59,7 @@ public class NotificationReaderImpl implements NotificationReader {
         List<Notification> result = queryFactory
                 .select(notification)
                 .from(notification)
-                .where(notification.receiver.eq(userId)
+                .where(notification.receiverId.eq(userId)
                         .and(notification.isRead.eq(false)))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -68,7 +68,7 @@ public class NotificationReaderImpl implements NotificationReader {
         JPAQuery<Long> countQuery = queryFactory
                 .select(notification.count())
                 .from(notification).
-                where(notification.receiver.eq(userId)
+                where(notification.receiverId.eq(userId)
                         .and(notification.isRead.eq(false)));
 
         return PageableExecutionUtils.getPage(result, pageable, countQuery::fetchOne);

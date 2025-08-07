@@ -18,14 +18,14 @@ public class Notification extends Timestamped {
     private Long id;
 
     // 알림을 받을 유저
-    private Long receiver;
+    private Long receiverId;
 
     // 알림 내용
     @Column(nullable = false)
     private String content;
 
     // 알림을 발생시킨 유저
-    private Long sender;
+    private Long senderId;
 
     // 알림 타입 (댓글, 초대, 수락, 팔로우 등)
     @Enumerated(EnumType.STRING)
@@ -41,27 +41,27 @@ public class Notification extends Timestamped {
     }
 
     private Notification(
-            Long receiver,
+            Long receiverId,
             String content,
-            Long sender,
+            Long senderId,
             NotificationType type
     ) {
-        this.receiver = receiver;
+        this.receiverId = receiverId;
         this.content = content;
-        this.sender = sender;
+        this.senderId = senderId;
         this.type = type;
     }
 
     public static Notification from(
-            Long receiver,
+            Long receiverId,
             String content,
-            Long sender,
+            Long senderId,
             NotificationType type
     ) {
         return new Notification(
-                receiver,
+                receiverId,
                 content,
-                sender,
+                senderId,
                 type
         );
     }
