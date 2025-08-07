@@ -19,7 +19,7 @@ public class NotificationCommanderImpl implements NotificationCommander {
 
     @Override
     public Optional<Notification> findByIdIsReadFalse(Long id) {
-        return notificationJpaRepository.findByIdAndIsReadFalse(id);
+        return notificationJpaRepository.findByIdIsReadFalse(id);
     }
 
 }

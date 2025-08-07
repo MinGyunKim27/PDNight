@@ -68,36 +68,36 @@ public class NotificationConsumer {
     // 리뷰 작성 -
     @KafkaListener(topics = "user.review.created", groupId = "alert-group")
     public void consumeReviewCreatedEvent(ReviewCreatedEvent event) {
-        notificationConsumeService.handleReviewCreated(event);
+        notificationConsumerService.handleReviewCreated(event);
     }
 
     // 게시글 채팅방 생성 -
     @KafkaListener(topics = "chatroom.created", groupId = "alert-group")
     public void consumeChatroomCreatedEvent(ChatroomCreatedEvent event) {
-        notificationConsumeService.handleChatroomCreated(event);
+        notificationConsumerService.handleChatroomCreated(event);
     }
 
     // 댓글 작성  -
     @KafkaListener(topics = "post.comment.created", groupId = "alert-group")
     public void consumeCommentCreatedEvent(CommentCreatedEvent event) {
-        notificationConsumeService.handleCommentCreated(event);
+        notificationConsumerService.handleCommentCreated(event);
     }
 
     // 대댓글 작성 -
     @KafkaListener(topics = "post.comment.created", groupId = "alert-group")
     public void consumeReplyCreatedEvent(CommentReplyCreatedEvent event) {
-        notificationConsumeService.handleReplyCreated(event);
+        notificationConsumerService.handleReplyCreated(event);
     }
 
     // 쿠폰 발행 -
     @KafkaListener(topics = "coupon.issued", groupId = "alert-group")
     public void consumeApplyCouponIssuedEvent(CouponIssuedEvent event) {
-        notificationConsumeService.handleCouponIssued(event);
+        notificationConsumerService.handleCouponIssued(event);
     }
 
     // 쿠폰 만료
     @KafkaListener(topics = "coupon.expired", groupId = "alert-group")
     public void consumeApplyCouponExpiredEvent(CouponExpiredEvent event) {
-        notificationConsumeService.handleCouponExpired(event);
+        notificationConsumerService.handleCouponExpired(event);
     }
 }

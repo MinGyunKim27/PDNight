@@ -5,10 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.pdnight.domain.post.domain.comment.Comment;
 import org.example.pdnight.domain.post.domain.comment.CommentCommander;
 import org.example.pdnight.domain.post.domain.comment.CommentProducer;
-import org.example.pdnight.domain.post.enums.PostStatus;
 import org.example.pdnight.domain.post.presentation.dto.request.CommentRequest;
 import org.example.pdnight.domain.post.presentation.dto.response.CommentResponse;
-import org.example.pdnight.domain.post.presentation.dto.response.PostInfo;
 import org.example.pdnight.global.common.enums.ErrorCode;
 import org.example.pdnight.global.common.enums.KafkaTopic;
 import org.example.pdnight.global.common.exception.BaseException;
@@ -35,7 +33,7 @@ public class CommentCommanderService {
         Comment comment = Comment.create(postId, loginId, request.getContent());
         Comment savedComment = commentCommander.save(comment);
 
-        producer.produce(KafkaTopic.POST_COMMENT_CREATED.topicName(), new CommentCreatedEvent(postFromPort.getAuthorId(), comment.getAuthorId()));
+        producer.produce(KafkaTopic.POST_COMMENT_CREATED.topicName(), new CommentCreatedEvent(postPort.findById(postId).getAuthorId(), comment.getAuthorId()));
 
         return CommentResponse.from(savedComment);
     }
