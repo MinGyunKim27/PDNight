@@ -2,7 +2,6 @@ package org.example.pdnight.domain.post.application.commentUseCase;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.pdnight.domain.post.application.port.PostPort;
 import org.example.pdnight.domain.post.domain.comment.Comment;
 import org.example.pdnight.domain.post.domain.comment.CommentCommander;
 import org.example.pdnight.domain.post.enums.PostStatus;

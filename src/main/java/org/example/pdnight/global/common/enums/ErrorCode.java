@@ -36,6 +36,7 @@ public enum ErrorCode {
 
     // 게시물 신청 관련 에러
     CANNOT_PARTICIPATE_SELF(HttpStatus.BAD_REQUEST, "본인 게시글엔 신청할 수 없습니다."),
+    POST_ALREADY_CONFIRMED(HttpStatus.CONFLICT, "이미 마감된 게시글입니다."),
     POST_ALREADY_PENDING(HttpStatus.CONFLICT, "이미 신청했습니다."),
     POST_ALREADY_ACCEPTED(HttpStatus.CONFLICT, "이미 가입되어있습니다."),
     CANNOT_CANCEL(HttpStatus.BAD_REQUEST, "취소할 수 없습니다."),
@@ -83,12 +84,12 @@ public enum ErrorCode {
     CHAT_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 채팅방입니다."),
     CHAT_ROOM_NOT_PARTICIPANT(HttpStatus.FORBIDDEN, "참가 불가능한 채팅방입니다."),
 
-    // 이벤트 관련 오류
-    EVENT_NOT_FOUNT(HttpStatus.NOT_FOUND, "존재하지 않는 이벤트입니다."),
-    EVENT_ALREADY_PENDING(HttpStatus.CONFLICT, "이미 신청한 이벤트입니다."),
-    EVENT_PARTICIPANT_FULL(HttpStatus.CONFLICT, "신청 마감되었습니다."),
-    EVENT_INVALID_PARTICIPANT(HttpStatus.BAD_REQUEST, "이벤트 정원은 1명 이상이어야 합니다."),
-    EVENT_INVALID_DATE(HttpStatus.BAD_REQUEST, "이벤트 일자가 잘못되었습니다."),
+    // 프로모션 관련 오류
+    PROMOTION_NOT_FOUNT(HttpStatus.NOT_FOUND, "존재하지 않는 프로모션입니다."),
+    PROMOTION_ALREADY_PENDING(HttpStatus.CONFLICT, "이미 신청한 프로모션입니다."),
+    PROMOTION_PARTICIPANT_FULL(HttpStatus.CONFLICT, "신청 마감되었습니다."),
+    PROMOTION_INVALID_PARTICIPANT(HttpStatus.BAD_REQUEST, "프로모션 정원은 1명 이상이어야 합니다."),
+    PROMOTION_INVALID_DATE(HttpStatus.BAD_REQUEST, "프로모션 일자가 잘못되었습니다."),
 
     // 쿠폰 관련 에러
     COUPON_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 쿠폰입니다."),

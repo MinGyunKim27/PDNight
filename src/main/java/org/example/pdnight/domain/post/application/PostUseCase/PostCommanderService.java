@@ -1,7 +1,7 @@
 package org.example.pdnight.domain.post.application.PostUseCase;
 
 import lombok.RequiredArgsConstructor;
-import org.example.pdnight.domain.post.application.PostUseCase.event.PostDeletedEvent;
+import org.example.pdnight.global.event.PostConfirmedEvent;
 import org.example.pdnight.domain.post.domain.post.*;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
@@ -19,9 +19,9 @@ import org.example.pdnight.global.common.enums.ErrorCode;
 import org.example.pdnight.global.common.enums.JobCategory;
 import org.example.pdnight.global.common.exception.BaseException;
 import org.example.pdnight.global.constant.CacheName;
+import org.example.pdnight.global.event.*;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,7 +34,8 @@ import static org.example.pdnight.global.common.enums.ErrorCode.*;
 public class PostCommanderService {
 
     private final PostCommander postCommander;
-    private final ApplicationEventPublisher publisher;
+    private final PostProducer postProducer;
+    private final UserPort userPort;
 
     // region  게시물
     @Transactional
@@ -59,6 +60,12 @@ public class PostCommanderService {
 
         postCommander.save(post);
 
+        // Kafka 이벤트 발행
+        List<Long> followeeIds = userPort.findFollowersOf(userId);
+        if (!followeeIds.isEmpty()) {
+            Long authorId = post.getAuthorId();
+            postProducer.produce("followee.post.created", new FolloweePostCreatedEvent(authorId, post.getId(), followeeIds));
+        }
         return PostResponse.toDto(post);
     }
 
@@ -75,7 +82,7 @@ public class PostCommanderService {
         Post foundPost = getPostByIdOrElseThrow(postId);
         validateAuthor(userId, foundPost);
 
-        publisher.publishEvent(PostDeletedEvent.of(postId));
+        postProducer.produce("post.deleted", PostDeletedEvent.of(postId));
         postCommander.deletePost(foundPost);
     }
 
@@ -122,6 +129,15 @@ public class PostCommanderService {
         //변동사항 있을시에만 업데이트
         if (!foundPost.getStatus().equals(request.getStatus())) {
             foundPost.updateStatus(request.getStatus());
+            // 참가자들에게 이벤트 발행
+            if (request.getStatus().equals(PostStatus.CONFIRMED)) {
+                // Kafka 이벤트 발행
+                List<Long> confirmedUserIds = foundPost.getPostParticipants().stream()
+                        .filter(p -> p.getStatus() == JoinStatus.ACCEPTED)
+                        .map(PostParticipant::getUserId)
+                        .toList();
+                postProducer.produce("post.participant.confirmed", new PostConfirmedEvent(foundPost.getId(), foundPost.getAuthorId(), confirmedUserIds));
+            }
         }
 
         return PostResponse.toDto(foundPost);
@@ -138,13 +154,14 @@ public class PostCommanderService {
     @CacheEvict(value = CacheName.CONFIRMED_POST, allEntries = true)
     @DistributedLock(key = "#postId", timeoutMs = 5000)
     public ParticipantResponse applyParticipant(Long loginId, Long age, Gender gender, JobCategory jobCategory, Long postId) {
-        Post foundPost = getOpenPostById(postId);
+        Post foundPost = getPostByIdOrElseThrow(postId);
 
         // 신청 안되는지 확인
         validateJoinConditions(loginId, age, gender, jobCategory, foundPost);
 
-        //선착순 포스트인 경우
+        // 참가 신청 처리
         PostParticipant participant = handleJoinRequest(foundPost, loginId, foundPost.getIsFirstCome());
+        postProducer.produce("post.participant.applied", new PostParticipateAppliedEvent(foundPost.getId(), foundPost.getAuthorId(), loginId));
 
         return ParticipantResponse.from(
                 loginId,
@@ -187,6 +204,14 @@ public class PostCommanderService {
 
         // 상태변경
         pending.changeStatus(joinStatus);
+        // 모임 참여 수락
+        if (joinStatus.equals(JoinStatus.ACCEPTED)) {
+            postProducer.produce("post.participant.accepted", new PostApplyAcceptedEvent(postId, authorId, userId));
+        }
+        // 모임 참여 거절
+        if (joinStatus.equals(JoinStatus.REJECTED)) {
+            postProducer.produce("post.participant.denied", new PostApplyDeniedEvent(postId, authorId, userId));
+        }
 
         // 게시글 인원이 꽉차게 되면 게시글 상태를 마감으로 변경 (CONFIRMED)
         updatePostStatusIfFull(post);
@@ -239,6 +264,9 @@ public class PostCommanderService {
         Invite invite = Invite.create(loginUserId, userId, post);
         post.addInvite(invite);
 
+        // 초대 전송
+        postProducer.produce("invite.sent", new InviteSentEvent(loginUserId, userId, postId));
+
         return InviteResponse.from(invite);
     }
 
@@ -268,10 +296,13 @@ public class PostCommanderService {
 
         handleJoinRequest(post, loginUserId, true);
 
+        // 초대 수락
+        postProducer.produce("invite.accepted", new InviteAcceptedEvent(post.getAuthorId(), loginUserId, postId));
+
         post.removeInvite(findInvite);
     }
 
-    //내가 받은초대 거절
+    //내가 받은 초대 거절
     @Transactional
     public void rejectForInvite(Long postId, Long loginUserId) {
         Post post = postCommander.findById(postId).orElseThrow(() -> new BaseException(POST_NOT_FOUND));
@@ -282,6 +313,8 @@ public class PostCommanderService {
                 .orElseThrow(() -> new BaseException(INVITE_NOT_FOUND));
 
         post.removeInvite(findInvite);
+
+        postProducer.produce("invite.denied", new InviteDeniedEvent(post.getAuthorId(), loginUserId, postId));
     }
 
     //region ----------------------------------- HELPER 메서드 ------------------------------------------------------
@@ -375,6 +408,10 @@ public class PostCommanderService {
             throw new BaseException(ErrorCode.JOB_CATEGORY_LIMIT_NOT_SATISFIED);
         }
 
+        if (post.getStatus() != PostStatus.OPEN) {
+            throw new BaseException(POST_ALREADY_CONFIRMED);
+        }
+
         // 신청 안됨 : 이미 신청함 - JoinStatus status 가 대기중 or 수락됨 인 경우
         PostParticipant pending = getParticipantByStatus(userId, post, JoinStatus.PENDING);
         if (pending != null) {
@@ -401,6 +438,14 @@ public class PostCommanderService {
         int participantSize = countAcceptedParticipants(post.getPostParticipants());
         if (post.getMaxParticipants().equals(participantSize)) {
             post.updateStatus(PostStatus.CONFIRMED);
+
+            // Kafka 이벤트 발행
+            List<Long> confirmedUserIds = post.getPostParticipants().stream()
+                    .filter(p -> p.getStatus() == JoinStatus.ACCEPTED)
+                    .map(PostParticipant::getUserId)
+                    .toList();
+
+            postProducer.produce("post.participant.confirmed", new PostConfirmedEvent(post.getId(), post.getAuthorId(), confirmedUserIds));
         }
     }
 
