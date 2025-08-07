@@ -7,8 +7,6 @@ import org.example.pdnight.domain.notification.domain.NotificationCommander;
 import org.example.pdnight.domain.notification.enums.NotificationType;
 import org.example.pdnight.domain.notification.infra.NotificationSocketSender;
 import org.example.pdnight.domain.notification.presentation.dto.NotificationResponse;
-import org.example.pdnight.global.common.enums.ErrorCode;
-import org.example.pdnight.global.common.exception.BaseException;
 import org.example.pdnight.global.event.*;
 import org.springframework.stereotype.Service;
 

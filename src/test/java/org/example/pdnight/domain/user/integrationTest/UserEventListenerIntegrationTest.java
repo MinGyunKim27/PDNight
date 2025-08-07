@@ -1,24 +1,5 @@
 package org.example.pdnight.domain.user.integrationTest;
 
-import jakarta.transaction.Transactional;
-import org.example.pdnight.domain.auth.presentation.dto.request.SignupRequest;
-import org.example.pdnight.domain.post.enums.Gender;
-import org.example.pdnight.domain.user.domain.entity.User;
-import org.example.pdnight.domain.user.domain.userDomain.UserReader;
-import org.example.pdnight.global.common.enums.JobCategory;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.annotation.Bean;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.test.context.ActiveProfiles;
-
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
 //@SpringBootTest
 //@ActiveProfiles("test")
 //class UserEventListenerIntegrationTest {

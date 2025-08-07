@@ -1,16 +1,17 @@
 package org.example.pdnight.domain.user.domain.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.example.pdnight.domain.auth.presentation.dto.request.SignupRequest;
-import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.user.domain.enums.Region;
 import org.example.pdnight.global.common.entity.Timestamped;
 import org.example.pdnight.global.common.enums.ErrorCode;
 import org.example.pdnight.global.common.enums.JobCategory;
 import org.example.pdnight.global.common.exception.BaseException;
-import org.example.pdnight.global.event.AuthSignedUpEvent;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

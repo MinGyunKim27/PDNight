@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.user.domain.couponDomain.CouponReader;
 import org.example.pdnight.domain.user.domain.entity.Coupon;
 import org.springframework.stereotype.Repository;
+
 import java.util.Optional;
 
 import static org.example.pdnight.domain.user.domain.entity.QCoupon.coupon;

@@ -2,11 +2,8 @@ package org.example.pdnight.domain.user.application.reviewUserCase;
 
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.user.domain.entity.Review;
-import org.example.pdnight.domain.user.domain.entity.User;
-import org.example.pdnight.domain.user.domain.entity.UserCoupon;
 import org.example.pdnight.domain.user.domain.reviewDomain.ReviewCommander;
 import org.example.pdnight.domain.user.domain.reviewDomain.ReviewProducer;
-import org.example.pdnight.domain.user.domain.reviewDomain.ReviewReader;
 import org.example.pdnight.domain.user.presentation.dto.reviewDto.request.ReviewRequest;
 import org.example.pdnight.domain.user.presentation.dto.reviewDto.response.ReviewResponse;
 import org.example.pdnight.global.common.enums.ErrorCode;

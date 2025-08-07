@@ -5,8 +5,8 @@ import com.jayway.jsonpath.JsonPath;
 import org.example.pdnight.domain.auth.domain.AuthCommander;
 import org.example.pdnight.domain.auth.domain.entity.Auth;
 import org.example.pdnight.domain.auth.presentation.dto.request.SignupRequest;
-import org.example.pdnight.domain.promotion.presentation.dto.request.PromotionCreateRequest;
 import org.example.pdnight.domain.post.enums.Gender;
+import org.example.pdnight.domain.promotion.presentation.dto.request.PromotionCreateRequest;
 import org.example.pdnight.domain.user.domain.entity.User;
 import org.example.pdnight.domain.user.domain.userDomain.UserCommander;
 import org.example.pdnight.global.common.enums.JobCategory;
@@ -22,6 +22,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+
 import java.time.LocalDateTime;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;

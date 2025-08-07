@@ -15,8 +15,8 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
-import static org.example.pdnight.domain.promotion.domain.entity.QPromotion.*;
-import static org.example.pdnight.domain.promotion.domain.entity.QPromotionParticipant.*;
+import static org.example.pdnight.domain.promotion.domain.entity.QPromotion.promotion;
+import static org.example.pdnight.domain.promotion.domain.entity.QPromotionParticipant.promotionParticipant;
 
 
 @Repository
