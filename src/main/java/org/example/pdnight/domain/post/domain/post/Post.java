@@ -164,4 +164,9 @@ public class Post extends Timestamped {
     public void removeInvite(Invite findInvite) {
         invites.remove(findInvite);
     }
+
+    public void removeAuthor() {
+        this.authorId = 0L;
+    }
+
 }

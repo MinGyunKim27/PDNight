@@ -6,6 +6,7 @@ import org.example.pdnight.domain.post.enums.PostStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface PostJpaRepository extends JpaRepository<Post, Long> {
@@ -15,4 +16,5 @@ public interface PostJpaRepository extends JpaRepository<Post, Long> {
 
     boolean existsById(Long id);
 
+    List<Post> findAllByAuthorId(Long authorId);
 }

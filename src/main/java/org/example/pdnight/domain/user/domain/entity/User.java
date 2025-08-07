@@ -3,12 +3,14 @@ package org.example.pdnight.domain.user.domain.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.example.pdnight.domain.auth.presentation.dto.request.SignupRequest;
+import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.user.domain.enums.Region;
 import org.example.pdnight.global.common.entity.Timestamped;
 import org.example.pdnight.global.common.enums.ErrorCode;
 import org.example.pdnight.global.common.enums.JobCategory;
 import org.example.pdnight.global.common.exception.BaseException;
+import org.example.pdnight.global.event.AuthSignedUpEvent;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -96,6 +98,20 @@ public class User extends Timestamped {
         this.totalReviewer = 0L;
     }
 
+    private User(
+            String name,
+            String nickname,
+            Gender gender,
+            Long age,
+            JobCategory jobCategory
+    ) {
+        this.name = name;
+        this.nickname = nickname;
+        this.gender = gender;
+        this.age = age;
+        this.jobCategory = jobCategory;
+    }
+
     // ================================== static 생성 메서드 ==================================
     // 유저 생성 메서드
     public static User fromUserSignUpEvent(SignupRequest request) {
@@ -103,6 +119,21 @@ public class User extends Timestamped {
                 request.getName(), request.getNickname(), request.getGender(),
                 request.getAge(), request.getJobCategory(),
                 null, null, null
+        );
+    }
+
+    public static User fromAuthSignUpEvent(
+            String name,
+            String nickname,
+            Gender gender,
+            Long age,
+            JobCategory jobCategory) {
+        return new User(
+                name,
+                nickname,
+                gender,
+                age,
+                jobCategory
         );
     }
 

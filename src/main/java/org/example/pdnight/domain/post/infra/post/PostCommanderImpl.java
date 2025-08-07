@@ -6,6 +6,7 @@ import org.example.pdnight.domain.post.domain.post.PostCommander;
 import org.example.pdnight.domain.post.enums.PostStatus;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -37,6 +38,11 @@ public class PostCommanderImpl implements PostCommander {
     @Override
     public Post save(Post post) {
         return postJpaRepository.save(post);
+    }
+
+    @Override
+    public List<Post> findAllByAuthorId(Long authorId) {
+        return postJpaRepository.findAllByAuthorId(authorId);
     }
 
 }

@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 public class AuthServiceImpl implements AuthService {
 
     private final AuthCommanderService authCommanderService;
-    // private final AuthReaderService authReaderService;
 
     @Override
     public SignupResponse signup(SignupRequest request) {
