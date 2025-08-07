@@ -39,7 +39,5 @@ public class UserConsumerService {
         followingMe.clear();
 
         user.softDelete();
-        // 유저 팔로우 삭제 기능 들어가야됨
-
     }
 }
