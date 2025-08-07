@@ -24,6 +24,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -39,9 +40,16 @@ class PostCommanderServiceTest {
     @Mock
     private PostCommander postCommander;
 
+    @Mock
+    private PostProducer postProducer;
+
+    @Mock
+    private UserPort userPort;
+
     private PostRequest postRequest;
     private Post post;
     private Post testPost;
+
     //테스트 코드 사전 세팅
     @BeforeEach
     void setUp() {
@@ -95,6 +103,8 @@ class PostCommanderServiceTest {
                 4,
                 null, null, null, false);
         when(postCommander.save(any())).thenReturn(post);
+
+        when(userPort.findFollowersOf(userId)).thenReturn(Collections.emptyList());
 
         //when
         PostResponse createPost = postCommanderService.createPost(userId, postRequest);
@@ -302,10 +312,12 @@ class PostCommanderServiceTest {
         Long userId = 2L;
         PostParticipant participant = PostParticipant.create(post, userId);
 
-        //when
+        // 신청 안되는지 확인
         when(postCommander.findByIdAndStatus(1L, PostStatus.OPEN)).thenReturn(Optional.ofNullable(post));
+        // postProducer 패스
+        doNothing().when(postProducer).produce(anyString(), any());
 
-        // run method
+        // when
         ParticipantResponse response = postCommanderService.applyParticipant(userId, 20L, Gender.MALE, JobCategory.BACK_END_DEVELOPER, 1L);
 
         //then
@@ -343,6 +355,8 @@ class PostCommanderServiceTest {
 
         //when
         when(postCommander.findByIdAndStatus(1L, PostStatus.OPEN)).thenReturn(Optional.ofNullable(post));
+        // postProducer 패스
+        doNothing().when(postProducer).produce(anyString(), any());
 
         // run method
         ParticipantResponse response = postCommanderService.changeStatusParticipant(1L, 2L, 1L, "REJECTED");
@@ -366,8 +380,7 @@ class PostCommanderServiceTest {
         Post mockPost = Mockito.mock(Post.class);
         PostLike mockPostLike = mock();
 
-        when(postCommander.findById(postId)).thenReturn(Optional.ofNullable(post));
-
+        when(postCommander.findByIdAndStatus(postId, PostStatus.OPEN)).thenReturn(Optional.ofNullable(post));
 
         // when
         PostLikeResponse response = postCommanderService.addLike(postId, userId);
@@ -385,7 +398,7 @@ class PostCommanderServiceTest {
         Long postId = 10L;
         PostLike postLike = PostLike.create(post, userId);
         post.addLike(postLike);
-        when(postCommander.findById(postId)).thenReturn(Optional.ofNullable(post));
+        when(postCommander.findByIdAndStatus(postId, PostStatus.OPEN)).thenReturn(Optional.ofNullable(post));
 
         BaseException exception = assertThrows(BaseException.class, () ->
                 postCommanderService.addLike(postId, userId)
@@ -403,7 +416,7 @@ class PostCommanderServiceTest {
         Long postId = 10L;
         PostLike postLike = PostLike.create(post, userId);
         post.addLike(postLike);
-        when(postCommander.findById(postId)).thenReturn(Optional.ofNullable(post));
+        when(postCommander.findByIdAndStatus(postId, PostStatus.OPEN)).thenReturn(Optional.ofNullable(post));
 
         // when
         postCommanderService.removeLike(postId, userId);
@@ -420,7 +433,7 @@ class PostCommanderServiceTest {
         Long postId = 10L;
         PostLike postLike = PostLike.create(post, userId);
 
-        when(postCommander.findById(postId)).thenReturn(Optional.ofNullable(post));
+        when(postCommander.findByIdAndStatus(postId, PostStatus.OPEN)).thenReturn(Optional.ofNullable(post));
         // when & then
         BaseException exception = assertThrows(BaseException.class, () ->
                 postCommanderService.removeLike(postId, userId)
@@ -436,7 +449,9 @@ class PostCommanderServiceTest {
         // given
         Long postId = 1L, userId = 2L, loginUserId = 3L;
 
-        when(postCommander.findByIdAndStatus(1L, PostStatus.OPEN)).thenReturn(Optional.ofNullable(post));
+        when(postCommander.findByIdAndStatus(postId, PostStatus.OPEN)).thenReturn(Optional.ofNullable(post));
+        // postProducer 패스
+        doNothing().when(postProducer).produce(anyString(), any());
 
         // when
         InviteResponse response = postCommanderService.createInvite(postId, userId, loginUserId);
@@ -455,7 +470,7 @@ class PostCommanderServiceTest {
         Long postId = 1L;
         Invite invite = Invite.create(loginUserId, inviteId, post);
         post.addInvite(invite);
-        when(postCommander.findById(postId)).thenReturn(Optional.ofNullable(post));
+        when(postCommander.findByIdAndStatus(postId, PostStatus.OPEN)).thenReturn(Optional.ofNullable(post));
 
         // when
         postCommanderService.deleteInvite(postId, inviteId, loginUserId);
@@ -472,7 +487,7 @@ class PostCommanderServiceTest {
 
         Invite invite = Invite.create(loginUserId, userId, post);
         post.addInvite(invite);
-        when(postCommander.findByIdAndStatus(1L, PostStatus.OPEN)).thenReturn(Optional.ofNullable(post));
+        when(postCommander.findByIdAndStatus(postId, PostStatus.OPEN)).thenReturn(Optional.ofNullable(post));
 
         // when & then
         BaseException ex = assertThrows(BaseException.class,
@@ -491,7 +506,7 @@ class PostCommanderServiceTest {
         Invite invite = Invite.create(inviteId, anotherUserId, post);
         post.addInvite(invite);
 
-        when(postCommander.findById(1L)).thenReturn(Optional.ofNullable(post));
+        when(postCommander.findByIdAndStatus(1L, PostStatus.OPEN)).thenReturn(Optional.ofNullable(post));
 
         // when & then
         BaseException ex = assertThrows(BaseException.class,
@@ -509,12 +524,15 @@ class PostCommanderServiceTest {
 
         Invite invite = Invite.create(postId, inviteeId, post);
         post.addInvite(invite);
-        when(postCommander.findById(postId)).thenReturn(Optional.of(post));
+        when(postCommander.findByIdAndStatus(postId, PostStatus.OPEN)).thenReturn(Optional.of(post));
 
         //이미 승인된 참가자 한명 넣기
         PostParticipant postParticipant = PostParticipant.create(post, 2L);
         postParticipant.changeStatus(JoinStatus.ACCEPTED);
         post.addParticipants(postParticipant);
+
+        // postProducer 패스
+        doNothing().when(postProducer).produce(anyString(), any());
 
         //when
         postCommanderService.decisionForInvite(postId, loginUserId);
@@ -528,7 +546,7 @@ class PostCommanderServiceTest {
 
         assertEquals(2, post.getPostParticipants().size()); //한명더 추가되었는지
         assertTrue(post.getInvites().isEmpty()); // 초대 삭제 확인
-        verify(postCommander).findById(postId);
+        verify(postCommander).findByIdAndStatus(postId, PostStatus.OPEN);
     }
 
     @Test
@@ -541,7 +559,7 @@ class PostCommanderServiceTest {
 
         Invite invite = Invite.create(postId, inviteeId, post);
         post.addInvite(invite);
-        when(postCommander.findById(postId)).thenReturn(Optional.of(post));
+        when(postCommander.findByIdAndStatus(postId, PostStatus.OPEN)).thenReturn(Optional.of(post));
 
         //참여 승인된 인원을 MAX로 채움
         PostParticipant postParticipant1 = PostParticipant.create(post, 2L);
@@ -562,7 +580,7 @@ class PostCommanderServiceTest {
                 postCommanderService.decisionForInvite(postId, loginUserId));
 
         assertEquals(ErrorCode.CANNOT_PARTICIPATE_POST.getMessage(), exception.getMessage());
-        verify(postCommander).findById(postId);
+        verify(postCommander).findByIdAndStatus(postId, PostStatus.OPEN);
     }
 
     @Test
@@ -576,7 +594,10 @@ class PostCommanderServiceTest {
         //초대생성
         Invite invite = Invite.create(postId, inviteeId, post);
         post.addInvite(invite);
-        when(postCommander.findById(postId)).thenReturn(Optional.of(post));
+        when(postCommander.findByIdAndStatus(postId, PostStatus.OPEN)).thenReturn(Optional.of(post));
+
+        // postProducer 패스
+        doNothing().when(postProducer).produce(anyString(), any());
 
         //when
         postCommanderService.rejectForInvite(postId, loginUserId);
@@ -584,6 +605,6 @@ class PostCommanderServiceTest {
         //then
         assertTrue(post.getInvites().isEmpty()); // 초대 삭제 확인
 
-        verify(postCommander).findById(postId);
+        verify(postCommander).findByIdAndStatus(postId, PostStatus.OPEN);
     }
 }

@@ -2,13 +2,10 @@ package org.example.pdnight.domain.post.application.commentUseCase;
 
 import org.example.pdnight.domain.post.domain.comment.Comment;
 import org.example.pdnight.domain.post.domain.comment.CommentCommander;
-import org.example.pdnight.domain.post.enums.PostStatus;
 import org.example.pdnight.domain.post.presentation.dto.request.CommentRequest;
 import org.example.pdnight.domain.post.presentation.dto.response.CommentResponse;
-import org.example.pdnight.domain.post.presentation.dto.response.PostInfo;
 import org.example.pdnight.global.common.enums.ErrorCode;
 import org.example.pdnight.global.common.exception.BaseException;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,17 +32,9 @@ class CommentCommanderServiceTest {
     @InjectMocks
     private CommentCommanderService commentCommanderService;
 
-    private PostInfo mockPostInfo;
     private Long postId;
     private Long authorId;
     private Long commentId;
-
-    @BeforeEach
-    void setUp() {
-        mockPostInfo = Mockito.mock(PostInfo.class);
-        lenient().when(mockPostInfo.getPostId()).thenReturn(1L);
-        lenient().when(mockPostInfo.getStatus()).thenReturn(PostStatus.OPEN);
-    }
 
     @Test
     @DisplayName("댓글 정상 생성 테스트")
@@ -59,8 +48,7 @@ class CommentCommanderServiceTest {
 
         Comment comment = Comment.create(postId, authorId, request.getContent());
 
-        when(postPort.findById(postId)).thenReturn(mockPostInfo);
-        when(mockPostInfo.getStatus()).thenReturn(PostStatus.OPEN);
+        when(postPort.existsById(postId)).thenReturn(true);
         when(commentCommander.save(any(Comment.class))).thenReturn(comment);
 
         //when
@@ -68,10 +56,9 @@ class CommentCommanderServiceTest {
 
         //then
         assertEquals(authorId, result.getAuthorId());
-        assertEquals(mockPostInfo.getPostId(), result.getPostId());
         assertEquals(content, result.getContent());
 
-        verify(postPort).findById(postId);
+        verify(postPort).existsById(postId);
         verify(commentCommander).save(any(Comment.class));
     }
 
@@ -83,7 +70,7 @@ class CommentCommanderServiceTest {
         authorId = 1L;
         CommentRequest request = Mockito.mock(CommentRequest.class);
 
-        when(postPort.findById(postId)).thenThrow(new BaseException(ErrorCode.POST_NOT_FOUND));
+        when(postPort.existsById(postId)).thenReturn(false);
 
         //when & then
         BaseException exception = assertThrows(BaseException.class, () ->
@@ -91,7 +78,7 @@ class CommentCommanderServiceTest {
 
         assertEquals(ErrorCode.POST_NOT_FOUND.getMessage(), exception.getMessage());
 
-        verify(postPort).findById(postId);
+        verify(postPort).existsById(postId);
     }
 
     @Test
@@ -213,8 +200,7 @@ class CommentCommanderServiceTest {
         Comment childComment = Comment.createChild(postId, authorId, request.getContent(), parentComment);
         ReflectionTestUtils.setField(childComment, "id", 2L);
 
-        when(postPort.findById(postId)).thenReturn(mockPostInfo);
-        when(mockPostInfo.getStatus()).thenReturn(PostStatus.OPEN);
+        when(postPort.existsById(postId)).thenReturn(true);
         when(commentCommander.findById(commentId)).thenReturn(Optional.of(parentComment));
         when(commentCommander.save(any(Comment.class))).thenReturn(childComment);
 
@@ -227,7 +213,7 @@ class CommentCommanderServiceTest {
         assertEquals(content, result.getContent());
         assertEquals(parentComment.getId(), result.getParentId());
 
-        verify(postPort).findById(postId);
+        verify(postPort).existsById(postId);
         verify(commentCommander).findById(commentId);
         verify(commentCommander).save(any(Comment.class));
     }

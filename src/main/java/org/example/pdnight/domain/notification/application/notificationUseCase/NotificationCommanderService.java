@@ -19,7 +19,7 @@ public class NotificationCommanderService {
         Notification notification = notificationCommander.findByIdIsReadFalse(id)
                 .orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND, "알림을 찾을 수 없습니다!"));
 
-        if (!userid.equals(notification.getReceiver())) {
+        if (!userid.equals(notification.getReceiverId())) {
             throw new BaseException(HttpStatus.BAD_REQUEST, "본인이 아닙니다!");
         }
         notification.markAsRead();
