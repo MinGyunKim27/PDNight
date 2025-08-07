@@ -178,7 +178,7 @@ public class PostCommanderService {
     @CacheEvict(value = CacheName.CONFIRMED_POST, allEntries = true)
     @DistributedLock(key = "#postId", timeoutMs = 5000)
     public ParticipantResponse applyParticipant(Long loginId, Long age, Gender gender, JobCategory jobCategory, Long postId) {
-        Post foundPost = getPostByIdOrElseThrow(postId);
+        Post foundPost = getOpenPostById(postId);
 
         // 신청 안되는지 확인
         validateJoinConditions(loginId, age, gender, jobCategory, foundPost);

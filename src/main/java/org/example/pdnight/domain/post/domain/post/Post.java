@@ -64,6 +64,7 @@ public class Post extends Timestamped {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Invite> invites = new ArrayList<>();
 
+
     private Boolean isDeleted = false;
     private LocalDateTime deletedAt;
 
