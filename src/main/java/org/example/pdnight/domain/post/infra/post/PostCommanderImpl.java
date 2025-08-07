@@ -22,7 +22,7 @@ public class PostCommanderImpl implements PostCommander {
 
     @Override
     public boolean existsById(Long id) {
-        return postJpaRepository.existsById(id);
+        return postJpaRepository.existsById(id, PostStatus.CLOSED);
     }
 
     @Override

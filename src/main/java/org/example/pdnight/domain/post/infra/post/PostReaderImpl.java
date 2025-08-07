@@ -36,9 +36,9 @@ public class PostReaderImpl implements PostReader {
 
     private final JPAQueryFactory queryFactory;
 
-    // 게시글 단건 조회
+    // 게시글 단건 조회 + 참여자 목록
     @Override
-    public Optional<Post> getPostById(Long postId) {
+    public Optional<Post> findByIdWithParticipants(Long postId) {
         Post findPost = queryFactory
                 .select(post)
                 .from(post)
@@ -49,6 +49,17 @@ public class PostReaderImpl implements PostReader {
         return Optional.ofNullable(findPost);
     }
 
+    // 게시글 단건 조회
+    @Override
+    public Optional<Post> findById(Long postId) {
+        Post findPost = queryFactory
+                .select(QPost.post)
+                .from(QPost.post)
+                .where(QPost.post.id.eq(postId))
+                .fetchFirst();
+        return Optional.ofNullable(findPost);
+    }
+
     // 내 좋아요 게시글 목록 조회
     @Override
     public Page<PostResponse> getMyLikePost(Long userId, Pageable pageable) {
@@ -56,6 +67,9 @@ public class PostReaderImpl implements PostReader {
         // 닫힌 상태가 아닐 때
         // builder.and(post.status.ne(PostStatus.CLOSED));
         builder.and(postLike.userId.eq(userId));
+
+        // 삭제 상태가 아닐 때
+        builder.and(post.isDeleted.eq(false));
 
         List<PostResponse> contents = queryFactory
                 .select(new QPostResponse(
@@ -100,6 +114,9 @@ public class PostReaderImpl implements PostReader {
 
         //닫힌 상태가 아닐 때
         builder.and(post.status.ne(PostStatus.CLOSED));
+
+        // 삭제 상태가 아닐 때
+        builder.and(post.isDeleted.eq(false));
 
         if (joinStatus != null) {
             builder.and(postParticipant.status.eq(joinStatus));
@@ -155,6 +172,9 @@ public class PostReaderImpl implements PostReader {
         // 무조건 포함되는 조건
         builder.and(post.status.eq(PostStatus.OPEN));
 
+        // 삭제 상태가 아닐 때
+        builder.and(post.isDeleted.eq(false));
+
         // nullable 조건 추가
         if (maxParticipants != null) {
             builder.and(post.maxParticipants.goe(maxParticipants));
@@ -198,7 +218,8 @@ public class PostReaderImpl implements PostReader {
         BooleanBuilder builder = new BooleanBuilder();
 
         builder.and(post.authorId.eq(userId));
-        builder.and(post.status.ne(PostStatus.CLOSED));
+        // 삭제 상태가 아닐 때
+        builder.and(post.isDeleted.eq(false));
 
         List<Post> contents = queryFactory
                 .select(post)
@@ -225,7 +246,9 @@ public class PostReaderImpl implements PostReader {
                 .from(post)
                 .leftJoin(postLike).on(postLike.post.eq(post)) // 좋아요 조인
                 .groupBy(post.id)
-                .where(postLike.userId.eq(userId).and(post.status.eq(PostStatus.OPEN)))
+                .where(postLike.userId.eq(userId)
+                        .and(post.status.eq(PostStatus.OPEN))
+                        .and(post.isDeleted.eq(false)))
                 .orderBy(postLike.count().desc()) // 좋아요 수 내림차순 정렬
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -241,11 +264,6 @@ public class PostReaderImpl implements PostReader {
         return PageableExecutionUtils.getPage(contents, pageable, () -> Optional.ofNullable(count).orElse(0L));
     }
 
-    @Override
-    public Optional<Post> findById(Long postId) {
-        Post post = queryFactory.select(QPost.post).from(QPost.post).where(QPost.post.id.eq(postId)).fetchFirst();
-        return Optional.ofNullable(post);
-    }
 
     // 초대받은 리스트
     @Override
@@ -259,7 +277,8 @@ public class PostReaderImpl implements PostReader {
                         invite.post.id
                 ))
                 .from(invite)
-                .where(invite.inviteeId.eq(userId)) // 내가 초대 받은 경우
+                .where(invite.inviteeId.eq(userId) // 내가 초대 받은 경우
+                        .and(post.isDeleted.eq(false)))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize());
 
@@ -284,7 +303,8 @@ public class PostReaderImpl implements PostReader {
                         invite.post.id
                 ))
                 .from(invite)
-                .where(invite.inviterId.eq(userId)) // 내가 초대한 경우
+                .where(invite.inviterId.eq(userId) // 내가 초대한 경우
+                        .and(post.isDeleted.eq(false)))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize());
 
@@ -295,5 +315,4 @@ public class PostReaderImpl implements PostReader {
 
         return PageableExecutionUtils.getPage(query.fetch(), pageable, countQuery::fetchOne);
     }
-
 }

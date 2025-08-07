@@ -1,4 +1,4 @@
-package org.example.pdnight.domain.notification.application;
+package org.example.pdnight.domain.notification.application.notificationUseCase;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +10,6 @@ import org.example.pdnight.domain.notification.presentation.dto.NotificationResp
 import org.example.pdnight.global.common.enums.ErrorCode;
 import org.example.pdnight.global.common.exception.BaseException;
 import org.example.pdnight.global.event.*;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,27 +17,10 @@ import java.util.List;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class NotificationConsumeService {
+public class NotificationConsumerService {
+
     private final NotificationCommander notificationCommander;
     private final NotificationSocketSender webSocketSender;
-
-    public void isReadCheck(Long id, Long userid) {
-        Notification notification = notificationCommander
-                .findByIdIsReadFalse(id)
-                .orElseThrow(()-> new BaseException(ErrorCode.NOTIFICATION_NOT_FOUND));
-
-        if (notification.getIsRead()) {
-            throw new BaseException(ErrorCode.ALREADY_READ_NOTIFICATION);
-        }
-
-        if (!userid.equals(notification.getReceiver())) {
-            throw new BaseException(HttpStatus.BAD_REQUEST, "본인이 아닙니다!");
-        }
-
-        notification.markAsRead();
-
-        notificationCommander.save(notification);
-    }
 
     public void handlePostConfirmed(PostConfirmedEvent event) {
         String message;
