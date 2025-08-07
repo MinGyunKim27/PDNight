@@ -78,7 +78,7 @@ public class PostCommanderService {
             @CacheEvict(value = CacheName.SUGGESTED_POST, allEntries = true),
     })
     public void deletePostById(Long userId, Long postId) {
-        Post foundPost = getPostByIdOrElseThrow(postId);
+        Post foundPost = getPostByIdAndNotDeleted(postId);
         validateAuthor(userId, foundPost);
 
         foundPost.softDelete();
@@ -95,7 +95,7 @@ public class PostCommanderService {
             @CacheEvict(value = CacheName.SUGGESTED_POST, allEntries = true),
     })
     public void hardDeletePostById(Long postId) {
-        Post foundPost = getPostByIdOrElseThrow(postId);
+        Post foundPost = getPostByIdAndNotDeleted(postId);
 
         postCommander.deletePost(foundPost);
         postProducer.produce("post.deleted", PostDeletedEvent.of(postId));
@@ -111,7 +111,13 @@ public class PostCommanderService {
             @CacheEvict(value = CacheName.SUGGESTED_POST, allEntries = true),
     })
     public PostResponse updatePostDetails(Long userId, Long postId, PostUpdateRequest request) {
-        Post foundPost = getPostByIdOrElseThrow(postId);
+        Post foundPost = getPostByIdAndNotDeleted(postId);
+
+        // CLOSED 에서는 내용 변경 불가
+        if (foundPost.getStatus().equals(PostStatus.CLOSED)) {
+            throw new BaseException(ErrorCode.POST_STATUS_CLOSED);
+        }
+
         validateAuthor(userId, foundPost);
 
         foundPost.updatePostIfNotNull(
@@ -138,8 +144,13 @@ public class PostCommanderService {
     })
     public PostResponse changePostStatus(Long userId, Long postId, PostStatusRequest request) {
         //상태값 변경은 어떤 상태라도 불러와서 수정
-        Post foundPost = getPostByIdOrElseThrow(postId);
+        Post foundPost = getPostByIdAndNotDeleted(postId); // id, 삭제됨 확인
         validateAuthor(userId, foundPost);
+
+        // CLOSED 에서는 상태변경 불가
+        if (foundPost.getStatus().equals(PostStatus.CLOSED)) {
+            throw new BaseException(ErrorCode.POST_STATE_FLOW_ERROR);
+        }
 
         //변동사항 있을시에만 업데이트
         if (!foundPost.getStatus().equals(request.getStatus())) {
@@ -151,7 +162,7 @@ public class PostCommanderService {
                         .filter(p -> p.getStatus() == JoinStatus.ACCEPTED)
                         .map(PostParticipant::getUserId)
                         .toList();
-                postProducer.produce("post.participant.confirmed", new PostConfirmedEvent(foundPost.getId(), foundPost.getAuthorId(), confirmedUserIds));
+                postProducer.produce("post.confirmed", new PostConfirmedEvent(foundPost.getId(), foundPost.getAuthorId(), confirmedUserIds));
             }
         }
 
@@ -168,7 +179,7 @@ public class PostCommanderService {
             @CacheEvict(value = CacheName.SUGGESTED_POST, allEntries = true),
     })
     public void deleteAdminPostById(Long id) {
-        getPostByIdOrElseThrow(id).softDelete();
+        getPostByIdAndNotDeleted(id).softDelete();
     }
     // endregion
 
@@ -178,7 +189,8 @@ public class PostCommanderService {
     @CacheEvict(value = CacheName.CONFIRMED_POST, allEntries = true)
     @DistributedLock(key = "#postId", timeoutMs = 5000)
     public ParticipantResponse applyParticipant(Long loginId, Long age, Gender gender, JobCategory jobCategory, Long postId) {
-        Post foundPost = getOpenPostById(postId);
+
+        Post foundPost = getPostByIdAndNotDeleted(postId);
 
         // 신청 안되는지 확인
         validateJoinConditions(loginId, age, gender, jobCategory, foundPost);
@@ -200,7 +212,7 @@ public class PostCommanderService {
     // @DistributedLock(key = "#postId", timeoutMs = 5000)
     @Transactional
     public void deleteParticipant(Long loginId, Long postId) {
-        Post post = getOpenPostById(postId);
+        Post post = getOpenPostByIdAndNotDeleted(postId);
 
         PostParticipant pending = getParticipantByStatus(loginId, post, JoinStatus.PENDING);
 
@@ -218,7 +230,7 @@ public class PostCommanderService {
     @CacheEvict(value = CacheName.CONFIRMED_POST, allEntries = true)
     @DistributedLock(key = "#postId", timeoutMs = 5000)
     public ParticipantResponse changeStatusParticipant(Long authorId, Long userId, Long postId, String status) {
-        Post post = getOpenPostById(postId);
+        Post post = getOpenPostByIdAndNotDeleted(postId);
         JoinStatus joinStatus = JoinStatus.of(status);
 
         PostParticipant pending = getParticipantByStatus(userId, post, JoinStatus.PENDING);
@@ -255,7 +267,7 @@ public class PostCommanderService {
     @Transactional
     public PostLikeResponse addLike(Long id, Long userId) {
 
-        Post post = getOpenPostById(id);
+        Post post = getPostByIdAndNotDeleted(id);
 
         //좋아요 존재 하면 에러
         validateAlreadyLiked(post, userId);
@@ -270,7 +282,7 @@ public class PostCommanderService {
     @Transactional
     public void removeLike(Long id, Long userId) {
 
-        Post post = getOpenPostById(id);
+        Post post = getPostByIdAndNotDeleted(id);
         PostLike like = getUserLikeForPost(post, userId);
 
         post.removeLike(like);
@@ -282,7 +294,7 @@ public class PostCommanderService {
     // 초대생성
     @Transactional
     public InviteResponse createInvite(Long postId, Long userId, Long loginUserId) {
-        Post post = getOpenPostById(postId);
+        Post post = getOpenPostByIdAndNotDeleted(postId);
         validateNotAlreadyInvited(post, userId, loginUserId);
 
         Invite invite = Invite.create(loginUserId, userId, post);
@@ -297,7 +309,7 @@ public class PostCommanderService {
     // 초대삭제
     @Transactional
     public void deleteInvite(Long postId, Long userId, Long loginUserId) {
-        Post post = getOpenPostById(postId);
+        Post post = getPostByIdAndNotDeleted(postId);
         Invite findInvite = post.getInvites().stream()
                 .filter(invite -> invite.getInviterId().equals(loginUserId) && invite.getInviteeId().equals(userId))
                 .findFirst()
@@ -311,7 +323,7 @@ public class PostCommanderService {
     @Transactional
     @DistributedLock(key = "#postId", timeoutMs = 5000)
     public void decisionForInvite(Long postId, Long loginUserId) {
-        Post post = getOpenPostById(postId);
+        Post post = getPostByIdAndNotDeleted(postId);
 
         Invite findInvite = post.getInvites().stream()
                 .filter(invite -> invite.getInviteeId().equals(loginUserId))
@@ -329,7 +341,7 @@ public class PostCommanderService {
     //내가 받은 초대 거절
     @Transactional
     public void rejectForInvite(Long postId, Long loginUserId) {
-        Post post = getOpenPostById(postId);
+        Post post = getPostByIdAndNotDeleted(postId);
 
         Invite findInvite = post.getInvites().stream()
                 .filter(invite -> invite.getInviteeId().equals(loginUserId))
@@ -342,7 +354,6 @@ public class PostCommanderService {
     }
 
     //region ----------------------------------- HELPER 메서드 ------------------------------------------------------
-
     // 게시물 좋아요가 있는지 확인
     private PostLike getUserLikeForPost(Post post, Long userId) {
         return post.getPostLikes().stream()
@@ -358,10 +369,11 @@ public class PostCommanderService {
     }
 
     // 게시물 있는지 확인
-    private Post getPostByIdOrElseThrow(Long postId) {
-        Post post = postCommander.findById(postId)
+    private Post getPostByIdAndNotDeleted(Long postId) {
+        Post post = postCommander.findByIdAndIsDeletedIsFalse(postId)
                 .orElseThrow(() -> new BaseException(POST_NOT_FOUND));
 
+        // 삭제 상태인 포스트의 경우
         if (post.getIsDeleted()) {
             throw new BaseException(ErrorCode.POST_DEACTIVATED);
         }
@@ -370,10 +382,16 @@ public class PostCommanderService {
     }
 
     // 오픈된 해당 게시물이 있는지 확인
-    private Post getOpenPostById(Long postId) {
-        Post post = postCommander.findByIdAndStatus(postId, PostStatus.OPEN)
+    private Post getOpenPostByIdAndNotDeleted(Long postId) {
+        Post post = postCommander.findByIdAndIsDeletedIsFalse(postId)
                 .orElseThrow(() -> new BaseException(POST_NOT_FOUND));
 
+        // OPEN 상태가 아닌 포스트의 경우
+        if(post.getStatus() != PostStatus.OPEN) {
+            throw new BaseException(POST_STATUS_NOT_OPEN);
+        }
+
+        // 삭제 상태인 포스트의 경우
         if (post.getIsDeleted()) {
             throw new BaseException(ErrorCode.POST_DEACTIVATED);
         }
@@ -444,8 +462,9 @@ public class PostCommanderService {
             throw new BaseException(ErrorCode.JOB_CATEGORY_LIMIT_NOT_SATISFIED);
         }
 
+        // 닫혔거나, 이미 수락된 게시글은 신청 불가
         if (post.getStatus() != PostStatus.OPEN) {
-            throw new BaseException(POST_ALREADY_CONFIRMED);
+            throw new BaseException(ErrorCode.POST_ALREADY_CONFIRMED);
         }
 
         // 신청 안됨 : 이미 신청함 - JoinStatus status 가 대기중 or 수락됨 인 경우
@@ -481,7 +500,7 @@ public class PostCommanderService {
                     .map(PostParticipant::getUserId)
                     .toList();
 
-            postProducer.produce("post.participant.confirmed", new PostConfirmedEvent(post.getId(), post.getAuthorId(), confirmedUserIds));
+            postProducer.produce("post.confirmed", new PostConfirmedEvent(post.getId(), post.getAuthorId(), confirmedUserIds));
         }
     }
 

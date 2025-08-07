@@ -8,9 +8,9 @@ public interface PostCommander {
 
     Optional<Post> findByIdAndStatus(Long id, PostStatus status);
 
-    boolean existsById(Long id);
+    boolean existsByIdAndIsDeletedIsFalse(Long id);
 
-    Optional<Post> findById(Long id);
+    Optional<Post> findByIdAndIsDeletedIsFalse(Long id);
 
     void deletePost(Post post);
 
