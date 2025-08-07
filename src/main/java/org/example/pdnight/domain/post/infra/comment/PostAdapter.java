@@ -1,7 +1,7 @@
-package org.example.pdnight.domain.post.infra.adapter;
+package org.example.pdnight.domain.post.infra.comment;
 
 import lombok.RequiredArgsConstructor;
-import org.example.pdnight.domain.post.application.port.PostPort;
+import org.example.pdnight.domain.post.application.commentUseCase.PostPort;
 import org.example.pdnight.domain.post.domain.post.Post;
 import org.example.pdnight.domain.post.domain.post.PostCommander;
 import org.example.pdnight.domain.post.domain.post.PostReader;

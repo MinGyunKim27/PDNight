@@ -1,4 +1,4 @@
-package org.example.pdnight.domain.post.application.PostUseCase.event;
+package org.example.pdnight.global.event;
 
 import lombok.Getter;
 

@@ -1,4 +1,4 @@
-package org.example.pdnight.domain.notification.application;
+package org.example.pdnight.domain.notification.infra;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
