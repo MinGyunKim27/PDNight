@@ -16,7 +16,6 @@ import org.example.pdnight.domain.post.presentation.dto.response.PostResponse;
 import org.example.pdnight.global.aop.DistributedLock;
 import org.example.pdnight.global.common.enums.ErrorCode;
 import org.example.pdnight.global.common.enums.JobCategory;
-import org.example.pdnight.global.common.enums.KafkaTopic;
 import org.example.pdnight.global.common.exception.BaseException;
 import org.example.pdnight.global.constant.CacheName;
 import org.example.pdnight.global.event.*;
@@ -148,12 +147,14 @@ public class PostCommanderService {
             // 참가자들에게 이벤트 발행
             if(request.getStatus().equals(PostStatus.CONFIRMED)){
                 // Kafka 이벤트 발행
-                postProducer.produce(KafkaTopic.POST_CONFIRMED.topicName(),
+                postProducer.produce("post.confirmed",
                         new PostConfirmedEvent(
                                 foundPost.getId(),
                                 foundPost.getAuthorId(),
                                 foundPost.getTitle(),
-                                foundPost.getPostParticipants().stream().map(PostParticipant::getUserId).toList()
+                                foundPost.getPostParticipants().stream()
+                                        .filter(p -> p.getStatus() == JoinStatus.ACCEPTED)
+                                        .map(PostParticipant::getUserId).toList()
                         )
                 );
             }
@@ -487,7 +488,6 @@ public class PostCommanderService {
 
             // Kafka 이벤트 발행
             postProducer.produce("post.confirmed", new PostConfirmedEvent(post.getId(), post.getAuthorId(), post.getTitle(), confirmedUserIds));
-            postProducer.produce("post.participant.confirmed", new PostConfirmedEvent(post.getId(), post.getAuthorId(), post.getTitle(), confirmedUserIds));
         }
     }
 

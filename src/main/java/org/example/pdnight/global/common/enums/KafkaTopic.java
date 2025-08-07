@@ -5,7 +5,7 @@ public enum KafkaTopic {
     POST_PARTICIPANT_APPLIED("post.participant.applied"),
     POST_PARTICIPANT_ACCEPTED("post.participant.accepted"),
     POST_PARTICIPANT_DENIED("post.participant.denied"),
-    POST_PARTICIPANT_CONFIRMED("post.participant.confirmed"),
+    POST_PARTICIPANT_CONFIRMED("post.confirmed"),
     POST_CONFIRMED("post.confirmed"),
     POST_DELETED("post.deleted"),
 
