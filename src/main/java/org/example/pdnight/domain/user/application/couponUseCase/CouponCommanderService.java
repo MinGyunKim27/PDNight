@@ -2,8 +2,6 @@ package org.example.pdnight.domain.user.application.couponUseCase;
 
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.user.domain.couponDomain.CouponCommander;
-import org.example.pdnight.domain.user.domain.couponDomain.CouponProducer;
-import org.example.pdnight.domain.user.domain.couponDomain.CouponReader;
 import org.example.pdnight.domain.user.domain.entity.Coupon;
 import org.example.pdnight.domain.user.presentation.dto.couponDto.request.CouponRequest;
 import org.example.pdnight.domain.user.presentation.dto.couponDto.request.UpdateCouponRequest;
@@ -18,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class CouponCommanderService {
 
     private final CouponCommander couponCommander;
-    private final CouponProducer producer;
 
     // --------------------- Admin Api ------------------------------------------------//
     // 쿠폰생성

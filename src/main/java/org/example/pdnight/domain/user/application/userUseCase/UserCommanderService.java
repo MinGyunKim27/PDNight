@@ -120,6 +120,7 @@ public class UserCommanderService {
 
         UserCoupon userCoupon = UserCoupon.create(user, request.getCouponId(), couponInfo.getDefaultDeadlineDays());
         user.addCoupon(userCoupon);
+
         producer.produce(KafkaTopic.COUPON_ISSUED.topicName(), new CouponIssuedEvent(user.getId()));
         return UserCouponResponse.from(userCoupon);
     }

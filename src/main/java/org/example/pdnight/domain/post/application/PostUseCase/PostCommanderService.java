@@ -1,13 +1,13 @@
 package org.example.pdnight.domain.post.application.PostUseCase;
 
 import lombok.RequiredArgsConstructor;
+import org.example.pdnight.global.common.enums.KafkaTopic;
 import org.example.pdnight.global.event.PostConfirmedEvent;
 import org.example.pdnight.domain.post.domain.post.*;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.enums.JoinStatus;
 import org.example.pdnight.domain.post.enums.PostStatus;
-import org.example.pdnight.domain.post.infra.post.PostProducer;
 import org.example.pdnight.domain.post.presentation.dto.request.PostRequest;
 import org.example.pdnight.domain.post.presentation.dto.request.PostStatusRequest;
 import org.example.pdnight.domain.post.presentation.dto.request.PostUpdateRequest;
@@ -131,6 +131,16 @@ public class PostCommanderService {
         //변동사항 있을시에만 업데이트
         if (!foundPost.getStatus().equals(request.getStatus())) {
             foundPost.updateStatus(request.getStatus());
+            if(request.getStatus().equals(PostStatus.CONFIRMED)){
+                postProducer.produce(KafkaTopic.POST_CONFIRMED.topicName(),
+                        new PostConfirmedEvent(
+                                foundPost.getId(),
+                                foundPost.getAuthorId(),
+                                foundPost.getTitle(),
+                                foundPost.getPostParticipants().stream().map(PostParticipant::getUserId).toList()
+                        )
+                );
+            }
         }
 
         return PostResponse.toDto(foundPost);
@@ -435,7 +445,7 @@ public class PostCommanderService {
                     .map(PostParticipant::getUserId)
                     .toList();
 
-            postProducer.produce("post.participant.confirmed", new PostConfirmedEvent(post.getId(), post.getAuthorId(), confirmedUserIds));
+            postProducer.produce("post.participant.confirmed", new PostConfirmedEvent(post.getId(), post.getAuthorId(), post.getTitle(), confirmedUserIds));
         }
     }
 
