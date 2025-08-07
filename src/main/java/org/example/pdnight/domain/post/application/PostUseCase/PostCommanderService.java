@@ -1,7 +1,6 @@
 package org.example.pdnight.domain.post.application.PostUseCase;
 
 import lombok.RequiredArgsConstructor;
-import org.example.pdnight.global.event.PostConfirmedEvent;
 import org.example.pdnight.domain.post.domain.post.*;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
@@ -82,8 +81,24 @@ public class PostCommanderService {
         Post foundPost = getPostByIdOrElseThrow(postId);
         validateAuthor(userId, foundPost);
 
-        postProducer.produce("post.deleted", PostDeletedEvent.of(postId));
+        foundPost.softDelete();
+    }
+
+    //물리적 삭제
+    @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = CacheName.SEARCH_POST, allEntries = true),
+            @CacheEvict(value = CacheName.ONE_POST, key = "#postId"),
+            @CacheEvict(value = CacheName.LIKED_POST, allEntries = true),
+            @CacheEvict(value = CacheName.CONFIRMED_POST, allEntries = true),
+            @CacheEvict(value = CacheName.WRITTEN_POST, allEntries = true),
+            @CacheEvict(value = CacheName.SUGGESTED_POST, allEntries = true),
+    })
+    public void hardDeletePostById(Long postId) {
+        Post foundPost = getPostByIdOrElseThrow(postId);
+
         postCommander.deletePost(foundPost);
+        postProducer.produce("post.deleted", PostDeletedEvent.of(postId));
     }
 
     @Transactional
@@ -143,8 +158,17 @@ public class PostCommanderService {
         return PostResponse.toDto(foundPost);
     }
 
+    @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = CacheName.SEARCH_POST, allEntries = true),
+            @CacheEvict(value = CacheName.ONE_POST, key = "#id"),
+            @CacheEvict(value = CacheName.LIKED_POST, allEntries = true),
+            @CacheEvict(value = CacheName.CONFIRMED_POST, allEntries = true),
+            @CacheEvict(value = CacheName.WRITTEN_POST, allEntries = true),
+            @CacheEvict(value = CacheName.SUGGESTED_POST, allEntries = true),
+    })
     public void deleteAdminPostById(Long id) {
-        postCommander.deletePost(getPostByIdOrElseThrow(id));
+        getPostByIdOrElseThrow(id).softDelete();
     }
     // endregion
 
@@ -231,7 +255,7 @@ public class PostCommanderService {
     @Transactional
     public PostLikeResponse addLike(Long id, Long userId) {
 
-        Post post = getPostByIdOrElseThrow(id);
+        Post post = getOpenPostById(id);
 
         //좋아요 존재 하면 에러
         validateAlreadyLiked(post, userId);
@@ -246,7 +270,7 @@ public class PostCommanderService {
     @Transactional
     public void removeLike(Long id, Long userId) {
 
-        Post post = getPostByIdOrElseThrow(id);
+        Post post = getOpenPostById(id);
         PostLike like = getUserLikeForPost(post, userId);
 
         post.removeLike(like);
@@ -273,7 +297,7 @@ public class PostCommanderService {
     // 초대삭제
     @Transactional
     public void deleteInvite(Long postId, Long userId, Long loginUserId) {
-        Post post = postCommander.findById(postId).orElseThrow(() -> new BaseException(POST_NOT_FOUND));
+        Post post = getOpenPostById(postId);
         Invite findInvite = post.getInvites().stream()
                 .filter(invite -> invite.getInviterId().equals(loginUserId) && invite.getInviteeId().equals(userId))
                 .findFirst()
@@ -287,7 +311,7 @@ public class PostCommanderService {
     @Transactional
     @DistributedLock(key = "#postId", timeoutMs = 5000)
     public void decisionForInvite(Long postId, Long loginUserId) {
-        Post post = postCommander.findById(postId).orElseThrow(() -> new BaseException(POST_NOT_FOUND));
+        Post post = getOpenPostById(postId);
 
         Invite findInvite = post.getInvites().stream()
                 .filter(invite -> invite.getInviteeId().equals(loginUserId))
@@ -305,7 +329,7 @@ public class PostCommanderService {
     //내가 받은 초대 거절
     @Transactional
     public void rejectForInvite(Long postId, Long loginUserId) {
-        Post post = postCommander.findById(postId).orElseThrow(() -> new BaseException(POST_NOT_FOUND));
+        Post post = getOpenPostById(postId);
 
         Invite findInvite = post.getInvites().stream()
                 .filter(invite -> invite.getInviteeId().equals(loginUserId))
@@ -335,14 +359,26 @@ public class PostCommanderService {
 
     // 게시물 있는지 확인
     private Post getPostByIdOrElseThrow(Long postId) {
-        return postCommander.findById(postId)
+        Post post = postCommander.findById(postId)
                 .orElseThrow(() -> new BaseException(POST_NOT_FOUND));
+
+        if (post.getIsDeleted()) {
+            throw new BaseException(ErrorCode.POST_DEACTIVATED);
+        }
+
+        return post;
     }
 
     // 오픈된 해당 게시물이 있는지 확인
     private Post getOpenPostById(Long postId) {
-        return postCommander.findByIdAndStatus(postId, PostStatus.OPEN)
+        Post post = postCommander.findByIdAndStatus(postId, PostStatus.OPEN)
                 .orElseThrow(() -> new BaseException(POST_NOT_FOUND));
+
+        if (post.getIsDeleted()) {
+            throw new BaseException(ErrorCode.POST_DEACTIVATED);
+        }
+
+        return post;
     }
 
     //참가자 생성, 추가 메서드

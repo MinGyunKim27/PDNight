@@ -37,7 +37,7 @@ public class PostReaderService {
     @Transactional(readOnly = true)
     @Cacheable(value = CacheName.ONE_POST, key = "#id")
     public PostResponse findPost(Long id) {
-        Post foundPost = postReader.getPostById(id).orElseThrow(() -> new BaseException(ErrorCode.POST_NOT_FOUND));
+        Post foundPost = getPost(id);
         int participants = acceptedParticipantsCounter(foundPost.getPostParticipants());
         return PostResponse.toDtoWithCount(foundPost, participants, foundPost.getPostParticipants().size());
     }
@@ -46,7 +46,7 @@ public class PostReaderService {
     @Transactional(readOnly = true)
     @Cacheable(
             value = CacheName.SEARCH_POST,
-            key = "{#pageable.pageNumber, #pageable.pageSize, #maxParticipants, #ageLimit, #jobCategoryLimit, #genderLimit, #hobbyIdList, #techStackIdList}"
+            key = "{#pageable.pageNumber, #pageable.pageSize, #maxParticipants, #ageLimit, #jobCategoryLimit, #genderLimit}"
     )
     public PagedResponse<PostResponse> getPostDtosBySearch(
             Pageable pageable,
@@ -156,6 +156,7 @@ public class PostReaderService {
 
         return PagedResponse.from(pagedPendingParticipants);
     }
+
     //endregion
     //region 게시물초대 조회
     public PagedResponse<InviteResponse> getMyInvited(Long userId, Pageable pageable) {
@@ -180,8 +181,14 @@ public class PostReaderService {
     }
 
     private Post getPost(Long postId) {
-        return postReader.getPostById(postId)
+        Post post = postReader.findByIdWithParticipants(postId)
                 .orElseThrow(() -> new BaseException(ErrorCode.POST_NOT_FOUND));
+
+        if (post.getIsDeleted()) {
+            throw new BaseException(ErrorCode.POST_DEACTIVATED);
+        }
+
+        return post;
     }
 
     // 리스트를 불러와서 참여자 수

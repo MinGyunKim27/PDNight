@@ -13,6 +13,7 @@ public interface PostJpaRepository extends JpaRepository<Post, Long> {
     @Query("SELECT p FROM Post p LEFT JOIN FETCH p.postParticipants WHERE p.id = :id AND p.status = :status")
     Optional<Post> findByIdAndStatus(Long id, PostStatus status);
 
-    boolean existsById(Long id);
+    @Query("SELECT COUNT(*) > 0 FROM Post p WHERE p.id = :id AND p.isDeleted = false AND p.status != :status")
+    boolean existsById(Long id, PostStatus status);
 
 }
