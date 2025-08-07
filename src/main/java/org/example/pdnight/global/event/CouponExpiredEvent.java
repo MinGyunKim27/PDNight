@@ -1,7 +1,8 @@
 package org.example.pdnight.global.event;
 
+import java.util.List;
+
 public record CouponExpiredEvent(
-        Long adminId,
-        Long userId
+        List<Long> userIds
 ) {
 }

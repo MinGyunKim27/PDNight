@@ -14,6 +14,8 @@ import org.example.pdnight.global.event.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -137,12 +139,15 @@ public class NotificationConsumeService {
 
     // 쿠폰 만료 전
     public void handleCouponExpired(CouponExpiredEvent event) {
-        Long receiverId = event.userId();
+        List<Long> receiverIds = event.userIds();
         String message ="쿠폰만료까지 1일 남았습니다.";
         String logMessage = "쿠폰 만료 알림 저장 완료!";
         NotificationType type = NotificationType.COUPON_EXPIRED;
 
-        sendMessage(receiverId, null, message, logMessage, type);
+        for(Long receiverId : receiverIds) {
+            sendMessage(receiverId, null, message, logMessage, type);
+        }
+
     }
 
     // 댓글 작성
