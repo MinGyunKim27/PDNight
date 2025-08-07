@@ -2,6 +2,7 @@ package org.example.pdnight.domain.auth.application.authUseCase;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
 import org.example.pdnight.domain.auth.domain.AuthCommander;
+import org.example.pdnight.domain.auth.domain.AuthProducer;
 import org.example.pdnight.domain.auth.domain.entity.Auth;
 import org.example.pdnight.domain.auth.presentation.dto.request.LoginRequest;
 import org.example.pdnight.domain.auth.presentation.dto.request.SignupRequest;
@@ -32,6 +33,9 @@ public class AuthCommanderServiceTest {
 
     @Mock
     private AuthCommander authCommander;
+
+    @Mock
+    private AuthProducer producer;
 
     @Mock
     private PasswordEncoder passwordEncoder;
@@ -111,11 +115,12 @@ public class AuthCommanderServiceTest {
         Long userId = 1L;
         // Auth auth = getAuthById(userId);
         Auth auth = mock(Auth.class);
-        when(authCommander.findById(any())).thenReturn(Optional.of(auth));
+        when(authCommander.findById(userId)).thenReturn(Optional.of(auth));
 
         // validateAuth(auth, request.getPassword());
         when(auth.getIsDeleted()).thenReturn(false);
         when(passwordEncoder.matches(any(), any())).thenReturn(true);
+        doNothing().when(producer).produce(anyString(), any());
 
         //when
         authService.withdraw(userId, mock(WithdrawRequest.class));

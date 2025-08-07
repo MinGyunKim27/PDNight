@@ -40,4 +40,5 @@ public class UserConsumerService {
 
         user.softDelete();
     }
+
 }

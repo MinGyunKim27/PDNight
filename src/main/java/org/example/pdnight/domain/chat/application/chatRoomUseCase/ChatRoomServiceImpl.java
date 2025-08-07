@@ -35,9 +35,5 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         return chatRoomCommanderService.chatRoomEnterValid(userId, chatRoomId);
     }
 
-    @Override
-    public ChatRoom createFromPost(Long postId) {
-        return chatRoomCommanderService.createFromPost(postId);
-    }
 
 }

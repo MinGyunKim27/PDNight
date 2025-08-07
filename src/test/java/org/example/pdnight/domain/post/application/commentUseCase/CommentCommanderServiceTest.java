@@ -2,6 +2,7 @@ package org.example.pdnight.domain.post.application.commentUseCase;
 
 import org.example.pdnight.domain.post.domain.comment.Comment;
 import org.example.pdnight.domain.post.domain.comment.CommentCommander;
+import org.example.pdnight.domain.post.domain.comment.CommentProducer;
 import org.example.pdnight.domain.post.enums.PostStatus;
 import org.example.pdnight.domain.post.presentation.dto.request.CommentRequest;
 import org.example.pdnight.domain.post.presentation.dto.response.CommentResponse;
@@ -31,6 +32,9 @@ class CommentCommanderServiceTest {
 
     @Mock
     private PostPort postPort;
+
+    @Mock
+    private CommentProducer producer;
 
     @InjectMocks
     private CommentCommanderService commentCommanderService;
@@ -62,6 +66,7 @@ class CommentCommanderServiceTest {
         when(postPort.findById(postId)).thenReturn(mockPostInfo);
         when(mockPostInfo.getStatus()).thenReturn(PostStatus.OPEN);
         when(commentCommander.save(any(Comment.class))).thenReturn(comment);
+        doNothing().when(producer).produce(anyString(), any());
 
         //when
         CommentResponse result = commentCommanderService.createComment(postId, authorId, request);
@@ -217,6 +222,7 @@ class CommentCommanderServiceTest {
         when(mockPostInfo.getStatus()).thenReturn(PostStatus.OPEN);
         when(commentCommander.findById(commentId)).thenReturn(Optional.of(parentComment));
         when(commentCommander.save(any(Comment.class))).thenReturn(childComment);
+        doNothing().when(producer).produce(anyString(), any());
 
         //when
         CommentResponse result = commentCommanderService.createChildComment(postId, commentId, authorId, request);

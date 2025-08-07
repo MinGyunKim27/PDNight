@@ -1,21 +1,23 @@
 package org.example.pdnight.domain.promotion.application.promotionUseCase;
 
 import org.example.pdnight.domain.promotion.domain.PromotionCommander;
-import org.example.pdnight.domain.promotion.domain.PromotionReader;
 import org.example.pdnight.domain.promotion.domain.entity.Promotion;
+import org.example.pdnight.domain.promotion.domain.entity.PromotionParticipant;
 import org.example.pdnight.domain.promotion.presentation.dto.request.PromotionCreateRequest;
 import org.example.pdnight.domain.promotion.presentation.dto.response.PromotionResponse;
+import org.example.pdnight.global.common.enums.ErrorCode;
 import org.example.pdnight.global.common.exception.BaseException;
 import org.junit.jupiter.api.DisplayName;
-import org.example.pdnight.global.common.enums.ErrorCode;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
+
 import java.time.LocalDateTime;
 import java.util.Optional;
+
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -29,9 +31,6 @@ public class PromotionCommanderServiceTest {
 
     @Mock
     private PromotionCommander promotionCommander;
-
-    @Mock
-    private PromotionReader promotionReader;
 
     @Test
     @DisplayName("프로모션 생성 확인 테스트")
@@ -64,7 +63,7 @@ public class PromotionCommanderServiceTest {
 
     @Test
     @DisplayName("프로모션 생성 실패 - 이상한 날짜")
-    void 프로모션_생성_실패_날짜_오류(){
+    void 프로모션_생성_실패_날짜_오류() {
         LocalDateTime fixedDateTime = LocalDateTime.now().minusYears(1);
         PromotionCreateRequest request = PromotionCreateRequest.from(
                 "title", "content", 50, fixedDateTime, fixedDateTime.plusDays(10)
@@ -77,7 +76,7 @@ public class PromotionCommanderServiceTest {
 
     @Test
     @DisplayName("프로모션 생성 실패 - 이상한 정원")
-    void 프로모션_생성_실패_이상한_정원(){
+    void 프로모션_생성_실패_이상한_정원() {
         LocalDateTime fixedDateTime = LocalDateTime.now().plusDays(1);
 
         PromotionCreateRequest request = PromotionCreateRequest.from(
@@ -91,7 +90,7 @@ public class PromotionCommanderServiceTest {
 
     @Test
     @DisplayName("프로모션 수정 성공")
-    void 프로모션_수정_성공(){
+    void 프로모션_수정_성공() {
         LocalDateTime fixedDateTime = LocalDateTime.now().plusDays(1);
 
         Promotion promotion = Promotion.from(
@@ -104,7 +103,7 @@ public class PromotionCommanderServiceTest {
         );
 
         when(promotionCommander.save(any(Promotion.class))).thenReturn(promotion);
-        when(promotionReader.findById(1L)).thenReturn(Optional.of(promotion));
+        when(promotionCommander.findById(1L)).thenReturn(Optional.of(promotion));
 
         PromotionResponse response = promotionCommanderService.updatePromotion(1L, request);
 
@@ -115,24 +114,7 @@ public class PromotionCommanderServiceTest {
 
     @Test
     @DisplayName("프로모션 삭제 성공")
-    void 프로모션_삭제_성공(){
-        LocalDateTime fixedDateTime = LocalDateTime.now().plusDays(1);
-
-        Promotion promotion = Promotion.from(
-                "title", "content", 50, fixedDateTime, fixedDateTime.plusDays(10)
-        );
-        ReflectionTestUtils.setField(promotion, "id", 1L);
-
-        when(promotionReader.findById(1L)).thenReturn(Optional.of(promotion));
-
-        promotionCommanderService.deletePromotionById(1L);
-
-        verify(promotionCommander, times(1)).delete(promotion);
-    }
-
-    @Test
-    @DisplayName("프로모션 참가 신청 성공")
-    void 프로모션_참가_신청_성공(){
+    void 프로모션_삭제_성공() {
         LocalDateTime fixedDateTime = LocalDateTime.now().plusDays(1);
 
         Promotion promotion = Promotion.from(
@@ -141,7 +123,24 @@ public class PromotionCommanderServiceTest {
         ReflectionTestUtils.setField(promotion, "id", 1L);
 
         when(promotionCommander.findById(1L)).thenReturn(Optional.of(promotion));
-        when(promotion.getPromotionParticipants().size()).thenReturn(1);
+
+        promotionCommanderService.deletePromotionById(1L);
+
+        verify(promotionCommander, times(1)).delete(promotion);
+    }
+
+    @Test
+    @DisplayName("프로모션 참가 신청 성공")
+    void 프로모션_참가_신청_성공() {
+        LocalDateTime fixedDateTime = LocalDateTime.now().plusDays(1);
+
+        Promotion promotion = Promotion.from(
+                "title", "content", 50, fixedDateTime, fixedDateTime.plusDays(10)
+        );
+        ReflectionTestUtils.setField(promotion, "id", 1L);
+
+        when(promotionCommander.findById(1L)).thenReturn(Optional.of(promotion));
+//        when(promotion.getPromotionParticipants().size()).thenReturn(1);
 
         promotionCommanderService.addParticipant(1L, 1L);
 
@@ -153,7 +152,7 @@ public class PromotionCommanderServiceTest {
         LocalDateTime fixedDateTime = LocalDateTime.now().plusDays(1);
 
         PromotionCreateRequest request = PromotionCreateRequest.from(
-                "제목", "내용", 0,fixedDateTime, fixedDateTime.plusDays(1)
+                "제목", "내용", 0, fixedDateTime, fixedDateTime.plusDays(1)
         );
 
         assertThatThrownBy(() -> promotionCommanderService.createPromotion(request))
@@ -169,11 +168,11 @@ public class PromotionCommanderServiceTest {
         Long userId = 10L;
         LocalDateTime fixedDateTime = LocalDateTime.now().plusDays(1);
         Promotion promotion = Promotion.from("제목", "내용", 2, fixedDateTime, fixedDateTime.plusDays(1));
-
-
+        PromotionParticipant promotionParticipant = PromotionParticipant.create(promotion, userId);
+        promotion.addParticipant(promotionParticipant);
         when(promotionCommander.findById(promotionId)).thenReturn(Optional.of(promotion));
 
-        when(promotion.getPromotionParticipants().stream().anyMatch(any())).thenReturn(true);
+//        when(promotion.getPromotionParticipants().stream()).thenReturn(promotionParticipant);
         // when & then
         assertThatThrownBy(() -> promotionCommanderService.addParticipant(promotionId, userId))
                 .isInstanceOf(BaseException.class)
@@ -189,11 +188,11 @@ public class PromotionCommanderServiceTest {
         Long promotionId = 1L;
         Long userId = 10L;
 
-        Promotion promotion = Promotion.from("제목", "내용", 2, fixedDateTime, fixedDateTime.plusDays(1));
+        Promotion promotion = Promotion.from("제목", "내용", 1, fixedDateTime, fixedDateTime.plusDays(1));
+        PromotionParticipant promotionParticipant = PromotionParticipant.create(promotion, 1L);
+        promotion.addParticipant(promotionParticipant);
 
-        when(promotion.getPromotionParticipants().stream().anyMatch(any())).thenReturn(false);
         when(promotionCommander.findById(promotionId)).thenReturn(Optional.of(promotion));
-        when(promotion.getPromotionParticipants().size()).thenReturn(2); // 이미 정원 초과
 
         // when & then
         assertThatThrownBy(() -> promotionCommanderService.addParticipant(promotionId, userId))

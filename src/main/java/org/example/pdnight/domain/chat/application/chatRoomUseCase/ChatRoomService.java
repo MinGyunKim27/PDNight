@@ -14,6 +14,4 @@ public interface ChatRoomService {
     ChatRoomResponse roomInfo(Long roomId);
 
     String chatRoomEnterValid(Long userId, Long chatRoomId);
-
-    ChatRoom createFromPost(Long postId);
 }

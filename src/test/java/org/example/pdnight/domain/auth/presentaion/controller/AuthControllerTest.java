@@ -68,6 +68,7 @@ public class AuthControllerTest {
                 .email(email).nickname(name).name(name).password(password)
                 .gender(Gender.MALE).age(25L).jobCategory(JobCategory.BACK_END_DEVELOPER)
                 .build();
+        createUser(request);
 
         //when
         ResultActions perform = mockMvc.perform(post("/api/auth/signup")
@@ -86,15 +87,7 @@ public class AuthControllerTest {
     void loginSuccess() throws Exception {
         //given
         String email = "test@test.com";
-        String name = "name";
         String password = "password";
-        SignupRequest signupRequest = SignupRequest.builder()
-                .email(email).nickname(name).name(name).password(password)
-                .gender(Gender.MALE).age(25L).jobCategory(JobCategory.BACK_END_DEVELOPER)
-                .build();
-
-        createAuth(signupRequest);
-        createUser(signupRequest);
 
         LoginRequest loginRequest = LoginRequest.builder()
                 .email(email).password(password)

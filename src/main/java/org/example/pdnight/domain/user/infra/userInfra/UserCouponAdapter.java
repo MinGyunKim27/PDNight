@@ -1,7 +1,7 @@
 package org.example.pdnight.domain.user.infra.userInfra;
 
 import lombok.RequiredArgsConstructor;
-import org.example.pdnight.domain.user.application.port.UserCouponPort;
+import org.example.pdnight.domain.user.application.userUseCase.UserCouponPort;
 import org.example.pdnight.domain.user.domain.couponDomain.CouponReader;
 import org.example.pdnight.domain.user.domain.entity.Coupon;
 import org.example.pdnight.domain.user.presentation.dto.userDto.response.CouponInfo;

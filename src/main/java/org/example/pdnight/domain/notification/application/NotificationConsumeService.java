@@ -77,7 +77,6 @@ public class NotificationConsumeService {
         }
     }
 
-
     // 모임 참가 신청 알림
     public void handlePostApplied(PostParticipateAppliedEvent event) {
         // 신청자 -> 모임 작성자에게 전송
@@ -150,8 +149,6 @@ public class NotificationConsumeService {
         sendMessage(receiverId, senderId, message, logMessage, type);
     }
 
-
-
     // 사용자 리뷰 작성
     public void handleReviewCreated(ReviewCreatedEvent event) {
         Long receiverId = event.revieweeId();
@@ -195,7 +192,6 @@ public class NotificationConsumeService {
         for(Long receiverId : receiverIds) {
             sendMessage(receiverId, null, message, logMessage, type);
         }
-
     }
 
     // 댓글 작성

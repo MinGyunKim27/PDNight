@@ -1,7 +1,6 @@
 package org.example.pdnight.domain.user.application.userUseCase;
 
 import lombok.RequiredArgsConstructor;
-import org.example.pdnight.domain.user.application.port.UserCouponPort;
 import org.example.pdnight.domain.user.domain.entity.Follow;
 import org.example.pdnight.domain.user.domain.entity.User;
 import org.example.pdnight.domain.user.domain.entity.UserCoupon;
