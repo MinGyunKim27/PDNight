@@ -68,6 +68,7 @@ class CommentCommanderServiceTest {
         when(postPort.findById(postId)).thenReturn(info);
         when(info.getAuthorId()).thenReturn(1L);
         when(info.getStatus()).thenReturn(PostStatus.OPEN);
+        when(info.getPostId()).thenReturn(postId);
         doNothing().when(producer).produce(anyString(), any());
 
         //when
@@ -78,7 +79,7 @@ class CommentCommanderServiceTest {
         assertEquals(info.getPostId(), result.getPostId());
         assertEquals(content, result.getContent());
 
-        verify(postPort).findById(postId);
+        verify(postPort, times(2)).findById(postId);
         verify(commentCommander).save(any(Comment.class));
     }
 
