@@ -52,15 +52,19 @@ public class AuthCommanderService {
 
         Auth saveAuth = authCommander.save(auth);
 
-        // 회원가입 이벤트 발행
-        producer.produce(KafkaTopic.AUTH_SIGNED_UP.topicName(), new AuthSignedUpEvent(
-                auth.getId(),
-                request.getName(),
-                request.getNickname(),
-                request.getGender(),
-                request.getAge(),
-                request.getJobCategory()
-        ));
+        try {
+            // 회원가입 이벤트 발행
+            producer.produce(KafkaTopic.AUTH_SIGNED_UP.topicName(), new AuthSignedUpEvent(
+                    auth.getId(),
+                    request.getName(),
+                    request.getNickname(),
+                    request.getGender(),
+                    request.getAge(),
+                    request.getJobCategory()
+            ));
+        } catch (Exception e) {
+            throw new BaseException(ErrorCode.KAFKA_SEND_TIMEOUT);
+        }
 
         return SignupResponse.from(saveAuth);
     }
