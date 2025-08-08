@@ -48,6 +48,11 @@ public class UserConsumer {
 
     private final KafkaTemplate kafkaTemplate;
 
+    /*
+    * 일시적인 서버 장애용 DLT 자동 재시도 로직
+    *
+    *
+    * */
     @KafkaListener(
             topics = {
                     "auth.signedup.DLT",
@@ -55,12 +60,17 @@ public class UserConsumer {
             },
             groupId = "DLT-handler"
     )
-    public void consumeAuthSignedUpEventRetryDLT(ConsumerRecord<String, Object> record) {
+    public void RetryDLT(ConsumerRecord<String, Object> record) {
 
         String originalTopic = record.topic().replace(".DLT", "");
         String retryHeaderName = "x-retry-count";
         Headers headers = record.headers();
         int retryCount = 0;
+
+        if (record.value() == null) {
+            log.warn("DLT value가 null 포멧오류 또는 역직렬화 실패등");
+            return;
+        }
 
         Header retryHeader = headers.lastHeader(retryHeaderName);
         if (retryHeader != null) {
