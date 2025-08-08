@@ -1,4 +1,4 @@
-package org.example.pdnight.domain.post.infra.post;
+package org.example.pdnight.domain.post.infra.comment;
 
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.post.application.commentUseCase.PostPort;
@@ -40,7 +40,8 @@ public class PostAdapter implements PostPort {
     }
 
     @Override
-    public boolean existsById(Long postId) {
-        return postCommander.existsById(postId);
+    public boolean existsByIdAndIsDeletedIsFalse(Long postId) {
+        return postCommander.existsByIdAndIsDeletedIsFalse(postId);
     }
+
 }

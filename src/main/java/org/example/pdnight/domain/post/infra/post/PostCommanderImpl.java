@@ -21,12 +21,12 @@ public class PostCommanderImpl implements PostCommander {
     }
 
     @Override
-    public boolean existsById(Long id) {
-        return postJpaRepository.existsById(id, PostStatus.CLOSED);
+    public boolean existsByIdAndIsDeletedIsFalse(Long id) {
+        return postJpaRepository.existsByIdAndIsDeletedIsFalse(id);
     }
 
     @Override
-    public Optional<Post> findById(Long id) {
+    public Optional<Post> findByIdAndIsDeletedIsFalse(Long id) {
         return postJpaRepository.findById(id);
     }
 
