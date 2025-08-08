@@ -12,7 +12,7 @@ public class NotificationConsumer {
     private final NotificationConsumerService notificationConsumerService;
 
     // 모임 성사
-    @KafkaListener(topics = "post.confirmed", groupId = "alert-group")
+    @KafkaListener(topics = {"post.confirmed"}, groupId = "alert-group")
     public void consumePostConfirmedEvent(PostConfirmedEvent event) {
         notificationConsumerService.handlePostConfirmed(event);
     }
