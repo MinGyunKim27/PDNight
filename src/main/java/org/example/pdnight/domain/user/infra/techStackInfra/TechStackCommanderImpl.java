@@ -14,4 +14,9 @@ public class TechStackCommanderImpl implements TechStackCommander {
     public TechStack save(TechStack techStack){
         return techStackJpaRepository.save(techStack);
     }
+
+    @Override
+    public boolean existsTechStackByTechStack(String techStack) {
+        return techStackJpaRepository.existsByTechStack(techStack);
+    }
 }

@@ -6,6 +6,7 @@ import org.example.pdnight.domain.post.enums.PostStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface PostJpaRepository extends JpaRepository<Post, Long> {
@@ -16,4 +17,5 @@ public interface PostJpaRepository extends JpaRepository<Post, Long> {
     @Query("SELECT COUNT(*) > 0 FROM Post p WHERE p.id = :id AND p.isDeleted = false AND p.status != :status")
     boolean existsById(Long id, PostStatus status);
 
+    List<Post> findAllByAuthorId(Long authorId);
 }

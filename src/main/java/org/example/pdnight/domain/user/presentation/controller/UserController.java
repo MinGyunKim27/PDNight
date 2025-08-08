@@ -9,7 +9,6 @@ import org.example.pdnight.domain.user.presentation.dto.userDto.response.*;
 import org.example.pdnight.global.common.dto.ApiResponse;
 import org.example.pdnight.global.common.dto.PagedResponse;
 import org.example.pdnight.global.filter.CustomUserDetails;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;

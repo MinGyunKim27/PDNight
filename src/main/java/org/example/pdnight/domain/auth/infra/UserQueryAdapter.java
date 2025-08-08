@@ -1,7 +1,7 @@
-package org.example.pdnight.domain.auth.infra.adaptor;
+package org.example.pdnight.domain.auth.infra;
 
 import lombok.RequiredArgsConstructor;
-import org.example.pdnight.domain.auth.application.port.UserQueryPort;
+import org.example.pdnight.domain.auth.application.authUseCase.UserQueryPort;
 import org.example.pdnight.domain.auth.presentation.dto.response.UserInfo;
 import org.example.pdnight.domain.user.domain.entity.User;
 import org.example.pdnight.domain.user.domain.userDomain.UserReader;

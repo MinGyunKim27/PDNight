@@ -20,10 +20,11 @@ import java.util.List;
 @Controller
 public class ChatRoomController {
     private final ChatRoomService chatRoomService;
+
     // 로그인 화면
     @GetMapping("/login")
     public String loginPage() {
-        return "login";  // templates/login.ftl 을 찾음
+        return "login";
     }
 
     // 채팅 리스트 화면
@@ -53,15 +54,6 @@ public class ChatRoomController {
         ChatRoom chatRoom = chatRoomService.create(name);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse
                 .ok("채팅방이 생성되었습니다.", ChatRoomResponse.create(chatRoom.getId(), chatRoom.getChatRoomName())));
-    }
-
-    // 게시글 채팅방 생성
-    @PostMapping("/chat/room/{postId}")
-    @ResponseBody
-    public ResponseEntity<ApiResponse<ChatRoomResponse>> createRoom(@PathVariable Long postId) {
-        ChatRoom postChatRoom = chatRoomService.createFromPost(postId);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse
-                .ok("채팅방이 생성되었습니다.", ChatRoomResponse.create(postChatRoom.getId(), postChatRoom.getChatRoomName())));
     }
 
     // 특정 채팅방 정보 조회

@@ -1,4 +1,4 @@
-package org.example.pdnight.domain.notification.config;
+package org.example.pdnight.global.config;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;

@@ -1,4 +1,4 @@
-package org.example.pdnight.domain.auth.application.port;
+package org.example.pdnight.domain.auth.application.authUseCase;
 
 import org.example.pdnight.domain.auth.presentation.dto.response.UserInfo;
 

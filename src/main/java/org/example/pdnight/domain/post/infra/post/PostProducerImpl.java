@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class PostProducerImpl implements PostProducer {
-
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @Override

@@ -6,7 +6,6 @@ import org.example.pdnight.domain.user.presentation.dto.userDto.request.UserNick
 import org.example.pdnight.domain.user.presentation.dto.userDto.request.UserUpdateRequest;
 import org.example.pdnight.domain.user.presentation.dto.userDto.response.*;
 import org.example.pdnight.global.common.dto.PagedResponse;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 

@@ -3,7 +3,6 @@ package org.example.pdnight.domain.user.presentation.dto.userDto.request;
 import lombok.Getter;
 
 import java.util.List;
-import java.util.Set;
 
 @Getter
 public class UserUpdateRequest {

@@ -17,7 +17,10 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class TechStackReaderServiceTest {
-    @InjectMocks TechStackReaderService techStackReaderService;
+
+    @InjectMocks
+    TechStackReaderService techStackReaderService;
+
     @Mock
     TechStackReader techStackReader;
 

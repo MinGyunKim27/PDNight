@@ -2,7 +2,6 @@ package org.example.pdnight.domain.promotion.application.promotionUseCase;
 
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.promotion.domain.PromotionCommander;
-import org.example.pdnight.domain.promotion.domain.PromotionReader;
 import org.example.pdnight.domain.promotion.domain.entity.Promotion;
 import org.example.pdnight.domain.promotion.domain.entity.PromotionParticipant;
 import org.example.pdnight.domain.promotion.presentation.dto.request.PromotionCreateRequest;
@@ -20,7 +19,6 @@ import java.time.LocalDateTime;
 public class PromotionCommanderService {
 
     private final PromotionCommander promotionCommander;
-    private final PromotionReader promotionReader;
 
     // 프로모션 생성
     @Transactional
@@ -80,14 +78,15 @@ public class PromotionCommanderService {
             timeoutMs = 5000
     )
     public void addParticipant(Long promotionId, Long userId) {
-        // 이미 참가 신청한 유저이면 실패
-        validateParticipant(promotionId, userId);
 
         Promotion promotion = getPromotionById(promotionId);
 
+        // 이미 참가 신청한 유저이면 실패
+        validateParticipant(promotion, userId);
+
         // 신청 인원 확인
-        Long participantsCount = promotionReader.getPromotionParticipantByPromotionId(promotionId);
-        if (participantsCount.intValue() >= promotion.getMaxParticipants()) {
+        int participantsCount = promotion.getPromotionParticipants().size();
+        if (participantsCount >= promotion.getMaxParticipants()) {
             throw new BaseException(ErrorCode.PROMOTION_PARTICIPANT_FULL);
         }
 
@@ -99,14 +98,14 @@ public class PromotionCommanderService {
     // ----------------------------------- HELPER 메서드 ------------------------------------------------------ //
     // get
     private Promotion getPromotionById(Long id) {
-        return promotionReader.findById(id).orElseThrow(
+        return promotionCommander.findById(id).orElseThrow(
                 () -> new BaseException(ErrorCode.PROMOTION_NOT_FOUNT)
         );
     }
 
     // validate
-    private void validateParticipant(Long promotionId, Long userId) {
-        if (promotionReader.existsPromotionByIdAndUserId(promotionId, userId)) {
+    private void validateParticipant(Promotion promotion, Long userId) {
+        if (promotion.getPromotionParticipants().stream().anyMatch(participant -> participant.getUserId().equals(userId))) {
             throw new BaseException(ErrorCode.PROMOTION_ALREADY_PENDING);
         }
     }

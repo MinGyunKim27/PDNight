@@ -14,6 +14,7 @@ import org.example.pdnight.global.common.enums.UserRole;
 import org.example.pdnight.global.config.PasswordEncoder;
 import org.example.pdnight.global.utils.JwtUtil;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -23,7 +24,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.springframework.test.web.servlet.ResultActions;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -68,6 +68,7 @@ public class AuthControllerTest {
                 .email(email).nickname(name).name(name).password(password)
                 .gender(Gender.MALE).age(25L).jobCategory(JobCategory.BACK_END_DEVELOPER)
                 .build();
+        createUser(request);
 
         //when
         ResultActions perform = mockMvc.perform(post("/api/auth/signup")
@@ -86,15 +87,7 @@ public class AuthControllerTest {
     void loginSuccess() throws Exception {
         //given
         String email = "test@test.com";
-        String name = "name";
         String password = "password";
-        SignupRequest signupRequest = SignupRequest.builder()
-                .email(email).nickname(name).name(name).password(password)
-                .gender(Gender.MALE).age(25L).jobCategory(JobCategory.BACK_END_DEVELOPER)
-                .build();
-
-        createAuth(signupRequest);
-        createUser(signupRequest);
 
         LoginRequest loginRequest = LoginRequest.builder()
                 .email(email).password(password)

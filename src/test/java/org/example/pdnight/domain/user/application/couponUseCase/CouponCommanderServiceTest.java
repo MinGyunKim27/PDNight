@@ -1,7 +1,6 @@
 package org.example.pdnight.domain.user.application.couponUseCase;
 
 import org.example.pdnight.domain.user.domain.couponDomain.CouponCommander;
-import org.example.pdnight.domain.user.domain.couponDomain.CouponReader;
 import org.example.pdnight.domain.user.domain.entity.Coupon;
 import org.example.pdnight.domain.user.presentation.dto.couponDto.request.CouponRequest;
 import org.example.pdnight.domain.user.presentation.dto.couponDto.request.UpdateCouponRequest;
@@ -30,8 +29,6 @@ public class CouponCommanderServiceTest {
     @Mock
     private CouponCommander couponCommander;
 
-    @Mock
-    private CouponReader couponReader;
 
     @Test
     @DisplayName("쿠폰 생성 성공")
@@ -72,7 +69,7 @@ public class CouponCommanderServiceTest {
         Integer defaultDeadlineDays = 5;
         Coupon coupon = Coupon.create(couponInfo, defaultDeadlineDays);
 
-        when(couponReader.findById(couponId)).thenReturn(Optional.of(coupon));
+        when(couponCommander.findById(couponId)).thenReturn(Optional.of(coupon));
 
         // coupon.updateCoupon(dto.getCouponInfo(), dto.getDefaultDeadlineDays());
         coupon.updateCoupon(request.getCouponInfo(), request.getDefaultDeadlineDays());
@@ -95,7 +92,7 @@ public class CouponCommanderServiceTest {
         Coupon coupon = mock(Coupon.class);
 
         // Coupon coupon = getCouponById(id);
-        when(couponReader.findById(couponId)).thenReturn(Optional.of(coupon));
+        when(couponCommander.findById(couponId)).thenReturn(Optional.of(coupon));
 
         // when
         couponService.deleteCoupon(couponId);
@@ -112,7 +109,7 @@ public class CouponCommanderServiceTest {
         UpdateCouponRequest request = mock(UpdateCouponRequest.class);
 
         // Coupon coupon = getCouponById(id);
-        when(couponReader.findById(couponId)).thenReturn(Optional.empty());
+        when(couponCommander.findById(couponId)).thenReturn(Optional.empty());
 
         // when
         BaseException exception = assertThrows(BaseException.class, () ->

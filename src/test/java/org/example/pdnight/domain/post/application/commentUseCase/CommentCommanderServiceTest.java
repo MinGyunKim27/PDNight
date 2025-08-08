@@ -2,8 +2,10 @@ package org.example.pdnight.domain.post.application.commentUseCase;
 
 import org.example.pdnight.domain.post.domain.comment.Comment;
 import org.example.pdnight.domain.post.domain.comment.CommentCommander;
+import org.example.pdnight.domain.post.domain.comment.CommentProducer;
 import org.example.pdnight.domain.post.presentation.dto.request.CommentRequest;
 import org.example.pdnight.domain.post.presentation.dto.response.CommentResponse;
+import org.example.pdnight.domain.post.presentation.dto.response.PostInfo;
 import org.example.pdnight.global.common.enums.ErrorCode;
 import org.example.pdnight.global.common.exception.BaseException;
 import org.junit.jupiter.api.DisplayName;
@@ -29,6 +31,9 @@ class CommentCommanderServiceTest {
     @Mock
     private PostPort postPort;
 
+    @Mock
+    private CommentProducer producer;
+
     @InjectMocks
     private CommentCommanderService commentCommanderService;
 
@@ -47,9 +52,13 @@ class CommentCommanderServiceTest {
         lenient().when(request.getContent()).thenReturn(content);
 
         Comment comment = Comment.create(postId, authorId, request.getContent());
+        PostInfo info = mock();
 
         when(postPort.existsById(postId)).thenReturn(true);
         when(commentCommander.save(any(Comment.class))).thenReturn(comment);
+        when(postPort.findById(postId)).thenReturn(info);
+        when(info.getAuthorId()).thenReturn(1L);
+        doNothing().when(producer).produce(anyString(), any());
 
         //when
         CommentResponse result = commentCommanderService.createComment(postId, authorId, request);
@@ -203,6 +212,7 @@ class CommentCommanderServiceTest {
         when(postPort.existsById(postId)).thenReturn(true);
         when(commentCommander.findById(commentId)).thenReturn(Optional.of(parentComment));
         when(commentCommander.save(any(Comment.class))).thenReturn(childComment);
+        doNothing().when(producer).produce(anyString(), any());
 
         //when
         CommentResponse result = commentCommanderService.createChildComment(postId, commentId, authorId, request);

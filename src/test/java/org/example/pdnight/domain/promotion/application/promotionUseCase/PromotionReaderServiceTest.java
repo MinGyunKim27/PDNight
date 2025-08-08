@@ -1,7 +1,5 @@
 package org.example.pdnight.domain.promotion.application.promotionUseCase;
 
-import java.util.List;
-import java.util.Optional;
 import org.assertj.core.util.Lists;
 import org.example.pdnight.domain.promotion.domain.PromotionReader;
 import org.example.pdnight.domain.promotion.domain.entity.Promotion;
@@ -21,7 +19,11 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.util.ReflectionTestUtils;
+
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.when;
