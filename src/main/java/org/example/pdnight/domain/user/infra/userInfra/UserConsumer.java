@@ -7,8 +7,6 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.header.Header;
 import org.apache.kafka.common.header.Headers;
 import org.example.pdnight.domain.user.application.userUseCase.UserConsumerService;
-import org.example.pdnight.global.common.enums.ErrorCode;
-import org.example.pdnight.global.common.exception.BaseException;
 import org.example.pdnight.global.event.AuthDeletedEvent;
 import org.example.pdnight.global.event.AuthSignedUpEvent;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -37,8 +35,7 @@ public class UserConsumer {
     public void HandleAuthDelete(AuthDeletedEvent event) {
 
         try {
-            //userConsumerService.handleAuthDelete(event);
-            throw new BaseException(ErrorCode.POST_NOT_FOUND);
+            userConsumerService.handleAuthDelete(event);
         } catch (Exception e) {
             log.error("UserConsumer : consumeAuthSignedUpEvent 리스너 에러 : " + e.getMessage(), e);
             throw e;
@@ -49,10 +46,10 @@ public class UserConsumer {
     private final KafkaTemplate kafkaTemplate;
 
     /*
-    * 일시적인 서버 장애용 DLT 자동 재시도 로직
-    *
-    *
-    * */
+     * 일시적인 서버 장애용 DLT 자동 재시도 로직
+     *
+     *
+     * */
     @KafkaListener(
             topics = {
                     "auth.signedup.DLT",
