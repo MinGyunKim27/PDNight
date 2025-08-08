@@ -2,6 +2,7 @@ package org.example.pdnight.domain.post.application.commentUseCase;
 
 import org.example.pdnight.domain.post.domain.comment.Comment;
 import org.example.pdnight.domain.post.domain.comment.CommentCommander;
+import org.example.pdnight.domain.post.domain.comment.CommentProducer;
 import org.example.pdnight.domain.post.enums.PostStatus;
 import org.example.pdnight.domain.post.presentation.dto.request.CommentRequest;
 import org.example.pdnight.domain.post.presentation.dto.response.CommentResponse;
@@ -32,6 +33,9 @@ class CommentCommanderServiceTest {
     @Mock
     private PostPort postPort;
 
+    @Mock
+    private CommentProducer producer;
+
     @InjectMocks
     private CommentCommanderService commentCommanderService;
 
@@ -58,17 +62,20 @@ class CommentCommanderServiceTest {
         lenient().when(request.getContent()).thenReturn(content);
 
         Comment comment = Comment.create(postId, authorId, request.getContent());
+        PostInfo info = mock();
 
-        when(postPort.findById(postId)).thenReturn(mockPostInfo);
-        when(mockPostInfo.getStatus()).thenReturn(PostStatus.OPEN);
         when(commentCommander.save(any(Comment.class))).thenReturn(comment);
+        when(postPort.findById(postId)).thenReturn(info);
+        when(info.getAuthorId()).thenReturn(1L);
+        when(info.getStatus()).thenReturn(PostStatus.OPEN);
+        doNothing().when(producer).produce(anyString(), any());
 
         //when
         CommentResponse result = commentCommanderService.createComment(postId, authorId, request);
 
         //then
         assertEquals(authorId, result.getAuthorId());
-        assertEquals(mockPostInfo.getPostId(), result.getPostId());
+        assertEquals(info.getPostId(), result.getPostId());
         assertEquals(content, result.getContent());
 
         verify(postPort).findById(postId);
@@ -217,6 +224,7 @@ class CommentCommanderServiceTest {
         when(mockPostInfo.getStatus()).thenReturn(PostStatus.OPEN);
         when(commentCommander.findById(commentId)).thenReturn(Optional.of(parentComment));
         when(commentCommander.save(any(Comment.class))).thenReturn(childComment);
+        doNothing().when(producer).produce(anyString(), any());
 
         //when
         CommentResponse result = commentCommanderService.createChildComment(postId, commentId, authorId, request);

@@ -1,4 +1,4 @@
-package org.example.pdnight.domain.user.application.port;
+package org.example.pdnight.domain.user.application.userUseCase;
 
 import org.example.pdnight.domain.user.presentation.dto.userDto.response.CouponInfo;
 

@@ -65,4 +65,5 @@ public class Notification extends Timestamped {
                 type
         );
     }
+
 }

@@ -57,7 +57,6 @@ public class NotificationConsumerService {
         }
     }
 
-
     // 모임 참가 신청 알림
     public void handlePostApplied(PostParticipateAppliedEvent event) {
         // 신청자 -> 모임 작성자에게 전송
@@ -130,6 +129,70 @@ public class NotificationConsumerService {
         sendMessage(receiverId, senderId, message, logMessage, type);
     }
 
+    // 사용자 리뷰 작성
+    public void handleReviewCreated(ReviewCreatedEvent event) {
+        Long receiverId = event.revieweeId();
+        Long senderId = event.reviewerId();
+        String message ="사용자에게 리뷰가 작성되었습니다.";
+        String logMessage = "사용자 리뷰 작성 알림 저장 완료!";
+        NotificationType type = NotificationType.REVIEW_CREATED;
+
+        sendMessage(receiverId, senderId, message, logMessage, type);
+    }
+
+    // 게시글 채팅방 생성
+    public void handleChatroomCreated(ChatroomCreatedEvent event) {
+        for(Long userId : event.participantIds()) {
+            Long senderId = event.authId();
+            String message ="게시글의 채팅방이 생성되었습니다.";
+            String logMessage = "게시글 채팅방 생성 알림 저장 완료!";
+            NotificationType type = NotificationType.CHATROOM_CREATED;
+
+            sendMessage(userId, senderId, message, logMessage, type);
+        }
+    }
+
+    // 쿠폰 발행
+    public void handleCouponIssued(CouponIssuedEvent event) {
+        Long receiverId = event.userId();
+        String message ="쿠폰이 발행되었습니다.";
+        String logMessage = "쿠폰 발행 알림 저장 완료!";
+        NotificationType type = NotificationType.COUPON_ISSUED;
+
+        sendMessage(receiverId, null, message, logMessage, type);
+    }
+
+    // 쿠폰 만료 전
+    public void handleCouponExpired(CouponExpiredEvent event) {
+        List<Long> receiverIds = event.userIds();
+        String message ="쿠폰만료까지 1일 남았습니다.";
+        String logMessage = "쿠폰 만료 알림 저장 완료!";
+        NotificationType type = NotificationType.COUPON_EXPIRED;
+
+        for(Long receiverId : receiverIds) {
+            sendMessage(receiverId, null, message, logMessage, type);
+        }
+    }
+
+    // 댓글 작성
+    public void handleCommentCreated(CommentCreatedEvent event) {
+        Long receiverId = event.postAuthorId();
+        Long senderId = event.commentAuthorId();
+        String message = "게시글에 댓글이 작성되었습니다.";
+        String logMessage = "댓글 작성 알림 저장 완료!";
+        NotificationType type = NotificationType.POST_COMMENT_CREATED;
+        sendMessage(receiverId, senderId, message, logMessage, type);
+    }
+
+    // 대댓글 작성
+    public void handleReplyCreated(CommentReplyCreatedEvent event) {
+        Long receiverId = event.commentAuthorId();
+        Long senderId = event.replyAuthorId();
+        String message = "댓글에 대댓글이 작성되었습니다.";
+        String logMessage = "대댓글 작성 알림 저장 완료!";
+        NotificationType type = NotificationType.COMMENT_REPLY_CREATED;
+        sendMessage(receiverId, senderId, message, logMessage, type);
+    }
 
     private void sendMessage(Long receiverId, Long senderId, String message, String logMessage, NotificationType type) {
         Notification notification = Notification.from(receiverId, message, senderId, type);
@@ -138,4 +201,5 @@ public class NotificationConsumerService {
         log.info(logMessage + "userId : {}", receiverId);
         webSocketSender.sendToUser(receiverId, dto);
     }
+
 }

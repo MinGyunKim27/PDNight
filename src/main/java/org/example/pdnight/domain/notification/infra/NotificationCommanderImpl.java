@@ -10,16 +10,16 @@ import java.util.Optional;
 @Repository
 @RequiredArgsConstructor
 public class NotificationCommanderImpl implements NotificationCommander {
-
     private final NotificationJpaRepository notificationJpaRepository;
 
     @Override
-    public void save(Notification notification) {
-        notificationJpaRepository.save(notification);
+    public Notification save(Notification notification) {
+        return notificationJpaRepository.save(notification);
     }
 
     @Override
     public Optional<Notification> findByIdIsReadFalse(Long id) {
         return notificationJpaRepository.findByIdIsReadFalse(id);
     }
+
 }

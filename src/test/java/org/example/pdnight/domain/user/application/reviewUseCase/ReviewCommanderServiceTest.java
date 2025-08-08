@@ -3,7 +3,7 @@ package org.example.pdnight.domain.user.application.reviewUseCase;
 import org.example.pdnight.domain.user.application.reviewUserCase.ReviewCommanderService;
 import org.example.pdnight.domain.user.domain.entity.Review;
 import org.example.pdnight.domain.user.domain.reviewDomain.ReviewCommander;
-import org.example.pdnight.domain.user.domain.reviewDomain.ReviewReader;
+import org.example.pdnight.domain.user.domain.reviewDomain.ReviewProducer;
 import org.example.pdnight.domain.user.presentation.dto.reviewDto.request.ReviewRequest;
 import org.example.pdnight.domain.user.presentation.dto.reviewDto.response.ReviewResponse;
 import org.example.pdnight.global.common.enums.ErrorCode;
@@ -14,14 +14,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.ApplicationEventPublisher;
 
 import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class ReviewCommanderServiceTest {
@@ -30,14 +29,10 @@ public class ReviewCommanderServiceTest {
     private ReviewCommanderService reviewService;
 
     @Mock
-    private ReviewReader reviewReader;
-
-    @Mock
     private ReviewCommander reviewCommander;
 
     @Mock
-    private ApplicationEventPublisher eventPublisher;
-
+    private ReviewProducer reviewProducer;
 
     @Test
     @DisplayName("리뷰 등록 테스트 성공")
@@ -52,9 +47,10 @@ public class ReviewCommanderServiceTest {
         ReviewRequest request = mock(ReviewRequest.class);
         when(request.getRate()).thenReturn(rate);
         when(request.getComment()).thenReturn(comment);
+        doNothing().when(reviewProducer).produce(anyString(), any());
 
         // 존재 여부 판단
-        when(reviewReader.isExistsByUsersAndPost(userId, ratedUserId, postId)).thenReturn(false);
+        when(reviewCommander.isExistsByUsersAndPost(userId, ratedUserId, postId)).thenReturn(false);
 
         Review review = Review.create(userId, ratedUserId, postId, request.getRate(), request.getComment());
         when(reviewCommander.save(any(Review.class))).thenReturn(review);
@@ -99,7 +95,7 @@ public class ReviewCommanderServiceTest {
         ReviewRequest request = mock(ReviewRequest.class);
 
         // 존재 여부 판단
-        when(reviewReader.isExistsByUsersAndPost(userId, ratedUserId, postId)).thenReturn(true);
+        when(reviewCommander.isExistsByUsersAndPost(userId, ratedUserId, postId)).thenReturn(true);
 
         // when
         BaseException exception = assertThrows(BaseException.class, () ->

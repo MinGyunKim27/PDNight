@@ -81,20 +81,6 @@ public class UserReaderImpl implements UserReader {
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
     }
 
-
-    @Override
-    public Optional<User> findByIdAndIsDeletedFalse(Long id) {
-
-        QUser user = QUser.user;
-
-        return queryFactory
-                .selectFrom(user)
-                .where(user.id.eq(id).and(user.isDeleted.eq(false)))
-                .stream()
-                .findFirst();
-    }
-
-
     @Override
     public Page<User> findAll(Pageable pageable) {
         QUser user = QUser.user;
@@ -198,6 +184,16 @@ public class UserReaderImpl implements UserReader {
                 .select(follow.follower.id)
                 .from(follow)
                 .where(follow.following.id.eq(userId))
+                .fetch();
+    }
+
+    @Override
+    public List<UserCoupon> findByDeadlineAtBetween(LocalDateTime start, LocalDateTime end) {
+        return queryFactory
+                .selectFrom(userCoupon)
+                .where(
+                        userCoupon.deadlineAt.between(start, end)
+                )
                 .fetch();
     }
 }

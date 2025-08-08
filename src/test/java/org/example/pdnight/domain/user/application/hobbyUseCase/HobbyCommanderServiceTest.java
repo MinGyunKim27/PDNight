@@ -2,7 +2,6 @@ package org.example.pdnight.domain.user.application.hobbyUseCase;
 
 import org.example.pdnight.domain.user.domain.entity.Hobby;
 import org.example.pdnight.domain.user.domain.hobbyDomain.HobbyCommander;
-import org.example.pdnight.domain.user.domain.hobbyDomain.HobbyReader;
 import org.example.pdnight.domain.user.presentation.dto.hobbyDto.request.HobbyRequest;
 import org.example.pdnight.domain.user.presentation.dto.hobbyDto.response.HobbyResponse;
 import org.example.pdnight.global.common.exception.BaseException;
@@ -22,9 +21,6 @@ public class HobbyCommanderServiceTest {
     private HobbyCommanderService hobbyService;
 
     @Mock
-    private HobbyReader hobbyReader;
-
-    @Mock
     private HobbyCommander hobbyCommander;
 
     @Test
@@ -36,7 +32,7 @@ public class HobbyCommanderServiceTest {
         when(dto.getHobby()).thenReturn("등산");
         when(hobby.getHobby()).thenReturn("등산");
 
-        when(hobbyReader.existsHobbiesByHobby(dto.getHobby())).thenReturn(false);
+        when(hobbyCommander.existsHobbiesByHobby(dto.getHobby())).thenReturn(false);
         when(hobbyCommander.save(any(Hobby.class))).thenReturn(hobby);
 
         // when
@@ -46,7 +42,6 @@ public class HobbyCommanderServiceTest {
         assertThat(response).isNotNull();
         assertThat(response.getHobby()).isEqualTo("등산");
 
-        verify(hobbyReader).existsHobbiesByHobby("등산");
         verify(hobbyCommander).save(any(Hobby.class));
     }
 
@@ -56,7 +51,7 @@ public class HobbyCommanderServiceTest {
         HobbyRequest dto = mock();
 
         when(dto.getHobby()).thenReturn("등산");
-        when(hobbyReader.existsHobbiesByHobby(dto.getHobby())).thenReturn(true);
+        when(hobbyCommander.existsHobbiesByHobby(dto.getHobby())).thenReturn(true);
 
         // when & then
         BaseException exception = assertThrows(BaseException.class, () -> {
@@ -65,7 +60,6 @@ public class HobbyCommanderServiceTest {
 
         assertThat(exception.getMessage()).isEqualTo("이미 존재하는 취미 입니다");
 
-        verify(hobbyReader).existsHobbiesByHobby("등산");
         verify(hobbyCommander, never()).save(any());
     }
 }

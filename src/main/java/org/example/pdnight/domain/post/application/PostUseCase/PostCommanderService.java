@@ -156,13 +156,18 @@ public class PostCommanderService {
         if (!foundPost.getStatus().equals(request.getStatus())) {
             foundPost.updateStatus(request.getStatus());
             // 참가자들에게 이벤트 발행
-            if (request.getStatus().equals(PostStatus.CONFIRMED)) {
+            if(request.getStatus().equals(PostStatus.CONFIRMED)){
                 // Kafka 이벤트 발행
-                List<Long> confirmedUserIds = foundPost.getPostParticipants().stream()
-                        .filter(p -> p.getStatus() == JoinStatus.ACCEPTED)
-                        .map(PostParticipant::getUserId)
-                        .toList();
-                postProducer.produce("post.confirmed", new PostConfirmedEvent(foundPost.getId(), foundPost.getAuthorId(), confirmedUserIds));
+                postProducer.produce("post.confirmed",
+                        new PostConfirmedEvent(
+                                foundPost.getId(),
+                                foundPost.getAuthorId(),
+                                foundPost.getTitle(),
+                                foundPost.getPostParticipants().stream()
+                                        .filter(p -> p.getStatus() == JoinStatus.ACCEPTED)
+                                        .map(PostParticipant::getUserId).toList()
+                        )
+                );
             }
         }
 
@@ -500,7 +505,8 @@ public class PostCommanderService {
                     .map(PostParticipant::getUserId)
                     .toList();
 
-            postProducer.produce("post.confirmed", new PostConfirmedEvent(post.getId(), post.getAuthorId(), confirmedUserIds));
+            // Kafka 이벤트 발행
+            postProducer.produce("post.confirmed", new PostConfirmedEvent(post.getId(), post.getAuthorId(), post.getTitle(), confirmedUserIds));
         }
     }
 

@@ -3,8 +3,8 @@ package org.example.pdnight.domain.user.application.userUseCase;
 import org.example.pdnight.domain.user.domain.entity.User;
 import org.example.pdnight.domain.user.domain.entity.UserCoupon;
 import org.example.pdnight.domain.user.domain.userDomain.UserCommander;
-import org.example.pdnight.domain.user.domain.userDomain.UserReader;
-import org.example.pdnight.domain.user.infra.adaptor.UserCouponAdapter;
+import org.example.pdnight.domain.user.domain.userDomain.UserProducer;
+import org.example.pdnight.domain.user.infra.userInfra.UserCouponAdapter;
 import org.example.pdnight.domain.user.presentation.dto.userDto.request.GiveCouponRequest;
 import org.example.pdnight.domain.user.presentation.dto.userDto.request.UserNicknameUpdate;
 import org.example.pdnight.domain.user.presentation.dto.userDto.request.UserUpdateRequest;
@@ -36,8 +36,6 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class UserCommanderServiceTest {
     @Mock
-    private UserReader userReader;
-    @Mock
     private UserCommander userCommander;
     @Mock
     private UserInfoAssembler userInfoAssembler;
@@ -45,6 +43,9 @@ public class UserCommanderServiceTest {
     private UserCouponAdapter userCouponAdapter;
     @InjectMocks
     private UserCommanderService userCommanderService;
+
+    @Mock
+    UserProducer producer;
 
     @Test
     void 프로필_업데이트_성공() {
@@ -68,7 +69,7 @@ public class UserCommanderServiceTest {
         User user = mock(User.class);
         UserResponse expectedResponse = UserResponse.from(user,hobbyNames,techNames); // 적절히 채움
 
-        when(userReader.findById(userId)).thenReturn(Optional.ofNullable(user));
+        when(userCommander.findById(userId)).thenReturn(Optional.ofNullable(user));
         when(userInfoAssembler.toDto(any(User.class))).thenReturn(expectedResponse);
 
         // when
@@ -104,7 +105,7 @@ public class UserCommanderServiceTest {
         User user = mock(User.class);
         UserResponse expectedResponse = UserResponse.from(user,hobbyNames,techNames); // 적절히 채움
 
-        when(userReader.findById(userId)).thenReturn(Optional.ofNullable(user));
+        when(userCommander.findById(userId)).thenReturn(Optional.ofNullable(user));
         when(userInfoAssembler.toDto(any(User.class))).thenReturn(expectedResponse);
 
         // when
@@ -124,7 +125,7 @@ public class UserCommanderServiceTest {
         User user = mock(User.class);
         ReflectionTestUtils.setField(user, "isDeleted", false);
 
-        when(userReader.findById(userId)).thenReturn(Optional.of(user));
+        when(userCommander.findById(userId)).thenReturn(Optional.of(user));
 
         userCommanderService.delete(userId);
 
@@ -138,7 +139,7 @@ public class UserCommanderServiceTest {
         ReflectionTestUtils.setField(user, "isDeleted", true);
         when(user.getIsDeleted()).thenReturn(true);
 
-        when(userReader.findById(userId)).thenReturn(Optional.of(user));
+        when(userCommander.findById(userId)).thenReturn(Optional.of(user));
 
         BaseException exception = assertThrows(BaseException.class, () -> {
             userCommanderService.delete(userId);
@@ -152,7 +153,7 @@ public class UserCommanderServiceTest {
         // given
         User user = mock(User.class);
 
-        when(userReader.findByIdWithFollow(1L)).thenReturn(Optional.of(user));
+        when(userCommander.findById(1L)).thenReturn(Optional.of(user));
 
         doThrow(new BaseException(INVALID_FOLLOW_SELF)).when(user)
                 .validateIsSelfFollow(user, INVALID_FOLLOW_SELF);
@@ -170,8 +171,8 @@ public class UserCommanderServiceTest {
         User user2 = mock(User.class);
         // 중복 팔로우 방지
 
-        lenient().when(userReader.findByIdWithFollow(1L)).thenReturn(Optional.of(user));
-        lenient().when(userReader.findByIdWithFollow(2L)).thenReturn(Optional.of(user2));
+        lenient().when(userCommander.findById(1L)).thenReturn(Optional.of(user));
+        lenient().when(userCommander.findById(2L)).thenReturn(Optional.of(user2));
 
         lenient().doThrow(new BaseException(ALREADY_FOLLOWING)).when(user)
                 .validateExistFollowing(user2);
@@ -187,7 +188,7 @@ public class UserCommanderServiceTest {
         // given
         User user = mock(User.class);
 
-        when(userReader.findByIdWithFollow(1L)).thenReturn(Optional.of(user));
+        when(userCommander.findById(1L)).thenReturn(Optional.of(user));
 
         doThrow(new BaseException(INVALID_UNFOLLOW_SELF)).when(user)
                 .validateIsSelfFollow(user, INVALID_UNFOLLOW_SELF);
@@ -204,8 +205,8 @@ public class UserCommanderServiceTest {
         User user = mock(User.class);
         User user2 = mock(User.class);
 
-        lenient().when(userReader.findByIdWithFollow(1L)).thenReturn(Optional.of(user));
-        lenient().when(userReader.findByIdWithFollow(2L)).thenReturn(Optional.of(user2));
+        lenient().when(userCommander.findById(1L)).thenReturn(Optional.of(user));
+        lenient().when(userCommander.findById(2L)).thenReturn(Optional.of(user2));
 
         lenient().doThrow(new BaseException(NOT_FOLLOWING)).when(user)
                 .validateIsNotFollowing(user2,NOT_FOLLOWING);
@@ -227,11 +228,12 @@ public class UserCommanderServiceTest {
         GiveCouponRequest request = GiveCouponRequest.from(userId, couponId);
 
         CouponInfo couponInfo = CouponInfo.from(defaultDeadlineDays);
-        when(userReader.findById(userId)).thenReturn(Optional.ofNullable(user));
+        when(userCommander.findById(userId)).thenReturn(Optional.ofNullable(user));
         when(userCouponAdapter.getCouponInfoById(couponId)).thenReturn(couponInfo);
 
         // userCoupon.create(...) 안에서 user.getId() 등을 쓸 수 있으므로
         when(user.getId()).thenReturn(userId);
+        doNothing().when(producer).produce(anyString(), any());
 
         // when
         UserCouponResponse response = userCommanderService.giveCouponToUser(request);
@@ -254,7 +256,7 @@ public class UserCommanderServiceTest {
         GiveCouponRequest request = GiveCouponRequest.from(userId, couponId);
         User user = mock(User.class);
 
-        when(userReader.findById(userId)).thenReturn(Optional.of(user));
+        when(userCommander.findById(userId)).thenReturn(Optional.of(user));
 
         // getCouponInfoById 호출 시 예외 던지기
         when(userCouponAdapter.getCouponInfoById(couponId))
@@ -275,9 +277,17 @@ public class UserCommanderServiceTest {
         Long userId = 1L;
         Long couponId = 1L;
 
+        User user = mock(User.class);
         UserCoupon userCoupon = mock(UserCoupon.class);
-        when(userReader.findUserCoupon(eq(userId), eq(couponId), any(LocalDateTime.class)))
-                .thenReturn(Optional.of(userCoupon));
+        List<UserCoupon> userCoupons = new ArrayList<>();
+        userCoupons.add(userCoupon);
+
+        when(userCoupon.getId()).thenReturn(userId);
+        when(userCoupon.getDeadlineAt()).thenReturn(LocalDateTime.now().plusDays(3));
+
+        when(user.getUserCoupons()).thenReturn(userCoupons);        
+        when(userCommander.findByIdWithUserCoupon(userId)).thenReturn(Optional.of(user));
+
 
         when(userCoupon.getUserId()).thenReturn(userId);
         when(userCoupon.getCouponId()).thenReturn(couponId);
@@ -298,8 +308,11 @@ public class UserCommanderServiceTest {
         Long userId = 1L;
         Long couponId = 99L;
 
-        when(userReader.findUserCoupon(eq(userId), eq(couponId), any(LocalDateTime.class)))
-                .thenReturn(Optional.empty());
+        User user = mock(User.class);
+        List<UserCoupon> userCoupons = new ArrayList<>();
+
+        when(user.getUserCoupons()).thenReturn(userCoupons);
+        when(userCommander.findByIdWithUserCoupon(userId)).thenReturn(Optional.of(user));
 
         // when & then
         BaseException exception = assertThrows(BaseException.class, () -> {

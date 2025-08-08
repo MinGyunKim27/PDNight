@@ -1,6 +1,5 @@
 package org.example.pdnight.domain.notification.enums;
 
-
 public enum NotificationType {
 
     // ------------알림 용------------//
@@ -75,6 +74,5 @@ public enum NotificationType {
      *모임 삭제
      */
     POST_DELETED
-
 
 }

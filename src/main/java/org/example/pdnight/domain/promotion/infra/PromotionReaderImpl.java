@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.promotion.domain.PromotionReader;
 import org.example.pdnight.domain.promotion.domain.entity.Promotion;
 import org.example.pdnight.domain.promotion.domain.entity.PromotionParticipant;
+import org.example.pdnight.domain.promotion.domain.entity.QPromotion;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
@@ -25,14 +26,6 @@ public class PromotionReaderImpl implements PromotionReader {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Optional<Promotion> findById(Long id) {
-        return queryFactory.selectFrom(promotion)
-                .where(promotion.id.eq(id))
-                .stream()
-                .findFirst();
-    }
-
-    @Override
     public Page<Promotion> findAllPromotion(Pageable pageable) {
         List<Promotion> content = queryFactory
                 .selectFrom(promotion)
@@ -47,31 +40,6 @@ public class PromotionReaderImpl implements PromotionReader {
 
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
 
-    }
-
-    @Override
-    public boolean existsPromotionByIdAndUserId(Long promotionId, Long userId) {
-        Integer existOne = queryFactory
-                .selectOne()
-                .from(promotionParticipant)
-                .where(
-                        promotionParticipant.promotion.id.eq(promotionId),
-                        promotionParticipant.userId.eq(userId)
-                )
-                .fetchFirst();
-
-        return existOne != null && existOne > 0;
-    }
-
-
-    // 프로모션에 현재 참가된 인원 수
-    @Override
-    public Long getPromotionParticipantByPromotionId(Long promotionId) {
-        return queryFactory
-                .select(promotionParticipant.count())
-                .from(promotionParticipant)
-                .where(promotionParticipant.promotion.id.eq(promotionId))
-                .fetchFirst();
     }
 
     // 프로모션에 참가 신청한 유저 목록 조회
@@ -109,5 +77,14 @@ public class PromotionReaderImpl implements PromotionReader {
                 .from(promotion);
 
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
+    }
+
+    @Override
+    public Optional<Promotion> findById(Long id) {
+        Promotion promotion = queryFactory
+                .selectFrom(QPromotion.promotion)
+                .where(QPromotion.promotion.id.eq(id))
+                .fetchFirst();
+        return Optional.ofNullable(promotion);
     }
 }

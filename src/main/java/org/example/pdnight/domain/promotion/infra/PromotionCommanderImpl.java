@@ -5,6 +5,8 @@ import org.example.pdnight.domain.promotion.domain.PromotionCommander;
 import org.example.pdnight.domain.promotion.domain.entity.Promotion;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 @RequiredArgsConstructor
 public class PromotionCommanderImpl implements PromotionCommander {
@@ -19,5 +21,10 @@ public class PromotionCommanderImpl implements PromotionCommander {
     @Override
     public void delete(Promotion promotion) {
         promotionJpaRepository.delete(promotion);
+    }
+
+    @Override
+    public Optional<Promotion> findById(Long id) {
+        return promotionJpaRepository.findById(id);
     }
 }
