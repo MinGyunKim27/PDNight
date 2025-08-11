@@ -94,7 +94,6 @@ public class UserReaderService {
     // --------------------- Admin 조회 Api ----------------------------------------------------//
 
     @Transactional(readOnly = true)
-    @SaveLog
     public PagedResponse<UserResponse> getAllUsers(Pageable pageable) {
 
         Page<User> page = userReader.findAll(pageable);

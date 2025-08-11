@@ -55,7 +55,6 @@ public class UserCommanderService {
     }
 
     @Transactional
-    @SaveLog
     public UserResponse updateNickname(Long userId, UserNicknameUpdate dto) {
         User user = getUserById(userId);
 
@@ -67,7 +66,6 @@ public class UserCommanderService {
     }
 
     @Transactional
-    @SaveLog
     public void delete(Long userId) {
         User user = getUserById(userId);
 
@@ -115,7 +113,6 @@ public class UserCommanderService {
 
     // 쿠폰 부여
     @Transactional
-    @SaveLog
     public UserCouponResponse giveCouponToUser(GiveCouponRequest request) {
         User user = getUserById(request.getUserId());
 

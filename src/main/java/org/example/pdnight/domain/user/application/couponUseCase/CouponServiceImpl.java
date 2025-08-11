@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.user.presentation.dto.couponDto.request.CouponRequest;
 import org.example.pdnight.domain.user.presentation.dto.couponDto.request.UpdateCouponRequest;
 import org.example.pdnight.domain.user.presentation.dto.couponDto.response.CouponResponse;
+import org.example.pdnight.global.aop.SaveLog;
 import org.springframework.stereotype.Service;
 
 
@@ -16,18 +17,21 @@ public class CouponServiceImpl implements CouponService {
 
     // --------------------- Admin Command Api ------------------------------------------------//
     // 쿠폰생성
+    @SaveLog
     @Override
     public CouponResponse createCoupon(CouponRequest dto) {
         return couponCommanderService.createCoupon(dto);
     }
 
     // 쿠폰 수정
+    @SaveLog
     @Override
     public CouponResponse updateCoupon(Long id, UpdateCouponRequest dto) {
         return couponCommanderService.updateCoupon(id, dto);
     }
 
     // 쿠폰삭제
+    @SaveLog
     @Override
     public void deleteCoupon(Long id) {
         couponCommanderService.deleteCoupon(id);
@@ -37,6 +41,7 @@ public class CouponServiceImpl implements CouponService {
 
     // --------------------- Admin 조회 Api ----------------------------------------------------//
     // 쿠폰 단건 조회
+    @SaveLog
     @Override
     public CouponResponse getCoupon(Long id) {
         return couponReaderService.getCoupon(id);

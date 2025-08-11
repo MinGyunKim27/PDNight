@@ -11,6 +11,7 @@ import org.example.pdnight.domain.post.presentation.dto.response.InviteResponse;
 import org.example.pdnight.domain.post.presentation.dto.response.ParticipantResponse;
 import org.example.pdnight.domain.post.presentation.dto.response.PostLikeResponse;
 import org.example.pdnight.domain.post.presentation.dto.response.PostResponse;
+import org.example.pdnight.global.aop.SaveLog;
 import org.example.pdnight.global.common.dto.PagedResponse;
 import org.example.pdnight.global.common.enums.JobCategory;
 import org.springframework.data.domain.Pageable;
@@ -144,6 +145,7 @@ public class PostServiceImpl implements PostService {
         return postReaderService.getMyInvite(userId, pageable);
     }
 
+    @SaveLog
     @Override
     public void deleteAdminPostById(Long id) {
         postCommanderService.deleteAdminPostById(id);

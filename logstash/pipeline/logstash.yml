@@ -5,10 +5,20 @@ input {
 }
 
 filter {
-  # 잘못된 TIMESTAMP_YMD 대신 지원되는 패턴 사용
-  grok {
-    match => [ "[parsed][timestamp]", "yyyy-MM-dd HH:mm:ss" ]
-    target => "@timesta mp"
+    grok {
+      match => {
+      "message" => "\[%{TIMESTAMP_ISO8601:log_timestamp}\]\[%{NOTSPACE:thread_name}\] %{LOGLEVEL:log_level} %{NOTSPACE:logger} - (?:\[%{WORD:error_level}\]\s)?%{WORD:http_method} %{NOTSPACE:request_path} \| Exception: %{GREEDYDATA:exception_message} \| Time taken: %{NUMBER:time_taken:int}ms"
+    }
+  }
+
+  date {
+    match => ["log_timestamp", "yyyy-MM-dd HH:mm:ss"]
+    target => "@timestamp"
+  }
+
+  # 불필요한 태그를 제거
+  if "_grokparsefailure" in [tags] {
+    drop {}
   }
 }
 

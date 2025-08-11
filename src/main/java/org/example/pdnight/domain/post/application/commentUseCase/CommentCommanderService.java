@@ -9,7 +9,6 @@ import org.example.pdnight.domain.post.enums.PostStatus;
 import org.example.pdnight.domain.post.presentation.dto.request.CommentRequest;
 import org.example.pdnight.domain.post.presentation.dto.response.CommentResponse;
 import org.example.pdnight.domain.post.presentation.dto.response.PostInfo;
-import org.example.pdnight.global.aop.SaveLog;
 import org.example.pdnight.global.common.enums.ErrorCode;
 import org.example.pdnight.global.common.enums.KafkaTopic;
 import org.example.pdnight.global.common.exception.BaseException;
@@ -98,14 +97,13 @@ public class CommentCommanderService {
         Comment childComment = Comment.createChild(postId, loginId, request.getContent(), foundComment);
         Comment savedChildComment = commentCommander.save(childComment);
 
-        producer.produce(KafkaTopic.POST_COMMENT_REPLY_CREATED.topicName(),  new CommentReplyCreatedEvent(foundComment.getAuthorId(), childComment.getAuthorId()));
+        producer.produce(KafkaTopic.POST_COMMENT_REPLY_CREATED.topicName(), new CommentReplyCreatedEvent(foundComment.getAuthorId(), childComment.getAuthorId()));
 
         return CommentResponse.from(savedChildComment);
     }
 
     //어드민 권한 댓글 삭제 메서드
     @Transactional
-    @SaveLog
     public void deleteCommentByAdmin(Long postId, Long id, Long adminId) {
         //해당 게시물이 없으면 예외 쓰로우
         if (!postPort.existsByIdAndIsDeletedIsFalse(postId)) {

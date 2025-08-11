@@ -21,47 +21,47 @@ import java.util.Arrays;
 public class LoggingAspect {
 
     // 모든 Service 클래스의 메서드에 적용
-    @Pointcut("execution(* org.example.pdnight.domain.auth.application.authUseCase.*.*(..))")
+    @Pointcut("execution(* org.example.pdnight.domain.auth.application.authUseCase.AuthServiceImpl.*(..))")
     public void authServiceLayer() {
     }
 
-    @Pointcut("execution(* org.example.pdnight.domain.chat.application.chatMessageUseCase.*.*(..))")
+    @Pointcut("execution(* org.example.pdnight.domain.chat.application.chatMessageUseCase.ChatMessageServiceImpl.*(..))")
     public void chatServiceLayer() {
     }
 
-    @Pointcut("execution(* org.example.pdnight.domain.notification.application.notificationUseCase.*.*(..))")
+    @Pointcut("execution(* org.example.pdnight.domain.notification.application.notificationUseCase.NotificationServiceImpl.*(..))")
     public void notificationServiceLayer() {
     }
 
-    @Pointcut("execution(* org.example.pdnight.domain.post.application.PostUseCase.*.*(..))")
+    @Pointcut("execution(* org.example.pdnight.domain.post.application.PostUseCase.PostServiceImpl.*(..))")
     public void postServiceLayer() {
     }
 
-    @Pointcut("execution(* org.example.pdnight.domain.post.application.commentUseCase.*.*(..))")
+    @Pointcut("execution(* org.example.pdnight.domain.post.application.commentUseCase.CommentServiceImpl.*(..))")
     public void commentServiceLayer() {
     }
 
-    @Pointcut("execution(* org.example.pdnight.domain.promotion.application.promotionUseCase.*.*(..))")
+    @Pointcut("execution(* org.example.pdnight.domain.promotion.application.promotionUseCase.PromotionServiceImpl.*(..))")
     public void promotionServiceLayer() {
     }
 
-    @Pointcut("execution(* org.example.pdnight.domain.user.application.userUseCase.*.*(..))")
+    @Pointcut("execution(* org.example.pdnight.domain.user.application.userUseCase.UserServiceImpl.*(..))")
     public void userServiceLayer() {
     }
 
-    @Pointcut("execution(* org.example.pdnight.domain.user.application.couponUseCase.*.*(..))")
+    @Pointcut("execution(* org.example.pdnight.domain.user.application.couponUseCase.CouponServiceImpl.*(..))")
     public void couponServiceLayer() {
     }
 
-    @Pointcut("execution(* org.example.pdnight.domain.user.application.hobbyUseCase.*.*(..))")
+    @Pointcut("execution(* org.example.pdnight.domain.user.application.hobbyUseCase.HobbyServiceImpl.*(..))")
     public void hobbyServiceLayer() {
     }
 
-    @Pointcut("execution(* org.example.pdnight.domain.user.application.reviewUserCase.*.*(..))")
+    @Pointcut("execution(* org.example.pdnight.domain.user.application.reviewUserCase.ReviewServiceImpl.*(..))")
     public void reviewServiceLayer() {
     }
 
-    @Pointcut("execution(* org.example.pdnight.domain.user.application.techStackUseCase.*.*(..))")
+    @Pointcut("execution(* org.example.pdnight.domain.user.application.techStackUseCase.TechStackServiceImpl.*(..))")
     public void techServiceLayer() {
     }
 
@@ -84,7 +84,6 @@ public class LoggingAspect {
             // 웹 요청 컨텍스트가 없는 경우 - 카프카 리스너
             requestInfo = joinPoint.getSignature().toShortString();
         }
-        log.debug("1");
 
         Object[] args = joinPoint.getArgs(); // 요청 파라미터 또는 바디
 
@@ -92,14 +91,12 @@ public class LoggingAspect {
 
         try {
             // 대상 메서드 실행
-            log.debug("2");
             Object result = joinPoint.proceed();
             long executionTime = System.currentTimeMillis() - startTime;
             log.debug("[RESPONSE] {} | Return Value: {} | Time taken: {}ms", requestInfo, result, executionTime);
 
             return result;
         } catch (Throwable e) {
-            log.debug("3");
             long executionTime = System.currentTimeMillis() - startTime;
             log.debug("[ERROR] {} | Exception: {} | Time taken: {}ms", requestInfo, e.getMessage(), executionTime);
             throw e;
@@ -111,26 +108,21 @@ public class LoggingAspect {
     public Object logOnFailure(ProceedingJoinPoint joinPoint) throws Throwable {
         long startTime = System.currentTimeMillis();
         String requestInfo;
-        log.debug("4");
         // 현재 스레드에 웹 요청 컨텍스트가 있는지 확인
         RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
         if (requestAttributes != null) {
-            log.debug("5");
             HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
             requestInfo = String.format("%s %s", request.getMethod(), request.getRequestURI());
         } else {
             // 웹 요청 컨텍스트가 없는 경우 - 카프카 리스너
-            log.debug("6");
             requestInfo = joinPoint.getSignature().toShortString();
         }
 
         try {
             // 성공한 경우, 로깅하지 않고 결과 반환
-            log.debug("7");
             return joinPoint.proceed();
 
         } catch (Throwable e) {
-            log.debug("8");
             long executionTime = System.currentTimeMillis() - startTime;
             log.debug("[ERROR] {} | Exception: {} | Time taken: {}ms", requestInfo, e.getMessage(), executionTime);
             throw e;
