@@ -7,14 +7,15 @@ input {
 filter {
   # 잘못된 TIMESTAMP_YMD 대신 지원되는 패턴 사용
   grok {
-    match => { "message" => "%{TIMESTAMP_ISO8601:log_date}" }
+    match => [ "[parsed][timestamp]", "yyyy-MM-dd HH:mm:ss" ]
+    target => "@timesta mp"
   }
 }
 
 output {
   elasticsearch {
-    hosts => ["http://elasticsearch:9200"]
-    index => "logstash-%{+yyyy.MM.dd}"
+    hosts => ["elasticsearch:9200"]
+    index => "pdnight-aop-logs-%{+YYYY.MM.dd}"
     user => "elastic"
     password => "elastic"
     ecs_compatibility => disabled

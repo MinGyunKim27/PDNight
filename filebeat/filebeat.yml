@@ -2,55 +2,7 @@ filebeat.inputs:
   - type: log
     enabled: true
     paths:
-      - /app/log/PDNight.log
-      - /app/log/PDNight.*.log
-    fields:
-      log_type: pdnight_aop_logs
-      service: pdnight
-      environment: local
-      application: spring-boot
-    fields_under_root: true
+      - /var/log/host_logs/*.log
 
-    # 실제 로그 형태에 맞춘 멀티라인 처리
-    multiline.pattern: '^\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\]'
-    multiline.negate: true
-    multiline.match: after
-
-    # 로그 파싱을 위한 프로세서
-    processors:
-      - dissect:
-          tokenizer: '[%{timestamp}][%{thread}] %{level} %{logger} - %{message}'
-          field: "message"
-          target_prefix: "parsed"
-
-      # AOP 로그만 필터링
-#      - drop_event:
-#          when:
-#            not:
-#              and:
-#                - contains:
-#                    parsed.logger: "o.e.pdnight.global.aop.LoggingAspect"
-#                - equals:
-#                    parsed.level: "DEBUG"
-
-# Logstash로 전송 (활성화)
 output.logstash:
   hosts: ["logstash:5044"]
-
-  # Console 출력 비활성화 (주석처리)
-  # output.console:
-  #   pretty: true
-
-# 로깅 설정
-logging.level: debug
-logging.to_files: false
-logging.to_stderr: true
-logging.files:
-  path: /usr/share/filebeat/logs
-  name: filebeat
-  keepfiles: 7
-  permissions: 0644
-
-# 파일 모니터링 설정
-filebeat.registry.path: /usr/share/filebeat/data
-filebeat.registry.flush: 1s

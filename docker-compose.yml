@@ -198,7 +198,7 @@ services:
       args:
         ELK_VERSION: $ELK_VERSION
     volumes:
-      - /var/log/host_logs:/app/log
+      - ./log:/var/log/host_logs:ro
       - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml
     networks:
       - elk
