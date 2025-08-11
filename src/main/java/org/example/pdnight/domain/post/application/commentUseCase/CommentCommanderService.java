@@ -9,6 +9,7 @@ import org.example.pdnight.domain.post.enums.PostStatus;
 import org.example.pdnight.domain.post.presentation.dto.request.CommentRequest;
 import org.example.pdnight.domain.post.presentation.dto.response.CommentResponse;
 import org.example.pdnight.domain.post.presentation.dto.response.PostInfo;
+import org.example.pdnight.global.aop.SaveLog;
 import org.example.pdnight.global.common.enums.ErrorCode;
 import org.example.pdnight.global.common.enums.KafkaTopic;
 import org.example.pdnight.global.common.exception.BaseException;
@@ -104,6 +105,7 @@ public class CommentCommanderService {
 
     //어드민 권한 댓글 삭제 메서드
     @Transactional
+    @SaveLog
     public void deleteCommentByAdmin(Long postId, Long id, Long adminId) {
         //해당 게시물이 없으면 예외 쓰로우
         if (!postPort.existsByIdAndIsDeletedIsFalse(postId)) {

@@ -13,6 +13,7 @@ import org.example.pdnight.domain.user.presentation.dto.userDto.response.CouponI
 import org.example.pdnight.domain.user.presentation.dto.userDto.response.FollowResponse;
 import org.example.pdnight.domain.user.presentation.dto.userDto.response.UserCouponResponse;
 import org.example.pdnight.domain.user.presentation.dto.userDto.response.UserResponse;
+import org.example.pdnight.global.aop.SaveLog;
 import org.example.pdnight.global.common.enums.ErrorCode;
 import org.example.pdnight.global.common.enums.KafkaTopic;
 import org.example.pdnight.global.common.exception.BaseException;
@@ -54,6 +55,7 @@ public class UserCommanderService {
     }
 
     @Transactional
+    @SaveLog
     public UserResponse updateNickname(Long userId, UserNicknameUpdate dto) {
         User user = getUserById(userId);
 
@@ -65,6 +67,7 @@ public class UserCommanderService {
     }
 
     @Transactional
+    @SaveLog
     public void delete(Long userId) {
         User user = getUserById(userId);
 
@@ -112,6 +115,7 @@ public class UserCommanderService {
 
     // 쿠폰 부여
     @Transactional
+    @SaveLog
     public UserCouponResponse giveCouponToUser(GiveCouponRequest request) {
         User user = getUserById(request.getUserId());
 

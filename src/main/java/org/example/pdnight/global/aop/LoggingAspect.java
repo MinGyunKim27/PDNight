@@ -1,12 +1,18 @@
 package org.example.pdnight.global.aop;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.AfterReturning;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+import java.util.Arrays;
 
 @Slf4j
 @Aspect
@@ -63,12 +69,71 @@ public class LoggingAspect {
     public void applicationLayer() {
     }
 
+    // 성공/실패 모두 로깅하는 메서드
+    @Around("@annotation(SaveLog)")
+    public Object logAround(ProceedingJoinPoint joinPoint) throws Throwable {
+        long startTime = System.currentTimeMillis();
+        String requestInfo;
 
-    @AfterReturning("applicationLayer()")
-    public void logAfterMethodReturn(JoinPoint joinPoint) {
-        String className = joinPoint.getSignature().getDeclaringTypeName(); //클래스
-        String methodName = joinPoint.getSignature().getName(); //메서드
-        log.debug("[DEBUG] {},{}", className, methodName); //로그 저장
-        log.info("[LOCAL] {}", joinPoint.getSignature().toShortString()); //콘솔 출력
+        // 현재 스레드에 웹 요청 컨텍스트가 있는지 확인
+        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        if (requestAttributes != null) {
+            HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
+            requestInfo = String.format("%s %s", request.getMethod(), request.getRequestURI());
+        } else {
+            // 웹 요청 컨텍스트가 없는 경우 - 카프카 리스너
+            requestInfo = joinPoint.getSignature().toShortString();
+        }
+        log.debug("1");
+
+        Object[] args = joinPoint.getArgs(); // 요청 파라미터 또는 바디
+
+        log.debug("[REQUEST] {} | Args: {}", requestInfo, Arrays.toString(args));
+
+        try {
+            // 대상 메서드 실행
+            log.debug("2");
+            Object result = joinPoint.proceed();
+            long executionTime = System.currentTimeMillis() - startTime;
+            log.debug("[RESPONSE] {} | Return Value: {} | Time taken: {}ms", requestInfo, result, executionTime);
+
+            return result;
+        } catch (Throwable e) {
+            log.debug("3");
+            long executionTime = System.currentTimeMillis() - startTime;
+            log.debug("[ERROR] {} | Exception: {} | Time taken: {}ms", requestInfo, e.getMessage(), executionTime);
+            throw e;
+        }
+    }
+
+    // 실패 시에만 로깅하는 메서드
+    @Around("applicationLayer() && !@annotation(SaveLog)")
+    public Object logOnFailure(ProceedingJoinPoint joinPoint) throws Throwable {
+        long startTime = System.currentTimeMillis();
+        String requestInfo;
+        log.debug("4");
+        // 현재 스레드에 웹 요청 컨텍스트가 있는지 확인
+        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        if (requestAttributes != null) {
+            log.debug("5");
+            HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
+            requestInfo = String.format("%s %s", request.getMethod(), request.getRequestURI());
+        } else {
+            // 웹 요청 컨텍스트가 없는 경우 - 카프카 리스너
+            log.debug("6");
+            requestInfo = joinPoint.getSignature().toShortString();
+        }
+
+        try {
+            // 성공한 경우, 로깅하지 않고 결과 반환
+            log.debug("7");
+            return joinPoint.proceed();
+
+        } catch (Throwable e) {
+            log.debug("8");
+            long executionTime = System.currentTimeMillis() - startTime;
+            log.debug("[ERROR] {} | Exception: {} | Time taken: {}ms", requestInfo, e.getMessage(), executionTime);
+            throw e;
+        }
     }
 }

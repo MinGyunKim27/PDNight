@@ -14,6 +14,7 @@ import org.example.pdnight.domain.post.presentation.dto.response.ParticipantResp
 import org.example.pdnight.domain.post.presentation.dto.response.PostLikeResponse;
 import org.example.pdnight.domain.post.presentation.dto.response.PostResponse;
 import org.example.pdnight.global.aop.DistributedLock;
+import org.example.pdnight.global.aop.SaveLog;
 import org.example.pdnight.global.common.enums.ErrorCode;
 import org.example.pdnight.global.common.enums.JobCategory;
 import org.example.pdnight.global.common.exception.BaseException;
@@ -183,6 +184,7 @@ public class PostCommanderService {
             @CacheEvict(value = CacheName.WRITTEN_POST, allEntries = true),
             @CacheEvict(value = CacheName.SUGGESTED_POST, allEntries = true),
     })
+    @SaveLog
     public void deleteAdminPostById(Long id) {
         getPostByIdAndNotDeleted(id).softDelete();
     }

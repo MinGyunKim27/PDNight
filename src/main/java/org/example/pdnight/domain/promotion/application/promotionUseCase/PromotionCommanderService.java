@@ -7,6 +7,7 @@ import org.example.pdnight.domain.promotion.domain.entity.PromotionParticipant;
 import org.example.pdnight.domain.promotion.presentation.dto.request.PromotionCreateRequest;
 import org.example.pdnight.domain.promotion.presentation.dto.response.PromotionResponse;
 import org.example.pdnight.global.aop.DistributedLock;
+import org.example.pdnight.global.aop.SaveLog;
 import org.example.pdnight.global.common.enums.ErrorCode;
 import org.example.pdnight.global.common.exception.BaseException;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ public class PromotionCommanderService {
 
     // 프로모션 생성
     @Transactional
+    @SaveLog
     public PromotionResponse createPromotion(PromotionCreateRequest request) {
         if (request.getMaxParticipants() < 1) {
             throw new BaseException(ErrorCode.PROMOTION_INVALID_PARTICIPANT);
@@ -47,6 +49,7 @@ public class PromotionCommanderService {
     }
 
     @Transactional
+    @SaveLog
     public PromotionResponse updatePromotion(Long id, PromotionCreateRequest request) {
         Promotion promotion = getPromotionById(id);
 
@@ -67,6 +70,7 @@ public class PromotionCommanderService {
     }
 
     @Transactional
+    @SaveLog
     public void deletePromotionById(Long id) {
         Promotion promotion = getPromotionById(id);
         promotionCommander.delete(promotion);
