@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.RoundRobinPartitioner;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.security.oauthbearer.internals.secured.ValidateException;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -35,22 +36,6 @@ import java.util.Map;
 public class KafkaConfig {
 
     @Bean
-    public RetryTemplate retryTemplate() {
-        ExponentialBackOffPolicy backOffPolicy = new ExponentialBackOffPolicy();
-        backOffPolicy.setInitialInterval(1000L);  // 1초
-        backOffPolicy.setMultiplier(1.5);         // 재시도 마다 시간 *1.5
-        backOffPolicy.setMaxInterval(10000L);     // 재시도의 대기시간의 최대 설정 10초
-
-        SimpleRetryPolicy retryPolicy = new SimpleRetryPolicy();
-        retryPolicy.setMaxAttempts(3);
-
-        RetryTemplate retryTemplate = new RetryTemplate();
-        retryTemplate.setRetryPolicy(retryPolicy);
-        retryTemplate.setBackOffPolicy(backOffPolicy);
-        return retryTemplate;
-    }
-
-    @Bean
     public KafkaTemplate<String, Object> kafkaTemplate(){
         return new KafkaTemplate<>(producerFactory());
     }
@@ -69,8 +54,8 @@ public class KafkaConfig {
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
 
-//        config.put(ProducerConfig.PARTITIONER_CLASS_CONFIG, RoundRobinPartitioner.class.getName());
-//        파티션 자동 분배
+        //        파티션 자동 분배
+        config.put(ProducerConfig.PARTITIONER_CLASS_CONFIG, RoundRobinPartitioner.class.getName());
 
         config.put(ProducerConfig.RETRY_BACKOFF_MS_CONFIG, 1000);// 재시도 간 간격
         config.put(ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG, 10000); // 전송 전체 제한 시간
@@ -79,7 +64,7 @@ public class KafkaConfig {
         return new DefaultKafkaProducerFactory<>(config);
     }
 
-    @Bean // 회원가입에 사용되지 않을까 예상
+    @Bean // 회원 가입에 사용
     public ProducerFactory<String, Object> producerAckFactory() {
         Map<String, Object> config = new HashMap<>();
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
@@ -87,8 +72,8 @@ public class KafkaConfig {
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
 
-//        config.put(ProducerConfig.PARTITIONER_CLASS_CONFIG, RoundRobinPartitioner.class.getName());
-//        파티션 자동 분배
+        //        파티션 자동 분배
+        config.put(ProducerConfig.PARTITIONER_CLASS_CONFIG, RoundRobinPartitioner.class.getName());
 
         // 정확한 전송 한번만 수행
         config.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true); // 중복 전송 방지
@@ -117,7 +102,6 @@ public class KafkaConfig {
         config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
 
-        // 현재 Dto로 역 직렬화 다 풀어놨는데 이 부분은 하나씩 하는게 보안 상 좋아보임
         config.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
         return new DefaultKafkaConsumerFactory<>(config);
     }
@@ -130,6 +114,23 @@ public class KafkaConfig {
         return kafkaListenerContainerFactory;
     }
 
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, Object> notificationListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, Object> kafkaListenerContainerFactory = new ConcurrentKafkaListenerContainerFactory<>();
+        kafkaListenerContainerFactory.setConsumerFactory(consumerFactory());
+        kafkaListenerContainerFactory.setCommonErrorHandler(notificationErrorHandler());    // 에러 핸들러 주입
+        return kafkaListenerContainerFactory;
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, Object> dltListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, Object> kafkaListenerContainerFactory = new ConcurrentKafkaListenerContainerFactory<>();
+        kafkaListenerContainerFactory.setConsumerFactory(consumerFactory());
+        kafkaListenerContainerFactory.setCommonErrorHandler(dltErrorHandler());    // 에러 핸들러 주입
+        return kafkaListenerContainerFactory;
+    }
+
+    //기본 컨슈머 리스너 설정
     @Bean
     public DefaultErrorHandler errorHandler(){
         // 일정 재시도 횟수 초과시 dead-letter-topic 으로 등록
@@ -163,4 +164,74 @@ public class KafkaConfig {
 
         return errorHandler;
     }
+
+    //dlt 컨슈머 리스너 설정
+    @Bean
+    public DefaultErrorHandler dltErrorHandler(){
+        // 일정 재시도 횟수 초과시 dead-letter-topic 으로 등록
+        DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer
+                (kafkaTemplate(),(consumerRecord, e)-> {
+                    //log.error("DLT 전송 메시지={}, 에러={}", consumerRecord.value(), e.getMessage());
+                    return new TopicPartition(consumerRecord.topic().replace(".DLT","") + ".error.parking", consumerRecord.partition());
+                });
+
+        // Backoff 전략 : ExponentialBackOff 지수 백오프
+        // 점진적으로 재시도 주기 증가
+        ExponentialBackOff backOff = new ExponentialBackOff();
+        backOff.setInitialInterval(5000L);  // 1초
+        backOff.setMultiplier(1.5);         // 재시도 마다 시간 *1.5
+        backOff.setMaxInterval(10000L);     // 재시도의 대기시간의 최대 설정 10초
+        backOff.setMaxAttempts(2);
+
+        DefaultErrorHandler errorHandler = new DefaultErrorHandler(recoverer, backOff);
+
+        //재시도 하더라도 똑같이 예외가 터지는 케이스 -> 재시도 처리 제외
+        errorHandler.addNotRetryableExceptions(
+                IllegalAccessException.class,               // 접근 권한이 없어 실패
+                MessageConversionException.class,           // 메시지 자체가 문제 있는 경우
+                MethodArgumentResolutionException.class,    // 카프카 바인딩 문제
+                ClassCastException.class,                   // 타입불일치
+                ValidateException.class,                    // 검증 로직 문제
+                NoSuchMethodException.class,                // 존재하지않는 메서드 호출시 발생
+                InvalidFormatException.class,               // 제공된 타입과 다른 형식에 타입이 들어올 때
+                DeserializationException.class              // 역직렬화 실패 JSON 파싱 실패
+        );
+
+        return errorHandler;
+    }
+
+    //알림 컨슈머 리스너 설정
+    @Bean
+    public DefaultErrorHandler notificationErrorHandler(){
+        // 일정 재시도 횟수 초과시 dead-letter-topic 으로 등록
+        DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer
+                (kafkaTemplate(),(consumerRecord, e)-> {
+                    log.error("DLT 전송 메시지={}, 에러={}", consumerRecord.value(), e.getMessage());
+                    return new TopicPartition(consumerRecord.topic() + "notification.DLT", consumerRecord.partition());
+                });
+
+        // Backoff 전략 : ExponentialBackOff 지수 백오프
+        // 점진적으로 재시도 주기 증가
+        ExponentialBackOff backOff = new ExponentialBackOff();
+        backOff.setInitialInterval(1000L);  // 1초
+        backOff.setMultiplier(1.5);         // 재시도 마다 시간 *1.5
+        backOff.setMaxAttempts(3);
+
+        DefaultErrorHandler errorHandler = new DefaultErrorHandler(recoverer, backOff);
+
+        //재시도 하더라도 똑같이 예외가 터지는 케이스 -> 재시도 처리 제외
+        errorHandler.addNotRetryableExceptions(
+                IllegalAccessException.class,               // 접근 권한이 없어 실패
+                MessageConversionException.class,           // 메시지 자체가 문제 있는 경우
+                MethodArgumentResolutionException.class,    // 카프카 바인딩 문제
+                ClassCastException.class,                   // 타입불일치
+                ValidateException.class,                    // 검증 로직 문제
+                NoSuchMethodException.class,                // 존재하지않는 메서드 호출시 발생
+                InvalidFormatException.class,               // 제공된 타입과 다른 형식에 타입이 들어올 때
+                DeserializationException.class              // 역직렬화 실패 JSON 파싱 실패
+        );
+
+        return errorHandler;
+    }
+
 }

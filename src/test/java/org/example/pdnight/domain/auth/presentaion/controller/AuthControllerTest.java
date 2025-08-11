@@ -68,7 +68,7 @@ public class AuthControllerTest {
                 .email(email).nickname(name).name(name).password(password)
                 .gender(Gender.MALE).age(25L).jobCategory(JobCategory.BACK_END_DEVELOPER)
                 .build();
-        createUser(request);
+        createUser(request, 1L);
 
         //when
         ResultActions perform = mockMvc.perform(post("/api/auth/signup")
@@ -119,7 +119,7 @@ public class AuthControllerTest {
                 .build();
 
         Auth auth = createAuth(signupRequest);
-        User user = createUser(signupRequest);
+        User user = createUser(signupRequest, auth.getId());
 
 
         String token = jwtUtil.createToken(
@@ -151,8 +151,8 @@ public class AuthControllerTest {
         return authCommander.save(auth);
     }
 
-    private User createUser(SignupRequest request) {
-        User user = User.fromUserSignUpEvent(request);
+    private User createUser(SignupRequest request, Long authId) {
+        User user = User.fromAuthSignUpEvent(authId, request.getName(),request.getNickname(), request.getGender(), request.getAge(), request.getJobCategory());
         return userCommander.save(user);
     }
 }
