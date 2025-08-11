@@ -26,7 +26,9 @@ public class CommentReaderService {
     @Transactional(readOnly = true)
     public PagedResponse<CommentResponse> getCommentsByPostId(Long postId, Pageable pageable) {
 
-        validateIsExistPost(postId);
+        if (!postPort.existsByIdAndIsDeletedIsFalse(postId)) {
+            throw new BaseException(ErrorCode.POST_NOT_FOUND);
+        }
 
         //1. 전체 댓글을 리스트로 반환 Id 기준으로 오름차순 정렬
         List<Comment> foundComments = commentReader.findByPostIdOrderByIdAsc(postId);
@@ -57,13 +59,4 @@ public class CommentReaderService {
 
         return PagedResponse.from(pagedCommentDtos);
     }
-
-    //----------------------------------- HELPER 메서드 ------------------------------------------------------
-    // validate
-    private void validateIsExistPost(Long postId) {
-        if (!postPort.existsById(postId)) {
-            throw new BaseException(ErrorCode.POST_NOT_FOUND);
-        }
-    }
-
 }
