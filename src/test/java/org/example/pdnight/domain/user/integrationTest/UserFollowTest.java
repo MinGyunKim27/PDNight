@@ -25,16 +25,16 @@ public class UserFollowTest {
     void follow_정상_팔로우_성공() {
         // given
         User userA = User.createTestUser(1L,"테스트","email@email.com","hasedPassword");
-        userA.setId(null);
+        User userB = User.createTestUser(2L,"테스트2","email@email.com","hasedPassword");;
         userCommander.save(userA);
-        User userB = User.createTestUser(1L,"테스트2","email@email.com","hasedPassword");;
-        userB.setId(null);
         userCommander.save(userB);
 
         // when
         userCommanderService.follow(userB.getId(), userA.getId());
 
         // then
+        userA = userCommander.findById(1L).orElseThrow();
+        userB = userCommander.findById(2L).orElseThrow();
         assertThat(userA.getFollowedOther()).hasSize(1);
         assertThat(userB.getFollowingMe()).hasSize(1);
     }
@@ -44,8 +44,8 @@ public class UserFollowTest {
     void follow_정상_언팔로우_성공() {
         // given
         User userA = User.createTestUser(1L,"테스트","email1@email.com","hasedPassword");
-        userCommander.save(userA);
         User userB = User.createTestUser(2L,"테스트2","email2@email.com","hasedPassword");
+        userCommander.save(userA);
         userCommander.save(userB);
 
         // when
@@ -54,6 +54,8 @@ public class UserFollowTest {
         userCommanderService.unfollow(userB.getId(), userA.getId());
 
         // then
+        userA = userCommander.findById(1L).orElseThrow();
+        userB = userCommander.findById(2L).orElseThrow();
         assertThat(userA.getFollowedOther()).hasSize(0);
         assertThat(userB.getFollowingMe()).hasSize(0);
     }
