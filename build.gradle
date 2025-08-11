@@ -82,6 +82,8 @@ dependencies {
     //카프카
     implementation 'org.springframework.kafka:spring-kafka'
 
+    // Elasticsearch
+    implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
 }
 
 tasks.named('test') {

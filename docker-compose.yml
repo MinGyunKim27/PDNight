@@ -123,6 +123,89 @@ services:
       - Kafka02Service
     networks:
       - kafka_network
+  elasticsearch:
+    build:
+      context: elasticsearch/
+      args:
+        ELK_VERSION: $ELK_VERSION
+    volumes:
+      - type: bind
+        source: ./elasticsearch/config/elasticsearch.yml
+        target: /usr/share/elasticsearch/config/elasticsearch.yml
+        read_only: true
+      - type: volume
+        source: elasticsearch
+        target: /usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+      ELASTIC_PASSWORD: elastic
+      # Use single node discovery in order to disable production mode and avoid bootstrap checks
+      # see https://www.elastic.co/guide/en/elasticsearch/reference/current/bootstrap-checks.html
+      discovery.type: single-node
+      xpack.security.enabled: false
+    networks:
+      - elk
+
+  logstash:
+    build:
+      context: logstash/
+      args:
+        ELK_VERSION: $ELK_VERSION
+    volumes:
+      - type: bind
+        source: ./logstash/config/logstash.conf
+        target: /usr/share/logstash/config/logstash.conf
+        read_only: true
+      - type: bind
+        source: ./logstash/pipeline
+        target: /usr/share/logstash/pipeline
+        read_only: true
+    ports:
+      - "5044:5044"
+      - "15000:5000/tcp"
+      - "15000:5000/udp"
+      - "9600:9600"
+    environment:
+      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+
+  kibana:
+    build:
+      context: kibana/
+      args:
+        ELK_VERSION: $ELK_VERSION
+    volumes:
+      - type: bind
+        source: ./kibana/config/kibana.yml
+        target: /usr/share/kibana/config/kibana.yml
+        read_only: true
+    ports:
+      - "5601:5601"
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+
+  filebeat:
+    build:
+      context: filebeat/
+      args:
+        ELK_VERSION: $ELK_VERSION
+    volumes:
+      - /var/log/host_logs/app.log
+      - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml
+    networks:
+      - elk
+    depends_on:
+      - logstash
+    entrypoint: >
+      sh -c "chmod go-w /usr/share/filebeat/filebeat.yml && filebeat"  
 
 volumes:
   Kafka00:
@@ -131,77 +214,11 @@ volumes:
     driver: local
   Kafka02:
     driver: local
+  es-data:
+  elasticsearch:
 
 networks:
   spring-net:
   kafka_network:
-#  mysql:
-#    image: mysql:8.0
-#    container_name: mysql-container
-#    environment:
-#      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-#      MYSQL_DATABASE: ${MYSQL_DATABASE}
-#    ports:
-#      - "3307:3306"
-#    volumes:
-#      - mysql-data:/var/lib/mysql
-#    networks:
-#      - spring-net
-#
-#  app1:
-#    build:
-#      context: .
-#      dockerfile: Dockerfile
-#    container_name: app1-container
-#    ports:
-#      - "8080"  # 내부에서만 접근
-#    environment:
-#      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
-#      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
-#      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
-#      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
-#      REDIS_HOST: ${REDIS_HOST}
-#      REDIS_PORT: ${REDIS_PORT}
-#    depends_on:
-#      - mysql
-#      - redis
-#    networks:
-#      - spring-net
-#
-#  app2:
-#    build:
-#      context: .
-#      dockerfile: Dockerfile
-#    container_name: app2-container
-#    ports:
-#      - "8080"  # 내부에서만 접근
-#    environment:
-#      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
-#      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
-#      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
-#      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
-#      REDIS_HOST: ${REDIS_HOST}
-#      REDIS_PORT: ${REDIS_PORT}
-#    depends_on:
-#      - mysql
-#      - redis
-#    networks:
-#      - spring-net
-#
-#  nginx:
-#    image: nginx:latest
-#    container_name: nginx-container
-#    ports:
-#      - "80:80"
-#    volumes:
-#      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-#    depends_on:
-#      - app1
-#      - app2
-#    networks:
-#      - spring-net
-#
-
-#
-#volumes:
-#  mysql-data:
+  elk:
+    driver: bridge

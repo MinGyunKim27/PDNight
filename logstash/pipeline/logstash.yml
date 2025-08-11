@@ -1,0 +1,22 @@
+input {
+  beats {
+    port => 5044
+  }
+}
+
+filter {
+  # 잘못된 TIMESTAMP_YMD 대신 지원되는 패턴 사용
+  grok {
+    match => { "message" => "%{TIMESTAMP_ISO8601:log_date}" }
+  }
+}
+
+output {
+  elasticsearch {
+    hosts => ["http://elasticsearch:9200"]
+    index => "logstash-%{+yyyy.MM.dd}"
+    user => "elastic"
+    password => "elastic"
+    ecs_compatibility => disabled
+  }
+}
