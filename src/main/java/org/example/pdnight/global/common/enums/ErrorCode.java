@@ -28,6 +28,7 @@ public enum ErrorCode {
     POST_STATE_NOT_REVERSIBLE(HttpStatus.BAD_REQUEST, "게시물 상태는 이전 단계로 되돌릴 수 없습니다"),
     POST_STATE_FLOW_ERROR(HttpStatus.BAD_REQUEST, "게시물 상태 변경 흐름이 올바르지 않습니다."),
     POST_FORBIDDEN(HttpStatus.FORBIDDEN, "작성자만 접근할 수 있습니다."),
+    POST_STATUS_NOT_OPEN(HttpStatus.BAD_REQUEST, "열린 상태의 게시글이 아닙니다."),
     POST_STATUS_CLOSED(HttpStatus.BAD_REQUEST, "닫힌 상태의 게시글입니다."),
 
     // 게시물 좋아요 관련 에러

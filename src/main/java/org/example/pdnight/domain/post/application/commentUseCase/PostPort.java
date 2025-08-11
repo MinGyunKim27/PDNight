@@ -8,6 +8,6 @@ public interface PostPort {
 
     PostInfo findById(Long postId);
 
-    boolean existsById(Long postId);
+    boolean existsByIdAndIsDeletedIsFalse(Long postId);
 
 }
