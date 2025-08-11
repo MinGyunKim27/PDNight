@@ -43,11 +43,9 @@ public class UserFollowTest {
     @Transactional
     void follow_정상_언팔로우_성공() {
         // given
-        User userA = User.createTestUser(1L,"테스트","email@email.com","hasedPassword");
-        userA.setId(null);
+        User userA = User.createTestUser(1L,"테스트","email1@email.com","hasedPassword");
         userCommander.save(userA);
-        User userB = User.createTestUser(1L,"테스트2","email@email.com","hasedPassword");;
-        userB.setId(null);
+        User userB = User.createTestUser(2L,"테스트2","email2@email.com","hasedPassword");
         userCommander.save(userB);
 
         // when

@@ -201,9 +201,9 @@ public class NotificationConsumer {
     @KafkaListener(
             topicPattern = ".*\\.notification\\.DLT$",
             groupId = "DLT-handler",
-            containerFactory = "dltListenerContainerFactory"
+            containerFactory = "notificationDltListenerContainerFactory"
     )
-    public void postDltConsumer(ConsumerRecord<String, Object> record) {
+    public void dltConsumer(ConsumerRecord<String, Object> record) {
 
         switch (record.topic()) {
             case "post.confirmed.notification.DLT": {
