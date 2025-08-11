@@ -22,9 +22,6 @@ import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 import org.springframework.messaging.converter.MessageConversionException;
 import org.springframework.messaging.handler.invocation.MethodArgumentResolutionException;
-import org.springframework.retry.backoff.ExponentialBackOffPolicy;
-import org.springframework.retry.policy.SimpleRetryPolicy;
-import org.springframework.retry.support.RetryTemplate;
 import org.springframework.util.backoff.ExponentialBackOff;
 
 import java.util.HashMap;
