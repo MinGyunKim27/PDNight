@@ -9,7 +9,6 @@ import org.example.pdnight.domain.user.presentation.dto.userDto.response.Followi
 import org.example.pdnight.domain.user.presentation.dto.userDto.response.UserCouponResponse;
 import org.example.pdnight.domain.user.presentation.dto.userDto.response.UserEvaluationResponse;
 import org.example.pdnight.domain.user.presentation.dto.userDto.response.UserResponse;
-import org.example.pdnight.global.aop.SaveLog;
 import org.example.pdnight.global.common.dto.PagedResponse;
 import org.example.pdnight.global.common.enums.ErrorCode;
 import org.example.pdnight.global.common.enums.KafkaTopic;
@@ -84,7 +83,7 @@ public class UserReaderService {
         List<UserCoupon> userCoupons = userReader.findByDeadlineAtBetween(now, plusOneDay);
         List<Long> targetUserIds = new ArrayList<>();
 
-        for(UserCoupon c : userCoupons) {
+        for (UserCoupon c : userCoupons) {
             targetUserIds.add(c.getUser().getId());
         }
 
