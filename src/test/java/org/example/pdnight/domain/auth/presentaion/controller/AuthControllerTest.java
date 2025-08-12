@@ -38,7 +38,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @TestMethodOrder(OrderAnnotation.class)
 @EmbeddedKafka(
-        count = 3,
         brokerProperties = {
                 "auto.create.topics.enable=true",
                 "offsets.topic.replication.factor=1",
