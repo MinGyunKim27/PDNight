@@ -103,7 +103,8 @@ public class NotificationConsumer {
     }
 
     // 대댓글 작성 (대댓글 작성자 -> 원댓글 작성자)
-    @KafkaListener(topics = "post.reply.created", groupId = "alert-group", containerFactory = "notificationListenerContainerFactory")
+    // ⚠️ 주의: 토픽이 실제로 별도라면 "post.reply.created" 등 실제 토픽명으로 바꿔주세요.
+    @KafkaListener(topics = "post.reply.created", groupId = "alert-comment-group", containerFactory = "notificationListenerContainerFactory")
     public void consumeReplyCreatedEvent(CommentReplyCreatedEvent event) {
         notificationConsumerService.one(
                 event.commentAuthorId(),
@@ -127,7 +128,7 @@ public class NotificationConsumer {
     }
 
     // 쿠폰 만료 (시스템 -> 유저들)
-    @KafkaListener(topics = "coupon.expired", groupId = "alert-group", containerFactory = "notificationListenerContainerFactory")
+    @KafkaListener(topics = "coupon.expired", groupId = "alert-coupon-group", containerFactory = "notificationListenerContainerFactory")
     public void consumeApplyCouponExpiredEvent(CouponExpiredEvent event) {
         List<Long> userIds = event.userIds();
         notificationConsumerService.many(
@@ -140,7 +141,7 @@ public class NotificationConsumer {
     }
 
     // 모임 성사 - 참가자들에게 다건, 작성자에게 단건
-    @KafkaListener(topics = {"post.confirmed"}, groupId = "alert-group", containerFactory = "notificationListenerContainerFactory")
+    @KafkaListener(topics = {"post.confirmed"}, groupId = "alert-post-group", containerFactory = "notificationListenerContainerFactory")
     public void consumePostConfirmedEvent(PostConfirmedEvent event) {
         // 참가자 알림
         notificationConsumerService.many(
@@ -161,7 +162,7 @@ public class NotificationConsumer {
     }
 
     // 모임 참여 신청 (신청자 -> 작성자)
-    @KafkaListener(topics = "post.participant.applied", groupId = "alert-group", containerFactory = "notificationListenerContainerFactory",concurrency = "24")
+    @KafkaListener(topics = "post.participant.applied", groupId = "alert-post-group", containerFactory = "notificationListenerContainerFactory")
     public void consumeParticipateAppliedEvent(PostParticipateAppliedEvent event) {
         notificationConsumerService.one(
                 event.authorId(),

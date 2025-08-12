@@ -24,11 +24,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 })
 @ActiveProfiles("test")
 @EmbeddedKafka(
-        count = 3,
-        ports = {10000, 10001, 10002},
         topics = {"test-topic", "test-topic.DLT"},
         brokerProperties = {
-                "auto.create.topics.enable=true",
+                "auto.create.topics.enable=false",
                 "offsets.topic.replication.factor=1",
                 "transaction.state.log.replication.factor=1",
                 "transaction.state.log.min.isr=1"
@@ -76,7 +74,7 @@ public class KafkaTest {
                 ", partition = " + send.get().getRecordMetadata().partition() +
                 ", offset = " + send.get().getRecordMetadata().offset());
 
-        boolean messageReceived = latch.await(30, TimeUnit.SECONDS);
+        boolean messageReceived = latch.await(10, TimeUnit.SECONDS);
         assertTrue(messageReceived, "메시지를 받지 못했습니다.");
         assertEquals("Test", receivedMessage);
     }

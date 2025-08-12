@@ -13,7 +13,12 @@ public class PostConsumer {
     private final PostConsumerService postConsumerService;
 
     @KafkaListener(topics = "auth.deleted", groupId = "post-group")
-    public void HandleAuthDelete(AuthDeletedEvent event){
+    public void handleAuthDelete(AuthDeletedEvent event) {
+        postConsumerService.handleAuthDelete(event);
+    }
+
+    @KafkaListener(topics = "auth.deleted.DLT", groupId = "DLT-handler")
+    public void dltHandler(AuthDeletedEvent event) {
         postConsumerService.handleAuthDelete(event);
     }
 
