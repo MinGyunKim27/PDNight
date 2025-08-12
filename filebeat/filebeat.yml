@@ -2,7 +2,7 @@ filebeat.inputs:
   - type: log
     enabled: true
     paths:
-      - /var/log/host_logs/*.log
+      - /usr/share/log/host_logs/*.log
     multiline.pattern: '^\[[0-9]{4}-[0-9]{2}-[0-9]{2}'
     multiline.negate: true
     multiline.match: after
