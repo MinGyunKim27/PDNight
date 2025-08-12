@@ -20,8 +20,7 @@ public class UserConsumerService {
 
     @Transactional
     public void consumeAuthSignedUpEvent(AuthSignedUpEvent event) {
-
-        User user = User.fromAuthSignUpEvent(event.name(), event.nickname(), event.gender(), event.age(), event.jobCategory());
+        User user = User.fromAuthSignUpEvent(event.authId(), event.name(), event.nickname(), event.gender(), event.age(), event.jobCategory());
         userCommander.save(user);
     }
 

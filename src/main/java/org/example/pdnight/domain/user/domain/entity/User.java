@@ -5,7 +5,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.example.pdnight.domain.auth.presentation.dto.request.SignupRequest;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.user.domain.enums.Region;
 import org.example.pdnight.global.common.entity.Timestamped;
@@ -28,7 +27,6 @@ public class User extends Timestamped {
 
     @Setter
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
@@ -100,12 +98,14 @@ public class User extends Timestamped {
     }
 
     private User(
+            Long authId,
             String name,
             String nickname,
             Gender gender,
             Long age,
             JobCategory jobCategory
     ) {
+        this.id = authId;
         this.name = name;
         this.nickname = nickname;
         this.gender = gender;
@@ -114,22 +114,16 @@ public class User extends Timestamped {
     }
 
     // ================================== static 생성 메서드 ==================================
-    // 유저 생성 메서드
-    public static User fromUserSignUpEvent(SignupRequest request) {
-        return new User(
-                request.getName(), request.getNickname(), request.getGender(),
-                request.getAge(), request.getJobCategory(),
-                null, null, null
-        );
-    }
 
     public static User fromAuthSignUpEvent(
+            Long authId,
             String name,
             String nickname,
             Gender gender,
             Long age,
             JobCategory jobCategory) {
         return new User(
+                authId,
                 name,
                 nickname,
                 gender,
@@ -247,8 +241,8 @@ public class User extends Timestamped {
     }
 
     // ----------------  테스트용 ------------------
-    private User(String name) {
-        this.id = 1L;
+    private User(Long id, String name) {
+        this.id = id;
         this.name = name;
         this.age = 20L;
         this.totalRate = 0L;
@@ -259,6 +253,6 @@ public class User extends Timestamped {
 
     //테스트 유저 생성 메서드
     public static User createTestUser(Long id, String name, String email, String password) {
-        return new User(name);
+        return new User(id, name);
     }
 }
