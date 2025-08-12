@@ -98,10 +98,12 @@ public class AuthCommanderService {
         auth.softDelete();
 
         // 회원 탈퇴 이벤트 발행
-        producer.produce(KafkaTopic.AUTH_DELETED.topicName(), new AuthDeletedEvent(auth.getId()));
-        /*eventPublisher.publishEvent(UserDeletedEvent.of(
-                auth.getId()
-        ));*/
+        try {
+            producer.produce(KafkaTopic.AUTH_DELETED.topicName(), new AuthDeletedEvent(auth.getId()));
+        } catch (Exception e) {
+            throw new BaseException(ErrorCode.KAFKA_SEND_TIMEOUT);
+        }
+
     }
 
     @Transactional
