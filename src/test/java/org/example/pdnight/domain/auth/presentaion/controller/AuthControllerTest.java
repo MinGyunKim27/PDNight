@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -35,6 +36,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestMethodOrder(OrderAnnotation.class)
+@EmbeddedKafka(
+        count = 3,
+        ports = {10000, 10001, 10002},
+        topics = {"test-topic", "test-topic.DLT"},
+        brokerProperties = {
+                "auto.create.topics.enable=true",
+                "offsets.topic.replication.factor=1",
+                "transaction.state.log.replication.factor=1",
+                "transaction.state.log.min.isr=1"
+        }
+)
 public class AuthControllerTest {
 
     @Autowired
@@ -68,7 +80,6 @@ public class AuthControllerTest {
                 .email(email).nickname(name).name(name).password(password)
                 .gender(Gender.MALE).age(25L).jobCategory(JobCategory.BACK_END_DEVELOPER)
                 .build();
-        createUser(request, 1L);
 
         //when
         ResultActions perform = mockMvc.perform(post("/api/auth/signup")
@@ -110,17 +121,10 @@ public class AuthControllerTest {
     @Order(3)
     void Withdraw() throws Exception {
         //given
-        String email = "test@test.com";
-        String name = "name";
+        Long userId = 1L;
         String password = "password";
-        SignupRequest signupRequest = SignupRequest.builder()
-                .email(email).nickname(name).name(name).password(password)
-                .gender(Gender.MALE).age(25L).jobCategory(JobCategory.BACK_END_DEVELOPER)
-                .build();
-
-        Auth auth = createAuth(signupRequest);
-        User user = createUser(signupRequest, auth.getId());
-
+        Auth auth = authCommander.findById(userId).orElseThrow();
+        User user = userCommander.findById(userId).orElseThrow();
 
         String token = jwtUtil.createToken(
                 auth.getId(), auth.getRole(), user.getNickname(),
@@ -141,18 +145,4 @@ public class AuthControllerTest {
                 .andExpect(jsonPath("$.message").value("회원탈퇴 되었습니다."));
     }
 
-    private Auth createAuth(SignupRequest request) {
-        String encode = passwordEncoder.encode(request.getPassword());
-        Auth auth = Auth.create(
-                request.getEmail(),
-                encode,
-                UserRole.ADMIN
-        );
-        return authCommander.save(auth);
-    }
-
-    private User createUser(SignupRequest request, Long authId) {
-        User user = User.fromAuthSignUpEvent(authId, request.getName(),request.getNickname(), request.getGender(), request.getAge(), request.getJobCategory());
-        return userCommander.save(user);
-    }
 }
