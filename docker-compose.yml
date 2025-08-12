@@ -127,7 +127,7 @@ services:
     build:
       context: elasticsearch/
       args:
-        ELK_VERSION: $ELK_VERSION
+        ELK_VERSION: 8.14.0
     volumes:
       - type: bind
         source: ./elasticsearch/config/elasticsearch.yml
@@ -153,7 +153,7 @@ services:
     build:
       context: logstash/
       args:
-        ELK_VERSION: $ELK_VERSION
+        ELK_VERSION: 8.14.0
     volumes:
       - type: bind
         source: ./logstash/config/logstash.conf
@@ -179,7 +179,7 @@ services:
     build:
       context: kibana/
       args:
-        ELK_VERSION: $ELK_VERSION
+        ELK_VERSION: 8.14.0
     volumes:
       - type: bind
         source: ./kibana/config/kibana.yml
@@ -196,7 +196,7 @@ services:
     build:
       context: filebeat/
       args:
-        ELK_VERSION: $ELK_VERSION
+        ELK_VERSION: 8.14.0
     volumes:
       - ./log:/usr/share/log/host_logs:ro
       - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml
