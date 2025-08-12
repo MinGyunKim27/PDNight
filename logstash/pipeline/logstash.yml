@@ -27,12 +27,6 @@ filter {
     grok {
       match => { "log_data" => "Return Value: %{GREEDYDATA:response_body} \| Time taken: %{NUMBER:time_taken:int}ms" }
     }
-    # response_body 필드를 JSON 객체로 파싱
-    json {
-      source => "response_body"
-      target => "response_data"
-      remove_field => ["response_body"]
-    }
   } else if [log_type] == "ERROR" {
     grok {
       match => { "log_data" => "Exception: %{GREEDYDATA:exception_message} \| Time taken: %{NUMBER:time_taken:int}ms" }
@@ -44,11 +38,6 @@ filter {
     match => ["log_timestamp", "yyyy-MM-dd HH:mm:ss"]
     target => "@timestamp"
     timezone => "Asia/Seoul"
-  }
-
-  # 파싱에 실패한 로그는 버립니다.
-  if "_grokparsefailure" in [tags] {
-    drop {}
   }
 }
 
