@@ -19,7 +19,7 @@ public class NotificationConsumer {
     private final NotificationConsumerService notificationConsumerService;
 
     // 팔로우한 사람이 게시물 작성 (작성자 -> 팔로워들)
-    @KafkaListener(topics = "followee.post.created", groupId = "alert-group", containerFactory = "notificationListenerContainerFactory")
+    @KafkaListener(topics = "followee.post.created", groupId = "alert-social-group", containerFactory = "notificationListenerContainerFactory")
     public void consumeFolloweePostCreatedEvent(FolloweePostCreatedEvent event) {
         notificationConsumerService.many(
                 event.followeeIds(),
@@ -31,7 +31,7 @@ public class NotificationConsumer {
     }
 
     // 초대 전송 (작성자 -> 대상 유저)
-    @KafkaListener(topics = "invite.sent", groupId = "alert-group", containerFactory = "notificationListenerContainerFactory")
+    @KafkaListener(topics = "invite.sent", groupId = "alert-invite-group", containerFactory = "notificationListenerContainerFactory")
     public void consumeApplyInviteSentEvent(InviteSentEvent event) {
         notificationConsumerService.one(
                 event.userId(),
@@ -43,7 +43,7 @@ public class NotificationConsumer {
     }
 
     // 초대 수락 (수락자 -> 작성자)
-    @KafkaListener(topics = "invite.accepted", groupId = "alert-group", containerFactory = "notificationListenerContainerFactory")
+    @KafkaListener(topics = "invite.accepted", groupId = "alert-invite-group", containerFactory = "notificationListenerContainerFactory")
     public void consumeApplyInviteAcceptedEvent(InviteAcceptedEvent event) {
         notificationConsumerService.one(
                 event.authorId(),
@@ -55,7 +55,7 @@ public class NotificationConsumer {
     }
 
     // 초대 거절 (거절자 -> 작성자)
-    @KafkaListener(topics = "invite.denied", groupId = "alert-group", containerFactory = "notificationListenerContainerFactory")
+    @KafkaListener(topics = "invite.denied", groupId = "alert-invite-group", containerFactory = "notificationListenerContainerFactory")
     public void consumeApplyInviteDeniedEvent(InviteDeniedEvent event) {
         notificationConsumerService.one(
                 event.authorId(),
@@ -67,7 +67,7 @@ public class NotificationConsumer {
     }
 
     // 리뷰 작성 (리뷰어 -> 피평가자)
-    @KafkaListener(topics = "user.review.created", groupId = "alert-group", containerFactory = "notificationListenerContainerFactory")
+    @KafkaListener(topics = "user.review.created", groupId = "alert-review-group", containerFactory = "notificationListenerContainerFactory")
     public void consumeReviewCreatedEvent(ReviewCreatedEvent event) {
         notificationConsumerService.one(
                 event.revieweeId(),
@@ -79,7 +79,7 @@ public class NotificationConsumer {
     }
 
     // 게시글 채팅방 생성 (시스템/작성자 -> 참여자들)
-    @KafkaListener(topics = "chatroom.created", groupId = "alert-group", containerFactory = "notificationListenerContainerFactory")
+    @KafkaListener(topics = "chatroom.created", groupId = "chat-create-group", containerFactory = "notificationListenerContainerFactory")
     public void consumeChatroomCreatedEvent(ChatroomCreatedEvent event) {
         notificationConsumerService.many(
                 event.participantIds(),
@@ -91,7 +91,7 @@ public class NotificationConsumer {
     }
 
     // 댓글 작성 (댓글 작성자 -> 게시글 작성자)
-    @KafkaListener(topics = "post.comment.created", groupId = "alert-group", containerFactory = "notificationListenerContainerFactory")
+    @KafkaListener(topics = "post.comment.created", groupId = "alert-comment-group", containerFactory = "notificationListenerContainerFactory")
     public void consumeCommentCreatedEvent(CommentCreatedEvent event) {
         notificationConsumerService.one(
                 event.postAuthorId(),
@@ -104,7 +104,7 @@ public class NotificationConsumer {
 
     // 대댓글 작성 (대댓글 작성자 -> 원댓글 작성자)
     // ⚠️ 주의: 토픽이 실제로 별도라면 "post.reply.created" 등 실제 토픽명으로 바꿔주세요.
-    @KafkaListener(topics = "post.reply.created", groupId = "alert-group", containerFactory = "notificationListenerContainerFactory")
+    @KafkaListener(topics = "post.reply.created", groupId = "alert-comment-group", containerFactory = "notificationListenerContainerFactory")
     public void consumeReplyCreatedEvent(CommentReplyCreatedEvent event) {
         notificationConsumerService.one(
                 event.commentAuthorId(),
@@ -116,7 +116,7 @@ public class NotificationConsumer {
     }
 
     // 쿠폰 발행 (시스템 -> 유저)
-    @KafkaListener(topics = "coupon.issued", groupId = "alert-group", containerFactory = "notificationListenerContainerFactory")
+    @KafkaListener(topics = "coupon.issued", groupId = "alert-coupon-group", containerFactory = "notificationListenerContainerFactory")
     public void consumeApplyCouponIssuedEvent(CouponIssuedEvent event) {
         notificationConsumerService.one(
                 event.userId(),
@@ -128,7 +128,7 @@ public class NotificationConsumer {
     }
 
     // 쿠폰 만료 (시스템 -> 유저들)
-    @KafkaListener(topics = "coupon.expired", groupId = "alert-group", containerFactory = "notificationListenerContainerFactory")
+    @KafkaListener(topics = "coupon.expired", groupId = "alert-coupon-group", containerFactory = "notificationListenerContainerFactory")
     public void consumeApplyCouponExpiredEvent(CouponExpiredEvent event) {
         List<Long> userIds = event.userIds();
         notificationConsumerService.many(
@@ -141,7 +141,7 @@ public class NotificationConsumer {
     }
 
     // 모임 성사 - 참가자들에게 다건, 작성자에게 단건
-    @KafkaListener(topics = {"post.confirmed"}, groupId = "alert-group", containerFactory = "notificationListenerContainerFactory")
+    @KafkaListener(topics = {"post.confirmed"}, groupId = "alert-post-group", containerFactory = "notificationListenerContainerFactory")
     public void consumePostConfirmedEvent(PostConfirmedEvent event) {
         // 참가자 알림
         notificationConsumerService.many(
@@ -162,7 +162,7 @@ public class NotificationConsumer {
     }
 
     // 모임 참여 신청 (신청자 -> 작성자)
-    @KafkaListener(topics = "post.participant.applied", groupId = "alert-group", containerFactory = "notificationListenerContainerFactory")
+    @KafkaListener(topics = "post.participant.applied", groupId = "alert-post-group", containerFactory = "notificationListenerContainerFactory")
     public void consumeParticipateAppliedEvent(PostParticipateAppliedEvent event) {
         notificationConsumerService.one(
                 event.authorId(),
@@ -174,7 +174,7 @@ public class NotificationConsumer {
     }
 
     // 모임 참여 수락 (작성자 -> 신청자)
-    @KafkaListener(topics = "post.participant.accepted", groupId = "alert-group", containerFactory = "notificationListenerContainerFactory")
+    @KafkaListener(topics = "post.participant.accepted", groupId = "alert-post-group", containerFactory = "notificationListenerContainerFactory")
     public void consumeApplyAcceptedEvent(PostApplyAcceptedEvent event) {
         notificationConsumerService.one(
                 event.applierId(),
@@ -186,7 +186,7 @@ public class NotificationConsumer {
     }
 
     // 모임 참여 거절 (작성자 -> 신청자)
-    @KafkaListener(topics = "post.participant.denied", groupId = "alert-group", containerFactory = "notificationListenerContainerFactory")
+    @KafkaListener(topics = "post.participant.denied", groupId = "alert-post-group", containerFactory = "notificationListenerContainerFactory")
     public void consumeApplyDeniedEvent(PostApplyDeniedEvent event) {
         notificationConsumerService.one(
                 event.applierId(),
