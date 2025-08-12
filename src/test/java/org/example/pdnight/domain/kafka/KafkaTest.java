@@ -25,7 +25,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ActiveProfiles("test")
 @EmbeddedKafka(
         count = 3,
-        ports = {10000, 10001, 10002},
         topics = {"test-topic", "test-topic.DLT"},
         brokerProperties = {
                 "auto.create.topics.enable=true",

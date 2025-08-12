@@ -10,7 +10,6 @@ import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.user.domain.entity.User;
 import org.example.pdnight.domain.user.domain.userDomain.UserCommander;
 import org.example.pdnight.global.common.enums.JobCategory;
-import org.example.pdnight.global.common.enums.UserRole;
 import org.example.pdnight.global.config.PasswordEncoder;
 import org.example.pdnight.global.utils.JwtUtil;
 import org.junit.jupiter.api.DisplayName;
@@ -33,13 +32,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ActiveProfiles("test")
-@SpringBootTest
+@SpringBootTest(properties = {
+        "spring.kafka.bootstrap-servers=${spring.embedded.kafka.brokers}"
+})
 @AutoConfigureMockMvc
 @TestMethodOrder(OrderAnnotation.class)
 @EmbeddedKafka(
         count = 3,
-        ports = {10000, 10001, 10002},
-        topics = {"test-topic", "test-topic.DLT"},
         brokerProperties = {
                 "auto.create.topics.enable=true",
                 "offsets.topic.replication.factor=1",
