@@ -5,18 +5,48 @@ input {
 }
 
 filter {
-    grok {
+  # 공통된 부분 파싱
+  grok {
       match => {
-      "message" => "\[%{TIMESTAMP_ISO8601:log_timestamp}\]\[%{NOTSPACE:thread_name}\] %{LOGLEVEL:log_level} %{NOTSPACE:logger} - (?:\[%{WORD:error_level}\]\s)?%{WORD:http_method} %{NOTSPACE:request_path} \| Exception: %{GREEDYDATA:exception_message} \| Time taken: %{NUMBER:time_taken:int}ms"
+      "message" => "\[%{TIMESTAMP_ISO8601:log_timestamp}\]\[%{NOTSPACE:thread_name}\] %{WORD} %{NOTSPACE} - \[%{WORD:log_type}\] %{WORD:http_method} %{NOTSPACE:api_path} \| %{GREEDYDATA:log_data}"
+    }
+  }
+  
+  if [api_path] =~ "admin" {
+    mutate { add_field => { "role" => "admin" } }
+  } else {
+    mutate { add_field => { "role" => "user" } }
+  }
+  
+  # log_type 값에 따라 다른 필터를 적용합니다.
+  if [log_type] == "REQUEST" {
+    grok {
+      match => { "log_data" => "Args: %{GREEDYDATA:request_body}" }
+    }
+  } else if [log_type] == "RESPONSE" {
+    grok {
+      match => { "log_data" => "Return Value: %{GREEDYDATA:response_body} \| Time taken: %{NUMBER:time_taken:int}ms" }
+    }
+    # response_body 필드를 JSON 객체로 파싱
+    json {
+      source => "response_body"
+      target => "response_data"
+      remove_field => ["response_body"]
+    }
+  } else if [log_type] == "ERROR" {
+    grok {
+      match => { "log_data" => "Exception: %{GREEDYDATA:exception_message} \| Time taken: %{NUMBER:time_taken:int}ms" }
     }
   }
 
+  # 날짜 형식 파싱
   date {
     match => ["log_timestamp", "yyyy-MM-dd HH:mm:ss"]
     target => "@timestamp"
+    timezone => "Asia/Seoul"
   }
 
-  # 불필요한 태그를 제거
+  # 파싱에 실패한 로그는 버립니다.
   if "_grokparsefailure" in [tags] {
     drop {}
   }

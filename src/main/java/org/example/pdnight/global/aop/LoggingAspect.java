@@ -1,5 +1,8 @@
 package org.example.pdnight.global.aop;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +22,15 @@ import java.util.Arrays;
 @Component
 @RequiredArgsConstructor
 public class LoggingAspect {
+
+    private final ObjectMapper objectMapper;
+
+    public LoggingAspect() {
+        // ObjectMapper 설정
+        this.objectMapper = new ObjectMapper();
+        this.objectMapper.registerModule(new JavaTimeModule()); // Java 8 날짜/시간 모듈 등록
+        this.objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS); // 날짜를 ISO 8601 형식으로 출력
+    }
 
     // 모든 Service 클래스의 메서드에 적용
     @Pointcut("execution(* org.example.pdnight.domain.auth.application.authUseCase.AuthServiceImpl.*(..))")
@@ -87,13 +99,21 @@ public class LoggingAspect {
 
         Object[] args = joinPoint.getArgs(); // 요청 파라미터 또는 바디
 
-        log.debug("[REQUEST] {} | Args: {}", requestInfo, Arrays.toString(args));
+        // 입력값을 JSON 문자열로 변환하여 로깅
+        try {
+            String argsJson = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(args);
+            log.debug("[REQUEST] {} | Args: {}", requestInfo, argsJson);
+        } catch (Exception e) {
+            log.debug("[REQUEST] {} | Args: {}", requestInfo, Arrays.toString(args));
+        }
 
         try {
             // 대상 메서드 실행
             Object result = joinPoint.proceed();
             long executionTime = System.currentTimeMillis() - startTime;
-            log.debug("[RESPONSE] {} | Return Value: {} | Time taken: {}ms", requestInfo, result, executionTime);
+
+            String resultJson = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
+            log.debug("[RESPONSE] {} | Return Value: {} | Time taken: {}ms", requestInfo, resultJson, executionTime);
 
             return result;
         } catch (Throwable e) {
