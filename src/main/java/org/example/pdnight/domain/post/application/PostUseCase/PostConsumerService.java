@@ -24,4 +24,5 @@ public class PostConsumerService {
             post.removeAuthor();
         }
     }
+
 }

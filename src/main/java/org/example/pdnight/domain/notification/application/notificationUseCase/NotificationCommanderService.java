@@ -15,6 +15,7 @@ public class NotificationCommanderService {
 
     private final NotificationCommander notificationCommander;
 
+    // 알림 확인 체크 메서드
     public void isReadCheck(Long id, Long userid) {
         Notification notification = notificationCommander.findByIdIsReadFalse(id)
                 .orElseThrow(() -> new BaseException(HttpStatus.NOT_FOUND, "알림을 찾을 수 없습니다!"));

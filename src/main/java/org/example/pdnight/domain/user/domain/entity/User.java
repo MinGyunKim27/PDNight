@@ -241,8 +241,8 @@ public class User extends Timestamped {
     }
 
     // ----------------  테스트용 ------------------
-    private User(String name) {
-        this.id = 1L;
+    private User(Long id, String name) {
+        this.id = id;
         this.name = name;
         this.age = 20L;
         this.totalRate = 0L;
@@ -253,6 +253,6 @@ public class User extends Timestamped {
 
     //테스트 유저 생성 메서드
     public static User createTestUser(Long id, String name, String email, String password) {
-        return new User(name);
+        return new User(id, name);
     }
 }

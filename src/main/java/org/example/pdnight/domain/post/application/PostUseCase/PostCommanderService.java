@@ -68,6 +68,7 @@ public class PostCommanderService {
         return PostResponse.toDto(post);
     }
 
+    // 논리적 삭제
     @Transactional
     @Caching(evict = {
             @CacheEvict(value = CacheName.SEARCH_POST, allEntries = true),
@@ -84,7 +85,7 @@ public class PostCommanderService {
         foundPost.softDelete();
     }
 
-    //물리적 삭제
+    // 물리적 삭제
     @Transactional
     @Caching(evict = {
             @CacheEvict(value = CacheName.SEARCH_POST, allEntries = true),
@@ -98,7 +99,12 @@ public class PostCommanderService {
         Post foundPost = getPostByIdAndNotDeleted(postId);
 
         postCommander.deletePost(foundPost);
-        postProducer.produce("post.deleted", PostDeletedEvent.of(postId));
+
+        try {
+            postProducer.produceAck("post.deleted", PostDeletedEvent.of(postId));
+        } catch (Exception e) {
+            throw new BaseException(KAFKA_SEND_TIMEOUT);
+        }
     }
 
     @Transactional

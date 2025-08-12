@@ -154,8 +154,8 @@ class PromotionControllerIntegrationTest {
         return authCommander.save(auth);
     }
 
-    private User createUser(SignupRequest request) {
-        User user = User.fromUserSignUpEvent(request);
+    private User createUser(SignupRequest request, Long authId) {
+        User user = User.fromAuthSignUpEvent(authId, request.getName(),request.getNickname(), request.getGender(), request.getAge(), request.getJobCategory());
         return userCommander.save(user);
     }
 
@@ -166,7 +166,7 @@ class PromotionControllerIntegrationTest {
                 .build();
 
         Auth auth = createAuth(signupRequest);
-        User user = createUser(signupRequest);
+        User user = createUser(signupRequest, auth.getId());
 
         return jwtUtil.createToken(
                 auth.getId(), auth.getRole(), user.getNickname(),
