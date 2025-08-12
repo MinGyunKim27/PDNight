@@ -2,15 +2,18 @@ package org.example.pdnight.domain.post.application.commentUseCase;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.pdnight.domain.post.application.port.PostPort;
 import org.example.pdnight.domain.post.domain.comment.Comment;
 import org.example.pdnight.domain.post.domain.comment.CommentCommander;
+import org.example.pdnight.domain.post.domain.comment.CommentProducer;
 import org.example.pdnight.domain.post.enums.PostStatus;
 import org.example.pdnight.domain.post.presentation.dto.request.CommentRequest;
 import org.example.pdnight.domain.post.presentation.dto.response.CommentResponse;
 import org.example.pdnight.domain.post.presentation.dto.response.PostInfo;
 import org.example.pdnight.global.common.enums.ErrorCode;
+import org.example.pdnight.global.common.enums.KafkaTopic;
 import org.example.pdnight.global.common.exception.BaseException;
+import org.example.pdnight.global.event.CommentCreatedEvent;
+import org.example.pdnight.global.event.CommentReplyCreatedEvent;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +24,7 @@ public class CommentCommanderService {
 
     private final CommentCommander commentCommander;
     private final PostPort postPort;
+    private final CommentProducer producer;
 
     //댓글 생성 메서드
     public CommentResponse createComment(Long postId, Long loginId, CommentRequest request) {
@@ -36,13 +40,15 @@ public class CommentCommanderService {
         Comment comment = Comment.create(postId, loginId, request.getContent());
         Comment savedComment = commentCommander.save(comment);
 
+        producer.produce(KafkaTopic.POST_COMMENT_CREATED.topicName(), new CommentCreatedEvent(postPort.findById(postId).getAuthorId(), comment.getAuthorId()));
+
         return CommentResponse.from(savedComment);
     }
 
     //댓글 삭제 메서드
     @Transactional
     public void deleteCommentById(Long postId, Long id, Long loginId) {
-        if (!postPort.existsById(postId)) {
+        if (!postPort.existsByIdAndIsDeletedIsFalse(postId)) {
             throw new BaseException(ErrorCode.POST_NOT_FOUND);
         }
 
@@ -58,7 +64,7 @@ public class CommentCommanderService {
     //댓글 수정 메서드
     @Transactional
     public CommentResponse updateCommentByDto(Long postId, Long id, Long loginId, CommentRequest request) {
-        if (!postPort.existsById(postId)) {
+        if (!postPort.existsByIdAndIsDeletedIsFalse(postId)) {
             throw new BaseException(ErrorCode.POST_NOT_FOUND);
         }
 
@@ -91,6 +97,8 @@ public class CommentCommanderService {
         Comment childComment = Comment.createChild(postId, loginId, request.getContent(), foundComment);
         Comment savedChildComment = commentCommander.save(childComment);
 
+        producer.produce(KafkaTopic.POST_COMMENT_REPLY_CREATED.topicName(),  new CommentReplyCreatedEvent(foundComment.getAuthorId(), childComment.getAuthorId()));
+
         return CommentResponse.from(savedChildComment);
     }
 
@@ -98,7 +106,7 @@ public class CommentCommanderService {
     @Transactional
     public void deleteCommentByAdmin(Long postId, Long id, Long adminId) {
         //해당 게시물이 없으면 예외 쓰로우
-        if (!postPort.existsById(postId)) {
+        if (!postPort.existsByIdAndIsDeletedIsFalse(postId)) {
             throw new BaseException(ErrorCode.POST_NOT_FOUND);
         }
 
@@ -115,6 +123,7 @@ public class CommentCommanderService {
         log.info("{}번 Id 관리자가 댓글을 삭제했습니다.", adminId);
     }
 
+    //----------------------------------- HELPER 메서드 ------------------------------------------------------
     private Comment getCommentById(Long id) {
         return commentCommander.findById(id)
                 .orElseThrow(() -> new BaseException(ErrorCode.COMMENT_NOT_FOUND));

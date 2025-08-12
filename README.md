@@ -156,22 +156,22 @@
 
 ### 관리자 - ADMIN API
 
-| 기능 | Method | Endpoint | 설명                | 권한 |
-|------|--------|----------|-------------------|------|
+| 기능                | Method | Endpoint | 설명                | 권한 |
+|-------------------|--------|----------|-------------------|------|
 | [관리자] 사용자에게 쿠폰 할당 | `POST` | /api/admin/users/coupons | 사용자에게 쿠폰 할당  | ADMIN |
-| [관리자] 닉네임 강제 변경 | `PATCH` | /api/admin/users/{id} | 닉네임 강제 변경    | ADMIN |
-| [관리자] 강제 회원 탈퇴 | `DELETE` | /api/admin/users/{id} | 강제 회원 탈퇴     | ADMIN |
-| [관리자] 전체 유저 조회 | `GET` | /api/admin/users | 전체 유저 조회     | ADMIN |
-| [관리자] 게시글 삭제 | `DELETE` | /api/admin/posts/{id} | 게시글 삭제       | ADMIN |
-| [관리자] 이벤트 추가 | `POST` | /api/admin/events | 이벤트 추가       | ADMIN |
-| [관리자] 이벤트 수정  | `PATCH` | /api/admin/events/{id} | 이벤트 수정       | ADMIN |
-| [관리자] 이벤트 삭제 | `DELETE` | /api/admin/events/{id} | 이벤트 삭제       | ADMIN |
-| [관리자] 이벤트 참가자 조회 | `GET` | /api/admin/events/{id}/participants | 사용자가 특정 이벤트에 참가 신청을 합니다 | ADMIN |
-| [관리자] 쿠폰 생성 | `POST` | /api/admin/coupons | 관리자가 새로운 쿠폰을 등록   | ADMIN |
-| [관리자] 쿠폰 수정 | `PATCH` | /api/admin/coupons/{id} | 쿠폰 수정        | ADMIN |
-| [관리자] 쿠폰 삭제 | `DELETE` | /api/admin/coupons/{id} | 쿠폰 삭제        | ADMIN |
-| [관리자] 쿠폰 조회 | `GET` | /api/admin/coupons/{id} | 해당 쿠폰의 상세 정보를 반환  | ADMIN |
-| [관리자] 댓글 삭제 | `DELETE` | /api/admin/posts/{postId}/comments/{id} | 게시글에 달린 댓글을 강제 삭제 | ADMIN |
+| [관리자] 닉네임 강제 변경   | `PATCH` | /api/admin/users/{id} | 닉네임 강제 변경    | ADMIN |
+| [관리자] 강제 회원 탈퇴    | `DELETE` | /api/admin/users/{id} | 강제 회원 탈퇴     | ADMIN |
+| [관리자] 전체 유저 조회    | `GET` | /api/admin/users | 전체 유저 조회     | ADMIN |
+| [관리자] 게시글 삭제      | `DELETE` | /api/admin/posts/{id} | 게시글 삭제       | ADMIN |
+| [관리자] 프로모션 추가     | `POST` | /api/admin/promotions | 프로모션 추가       | ADMIN |
+| [관리자] 프로모션 수정      | `PATCH` | /api/admin/promotions/{id} | 프로모션 수정       | ADMIN |
+| [관리자] 프로모션 삭제      | `DELETE` | /api/admin/promotions/{id} | 프로모션 삭제       | ADMIN |
+| [관리자] 프로모션 참가자 조회  | `GET` | /api/admin/promotions/{id}/participants | 사용자가 특정 프로모션에 참가 신청을 합니다 | ADMIN |
+| [관리자] 쿠폰 생성       | `POST` | /api/admin/coupons | 관리자가 새로운 쿠폰을 등록   | ADMIN |
+| [관리자] 쿠폰 수정       | `PATCH` | /api/admin/coupons/{id} | 쿠폰 수정        | ADMIN |
+| [관리자] 쿠폰 삭제       | `DELETE` | /api/admin/coupons/{id} | 쿠폰 삭제        | ADMIN |
+| [관리자] 쿠폰 조회       | `GET` | /api/admin/coupons/{id} | 해당 쿠폰의 상세 정보를 반환  | ADMIN |
+| [관리자] 댓글 삭제       | `DELETE` | /api/admin/posts/{postId}/comments/{id} | 게시글에 달린 댓글을 강제 삭제 | ADMIN |
 
 </details>
 
@@ -234,10 +234,10 @@
 
 ---
 
-### Event - 이벤트
+### Promotion - 프로모션
 
-- **이벤트 기반 모임 기능**
-  - 관리자가 특정 조건의 이벤트 모임 생성 가능 (예: 유명인 초청 번개)
+- **프로모션 기능**
+  - 관리자가 특정 조건의 프로모션 생성 가능 (예: 유명인 초청 번개)
 
 ---
 

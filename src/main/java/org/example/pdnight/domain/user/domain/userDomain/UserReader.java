@@ -2,12 +2,13 @@ package org.example.pdnight.domain.user.domain.userDomain;
 
 import org.example.pdnight.domain.user.domain.entity.User;
 import org.example.pdnight.domain.user.domain.entity.UserCoupon;
-import org.example.pdnight.domain.user.presentation.dto.userDto.response.UserCouponResponse;
 import org.example.pdnight.domain.user.presentation.dto.userDto.response.FollowingResponse;
+import org.example.pdnight.domain.user.presentation.dto.userDto.response.UserCouponResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 public interface UserReader {
@@ -17,9 +18,6 @@ public interface UserReader {
 
     Page<User> searchUsers(String search, Pageable pageable);
 
-    //포스트 도메인에 사용할 임시 메서드 유저도메인에 해당 메서드 추가시 삭제
-    Optional<User> findByIdAndIsDeletedFalse(Long id);
-
     Page<User> findAll(Pageable pageable);
 
     Page<FollowingResponse> findFollowingsByUserId(Long userId, Pageable pageable);
@@ -27,4 +25,8 @@ public interface UserReader {
     Page<UserCouponResponse> findUserCoupons(Long userId, LocalDateTime now, Pageable pageable);
 
     Optional<UserCoupon> findUserCoupon(Long userId, Long couponId, LocalDateTime now);
+
+    List<Long> findFollowers(Long userId);
+
+    List<UserCoupon> findByDeadlineAtBetween(LocalDateTime start, LocalDateTime end);
 }

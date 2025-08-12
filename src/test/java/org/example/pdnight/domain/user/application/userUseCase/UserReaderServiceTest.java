@@ -245,4 +245,5 @@ public class UserReaderServiceTest {
         assertThat(result.contents()).hasSize(1);
         assertThat(result.contents().get(0).getName()).isEqualTo("Alice");
     }
+
 }

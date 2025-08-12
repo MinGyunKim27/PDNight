@@ -1,6 +1,5 @@
 package org.example.pdnight.domain.post.application.commentUseCase;
 
-import org.example.pdnight.domain.post.application.port.PostPort;
 import org.example.pdnight.domain.post.domain.comment.Comment;
 import org.example.pdnight.domain.post.domain.comment.CommentReader;
 import org.example.pdnight.domain.post.enums.PostStatus;
@@ -59,7 +58,7 @@ class CommentReaderServiceTest {
 
         Pageable pageable = PageRequest.of(0, 10);
 
-        when(postPort.existsById(postId)).thenReturn(true);
+        when(postPort.existsByIdAndIsDeletedIsFalse(postId)).thenReturn(true);
 
         Comment parentComment1 = Comment.create(postId, authorId, "부모댓글1");
         Comment parentComment2 = Comment.create(postId, authorId, "부모댓글2");
@@ -100,7 +99,7 @@ class CommentReaderServiceTest {
         postId = 1L;
         Pageable pageable = PageRequest.of(0, 10);
 
-        when(postPort.existsById(postId)).thenThrow(new BaseException(ErrorCode.POST_NOT_FOUND));
+        when(postPort.existsByIdAndIsDeletedIsFalse(postId)).thenThrow(new BaseException(ErrorCode.POST_NOT_FOUND));
 
         //when & then
         BaseException exception = assertThrows(BaseException.class, () ->
@@ -108,6 +107,6 @@ class CommentReaderServiceTest {
 
         assertEquals(ErrorCode.POST_NOT_FOUND.getMessage(), exception.getMessage());
 
-        verify(postPort).existsById(postId);
+        verify(postPort).existsByIdAndIsDeletedIsFalse(postId);
     }
 }

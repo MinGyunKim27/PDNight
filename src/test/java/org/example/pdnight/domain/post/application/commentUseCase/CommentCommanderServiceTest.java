@@ -1,8 +1,8 @@
 package org.example.pdnight.domain.post.application.commentUseCase;
 
-import org.example.pdnight.domain.post.application.port.PostPort;
 import org.example.pdnight.domain.post.domain.comment.Comment;
 import org.example.pdnight.domain.post.domain.comment.CommentCommander;
+import org.example.pdnight.domain.post.domain.comment.CommentProducer;
 import org.example.pdnight.domain.post.enums.PostStatus;
 import org.example.pdnight.domain.post.presentation.dto.request.CommentRequest;
 import org.example.pdnight.domain.post.presentation.dto.response.CommentResponse;
@@ -33,6 +33,9 @@ class CommentCommanderServiceTest {
     @Mock
     private PostPort postPort;
 
+    @Mock
+    private CommentProducer producer;
+
     @InjectMocks
     private CommentCommanderService commentCommanderService;
 
@@ -59,20 +62,24 @@ class CommentCommanderServiceTest {
         lenient().when(request.getContent()).thenReturn(content);
 
         Comment comment = Comment.create(postId, authorId, request.getContent());
+        PostInfo info = mock();
 
-        when(postPort.findById(postId)).thenReturn(mockPostInfo);
-        when(mockPostInfo.getStatus()).thenReturn(PostStatus.OPEN);
         when(commentCommander.save(any(Comment.class))).thenReturn(comment);
+        when(postPort.findById(postId)).thenReturn(info);
+        when(info.getAuthorId()).thenReturn(1L);
+        when(info.getStatus()).thenReturn(PostStatus.OPEN);
+        when(info.getPostId()).thenReturn(postId);
+        doNothing().when(producer).produce(anyString(), any());
 
         //when
         CommentResponse result = commentCommanderService.createComment(postId, authorId, request);
 
         //then
         assertEquals(authorId, result.getAuthorId());
-        assertEquals(mockPostInfo.getPostId(), result.getPostId());
+        assertEquals(info.getPostId(), result.getPostId());
         assertEquals(content, result.getContent());
 
-        verify(postPort).findById(postId);
+        verify(postPort, times(2)).findById(postId);
         verify(commentCommander).save(any(Comment.class));
     }
 
@@ -107,13 +114,13 @@ class CommentCommanderServiceTest {
         Comment comment = Comment.create(postId, authorId, content);
         ReflectionTestUtils.setField(comment, "id", 1L);
 
-        when(postPort.existsById(postId)).thenReturn(true);
+        when(postPort.existsByIdAndIsDeletedIsFalse(postId)).thenReturn(true);
         when(commentCommander.findById(commentId)).thenReturn(Optional.of(comment));
 
         //when & then
         commentCommanderService.deleteCommentById(postId, commentId, authorId);
 
-        verify(postPort).existsById(postId);
+        verify(postPort).existsByIdAndIsDeletedIsFalse(postId);
         verify(commentCommander).findById(commentId);
         verify(commentCommander).deleteAllByParentId(comment.getId());
         verify(commentCommander).delete(comment);
@@ -131,7 +138,7 @@ class CommentCommanderServiceTest {
         Comment comment = Comment.create(postId, authorId, content);
         ReflectionTestUtils.setField(comment, "id", 1L);
 
-        when(postPort.existsById(postId)).thenReturn(true);
+        when(postPort.existsByIdAndIsDeletedIsFalse(postId)).thenReturn(true);
         when(commentCommander.findById(commentId)).thenReturn(Optional.of(comment));
 
         //when & then
@@ -140,7 +147,7 @@ class CommentCommanderServiceTest {
 
         assertEquals(ErrorCode.COMMENT_FORBIDDEN.getMessage(), exception.getMessage());
 
-        verify(postPort).existsById(postId);
+        verify(postPort).existsByIdAndIsDeletedIsFalse(postId);
         verify(commentCommander).findById(commentId);
     }
 
@@ -156,7 +163,7 @@ class CommentCommanderServiceTest {
         CommentRequest request = Mockito.mock(CommentRequest.class);
         lenient().when(request.getContent()).thenReturn("수정된내용");
 
-        when(postPort.existsById(postId)).thenReturn(true);
+        when(postPort.existsByIdAndIsDeletedIsFalse(postId)).thenReturn(true);
         when(commentCommander.findById(commentId)).thenReturn(Optional.of(comment));
 
         //when
@@ -167,7 +174,7 @@ class CommentCommanderServiceTest {
         assertNotEquals(oldContent, response.getContent());
         assertEquals("수정된내용", comment.getContent());
 
-        verify(postPort).existsById(postId);
+        verify(postPort).existsByIdAndIsDeletedIsFalse(postId);
         verify(commentCommander).findById(commentId);
     }
 
@@ -184,7 +191,7 @@ class CommentCommanderServiceTest {
         CommentRequest request = Mockito.mock(CommentRequest.class);
         lenient().when(request.getContent()).thenReturn("수정된내용");
 
-        when(postPort.existsById(postId)).thenReturn(true);
+        when(postPort.existsByIdAndIsDeletedIsFalse(postId)).thenReturn(true);
         when(commentCommander.findById(commentId)).thenReturn(Optional.of(comment));
 
         //when & then
@@ -193,7 +200,7 @@ class CommentCommanderServiceTest {
 
         assertEquals(ErrorCode.COMMENT_FORBIDDEN.getMessage(), exception.getMessage());
 
-        verify(postPort).existsById(postId);
+        verify(postPort).existsByIdAndIsDeletedIsFalse(postId);
         verify(commentCommander).findById(commentId);
     }
 
@@ -218,6 +225,7 @@ class CommentCommanderServiceTest {
         when(mockPostInfo.getStatus()).thenReturn(PostStatus.OPEN);
         when(commentCommander.findById(commentId)).thenReturn(Optional.of(parentComment));
         when(commentCommander.save(any(Comment.class))).thenReturn(childComment);
+        doNothing().when(producer).produce(anyString(), any());
 
         //when
         CommentResponse result = commentCommanderService.createChildComment(postId, commentId, authorId, request);
@@ -246,13 +254,13 @@ class CommentCommanderServiceTest {
         Comment comment = Comment.create(postId, authorId, content);
         ReflectionTestUtils.setField(comment, "id", 1L);
 
-        when(postPort.existsById(postId)).thenReturn(true);
+        when(postPort.existsByIdAndIsDeletedIsFalse(postId)).thenReturn(true);
         when(commentCommander.findById(commentId)).thenReturn(Optional.of(comment));
 
         //when & then
         commentCommanderService.deleteCommentByAdmin(postId, commentId, adminId);
 
-        verify(postPort).existsById(postId);
+        verify(postPort).existsByIdAndIsDeletedIsFalse(postId);
         verify(commentCommander).findById(commentId);
         verify(commentCommander).deleteAllByParentId(comment.getId());
         verify(commentCommander).delete(comment);
@@ -267,7 +275,7 @@ class CommentCommanderServiceTest {
         authorId = 1L;
         Long adminId = 3L;
 
-        when(postPort.existsById(postId)).thenReturn(false);
+        when(postPort.existsByIdAndIsDeletedIsFalse(postId)).thenReturn(false);
 
         //when & then
         BaseException exception = assertThrows(BaseException.class, () ->
@@ -275,7 +283,7 @@ class CommentCommanderServiceTest {
 
         assertEquals(ErrorCode.POST_NOT_FOUND.getMessage(), exception.getMessage());
 
-        verify(postPort).existsById(postId);
+        verify(postPort).existsByIdAndIsDeletedIsFalse(postId);
         verifyNoMoreInteractions(commentCommander);
     }
 
@@ -293,7 +301,7 @@ class CommentCommanderServiceTest {
         Comment comment = Comment.create(postId, authorId, content);
         ReflectionTestUtils.setField(comment, "id", 1L);
 
-        when(postPort.existsById(anotherPostId)).thenReturn(true);
+        when(postPort.existsByIdAndIsDeletedIsFalse(anotherPostId)).thenReturn(true);
         when(commentCommander.findById(commentId)).thenReturn(Optional.of(comment));
 
         //when & then
@@ -302,7 +310,7 @@ class CommentCommanderServiceTest {
 
         assertEquals(ErrorCode.POST_NOT_MATCHED.getMessage(), exception.getMessage());
 
-        verify(postPort).existsById(anotherPostId);
+        verify(postPort).existsByIdAndIsDeletedIsFalse(anotherPostId);
         verify(commentCommander).findById(commentId);
         verifyNoMoreInteractions(commentCommander);
     }

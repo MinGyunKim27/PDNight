@@ -1,7 +1,6 @@
 package org.example.pdnight.domain.post.application.commentUseCase;
 
 import lombok.RequiredArgsConstructor;
-import org.example.pdnight.domain.post.application.port.PostPort;
 import org.example.pdnight.domain.post.domain.comment.Comment;
 import org.example.pdnight.domain.post.domain.comment.CommentReader;
 import org.example.pdnight.domain.post.presentation.dto.response.CommentResponse;
@@ -26,7 +25,8 @@ public class CommentReaderService {
     //댓글 다건 조회 메서드 : 해당게시글의 댓글리스트
     @Transactional(readOnly = true)
     public PagedResponse<CommentResponse> getCommentsByPostId(Long postId, Pageable pageable) {
-        if (!postPort.existsById(postId)) {
+
+        if (!postPort.existsByIdAndIsDeletedIsFalse(postId)) {
             throw new BaseException(ErrorCode.POST_NOT_FOUND);
         }
 
@@ -59,6 +59,4 @@ public class CommentReaderService {
 
         return PagedResponse.from(pagedCommentDtos);
     }
-
-
 }
