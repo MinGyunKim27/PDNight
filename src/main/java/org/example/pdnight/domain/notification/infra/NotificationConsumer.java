@@ -103,7 +103,6 @@ public class NotificationConsumer {
     }
 
     // 대댓글 작성 (대댓글 작성자 -> 원댓글 작성자)
-    // ⚠️ 주의: 토픽이 실제로 별도라면 "post.reply.created" 등 실제 토픽명으로 바꿔주세요.
     @KafkaListener(topics = "post.reply.created", groupId = "alert-group", containerFactory = "notificationListenerContainerFactory")
     public void consumeReplyCreatedEvent(CommentReplyCreatedEvent event) {
         notificationConsumerService.one(
@@ -162,7 +161,7 @@ public class NotificationConsumer {
     }
 
     // 모임 참여 신청 (신청자 -> 작성자)
-    @KafkaListener(topics = "post.participant.applied", groupId = "alert-group", containerFactory = "notificationListenerContainerFactory")
+    @KafkaListener(topics = "post.participant.applied", groupId = "alert-group", containerFactory = "notificationListenerContainerFactory",concurrency = "24")
     public void consumeParticipateAppliedEvent(PostParticipateAppliedEvent event) {
         notificationConsumerService.one(
                 event.authorId(),

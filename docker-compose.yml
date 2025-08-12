@@ -1,7 +1,9 @@
-version: '3.8'
+version: "3.8"
+
+# .env 파일에 아래 값 준비 권장
+# EC2_PRIVATE_IP=10.0.1.23   # VPC 내에서 접속할 프라이빗 IP 또는 호스트네임
 
 services:
-
   redis:
     image: redis:6
     container_name: redis
@@ -10,109 +12,134 @@ services:
     networks:
       - spring-net
 
-
-
   Kafka00Service:
     image: bitnami/kafka:3.7.0
-    restart: unless-stopped
     container_name: Kafka00Container
+    restart: unless-stopped
     ports:
-      - '9092:9092' # 내부 네트워크 통신을 위한 PLAINTEXT 리스너
-      - '10000:10000' # 외부 접근을 위한 EXTERNAL 리스너
+      - "9092:9092"     # 내부/VPC 클라이언트 접속
+      - "10000:10000"   # 외부(옵션) EXTERNAL 리스너
+      - "7071:7071"     # JMX Exporter
     environment:
-      # KRaft 설정
-      - KAFKA_ENABLE_KRAFT=yes # KRaft 모드 활성화
-      - KAFKA_CFG_BROKER_ID=0
+      # --- KRaft 기본 ---
+      - KAFKA_ENABLE_KRAFT=yes
       - KAFKA_CFG_NODE_ID=0
-      - KAFKA_KRAFT_CLUSTER_ID=HsDBs9l6UUmQq7Y5E6bNlw # 고유 클러스터 ID, 모든 브로커에 동일하게 설정
-      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@Kafka00Service:9093,1@Kafka01Service:9093,2@Kafka02Service:9093
+      - KAFKA_CFG_BROKER_ID=0
+      - KAFKA_KRAFT_CLUSTER_ID=HsDBs9l6UUmQq7Y5E6bNlw
       - KAFKA_CFG_PROCESS_ROLES=controller,broker
-      # 리스너 설정
-      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@Kafka00Service:29093,1@Kafka01Service:29093,2@Kafka02Service:29093
+
+      # --- 리스너/보안 ---
       - ALLOW_PLAINTEXT_LISTENER=yes
-      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:10000
-      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://Kafka00Service:9092,EXTERNAL://localhost:10000
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:29093,EXTERNAL://:10000
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
-      # 클러스터 설정
-      - KAFKA_CFG_OFFSETS_TOPIC_REPLICATION_FACTOR=2
-      - KAFKA_CFG_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=2
+      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=PLAINTEXT
+      # 광고 주소: VPC 내부에서 접근할 수 있도록 호스트의 프라이빗 IP 사용
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://${EC2_PRIVATE_IP}:9092,EXTERNAL://${EC2_PRIVATE_IP}:10000
+
+      # --- 토픽/복제/보관 ---
+      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=false
+      - KAFKA_CFG_NUM_PARTITIONS=3
+      - KAFKA_CFG_DEFAULT_REPLICATION_FACTOR=3
+      - KAFKA_CFG_OFFSETS_TOPIC_REPLICATION_FACTOR=3
+      - KAFKA_CFG_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=3
       - KAFKA_CFG_TRANSACTION_STATE_LOG_MIN_ISR=2
-    networks:
-      - kafka_network
+      - KAFKA_CFG_LOG_RETENTION_HOURS=168
+
+      # --- JVM/JMX Exporter(javaagent) ---
+      - KAFKA_OPTS=-javaagent:/opt/jmx/jmx_prometheus_javaagent.jar=7071:/opt/jmx/kafka-jmx.yml
     volumes:
       - Kafka00:/bitnami/kafka
+      - ./jmx:/opt/jmx:ro
+    networks:
+      - kafka_network
 
   Kafka01Service:
     image: bitnami/kafka:3.7.0
-    restart: unless-stopped
     container_name: Kafka01Container
+    restart: unless-stopped
     ports:
-      - '9093:9092' # 내부 네트워크 통신을 위한 PLAINTEXT 리스너
-      - '10001:10000' # 외부 접근을 위한 EXTERNAL 리스너
+      - "9093:9092"
+      - "10001:10000"
+      - "7072:7071"
     environment:
-      # KRaft 설정
-      - KAFKA_ENABLE_KRAFT=yes # KRaft 모드 활성화
-      - KAFKA_CFG_BROKER_ID=1
+      - KAFKA_ENABLE_KRAFT=yes
       - KAFKA_CFG_NODE_ID=1
-      - KAFKA_KRAFT_CLUSTER_ID=HsDBs9l6UUmQq7Y5E6bNlw # 고유 클러스터 ID, 모든 브로커에 동일하게 설정
-      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@Kafka00Service:9093,1@Kafka01Service:9093,2@Kafka02Service:9093
+      - KAFKA_CFG_BROKER_ID=1
+      - KAFKA_KRAFT_CLUSTER_ID=HsDBs9l6UUmQq7Y5E6bNlw
       - KAFKA_CFG_PROCESS_ROLES=controller,broker
-      # 리스너 설정
-      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@Kafka00Service:29093,1@Kafka01Service:29093,2@Kafka02Service:29093
+
       - ALLOW_PLAINTEXT_LISTENER=yes
-      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:10000
-      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://Kafka01Service:9092,EXTERNAL://localhost:10001
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:29093,EXTERNAL://:10000
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
-      # 클러스터 설정
-      - KAFKA_CFG_OFFSETS_TOPIC_REPLICATION_FACTOR=2
-      - KAFKA_CFG_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=2
+      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=PLAINTEXT
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://${EC2_PRIVATE_IP}:9093,EXTERNAL://${EC2_PRIVATE_IP}:10001
+
+      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=false
+      - KAFKA_CFG_NUM_PARTITIONS=3
+      - KAFKA_CFG_DEFAULT_REPLICATION_FACTOR=3
+      - KAFKA_CFG_OFFSETS_TOPIC_REPLICATION_FACTOR=3
+      - KAFKA_CFG_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=3
       - KAFKA_CFG_TRANSACTION_STATE_LOG_MIN_ISR=2
-    networks:
-      - kafka_network
+      - KAFKA_CFG_LOG_RETENTION_HOURS=168
+
+      - KAFKA_OPTS=-javaagent:/opt/jmx/jmx_prometheus_javaagent.jar=7071:/opt/jmx/kafka-jmx.yml
     volumes:
       - Kafka01:/bitnami/kafka
+      - ./jmx:/opt/jmx:ro
+    networks:
+      - kafka_network
 
   Kafka02Service:
     image: bitnami/kafka:3.7.0
-    restart: unless-stopped
     container_name: Kafka02Container
+    restart: unless-stopped
     ports:
-      - '9094:9092' # 내부 네트워크 통신을 위한 PLAINTEXT 리스너
-      - '10002:10000' # 외부 접근을 위한 EXTERNAL 리스너
+      - "9094:9092"
+      - "10002:10000"
+      - "7073:7071"
     environment:
-      # KRaft 설정
-      - KAFKA_ENABLE_KRAFT=yes # KRaft 모드 활성화
-      - KAFKA_CFG_BROKER_ID=2
+      - KAFKA_ENABLE_KRAFT=yes
       - KAFKA_CFG_NODE_ID=2
-      - KAFKA_KRAFT_CLUSTER_ID=HsDBs9l6UUmQq7Y5E6bNlw # 고유 클러스터 ID, 모든 브로커에 동일하게 설정
-      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@Kafka00Service:9093,1@Kafka01Service:9093,2@Kafka02Service:9093
+      - KAFKA_CFG_BROKER_ID=2
+      - KAFKA_KRAFT_CLUSTER_ID=HsDBs9l6UUmQq7Y5E6bNlw
       - KAFKA_CFG_PROCESS_ROLES=controller,broker
-      # 리스너 설정
-      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@Kafka00Service:29093,1@Kafka01Service:29093,2@Kafka02Service:29093
+
       - ALLOW_PLAINTEXT_LISTENER=yes
-      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:10000
-      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://Kafka02Service:9092,EXTERNAL://localhost:10002
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:29093,EXTERNAL://:10000
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
-      # 클러스터 설정
-      - KAFKA_CFG_OFFSETS_TOPIC_REPLICATION_FACTOR=2
-      - KAFKA_CFG_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=2
+      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=PLAINTEXT
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://${EC2_PRIVATE_IP}:9094,EXTERNAL://${EC2_PRIVATE_IP}:10002
+
+      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=false
+      - KAFKA_CFG_NUM_PARTITIONS=3
+      - KAFKA_CFG_DEFAULT_REPLICATION_FACTOR=3
+      - KAFKA_CFG_OFFSETS_TOPIC_REPLICATION_FACTOR=3
+      - KAFKA_CFG_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=3
       - KAFKA_CFG_TRANSACTION_STATE_LOG_MIN_ISR=2
-    networks:
-      - kafka_network
+      - KAFKA_CFG_LOG_RETENTION_HOURS=168
+
+      - KAFKA_OPTS=-javaagent:/opt/jmx/jmx_prometheus_javaagent.jar=7071:/opt/jmx/kafka-jmx.yml
     volumes:
       - Kafka02:/bitnami/kafka
+      - ./jmx:/opt/jmx:ro
+    networks:
+      - kafka_network
 
   KafkaWebUiService:
     image: provectuslabs/kafka-ui:latest
-    restart: unless-stopped
     container_name: KafkaWebUiContainer
+    restart: unless-stopped
     ports:
-      - '8085:8080' # 호스트의 8085 포트를 컨테이너의 8080 포트에 바인딩
+      - "8085:8080"
     environment:
-      - KAFKA_CLUSTERS_0_NAME=Local-Kraft-Cluster
+      - KAFKA_CLUSTERS_0_NAME=Local-KRaft-Cluster
+      # 내부 브로커 주소(컨테이너 간 통신): 서비스명:내부포트(9092)
       - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=Kafka00Service:9092,Kafka01Service:9092,Kafka02Service:9092
       - DYNAMIC_CONFIG_ENABLED=true
       - KAFKA_CLUSTERS_0_AUDIT_TOPICAUDITENABLED=true
@@ -124,84 +151,54 @@ services:
     networks:
       - kafka_network
 
+  kafka-exporter:
+    image: danielqsj/kafka-exporter:latest
+    container_name: kafka-exporter
+    restart: unless-stopped
+    command:
+      - --kafka.server=Kafka00Service:9092
+      - --kafka.server=Kafka01Service:9092
+      - --kafka.server=Kafka02Service:9092
+    ports:
+      - "9308:9308"
+    depends_on:
+      - Kafka00Service
+      - Kafka01Service
+      - Kafka02Service
+    networks:
+      - kafka_network
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    depends_on:
+      - kafka-exporter
+    networks:
+      - kafka_network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_DEFAULT_TIMEZONE=Asia/Seoul
+    depends_on:
+      - prometheus
+    networks:
+      - kafka_network
+
 volumes:
   Kafka00:
-    driver: local
   Kafka01:
-    driver: local
   Kafka02:
-    driver: local
 
 networks:
   spring-net:
   kafka_network:
-#  mysql:
-#    image: mysql:8.0
-#    container_name: mysql-container
-#    environment:
-#      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-#      MYSQL_DATABASE: ${MYSQL_DATABASE}
-#    ports:
-#      - "3307:3306"
-#    volumes:
-#      - mysql-data:/var/lib/mysql
-#    networks:
-#      - spring-net
-#
-#  app1:
-#    build:
-#      context: .
-#      dockerfile: Dockerfile
-#    container_name: app1-container
-#    ports:
-#      - "8080"  # 내부에서만 접근
-#    environment:
-#      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
-#      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
-#      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
-#      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
-#      REDIS_HOST: ${REDIS_HOST}
-#      REDIS_PORT: ${REDIS_PORT}
-#    depends_on:
-#      - mysql
-#      - redis
-#    networks:
-#      - spring-net
-#
-#  app2:
-#    build:
-#      context: .
-#      dockerfile: Dockerfile
-#    container_name: app2-container
-#    ports:
-#      - "8080"  # 내부에서만 접근
-#    environment:
-#      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
-#      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
-#      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
-#      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
-#      REDIS_HOST: ${REDIS_HOST}
-#      REDIS_PORT: ${REDIS_PORT}
-#    depends_on:
-#      - mysql
-#      - redis
-#    networks:
-#      - spring-net
-#
-#  nginx:
-#    image: nginx:latest
-#    container_name: nginx-container
-#    ports:
-#      - "80:80"
-#    volumes:
-#      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-#    depends_on:
-#      - app1
-#      - app2
-#    networks:
-#      - spring-net
-#
-
-#
-#volumes:
-#  mysql-data:
