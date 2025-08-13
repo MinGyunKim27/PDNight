@@ -9,7 +9,7 @@ import lombok.Getter;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.global.common.enums.JobCategory;
-
+import java.util.List;
 import java.time.LocalDateTime;
 
 @Getter
@@ -32,5 +32,5 @@ public class PostRequest {
     private JobCategory jobCategoryLimit;
     private AgeLimit ageLimit;
     private boolean isFirstCome;
-
+    private List<Long> tagIdList;
 }

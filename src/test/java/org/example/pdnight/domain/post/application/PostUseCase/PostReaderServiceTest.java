@@ -42,6 +42,9 @@ class PostReaderServiceTest {
     @Mock
     private PostReader postReader;
 
+    @Mock
+    private TagPort tagPort;
+
     //region 게시글
     @Test
     @DisplayName("게시글 단건 조회 정상")

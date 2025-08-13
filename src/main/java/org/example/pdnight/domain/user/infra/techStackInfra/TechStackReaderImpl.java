@@ -36,34 +36,6 @@ public class TechStackReaderImpl implements TechStackReader {
     }
 
     @Override
-    public List<TechStack> findByIdList(List<Long> ids) {
-        return queryFactory.selectFrom(qTechStack)
-                .where(qTechStack.id.in(ids))
-                .fetch();
-    }
-
-    @Override
-    public boolean existsTechStackByTechStack(String techStack) {
-
-        Integer result = queryFactory
-                .selectOne()
-                .from(qTechStack)
-                .where(qTechStack.techStack.eq(techStack))
-                .fetchFirst();
-        return result != null;
-    }
-
-    @Override
-    public TechStack findByTechStack(String techStack) {
-        QTechStack qTechStack = QTechStack.techStack1;
-
-        return queryFactory
-                .selectFrom(qTechStack)
-                .where(qTechStack.techStack.eq(techStack))
-                .fetchOne();
-    }
-
-    @Override
     public List<String> getNamesByIds(List<Long> techIds) {
 
         if (techIds == null || techIds.isEmpty()) return List.of();

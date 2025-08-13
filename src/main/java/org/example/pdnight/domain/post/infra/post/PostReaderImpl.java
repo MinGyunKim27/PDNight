@@ -23,12 +23,17 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.example.pdnight.domain.post.domain.post.QPost.post;
 import static org.example.pdnight.domain.post.domain.post.QPostLike.postLike;
 import static org.example.pdnight.domain.post.domain.post.QPostParticipant.postParticipant;
+import static org.example.pdnight.domain.post.domain.post.QPostTag.postTag;
+import static org.example.pdnight.domain.post.domain.tag.QTag.tag;
 
 @Repository
 @RequiredArgsConstructor
@@ -60,33 +65,44 @@ public class PostReaderImpl implements PostReader {
         return Optional.ofNullable(findPost);
     }
 
-    // 내 좋아요 게시글 목록 조회
-    @Override
+    private Map<Long, List<String>> getPostTagMap(List<Long> postIds) {
+        if (postIds == null || postIds.isEmpty()) return Collections.emptyMap();
+        return queryFactory
+                .select(postTag.post.id, tag.name)
+                .from(postTag)
+                .join(tag).on(postTag.tagId.eq(tag.id))
+                .where(postTag.post.id.in(postIds))
+                .fetch()
+                .stream()
+                .collect(Collectors.groupingBy(
+                        tuple -> tuple.get(postTag.post.id),
+                        Collectors.mapping(tuple -> tuple.get(tag.name), Collectors.toList())
+
+                ));
+    }
+
     public Page<PostResponse> getMyLikePost(Long userId, Pageable pageable) {
-        BooleanBuilder builder = new BooleanBuilder();
-        // 닫힌 상태가 아닐 때
-        // builder.and(post.status.ne(PostStatus.CLOSED));
-        builder.and(postLike.userId.eq(userId));
+        BooleanBuilder builder = new BooleanBuilder()
+                .and(postLike.userId.eq(userId))
+                .and(post.isDeleted.isFalse());
 
-        // 삭제 상태가 아닐 때
-        builder.and(post.isDeleted.eq(false));
-
+        // post 조회
         List<PostResponse> contents = queryFactory
                 .select(new QPostResponse(
-                        post.id,
-                        post.authorId,
-                        post.title,
-                        post.timeSlot,
-                        post.publicContent,
-                        post.status,
-                        post.maxParticipants,
-                        post.genderLimit,
-                        post.jobCategoryLimit,
-                        post.ageLimit,
-                        post.isFirstCome,
-                        post.createdAt,
-                        post.updatedAt
-                ))
+                                post.id,
+                                post.authorId,
+                                post.title,
+                                post.timeSlot,
+                                post.publicContent,
+                                post.status,
+                                post.maxParticipants,
+                                post.genderLimit,
+                                post.jobCategoryLimit,
+                                post.ageLimit,
+                                post.isFirstCome,
+                                post.createdAt,
+                                post.updatedAt
+                        ))
                 .from(post)
                 .join(postLike).on(postLike.post.eq(post))
                 .where(builder)
@@ -94,35 +110,44 @@ public class PostReaderImpl implements PostReader {
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        Long count = queryFactory
-                .select(post.count())
-                .from(post)
-                .join(postLike).on(postLike.post.eq(post))
-                .where(builder)
-                .fetchOne();
+        // 게시글 ID 리스트 추출
+        List<Long> postIds = contents
+                .stream()
+                .map(PostResponse::getPostId)
+                .toList();
 
-        return PageableExecutionUtils.getPage(contents, pageable, () -> Optional.ofNullable(count).orElse(0L));
+        // tag 매핑
+        Map<Long, List<String>> tagMap = getPostTagMap(postIds);
+        for (PostResponse dto : contents) {
+            List<String> hobbyList = tagMap.getOrDefault(dto.getPostId(), Collections.emptyList());
+            dto.setTagList(hobbyList);
+        }
+
+        // total count
+        Long total = Optional.ofNullable(
+                queryFactory
+                        .select(post.countDistinct())
+                        .from(post)
+                        .join(postLike).on(postLike.post.eq(post))
+                        .where(builder)
+                        .fetchOne()
+        ).orElse(0L);
+
+        return PageableExecutionUtils.getPage(contents, pageable, () -> total);
     }
 
     // 참여 신청한 게시글 목록 조회
     @Override
     public Page<PostResponse> getConfirmedPost(Long userId, JoinStatus joinStatus, Pageable pageable) {
-
-        BooleanBuilder builder = new BooleanBuilder();
-
-        builder.and(postParticipant.userId.eq(userId));
-
-        //닫힌 상태가 아닐 때
-        builder.and(post.status.ne(PostStatus.CLOSED));
-
-        // 삭제 상태가 아닐 때
-        builder.and(post.isDeleted.eq(false));
+        BooleanBuilder builder = new BooleanBuilder()
+                .and(postParticipant.userId.eq(userId))
+                .and(post.isDeleted.isFalse());
 
         if (joinStatus != null) {
             builder.and(postParticipant.status.eq(joinStatus));
         }
 
-        List<PostResponse> content = queryFactory
+        List<PostResponse> contents = queryFactory
                 .select(new QPostResponse(
                         post.id,
                         post.authorId,
@@ -147,15 +172,32 @@ public class PostReaderImpl implements PostReader {
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        Long count = queryFactory
-                .select(post.count())
-                .from(post)
-                .join(postParticipant).on(postParticipant.post.eq(post))
-                .where(builder)
-                .fetchOne();
+        // 게시글 ID 리스트 추출
+        List<Long> postIds = contents
+                .stream()
+                .map(PostResponse::getPostId)
+                .toList();
 
-        return PageableExecutionUtils.getPage(content, pageable, () -> Optional.ofNullable(count).orElse(0L));
+        // tag 매핑
+        Map<Long, List<String>> tagMap = getPostTagMap(postIds);
+        for (PostResponse dto : contents) {
+            List<String> hobbyList = tagMap.getOrDefault(dto.getPostId(), Collections.emptyList());
+            dto.setTagList(hobbyList);
+        }
+
+        // total count
+        Long total = Optional.ofNullable(
+                queryFactory
+                        .select(post.countDistinct())
+                        .from(post)
+                        .join(postParticipant).on(postParticipant.post.eq(post))
+                        .where(builder)
+                        .fetchOne()
+        ).orElse(0L);
+
+        return PageableExecutionUtils.getPage(contents, pageable, () -> total);
     }
+
 
     // 게시글 검색 목록 조회
     @Override
