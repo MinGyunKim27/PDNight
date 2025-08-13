@@ -36,4 +36,25 @@ public interface PostReader {
     Page<InviteResponse> getMyInvited(Long userId, Pageable pageable);
 
     Page<InviteResponse> getMyInvite(Long userId, Pageable pageable);
+
+    Optional<PostDocument> findByIdES(Long postId);
+
+    Page<PostDocument> findPostsBySearchES(
+            Pageable pageable,
+            Integer maxParticipants,
+            AgeLimit ageLimit,
+            JobCategory jobCategoryLimit,
+            Gender genderLimit
+    );
+
+    Page<PostDocument> getMyInvitedES(Long userId, Pageable pageable);
+
+    Page<PostDocument> getMyInviteES(Long userId, Pageable pageable);
+
+    Page<PostDocument> getMyLikePostES(Long userId, Pageable pageable);
+
+    Page<PostDocument> getConfirmedPostES(Long userId, JoinStatus joinStatus, Pageable pageable);
+
+    Page<PostDocument> getWrittenPostES(Long userId, Pageable pageable);
+
 }

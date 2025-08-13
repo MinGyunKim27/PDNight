@@ -1,16 +1,14 @@
 package org.example.pdnight.domain.post.application.PostUseCase;
 
 import lombok.RequiredArgsConstructor;
+import org.example.pdnight.domain.post.domain.post.PostDocument;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.enums.JoinStatus;
 import org.example.pdnight.domain.post.presentation.dto.request.PostRequest;
 import org.example.pdnight.domain.post.presentation.dto.request.PostStatusRequest;
 import org.example.pdnight.domain.post.presentation.dto.request.PostUpdateRequest;
-import org.example.pdnight.domain.post.presentation.dto.response.InviteResponse;
-import org.example.pdnight.domain.post.presentation.dto.response.ParticipantResponse;
-import org.example.pdnight.domain.post.presentation.dto.response.PostLikeResponse;
-import org.example.pdnight.domain.post.presentation.dto.response.PostResponse;
+import org.example.pdnight.domain.post.presentation.dto.response.*;
 import org.example.pdnight.global.aop.SaveLog;
 import org.example.pdnight.global.common.dto.PagedResponse;
 import org.example.pdnight.global.common.enums.JobCategory;
@@ -133,6 +131,11 @@ public class PostServiceImpl implements PostService {
     @Override
     public void rejectForInvite(Long postId, Long loginUserId) {
         postCommanderService.rejectForInvite(postId, loginUserId);
+    }
+
+    @Override
+    public PostDocumentResponse findPostES(Long id) {
+        return postReaderService.findPostES(id);
     }
 
     @Override

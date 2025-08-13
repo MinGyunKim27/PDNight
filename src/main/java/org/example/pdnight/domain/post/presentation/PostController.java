@@ -3,16 +3,14 @@ package org.example.pdnight.domain.post.presentation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.post.application.PostUseCase.PostService;
+import org.example.pdnight.domain.post.domain.post.PostDocument;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.enums.JoinStatus;
 import org.example.pdnight.domain.post.presentation.dto.request.PostRequest;
 import org.example.pdnight.domain.post.presentation.dto.request.PostStatusRequest;
 import org.example.pdnight.domain.post.presentation.dto.request.PostUpdateRequest;
-import org.example.pdnight.domain.post.presentation.dto.response.InviteResponse;
-import org.example.pdnight.domain.post.presentation.dto.response.ParticipantResponse;
-import org.example.pdnight.domain.post.presentation.dto.response.PostLikeResponse;
-import org.example.pdnight.domain.post.presentation.dto.response.PostResponse;
+import org.example.pdnight.domain.post.presentation.dto.response.*;
 import org.example.pdnight.global.common.dto.ApiResponse;
 import org.example.pdnight.global.common.dto.PagedResponse;
 import org.example.pdnight.global.common.enums.JobCategory;
@@ -142,6 +140,7 @@ public class PostController {
                 .body(ApiResponse.ok("게시글이 조회되었습니다.", postService.findPost(id)));
     }
 
+
     // 내가 작성한 게시글 조회
     @GetMapping("/my/written-posts")
     public ResponseEntity<ApiResponse<PagedResponse<PostResponse>>> getMyWrittenPosts(
@@ -152,6 +151,7 @@ public class PostController {
         PagedResponse<PostResponse> myLikedPost = postService.findMyWrittenPosts(id, pageable);
         return ResponseEntity.ok(ApiResponse.ok("내가 작성 한 게시물이 조회되었습니다.", myLikedPost));
     }
+
 
     // 게시물 조건 조회
     @GetMapping("/posts")
@@ -350,4 +350,25 @@ public class PostController {
     }
 
     //endregion
-}
+
+
+
+    // ----------------------------------이하 ES 메서드----------------------------------------
+
+    //게시물 단건 조회
+    @GetMapping("/posts/{id}/ES")
+    public ResponseEntity<ApiResponse<PostDocumentResponse>> getPostByIdES(@PathVariable Long id) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.ok("게시글이 조회되었습니다.", postService.findPostES(id)));
+    }
+
+    // 내가 작성한 게시글 조회
+    @GetMapping("/my/written-posts/ES")
+    public ResponseEntity<ApiResponse<PagedResponse<PostDocumentResponse>>> getMyWrittenPostsES(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PageableDefault(size = 10, page = 0) Pageable pageable
+    ) {
+        Long id = userDetails.getUserId();
+        PagedResponse<PostDocumentResponse> myLikedPost = postService.findMyWrittenPostsES(id, pageable);
+        return ResponseEntity.ok(ApiResponse.ok("내가 작성 한 게시물이 조회되었습니다.", myLikedPost));
+    }

@@ -1,14 +1,13 @@
 package org.example.pdnight.domain.post.application.PostUseCase;
 
 import lombok.RequiredArgsConstructor;
-import org.example.pdnight.domain.post.domain.post.Post;
-import org.example.pdnight.domain.post.domain.post.PostParticipant;
-import org.example.pdnight.domain.post.domain.post.PostReader;
+import org.example.pdnight.domain.post.domain.post.*;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.enums.JoinStatus;
 import org.example.pdnight.domain.post.presentation.dto.response.InviteResponse;
 import org.example.pdnight.domain.post.presentation.dto.response.ParticipantResponse;
+import org.example.pdnight.domain.post.presentation.dto.response.PostDocumentResponse;
 import org.example.pdnight.domain.post.presentation.dto.response.PostResponse;
 import org.example.pdnight.global.common.dto.PagedResponse;
 import org.example.pdnight.global.common.enums.ErrorCode;
@@ -42,22 +41,58 @@ public class PostReaderService {
         return PostResponse.toDtoWithCount(foundPost, participants, foundPost.getPostParticipants().size());
     }
 
+    //region 게시글 조회
+    // 게시글 단건 조회
+    @Transactional(readOnly = true)
+    @Cacheable(value = CacheName.ONE_POST, key = "#id")
+    public PostDocumentResponse findPostES(Long id) {
+        PostDocument foundPost = getPostES(id);
+
+        int participants = (int)foundPost.getPostParticipants().stream()
+                .filter(participant -> participant.getStatus() == JoinStatus.ACCEPTED)
+                .count();
+        return PostDocumentResponse.toDtoWithCount(foundPost, participants, foundPost.getPostParticipants().size());
+    }
+
+
+//    //게시물 조건 검색
+//    @Transactional(readOnly = true)
+//    @Cacheable(
+//            value = CacheName.SEARCH_POST,
+//            key = "{#pageable.pageNumber, #pageable.pageSize, #maxParticipants, #ageLimit, #jobCategoryLimit, #genderLimit}"
+//    )
+//    public PagedResponse<PostResponse> getPostDtosBySearch(
+//            Pageable pageable,
+//            Integer maxParticipants,
+//            AgeLimit ageLimit,
+//            JobCategory jobCategoryLimit,
+//            Gender genderLimit
+//    ) {
+//        Page<Post> postSearch = postReader.findPostsBySearch(pageable, maxParticipants,
+//                ageLimit, jobCategoryLimit, genderLimit);
+//        Page<PostResponse> postDtosBySearch = postSearch.map(search -> {
+//            int participantCount = acceptedParticipantsCounter(search.getPostParticipants());
+//            return PostResponse.toDtoWithCount(search, participantCount, search.getPostParticipants().size());
+//        });
+//        return PagedResponse.from(postDtosBySearch);
+//    }
+
     //게시물 조건 검색
     @Transactional(readOnly = true)
     @Cacheable(
             value = CacheName.SEARCH_POST,
             key = "{#pageable.pageNumber, #pageable.pageSize, #maxParticipants, #ageLimit, #jobCategoryLimit, #genderLimit}"
     )
-    public PagedResponse<PostResponse> getPostDtosBySearch(
+    public PagedResponse<PostDocument> getPostDtosBySearchES(
             Pageable pageable,
             Integer maxParticipants,
             AgeLimit ageLimit,
             JobCategory jobCategoryLimit,
             Gender genderLimit
     ) {
-        Page<Post> postSearch = postReader.findPostsBySearch(pageable, maxParticipants,
+        Page<PostDocument> postSearch = postReader.findPostsBySearchES(pageable, maxParticipants,
                 ageLimit, jobCategoryLimit, genderLimit);
-        Page<PostResponse> postDtosBySearch = postSearch.map(search -> {
+        Page<PostDocument> postDtosBySearch = postSearch.map(search -> {
             int participantCount = acceptedParticipantsCounter(search.getPostParticipants());
             return PostResponse.toDtoWithCount(search, participantCount, search.getPostParticipants().size());
         });
@@ -191,8 +226,19 @@ public class PostReaderService {
         return post;
     }
 
+    private PostDocument getPostES(Long postId) {
+        PostDocument post = postReader.findByIdES(postId)
+                .orElseThrow(() -> new BaseException(ErrorCode.POST_NOT_FOUND));
+
+        if (post.getIsDeleted()) {
+            throw new BaseException(ErrorCode.POST_DEACTIVATED);
+        }
+
+        return post;
+    }
+
     // 리스트를 불러와서 참여자 수
-    private int acceptedParticipantsCounter(List<PostParticipant> participants) {
+    private int acceptedParticipantsCounter(List<PostParticipantDocument> participants) {
         return (int) participants.stream()
                 .filter(participant -> participant.getStatus() == JoinStatus.ACCEPTED)
                 .count();

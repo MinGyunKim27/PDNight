@@ -1,15 +1,13 @@
 package org.example.pdnight.domain.post.application.PostUseCase;
 
+import org.example.pdnight.domain.post.domain.post.PostDocument;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.enums.JoinStatus;
 import org.example.pdnight.domain.post.presentation.dto.request.PostRequest;
 import org.example.pdnight.domain.post.presentation.dto.request.PostStatusRequest;
 import org.example.pdnight.domain.post.presentation.dto.request.PostUpdateRequest;
-import org.example.pdnight.domain.post.presentation.dto.response.InviteResponse;
-import org.example.pdnight.domain.post.presentation.dto.response.ParticipantResponse;
-import org.example.pdnight.domain.post.presentation.dto.response.PostLikeResponse;
-import org.example.pdnight.domain.post.presentation.dto.response.PostResponse;
+import org.example.pdnight.domain.post.presentation.dto.response.*;
 import org.example.pdnight.global.common.dto.PagedResponse;
 import org.example.pdnight.global.common.enums.JobCategory;
 import org.springframework.data.domain.Pageable;
@@ -72,4 +70,6 @@ public interface PostService {
     void acceptForInvite(Long postId, Long loginUserId);
 
     void rejectForInvite(Long postId, Long loginUserId);
+
+    PostDocumentResponse findPostES(Long id);
 }
