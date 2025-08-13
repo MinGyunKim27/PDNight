@@ -6,17 +6,22 @@ import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch._types.query_dsl.RangeQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.TermQuery;
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.post.domain.post.Post;
 import org.example.pdnight.domain.post.domain.post.PostDocument;
 import org.example.pdnight.domain.post.domain.post.PostReader;
+import org.example.pdnight.domain.post.domain.post.QInvite;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.enums.JoinStatus;
 import org.example.pdnight.domain.post.enums.PostStatus;
 import org.example.pdnight.domain.post.presentation.dto.response.InviteResponse;
+import org.example.pdnight.domain.post.presentation.dto.response.PostResponse;
+import org.example.pdnight.domain.post.presentation.dto.response.QInviteResponse;
+import org.example.pdnight.domain.post.presentation.dto.response.QPostResponse;
 import org.example.pdnight.global.common.enums.JobCategory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -32,7 +37,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static org.example.pdnight.domain.post.domain.post.QPost.post;
 import static org.example.pdnight.domain.post.domain.post.QPostLike.postLike;
+import static org.example.pdnight.domain.post.domain.post.QPostParticipant.postParticipant;
 
 @Repository
 @RequiredArgsConstructor
@@ -46,10 +53,10 @@ public class PostReaderImpl implements PostReader {
     @Override
     public Optional<Post> findByIdWithParticipants(Long postId) {
         Post findPost = queryFactory
-                .select(QPost.post)
-                .from(QPost.post)
-                .leftJoin(QPost.post.postParticipants, postParticipant).fetchJoin()
-                .where(QPost.post.id.eq(postId))
+                .select(post)
+                .from(post)
+                .leftJoin(post.postParticipants, postParticipant).fetchJoin()
+                .where(post.id.eq(postId))
                 .fetchOne();
 
         return Optional.ofNullable(findPost);
@@ -59,9 +66,9 @@ public class PostReaderImpl implements PostReader {
     @Override
     public Optional<Post> findById(Long postId) {
         Post findPost = queryFactory
-                .select(QPost.post)
-                .from(QPost.post)
-                .where(QPost.post.id.eq(postId))
+                .select(post)
+                .from(post)
+                .where(post.id.eq(postId))
                 .fetchFirst();
         return Optional.ofNullable(findPost);
     }
@@ -80,35 +87,35 @@ public class PostReaderImpl implements PostReader {
         builder.and(postLike.userId.eq(userId));
 
         // 삭제 상태가 아닐 때
-        builder.and(QPost.post.isDeleted.eq(false));
+        builder.and(post.isDeleted.eq(false));
 
         List<PostResponse> contents = queryFactory
                 .select(new QPostResponse(
-                        QPost.post.id,
-                        QPost.post.authorId,
-                        QPost.post.title,
-                        QPost.post.timeSlot,
-                        QPost.post.publicContent,
-                        QPost.post.status,
-                        QPost.post.maxParticipants,
-                        QPost.post.genderLimit,
-                        QPost.post.jobCategoryLimit,
-                        QPost.post.ageLimit,
-                        QPost.post.isFirstCome,
-                        QPost.post.createdAt,
-                        QPost.post.updatedAt
+                        post.id,
+                        post.authorId,
+                        post.title,
+                        post.timeSlot,
+                        post.publicContent,
+                        post.status,
+                        post.maxParticipants,
+                        post.genderLimit,
+                        post.jobCategoryLimit,
+                        post.ageLimit,
+                        post.isFirstCome,
+                        post.createdAt,
+                        post.updatedAt
                 ))
-                .from(QPost.post)
-                .join(postLike).on(postLike.post.eq(QPost.post))
+                .from(post)
+                .join(postLike).on(postLike.post.eq(post))
                 .where(builder)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
 
         Long count = queryFactory
-                .select(QPost.post.count())
-                .from(QPost.post)
-                .join(postLike).on(postLike.post.eq(QPost.post))
+                .select(post.count())
+                .from(post)
+                .join(postLike).on(postLike.post.eq(post))
                 .where(builder)
                 .fetchOne();
 
@@ -174,10 +181,10 @@ public class PostReaderImpl implements PostReader {
         builder.and(postParticipant.userId.eq(userId));
 
         //닫힌 상태가 아닐 때
-        builder.and(QPost.post.status.ne(PostStatus.CLOSED));
+        builder.and(post.status.ne(PostStatus.CLOSED));
 
         // 삭제 상태가 아닐 때
-        builder.and(QPost.post.isDeleted.eq(false));
+        builder.and(post.isDeleted.eq(false));
 
         if (joinStatus != null) {
             builder.and(postParticipant.status.eq(joinStatus));
@@ -185,33 +192,33 @@ public class PostReaderImpl implements PostReader {
 
         List<PostResponse> content = queryFactory
                 .select(new QPostResponse(
-                        QPost.post.id,
-                        QPost.post.authorId,
-                        QPost.post.title,
-                        QPost.post.timeSlot,
-                        QPost.post.publicContent,
-                        QPost.post.status,
-                        QPost.post.maxParticipants,
-                        QPost.post.genderLimit,
-                        QPost.post.jobCategoryLimit,
-                        QPost.post.ageLimit,
-                        QPost.post.isFirstCome,
+                        post.id,
+                        post.authorId,
+                        post.title,
+                        post.timeSlot,
+                        post.publicContent,
+                        post.status,
+                        post.maxParticipants,
+                        post.genderLimit,
+                        post.jobCategoryLimit,
+                        post.ageLimit,
+                        post.isFirstCome,
                         postParticipant.status,
                         postParticipant.createdAt,
-                        QPost.post.createdAt,
-                        QPost.post.updatedAt
+                        post.createdAt,
+                        post.updatedAt
                 ))
-                .from(QPost.post)
-                .join(postParticipant).on(postParticipant.post.eq(QPost.post))
+                .from(post)
+                .join(postParticipant).on(postParticipant.post.eq(post))
                 .where(builder)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
 
         Long count = queryFactory
-                .select(QPost.post.count())
-                .from(QPost.post)
-                .join(postParticipant).on(postParticipant.post.eq(QPost.post))
+                .select(post.count())
+                .from(post)
+                .join(postParticipant).on(postParticipant.post.eq(post))
                 .where(builder)
                 .fetchOne();
 
@@ -231,38 +238,38 @@ public class PostReaderImpl implements PostReader {
         BooleanBuilder builder = new BooleanBuilder();
 
         // 무조건 포함되는 조건
-        builder.and(QPost.post.status.eq(PostStatus.OPEN));
+        builder.and(post.status.eq(PostStatus.OPEN));
 
         // 삭제 상태가 아닐 때
-        builder.and(QPost.post.isDeleted.eq(false));
+        builder.and(post.isDeleted.eq(false));
 
         // nullable 조건 추가
         if (maxParticipants != null) {
-            builder.and(QPost.post.maxParticipants.goe(maxParticipants));
+            builder.and(post.maxParticipants.goe(maxParticipants));
         }
         if (ageLimit != null) {
-            builder.and(QPost.post.ageLimit.eq(ageLimit));
+            builder.and(post.ageLimit.eq(ageLimit));
         }
         if (jobCategoryLimit != null) {
-            builder.and(QPost.post.jobCategoryLimit.eq(jobCategoryLimit));
+            builder.and(post.jobCategoryLimit.eq(jobCategoryLimit));
         }
         if (genderLimit != null) {
-            builder.and(QPost.post.genderLimit.eq(genderLimit));
+            builder.and(post.genderLimit.eq(genderLimit));
         }
 
         List<Post> contents = queryFactory
-                .select(QPost.post)
-                .from(QPost.post)
+                .select(post)
+                .from(post)
                 .where(builder)
-                .orderBy(QPost.post.createdAt.desc())
+                .orderBy(post.createdAt.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
 
         Long total = Optional.ofNullable(
                 queryFactory
-                        .select(QPost.post.countDistinct())
-                        .from(QPost.post)
+                        .select(post.countDistinct())
+                        .from(post)
                         .where(builder)
                         .fetchOne()
         ).orElse(0L);
@@ -337,21 +344,21 @@ public class PostReaderImpl implements PostReader {
     ) {
         BooleanBuilder builder = new BooleanBuilder();
 
-        builder.and(QPost.post.authorId.eq(userId));
+        builder.and(post.authorId.eq(userId));
         // 삭제 상태가 아닐 때
-        builder.and(QPost.post.isDeleted.eq(false));
+        builder.and(post.isDeleted.eq(false));
 
         List<Post> contents = queryFactory
-                .select(QPost.post)
-                .from(QPost.post)
+                .select(post)
+                .from(post)
                 .where(builder)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
 
         Long count = queryFactory
-                .select(QPost.post.count())
-                .from(QPost.post)
+                .select(post.count())
+                .from(post)
                 .where(builder)
                 .fetchOne();
 
@@ -389,22 +396,22 @@ public class PostReaderImpl implements PostReader {
     @Override
     public Page<Post> getSuggestedPost(Long userId, Pageable pageable) {
         List<Post> contents = queryFactory
-                .select(QPost.post)
-                .from(QPost.post)
-                .leftJoin(postLike).on(postLike.post.eq(QPost.post)) // 좋아요 조인
-                .groupBy(QPost.post.id)
+                .select(post)
+                .from(post)
+                .leftJoin(postLike).on(postLike.post.eq(post)) // 좋아요 조인
+                .groupBy(post.id)
                 .where(postLike.userId.eq(userId)
-                        .and(QPost.post.status.eq(PostStatus.OPEN))
-                        .and(QPost.post.isDeleted.eq(false)))
+                        .and(post.status.eq(PostStatus.OPEN))
+                        .and(post.isDeleted.eq(false)))
                 .orderBy(postLike.count().desc()) // 좋아요 수 내림차순 정렬
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
 
         Long count = queryFactory
-                .select(QPost.post.countDistinct())
-                .from(QPost.post)
-                .leftJoin(postLike).on(postLike.post.eq(QPost.post))
+                .select(post.countDistinct())
+                .from(post)
+                .leftJoin(postLike).on(postLike.post.eq(post))
                 .where(postLike.userId.eq(userId))
                 .fetchOne();
 
@@ -426,7 +433,7 @@ public class PostReaderImpl implements PostReader {
                 ))
                 .from(invite)
                 .where(invite.inviteeId.eq(userId) // 내가 초대 받은 경우
-                        .and(QPost.post.isDeleted.eq(false)))
+                        .and(post.isDeleted.eq(false)))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize());
 
@@ -463,30 +470,30 @@ public class PostReaderImpl implements PostReader {
     }
 
     // 내가 초대한 리스트
-//    @Override
-//    public Page<InviteResponse> getMyInvite(Long userId, Pageable pageable) {
-//
-//        QInvite invite = QInvite.invite;
-//
-//        JPQLQuery<InviteResponse> query = queryFactory
-//                .select(new QInviteResponse(
-//                        invite.id,
-//                        invite.inviteeId,
-//                        invite.post.id
-//                ))
-//                .from(invite)
-//                .where(invite.inviterId.eq(userId) // 내가 초대한 경우
-//                        .and(QPost.post.isDeleted.eq(false)))
-//                .offset(pageable.getOffset())
-//                .limit(pageable.getPageSize());
-//
-//        JPQLQuery<Long> countQuery = queryFactory
-//                .select(invite.count())
-//                .from(invite)
-//                .where(invite.inviterId.eq(userId));
-//
-//        return PageableExecutionUtils.getPage(query.fetch(), pageable, countQuery::fetchOne);
-//    }
+    @Override
+    public Page<InviteResponse> getMyInvite(Long userId, Pageable pageable) {
+
+        QInvite invite = QInvite.invite;
+
+        JPQLQuery<InviteResponse> query = queryFactory
+                .select(new QInviteResponse(
+                        invite.id,
+                        invite.inviteeId,
+                        invite.post.id
+                ))
+                .from(invite)
+                .where(invite.inviterId.eq(userId) // 내가 초대한 경우
+                        .and(post.isDeleted.eq(false)))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize());
+
+        JPQLQuery<Long> countQuery = queryFactory
+                .select(invite.count())
+                .from(invite)
+                .where(invite.inviterId.eq(userId));
+
+        return PageableExecutionUtils.getPage(query.fetch(), pageable, countQuery::fetchOne);
+    }
 
     // 내가 초대한 리스트
     @Override

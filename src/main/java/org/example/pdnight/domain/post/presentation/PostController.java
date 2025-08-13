@@ -362,13 +362,15 @@ public class PostController {
                 .body(ApiResponse.ok("게시글이 조회되었습니다.", postService.findPostES(id)));
     }
 
-    // 내가 작성한 게시글 조회
-    @GetMapping("/my/written-posts/ES")
-    public ResponseEntity<ApiResponse<PagedResponse<PostDocumentResponse>>> getMyWrittenPostsES(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
-            @PageableDefault(size = 10, page = 0) Pageable pageable
-    ) {
-        Long id = userDetails.getUserId();
-        PagedResponse<PostDocumentResponse> myLikedPost = postService.findMyWrittenPostsES(id, pageable);
-        return ResponseEntity.ok(ApiResponse.ok("내가 작성 한 게시물이 조회되었습니다.", myLikedPost));
-    }
+//    // 내가 작성한 게시글 조회
+//    @GetMapping("/my/written-posts/ES")
+//    public ResponseEntity<ApiResponse<PagedResponse<PostDocumentResponse>>> getMyWrittenPostsES(
+//            @AuthenticationPrincipal CustomUserDetails userDetails,
+//            @PageableDefault(size = 10, page = 0) Pageable pageable
+//    ) {
+//        Long id = userDetails.getUserId();
+//        PagedResponse<PostDocumentResponse> myLikedPost = postService.findMyWrittenPostsES(id, pageable);
+//        return ResponseEntity.ok(ApiResponse.ok("내가 작성 한 게시물이 조회되었습니다.", myLikedPost));
+//    }
+
+}

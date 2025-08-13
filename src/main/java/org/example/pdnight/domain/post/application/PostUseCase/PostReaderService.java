@@ -55,27 +55,27 @@ public class PostReaderService {
     }
 
 
-//    //게시물 조건 검색
-//    @Transactional(readOnly = true)
-//    @Cacheable(
-//            value = CacheName.SEARCH_POST,
-//            key = "{#pageable.pageNumber, #pageable.pageSize, #maxParticipants, #ageLimit, #jobCategoryLimit, #genderLimit}"
-//    )
-//    public PagedResponse<PostResponse> getPostDtosBySearch(
-//            Pageable pageable,
-//            Integer maxParticipants,
-//            AgeLimit ageLimit,
-//            JobCategory jobCategoryLimit,
-//            Gender genderLimit
-//    ) {
-//        Page<Post> postSearch = postReader.findPostsBySearch(pageable, maxParticipants,
-//                ageLimit, jobCategoryLimit, genderLimit);
-//        Page<PostResponse> postDtosBySearch = postSearch.map(search -> {
-//            int participantCount = acceptedParticipantsCounter(search.getPostParticipants());
-//            return PostResponse.toDtoWithCount(search, participantCount, search.getPostParticipants().size());
-//        });
-//        return PagedResponse.from(postDtosBySearch);
-//    }
+    //게시물 조건 검색
+    @Transactional(readOnly = true)
+    @Cacheable(
+            value = CacheName.SEARCH_POST,
+            key = "{#pageable.pageNumber, #pageable.pageSize, #maxParticipants, #ageLimit, #jobCategoryLimit, #genderLimit}"
+    )
+    public PagedResponse<PostResponse> getPostDtosBySearch(
+            Pageable pageable,
+            Integer maxParticipants,
+            AgeLimit ageLimit,
+            JobCategory jobCategoryLimit,
+            Gender genderLimit
+    ) {
+        Page<Post> postSearch = postReader.findPostsBySearch(pageable, maxParticipants,
+                ageLimit, jobCategoryLimit, genderLimit);
+        Page<PostResponse> postDtosBySearch = postSearch.map(search -> {
+            int participantCount = acceptedParticipantsCounter(search.getPostParticipants());
+            return PostResponse.toDtoWithCount(search, participantCount, search.getPostParticipants().size());
+        });
+        return PagedResponse.from(postDtosBySearch);
+    }
 
     //게시물 조건 검색
     @Transactional(readOnly = true)
