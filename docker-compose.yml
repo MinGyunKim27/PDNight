@@ -150,6 +150,89 @@ services:
       - Kafka02Service
     networks:
       - kafka_network
+  elasticsearch:
+    build:
+      context: elasticsearch/
+      args:
+        ELK_VERSION: 8.14.0
+    volumes:
+      - type: bind
+        source: ./elasticsearch/config/elasticsearch.yml
+        target: /usr/share/elasticsearch/config/elasticsearch.yml
+        read_only: true
+      - type: volume
+        source: elasticsearch
+        target: /usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+      ELASTIC_PASSWORD: elastic
+      # Use single node discovery in order to disable production mode and avoid bootstrap checks
+      # see https://www.elastic.co/guide/en/elasticsearch/reference/current/bootstrap-checks.html
+      discovery.type: single-node
+      xpack.security.enabled: false
+    networks:
+      - elk
+
+  logstash:
+    build:
+      context: logstash/
+      args:
+        ELK_VERSION: 8.14.0
+    volumes:
+      - type: bind
+        source: ./logstash/config/logstash.conf
+        target: /usr/share/logstash/config/logstash.conf
+        read_only: true
+      - type: bind
+        source: ./logstash/pipeline
+        target: /usr/share/logstash/pipeline
+        read_only: true
+    ports:
+      - "5044:5044"
+      - "15000:5000/tcp"
+      - "15000:5000/udp"
+      - "9600:9600"
+    environment:
+      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+
+  kibana:
+    build:
+      context: kibana/
+      args:
+        ELK_VERSION: 8.14.0
+    volumes:
+      - type: bind
+        source: ./kibana/config/kibana.yml
+        target: /usr/share/kibana/config/kibana.yml
+        read_only: true
+    ports:
+      - "5601:5601"
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+
+  filebeat:
+    build:
+      context: filebeat/
+      args:
+        ELK_VERSION: 8.14.0
+    volumes:
+      - ./log:/usr/share/log/host_logs:ro
+      - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml
+    networks:
+      - elk
+    depends_on:
+      - logstash
+    entrypoint: >
+      sh -c "chmod go-w /usr/share/filebeat/filebeat.yml && filebeat"  
 
   kafka-exporter:
     image: danielqsj/kafka-exporter:latest
@@ -198,7 +281,12 @@ volumes:
   Kafka00:
   Kafka01:
   Kafka02:
+    driver: local
+  es-data:
+  elasticsearch:
 
 networks:
   spring-net:
   kafka_network:
+  elk:
+    driver: bridge

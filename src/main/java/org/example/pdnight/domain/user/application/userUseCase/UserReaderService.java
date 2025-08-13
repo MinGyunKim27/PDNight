@@ -83,7 +83,7 @@ public class UserReaderService {
         List<UserCoupon> userCoupons = userReader.findByDeadlineAtBetween(now, plusOneDay);
         List<Long> targetUserIds = new ArrayList<>();
 
-        for(UserCoupon c : userCoupons) {
+        for (UserCoupon c : userCoupons) {
             targetUserIds.add(c.getUser().getId());
         }
 

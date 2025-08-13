@@ -162,7 +162,7 @@ public class PostCommanderService {
         if (!foundPost.getStatus().equals(request.getStatus())) {
             foundPost.updateStatus(request.getStatus());
             // 참가자들에게 이벤트 발행
-            if(request.getStatus().equals(PostStatus.CONFIRMED)){
+            if (request.getStatus().equals(PostStatus.CONFIRMED)) {
                 // Kafka 이벤트 발행
                 postProducer.produce("post.confirmed",
                         new PostConfirmedEvent(
@@ -398,7 +398,7 @@ public class PostCommanderService {
                 .orElseThrow(() -> new BaseException(POST_NOT_FOUND));
 
         // OPEN 상태가 아닌 포스트의 경우
-        if(post.getStatus() != PostStatus.OPEN) {
+        if (post.getStatus() != PostStatus.OPEN) {
             throw new BaseException(POST_STATUS_NOT_OPEN);
         }
 

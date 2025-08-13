@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.pdnight.domain.promotion.presentation.dto.request.PromotionCreateRequest;
 import org.example.pdnight.domain.promotion.presentation.dto.response.PromotionParticipantResponse;
 import org.example.pdnight.domain.promotion.presentation.dto.response.PromotionResponse;
+import org.example.pdnight.global.aop.SaveLog;
 import org.example.pdnight.global.common.dto.PagedResponse;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ public class PromotionServiceImpl implements PromotionService {
     private final PromotionCommanderService promotionCommanderService;
     private final PromotionReaderService promotionReaderService;
 
+    @SaveLog
     @Transactional
     public PromotionResponse createPromotion(PromotionCreateRequest request) {
         return promotionCommanderService.createPromotion(request);
@@ -35,12 +37,14 @@ public class PromotionServiceImpl implements PromotionService {
     }
 
     // 프로모션 수정
+    @SaveLog
     @Override
     public PromotionResponse updatePromotion(Long id, PromotionCreateRequest request) {
         return promotionCommanderService.updatePromotion(id, request);
     }
 
     // 프로모션 삭제
+    @SaveLog
     @Override
     public void deletePromotionById(Long id) {
         promotionCommanderService.deletePromotionById(id);

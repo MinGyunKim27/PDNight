@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.pdnight.domain.post.presentation.dto.request.CommentRequest;
 import org.example.pdnight.domain.post.presentation.dto.response.CommentResponse;
+import org.example.pdnight.global.aop.SaveLog;
 import org.example.pdnight.global.common.dto.PagedResponse;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -36,6 +37,7 @@ public class CommentServiceImpl implements CommentService {
         return commentCommandService.createChildComment(postId, id, loginId, request);
     }
 
+    @SaveLog
     @Override
     public void deleteCommentByAdmin(Long postId, Long id, Long adminId) {
         commentCommandService.deleteCommentByAdmin(postId, id, adminId);
