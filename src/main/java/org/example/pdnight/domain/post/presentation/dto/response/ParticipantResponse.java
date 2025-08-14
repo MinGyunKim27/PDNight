@@ -32,4 +32,14 @@ public class ParticipantResponse {
     public static ParticipantResponse toDto(PostParticipant postParticipant) {
         return new ParticipantResponse(postParticipant);
     }
+
+    private ParticipantResponse(Long userId, Long postId, JoinStatus status) {
+        this.userId = userId;
+        this.postId = postId;
+        this.status = status;
+    }
+
+    public static ParticipantResponse toDtoES(Long userId, Long postId, JoinStatus status) {
+        return new ParticipantResponse(userId, postId, status);
+    }
 }

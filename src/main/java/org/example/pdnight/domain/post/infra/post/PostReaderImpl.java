@@ -2,10 +2,7 @@ package org.example.pdnight.domain.post.infra.post;
 
 import co.elastic.clients.elasticsearch._types.SortOptions;
 import co.elastic.clients.elasticsearch._types.SortOrder;
-import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
-import co.elastic.clients.elasticsearch._types.query_dsl.Query;
-import co.elastic.clients.elasticsearch._types.query_dsl.RangeQuery;
-import co.elastic.clients.elasticsearch._types.query_dsl.TermQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.*;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -126,7 +123,9 @@ public class PostReaderImpl implements PostReader {
     @Override
     public Page<PostDocument> getMyLikePostES(Long userId, Pageable pageable) {
         List<Query> mustQueries = new ArrayList<>();
-        mustQueries.add(TermQuery.of(post -> post.field("postLikes.userId").value(userId.toString()))._toQuery());
+
+        mustQueries.add(NestedQuery.of(post -> post.path("postLikes").query(q -> q
+                .term(t -> t.field("postLikes.userId").value(userId.toString()))))._toQuery());
         mustQueries.add(TermQuery.of(post -> post.field("isDeleted").value(false))._toQuery());
 
         BoolQuery.Builder boolQueryBuilder = new BoolQuery.Builder().must(mustQueries);
@@ -150,8 +149,12 @@ public class PostReaderImpl implements PostReader {
     @Override
     public Page<PostDocument> getConfirmedPostES(Long userId, JoinStatus joinStatus, Pageable pageable) {
         List<Query> mustQueries = new ArrayList<>();
-        mustQueries.add(TermQuery.of(post -> post.field("postParticipants.userId").value(userId.toString()))._toQuery());
-        mustQueries.add(TermQuery.of(post -> post.field("postParticipants.status").value(joinStatus.toString()))._toQuery());
+        mustQueries.add(NestedQuery.of(post -> post.path("postParticipants").query(q -> q
+                .term(t -> t.field("postParticipants.userId").value(userId.toString()))))._toQuery());
+        if (joinStatus != null) {
+            mustQueries.add(NestedQuery.of(post -> post.path("postParticipants").query(q -> q
+                    .term(t -> t.field("postParticipants.status").value(joinStatus.name()))))._toQuery());
+        }
         mustQueries.add(TermQuery.of(post -> post.field("isDeleted").value(false))._toQuery());
 
         BoolQuery.Builder boolQueryBuilder = new BoolQuery.Builder().must(mustQueries);
@@ -288,7 +291,7 @@ public class PostReaderImpl implements PostReader {
     ) {
 
         List<Query> mustQueries = new ArrayList<>();
-        mustQueries.add(TermQuery.of(post -> post.field("status").value("OPEN"))._toQuery());
+        mustQueries.add(TermQuery.of(post -> post.field("status").value(PostStatus.OPEN.name()))._toQuery());
         mustQueries.add(TermQuery.of(post -> post.field("isDeleted").value(false))._toQuery());
 
         if (maxParticipants != null) {
@@ -304,13 +307,13 @@ public class PostReaderImpl implements PostReader {
 //            mustQueries.add(RangeQuery.of(post -> post.field("maxParticipants").gte(JsonData.of(maxParticipants)))._toQuery());
 //        }
         if (ageLimit != null) {
-            mustQueries.add(TermQuery.of(post -> post.field("ageLimit").value(ageLimit.toString()))._toQuery());
+            mustQueries.add(TermQuery.of(post -> post.field("ageLimit").value(ageLimit.name()))._toQuery());
         }
         if (jobCategoryLimit != null) {
-            mustQueries.add(TermQuery.of(post -> post.field("jobCategoryLimit").value(jobCategoryLimit.toString()))._toQuery());
+            mustQueries.add(TermQuery.of(post -> post.field("jobCategoryLimit").value(jobCategoryLimit.name()))._toQuery());
         }
         if (genderLimit != null) {
-            mustQueries.add(TermQuery.of(post -> post.field("genderLimit").value(genderLimit.toString()))._toQuery());
+            mustQueries.add(TermQuery.of(post -> post.field("genderLimit").value(genderLimit.name()))._toQuery());
         }
 
         BoolQuery.Builder boolQueryBuilder = new BoolQuery.Builder().must(mustQueries);
@@ -419,8 +422,7 @@ public class PostReaderImpl implements PostReader {
     }
 
 
-
-//    // 초대받은 리스트
+    //    // 초대받은 리스트
     @Override
     public Page<InviteResponse> getMyInvited(Long userId, Pageable pageable) {
         QInvite invite = QInvite.invite;
@@ -449,7 +451,9 @@ public class PostReaderImpl implements PostReader {
     @Override
     public Page<PostDocument> getMyInvitedES(Long userId, Pageable pageable) {
         List<Query> mustQueries = new ArrayList<>();
-        mustQueries.add(TermQuery.of(post -> post.field("invites.inviteeId").value(userId.toString()))._toQuery());
+        mustQueries.add(NestedQuery.of(post -> post.path("invites").query(q -> q
+                .term(t -> t.field("invites.inviteeId").value(userId.toString()))))._toQuery());
+
         mustQueries.add(TermQuery.of(post -> post.field("isDeleted").value(false))._toQuery());
 
         BoolQuery.Builder boolQueryBuilder = new BoolQuery.Builder().must(mustQueries);
@@ -497,9 +501,13 @@ public class PostReaderImpl implements PostReader {
 
     // 내가 초대한 리스트
     @Override
-    public Page<PostDocument> getMyInviteES(Long userId, Pageable pageable) {
+    public List<PostDocument> getMyInviteES(Long userId) {
         List<Query> mustQueries = new ArrayList<>();
-        mustQueries.add(TermQuery.of(post -> post.field("invites.inviterId").value(userId.toString()))._toQuery());
+        mustQueries.add(NestedQuery
+                .of(post -> post.path("invites")
+                        .query(q -> q.term(t -> t.field("invites.inviterId")
+                                .value(userId.toString()))))
+                ._toQuery());
         mustQueries.add(TermQuery.of(post -> post.field("isDeleted").value(false))._toQuery());
 
         BoolQuery.Builder boolQueryBuilder = new BoolQuery.Builder().must(mustQueries);
@@ -508,14 +516,12 @@ public class PostReaderImpl implements PostReader {
         // NativeQuery 생성 (정렬 + 페이징)
         NativeQuery searchQuery = NativeQuery.builder()
                 .withQuery(query)
-                .withPageable(pageable != null ? pageable : Pageable.unpaged())
                 .build();
 
         SearchHits<PostDocument> search = elasticsearchOperations.search(searchQuery, PostDocument.class);
 
         List<PostDocument> list = search.stream().map(SearchHit::getContent).toList();
-        long total = search.getTotalHits();
 
-        return new PageImpl<>(list, pageable, total);
+        return list;
     }
 }

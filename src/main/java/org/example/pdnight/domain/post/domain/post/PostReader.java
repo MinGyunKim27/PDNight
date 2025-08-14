@@ -9,6 +9,7 @@ import org.example.pdnight.global.common.enums.JobCategory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface PostReader {
@@ -49,7 +50,7 @@ public interface PostReader {
 
     Page<PostDocument> getMyInvitedES(Long userId, Pageable pageable);
 
-    Page<PostDocument> getMyInviteES(Long userId, Pageable pageable);
+    List<PostDocument> getMyInviteES(Long userId);
 
     Page<PostDocument> getMyLikePostES(Long userId, Pageable pageable);
 

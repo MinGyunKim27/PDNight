@@ -1,7 +1,9 @@
 package org.example.pdnight.domain.post.domain.post;
 
+import lombok.Getter;
 import org.springframework.data.elasticsearch.annotations.Document;
 
+@Getter
 @Document(indexName = "invites")
 public class InviteDocument {
     private final Long inviterId;
