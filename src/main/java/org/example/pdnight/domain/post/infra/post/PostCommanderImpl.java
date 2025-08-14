@@ -54,6 +54,9 @@ public class PostCommanderImpl implements PostCommander {
                 post.getInvites().stream()
                         .map(invite-> InviteDocument.create(invite.getInviterId(), invite.getInviteeId(), invite.getPost().getId()))
                         .toList(),
+                post.getPostTagList().stream()
+                        .map(postTag -> PostTagDocument.create(postTag.getId(), postTag.getTagId()))
+                        .toList(),
                 post.getIsDeleted(),
                 post.getDeletedAt(),
                 post.getCreatedAt()));
@@ -94,6 +97,9 @@ public class PostCommanderImpl implements PostCommander {
                         .toList(),
                 foundPost.getInvites().stream()
                         .map(invite-> InviteDocument.create(invite.getInviterId(), invite.getInviteeId(), invite.getPost().getId()))
+                        .toList(),
+                foundPost.getPostTagList().stream()
+                        .map(postTag -> PostTagDocument.create(postTag.getId(), postTag.getTagId()))
                         .toList(),
                 foundPost.getIsDeleted(),
                 foundPost.getDeletedAt(),

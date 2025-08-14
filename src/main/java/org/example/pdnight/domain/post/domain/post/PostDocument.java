@@ -54,6 +54,9 @@ public class PostDocument {
     @Field(type = FieldType.Nested)
     private final List<InviteDocument> invites;
 
+    @Field(type = FieldType.Nested)
+    private List<PostTagDocument> tags;
+
     private final Boolean isDeleted;
 
     @Field(type = FieldType.Date, format = {}, pattern = "yyyy-MM-dd'T'HH:mm:ss||strict_date_time")
@@ -80,6 +83,7 @@ public class PostDocument {
             List<PostLikeDocument> postLikes,
             List<PostParticipantDocument> postParticipants,
             List<InviteDocument> invites,
+            List<PostTagDocument> tags,
             Boolean isDeleted,
             LocalDateTime deletedAt,
             LocalDateTime createdAt
@@ -97,6 +101,7 @@ public class PostDocument {
         this.isFirstCome = isFirstCome;
         this.postLikes = postLikes;
         this.postParticipants = postParticipants;
+        this.tags = tags;
         this.invites = invites;
         this.isDeleted = isDeleted;
         this.deletedAt = deletedAt;
@@ -119,6 +124,7 @@ public class PostDocument {
             List<PostLikeDocument> postLikes,
             List<PostParticipantDocument> postParticipants,
             List<InviteDocument> invites,
+            List<PostTagDocument> tags,
             Boolean isDeleted,
             LocalDateTime deletedAt,
             LocalDateTime createdAt
@@ -138,6 +144,7 @@ public class PostDocument {
                 postLikes,
                 postParticipants,
                 invites,
+                tags,
                 isDeleted,
                 deletedAt,
                 createdAt
