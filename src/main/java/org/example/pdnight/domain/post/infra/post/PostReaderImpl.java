@@ -4,10 +4,7 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.example.pdnight.domain.post.domain.post.Post;
-import org.example.pdnight.domain.post.domain.post.PostReader;
-import org.example.pdnight.domain.post.domain.post.QInvite;
-import org.example.pdnight.domain.post.domain.post.QPost;
+import org.example.pdnight.domain.post.domain.post.*;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.enums.JoinStatus;
@@ -356,5 +353,40 @@ public class PostReaderImpl implements PostReader {
                 .where(invite.inviterId.eq(userId));
 
         return PageableExecutionUtils.getPage(query.fetch(), pageable, countQuery::fetchOne);
+    }
+
+    @Override
+    public Optional<PostDocument> findByIdES(Long postId) {
+        return Optional.empty();
+    }
+
+    @Override
+    public Page<PostDocument> findPostsBySearchES(Pageable pageable, Integer maxParticipants, AgeLimit ageLimit, JobCategory jobCategoryLimit, Gender genderLimit) {
+        return null;
+    }
+
+    @Override
+    public Page<PostDocument> getMyInvitedES(Long userId, Pageable pageable) {
+        return null;
+    }
+
+    @Override
+    public List<PostDocument> getMyInviteES(Long userId) {
+        return List.of();
+    }
+
+    @Override
+    public Page<PostDocument> getMyLikePostES(Long userId, Pageable pageable) {
+        return null;
+    }
+
+    @Override
+    public Page<PostDocument> getConfirmedPostES(Long userId, JoinStatus joinStatus, Pageable pageable) {
+        return null;
+    }
+
+    @Override
+    public Page<PostDocument> getWrittenPostES(Long userId, Pageable pageable) {
+        return null;
     }
 }
