@@ -1,5 +1,7 @@
 package org.example.pdnight.domain.post.presentation;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.post.application.tagUseCase.TagService;
 import org.example.pdnight.domain.post.presentation.dto.request.TagRequest;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "PostTag")
 @RestController
 @RequestMapping("/api/tags")
 @RequiredArgsConstructor
@@ -18,6 +21,7 @@ public class TagController {
     private final TagService tagService;
 
     @PostMapping
+    @Operation(summary = "태그 추가", description = "태그를 추가한다")
     public ResponseEntity<ApiResponse<TagResponse>> createTag(
             @Validated @RequestBody TagRequest dto
     ) {
@@ -28,6 +32,7 @@ public class TagController {
     }
 
     @GetMapping
+    @Operation(summary = "태그 조회", description = "태그 목록을 조회한다")
     public ResponseEntity<ApiResponse<List<TagResponse>>> searchTags(
             @RequestParam(required = false) String tagName
     ) {

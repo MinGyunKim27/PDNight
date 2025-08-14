@@ -35,5 +35,7 @@ public class PostRequest {
 
     @Schema(description = "선착순 여부", example = "false")
     private boolean isFirstCome;
+
+    @Schema(description = "태그 ID 목록", example = "[1, 2]")
     private List<Long> tagIdList;
 }

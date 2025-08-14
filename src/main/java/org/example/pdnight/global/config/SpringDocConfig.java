@@ -26,6 +26,7 @@ import org.springframework.context.annotation.Configuration;
 
                 @Tag(name = "AdminPost", description = "관리자/게시글 기능"),
                 @Tag(name = "Post", description = "게시글 기능"),
+                @Tag(name = "PostTag", description = "게시글 태그 기능"),
                 @Tag(name = "Participate", description = "게시글 참여 기능"),
                 @Tag(name = "PostLike", description = "게시글 좋아요 기능"),
                 @Tag(name = "Invite", description = "게시글 초대 기능"),
