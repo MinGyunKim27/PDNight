@@ -58,4 +58,6 @@ public interface PostReader {
 
     Page<PostDocument> getWrittenPostES(Long userId, Pageable pageable);
 
+    Page<Post> getSuggestedPostES(Long userId, Pageable pageable);
+
 }
