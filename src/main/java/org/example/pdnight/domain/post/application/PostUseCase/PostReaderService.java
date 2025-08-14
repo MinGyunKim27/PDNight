@@ -2,7 +2,6 @@ package org.example.pdnight.domain.post.application.PostUseCase;
 
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.post.domain.post.Post;
-import org.example.pdnight.domain.post.domain.post.PostDocument;
 import org.example.pdnight.domain.post.domain.post.PostParticipant;
 import org.example.pdnight.domain.post.domain.post.PostReader;
 import org.example.pdnight.domain.post.domain.post.PostTag;
@@ -24,6 +23,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 
 @Service
@@ -210,17 +210,6 @@ public class PostReaderService {
 
     private Post getPost(Long postId) {
         Post post = postReader.findByIdWithParticipants(postId)
-                .orElseThrow(() -> new BaseException(ErrorCode.POST_NOT_FOUND));
-
-        if (post.getIsDeleted()) {
-            throw new BaseException(ErrorCode.POST_DEACTIVATED);
-        }
-
-        return post;
-    }
-
-    private PostDocument getPostES(Long postId) {
-        PostDocument post = postReader.findByIdES(postId)
                 .orElseThrow(() -> new BaseException(ErrorCode.POST_NOT_FOUND));
 
         if (post.getIsDeleted()) {

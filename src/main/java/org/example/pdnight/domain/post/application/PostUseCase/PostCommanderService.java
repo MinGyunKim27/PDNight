@@ -25,6 +25,7 @@ import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.example.pdnight.global.common.enums.ErrorCode.*;
@@ -222,6 +223,8 @@ public class PostCommanderService {
 
         // 참가 신청 처리
         PostParticipant participant = handleJoinRequest(foundPost, loginId, foundPost.getIsFirstCome());
+        LocalDateTime now = LocalDateTime.now();
+        participant.setCreatedAt(now);
         postProducer.produce("post.participant.applied", new PostParticipateAppliedEvent(foundPost.getId(), foundPost.getAuthorId(), loginId));
 
         // 명시적으로 save
