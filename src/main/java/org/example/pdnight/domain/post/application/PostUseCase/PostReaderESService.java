@@ -118,9 +118,8 @@ public class PostReaderESService {
                 .getPostParticipants()
                 .stream()
                 .filter(postParticipant -> postParticipant.getStatus() == JoinStatus.PENDING)
-                .map(p -> ParticipantResponse.toDtoES(p.getUserId(), p.getPostId(), p.getStatus()))
+                .map(p -> ParticipantResponse.from(p.getUserId(), p.getPostId(), p.getStatus(), p.getCreatedAt(), p.getUpdatedAt()))
                 .toList();
-
 
         Pageable pageable = PageRequest.of(page, size);
 
@@ -140,7 +139,7 @@ public class PostReaderESService {
                 .getPostParticipants()
                 .stream()
                 .filter(postParticipant -> postParticipant.getStatus() == JoinStatus.ACCEPTED)
-                .map(p -> ParticipantResponse.toDtoES(p.getUserId(), p.getPostId(), p.getStatus()))
+                .map(p -> ParticipantResponse.from(p.getUserId(), p.getPostId(), p.getStatus(), p.getCreatedAt(), p.getUpdatedAt()))
                 .toList();
 
         Pageable pageable = PageRequest.of(page, size);

@@ -49,7 +49,7 @@ public class PostCommanderImpl implements PostCommander {
                         .map(postLike-> PostLikeDocument.create(postLike.getPost().getId(), postLike.getUserId()))
                         .toList(),
                 post.getPostParticipants().stream()
-                        .map(postParticipant-> PostParticipantDocument.create(postParticipant.getPost().getId(), postParticipant.getUserId(), postParticipant.getStatus()))
+                        .map(postParticipant-> PostParticipantDocument.create(postParticipant.getPost().getId(), postParticipant.getUserId(), postParticipant.getStatus(), postParticipant.getCreatedAt()))
                         .toList(),
                 post.getInvites().stream()
                         .map(invite-> InviteDocument.create(invite.getInviterId(), invite.getInviteeId(), invite.getPost().getId()))
@@ -90,7 +90,7 @@ public class PostCommanderImpl implements PostCommander {
                         .map(postLike-> PostLikeDocument.create(postLike.getPost().getId(), postLike.getUserId()))
                         .toList(),
                 foundPost.getPostParticipants().stream()
-                        .map(postParticipant-> PostParticipantDocument.create(postParticipant.getPost().getId(), postParticipant.getUserId(), postParticipant.getStatus()))
+                        .map(postParticipant-> PostParticipantDocument.create(postParticipant.getPost().getId(), postParticipant.getUserId(), postParticipant.getStatus(), postParticipant.getCreatedAt()))
                         .toList(),
                 foundPost.getInvites().stream()
                         .map(invite-> InviteDocument.create(invite.getInviterId(), invite.getInviteeId(), invite.getPost().getId()))

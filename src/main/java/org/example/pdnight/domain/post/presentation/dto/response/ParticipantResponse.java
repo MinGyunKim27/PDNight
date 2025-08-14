@@ -33,13 +33,15 @@ public class ParticipantResponse {
         return new ParticipantResponse(postParticipant);
     }
 
-    private ParticipantResponse(Long userId, Long postId, JoinStatus status) {
-        this.userId = userId;
-        this.postId = postId;
-        this.status = status;
-    }
-
-    public static ParticipantResponse toDtoES(Long userId, Long postId, JoinStatus status) {
-        return new ParticipantResponse(userId, postId, status);
-    }
+//    private ParticipantResponse(Long userId, Long postId, JoinStatus status, LocalDateTime createdAt, LocalDateTime updatedAt) {
+//        this.userId = userId;
+//        this.postId = postId;
+//        this.status = status;
+//        this.createdAt = createdAt;
+//        this.updatedAt = updatedAt;
+//    }
+//
+//    public static ParticipantResponse toDtoES(Long userId, Long postId, JoinStatus status, LocalDateTime createdAt, LocalDateTime updatedAt) {
+//        return new ParticipantResponse(userId, postId, status, createdAt, updatedAt);
+//    }
 }
