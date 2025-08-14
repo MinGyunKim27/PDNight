@@ -2,51 +2,94 @@ input {
   beats {
     port => 5044
   }
+  
+
+  # 2. MySQL 동기화
+  jdbc {
+    jdbc_driver_library => "/usr/share/logstash/logstash-core/lib/jars/mysql-connector-java-8.0.33.jar"
+    jdbc_driver_class => "com.mysql.cj.jdbc.Driver"
+    jdbc_connection_string => "jdbc:mysql://mysql_host:3306/${ENV['MYSQL_DATABASE']}?useSSL=false&serverTimezone=UTC"
+    jdbc_user => "${ENV['MYSQL_USER']}"
+    jdbc_password => "${ENV['MYSQL_ROOT_PASSWORD']}"
+    statement => "
+      SELECT 
+        p.id, 
+        p.title, 
+        p.content,  
+        p.updated_at,
+        GROUP_CONCAT(t.name SEPARATOR ',') AS tags,
+        p.create_at
+        FROM posts p 
+        LEFT JOIN post_tags pt ON p.id = pt.post_id
+        LEFT JOIN tags t ON t.id = pt.tag_id
+        WHERE updated_at > :sql_last_value ORDER BY updated_at ASC
+    "
+    use_column_value => true
+    tracking_column => "updated_at"   # Logstash가 Mysql로부터 읽은 마지막 문서를 추적하는데 사용 
+    last_run_metadata_path => "/usr/share/logstash/.logstash_jdbc_last_run"
+    schedule => "* * * * *"  # 1분마다 실행
+    add_field => { "[@metadata][source]" => "mysql" }  # 데이터 출처 표시
+  }
 }
 
 filter {
-  # 공통된 부분 파싱
-  grok {
-      match => {
-      "message" => "\[%{TIMESTAMP_ISO8601:log_timestamp}\]\[%{NOTSPACE:thread_name}\] %{WORD} %{NOTSPACE} - \[%{WORD:log_type}\] %{WORD:http_method} %{NOTSPACE:api_path} \| %{GREEDYDATA:log_data}"
-    }
-  }
-  
-  if [api_path] =~ "admin" {
-    mutate { add_field => { "role" => "admin" } }
+  if([@metadata][source] == "mysql" {
+    
   } else {
-    mutate { add_field => { "role" => "user" } }
-  }
-  
-  # log_type 값에 따라 다른 필터를 적용합니다.
-  if [log_type] == "REQUEST" {
+    # 공통된 부분 파싱
     grok {
-      match => { "log_data" => "Args: %{GREEDYDATA:request_body}" }
+        match => {
+        "message" => "\[%{TIMESTAMP_ISO8601:log_timestamp}\]\[%{NOTSPACE:thread_name}\] %{WORD} %{NOTSPACE} - \[%{WORD:log_type}\] %{WORD:http_method} %{NOTSPACE:api_path} \| %{GREEDYDATA:log_data}"
+      }
     }
-  } else if [log_type] == "RESPONSE" {
-    grok {
-      match => { "log_data" => "Return Value: %{GREEDYDATA:response_body} \| Time taken: %{NUMBER:time_taken:int}ms" }
+    
+    if [api_path] =~ "admin" {
+      mutate { add_field => { "role" => "admin" } }
+    } else {
+      mutate { add_field => { "role" => "user" } }
     }
-  } else if [log_type] == "ERROR" {
-    grok {
-      match => { "log_data" => "Exception: %{GREEDYDATA:exception_message} \| Time taken: %{NUMBER:time_taken:int}ms" }
+    
+    # log_type 값에 따라 다른 필터를 적용합니다.
+    if [log_type] == "REQUEST" {
+      grok {
+        match => { "log_data" => "Args: %{GREEDYDATA:request_body}" }
+      }
+    } else if [log_type] == "RESPONSE" {
+      grok {
+        match => { "log_data" => "Return Value: %{GREEDYDATA:response_body} \| Time taken: %{NUMBER:time_taken:int}ms" }
+      }
+    } else if [log_type] == "ERROR" {
+      grok {
+        match => { "log_data" => "Exception: %{GREEDYDATA:exception_message} \| Time taken: %{NUMBER:time_taken:int}ms" }
+      }
     }
-  }
 
-  # 날짜 형식 파싱
-  date {
-    match => ["log_timestamp", "yyyy-MM-dd HH:mm:ss"]
-    target => "@timestamp"
-    timezone => "Asia/Seoul"
+    # 날짜 형식 파싱
+    date {
+      match => ["log_timestamp", "yyyy-MM-dd HH:mm:ss"]
+      target => "@timestamp"
+      timezone => "Asia/Seoul"
+    }
   }
 }
 
 output {
-  elasticsearch {
-    hosts => ["elasticsearch:9200"]
-    index => "pdnight-aop-logs-%{+YYYY.MM.dd}"
-    user => "elastic"
-    password => "elastic"
-    ecs_compatibility => disabled
+  if([@metadata][source] == "mysql" {
+    elasticsearch {
+      hosts => ["elasticsearch:9200"]
+      index => "posts"
+      user => "elastic"
+      password => "elastic"
+      ecs_compatibility => disabled
+      document_id => "%{id}"
+    }
+  } else {
+    elasticsearch {
+      hosts => ["elasticsearch:9200"]
+      index => "pdnight-aop-logs-%{+YYYY.MM.dd}"
+      user => "elastic"
+      password => "elastic"
+      ecs_compatibility => disabled
+    }
   }
 }
