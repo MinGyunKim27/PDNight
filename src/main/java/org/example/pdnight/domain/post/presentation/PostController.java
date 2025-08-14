@@ -383,6 +383,7 @@ public class PostController {
 
     //게시물 단건 조회
     @GetMapping("/posts/{id}/ES")
+    @Operation(summary = "[ES] 게시글 단건 조회", description = "게시글 하나를 조회한다", tags = {"Post"})
     public ResponseEntity<ApiResponse<PostResponse>> getPostByIdES(@PathVariable Long id) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.ok("게시글이 조회되었습니다.", postService.findPostES(id)));
@@ -390,6 +391,7 @@ public class PostController {
 
     // 내가 작성한 게시글 조회
     @GetMapping("/my/written-posts/ES")
+    @Operation(summary = "[ES] 작성한 게시글 조회", description = "본인이 작성한 게시글 목록을 조회한다", tags = {"Post"})
     public ResponseEntity<ApiResponse<PagedResponse<PostResponse>>> getMyWrittenPostsES(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PageableDefault(size = 10, page = 0) Pageable pageable
@@ -404,6 +406,7 @@ public class PostController {
 
     // 내 좋아요 게시글 목록 조회
     @GetMapping("/my/likes/ES")
+    @Operation(summary = "[ES] 좋아요 게시글 조회", description = "본인이 좋아요한 게시글 목록을 조회한다", tags = {"Post"})
     public ResponseEntity<ApiResponse<PagedResponse<PostResponse>>> getMyLikedPostsES(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PageableDefault(size = 10, page = 0) Pageable pageable
@@ -415,6 +418,7 @@ public class PostController {
 
     //내 신청/성사된 게시글 조회
     @GetMapping("/my/confirmed-posts/ES")
+    @Operation(summary = "[ES] 신청/성사된 게시글 조회", description = "본인이 신청한/성사된 게시글 목록을 조회한다", tags = {"Post"})
     public ResponseEntity<ApiResponse<PagedResponse<PostResponse>>> getMyConfirmedPostsES(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam(required = false) JoinStatus joinStatus,
@@ -427,6 +431,7 @@ public class PostController {
 
     // 게시물 조건 조회
     @GetMapping("/posts/ES")
+    @Operation(summary = "[ES] 게시글 검색 조회", description = "게시글 목록을 검색하거나, 전체 조회한다", tags = {"Post"})
     public ResponseEntity<ApiResponse<PagedResponse<PostResponse>>> searchPostsES(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -445,6 +450,7 @@ public class PostController {
 
     // 신청자 목록 조회
     @GetMapping("/posts/{postId}/participant/ES")
+    @Operation(summary = "[ES] 게시글 신청자 목록 조회", description = "본인 게시글에 신청한 사용자 목록을 조회한다", tags = {"Participate"})
     public ResponseEntity<ApiResponse<PagedResponse<ParticipantResponse>>> getPendingParticipantListES(
             @AuthenticationPrincipal CustomUserDetails author,
             @PathVariable Long postId,
@@ -458,6 +464,7 @@ public class PostController {
 
     // 참가자 목록 조회
     @GetMapping("/posts/{postId}/participate/confirmed/ES")
+    @Operation(summary = "[ES] 게시글 참가자 목록 조회", description = "본인 게시글에 참가한 사용자 목록을 조회한다", tags = {"Participate"})
     public ResponseEntity<ApiResponse<PagedResponse<ParticipantResponse>>> getAcceptedParticipantListES(
             @AuthenticationPrincipal CustomUserDetails loginUser,
             @PathVariable Long postId,
@@ -471,6 +478,7 @@ public class PostController {
 
     //내 초대받은 목록 조회
     @GetMapping("/my/invited/ES")
+    @Operation(summary = "[ES] 초대받은 목록 조회", description = "본인이 초대받은 목록을 조회한다", tags = {"Invite"})
     public ResponseEntity<ApiResponse<PagedResponse<InviteResponse>>> getMyInvitedES(
             @AuthenticationPrincipal CustomUserDetails loggedInUser,
             @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
@@ -484,6 +492,7 @@ public class PostController {
 
     //내가 보낸 초대 목록 조회
     @GetMapping("/my/invite/ES")
+    @Operation(summary = "[ES] 초대보낸 목록 조회", description = "본인이 초대한 목록을 조회한다", tags = {"Invite"})
     public ResponseEntity<ApiResponse<PagedResponse<InviteResponse>>> getMyInviteES(
             @AuthenticationPrincipal CustomUserDetails loggedInUser,
             @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
