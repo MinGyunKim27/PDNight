@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Configuration;
         info = @Info(
                 title = "🌃 판교의 밤 (PDNight) API Document",
                 description = "PDNight Spring Doc API Document",
-                version = "v4" //개발 버전
+                version = "v5" //개발 버전
         ),
         tags = {
                 @Tag(name = "Auth", description = "인증 기능"),
