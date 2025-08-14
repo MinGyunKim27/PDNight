@@ -369,7 +369,7 @@ public class PostCommanderService {
 
     //내가 받은 초대 승인
     @Transactional
-    @DistributedLock(key = "#postId", timeoutMs = 5000)
+    @DistributedLock(key = "#postId", timeoutMs = 50000)
     public void decisionForInvite(Long postId, Long loginUserId) {
         Post post = getPostByIdAndNotDeleted(postId);
 

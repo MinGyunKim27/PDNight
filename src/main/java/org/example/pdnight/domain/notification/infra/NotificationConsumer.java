@@ -46,8 +46,8 @@ public class NotificationConsumer {
     @KafkaListener(topics = "invite.accepted", groupId = "alert-invite-group", containerFactory = "notificationListenerContainerFactory")
     public void consumeApplyInviteAcceptedEvent(InviteAcceptedEvent event) {
         notificationConsumerService.one(
-                event.authorId(),
                 event.userId(),
+                event.authorId(),
                 "모임 초대 수락되었습니다",
                 "모임 초대 수락 알림 저장 완료!",
                 NotificationType.INVITE_ACCEPTED
@@ -58,8 +58,8 @@ public class NotificationConsumer {
     @KafkaListener(topics = "invite.denied", groupId = "alert-invite-group", containerFactory = "notificationListenerContainerFactory")
     public void consumeApplyInviteDeniedEvent(InviteDeniedEvent event) {
         notificationConsumerService.one(
-                event.authorId(),
                 event.userId(),
+                event.authorId(),
                 "모임 초대 거절되었습니다",
                 "모임 초대 거절 알림 저장 완료!",
                 NotificationType.INVITE_REJECTED
