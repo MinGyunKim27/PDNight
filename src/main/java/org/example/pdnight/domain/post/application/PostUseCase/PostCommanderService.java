@@ -38,6 +38,7 @@ public class PostCommanderService {
     private final PostCommander postCommander;
     private final PostProducer postProducer;
     private final UserPort userPort;
+    private final PostInfoAssembler postInfoAssembler;
 
     // region  게시물
     @Transactional
@@ -57,7 +58,8 @@ public class PostCommanderService {
                 request.getGenderLimit(),
                 request.getJobCategoryLimit(),
                 request.getAgeLimit(),
-                request.isFirstCome()
+                request.isFirstCome(),
+                request.getTagIdList()
         );
 
         postCommander.save(post);
@@ -68,7 +70,7 @@ public class PostCommanderService {
             Long authorId = post.getAuthorId();
             postProducer.produce("followee.post.created", new FolloweePostCreatedEvent(authorId, post.getId(), followeeIds));
         }
-        return PostResponse.toDto(post);
+        return postInfoAssembler.toDto(post);
     }
 
     // 논리적 삭제
@@ -139,12 +141,13 @@ public class PostCommanderService {
                 request.getMaxParticipants(),
                 request.getGenderLimit(),
                 request.getJobCategoryLimit(),
-                request.getAgeLimit()
+                request.getAgeLimit(),
+                request.getTagIdList()
         );
         // 명시적으로 save
         postCommander.saveES(foundPost);
 
-        return PostResponse.toDto(foundPost);
+        return postInfoAssembler.toDto(foundPost);
     }
 
     @Transactional
@@ -189,7 +192,7 @@ public class PostCommanderService {
             }
         }
 
-        return PostResponse.toDto(foundPost);
+        return postInfoAssembler.toDto(foundPost);
     }
 
     @Transactional

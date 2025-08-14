@@ -64,6 +64,8 @@ public class Post extends Timestamped {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Invite> invites = new ArrayList<>();
 
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PostTag> postTagList = new ArrayList<>();
 
     private Boolean isDeleted = false;
     private LocalDateTime deletedAt;
@@ -77,7 +79,8 @@ public class Post extends Timestamped {
             Gender genderLimit,
             JobCategory jobCategoryLimit,
             AgeLimit ageLimit,
-            Boolean isFirstCome
+            Boolean isFirstCome,
+            List<Long> tagIdList
     ) {
         this.authorId = authorId;
         this.title = title;
@@ -85,16 +88,11 @@ public class Post extends Timestamped {
         this.publicContent = publicContent;
         this.status = PostStatus.OPEN;
         this.maxParticipants = maxParticipants;
-        if (genderLimit != null) {
-            this.genderLimit = genderLimit;
-        }
-        if (jobCategoryLimit != null) {
-            this.jobCategoryLimit = jobCategoryLimit;
-        }
-        if (ageLimit != null) {
-            this.ageLimit = ageLimit;
-        }
+        if (genderLimit != null) this.genderLimit = genderLimit;
+        if (jobCategoryLimit != null) this.jobCategoryLimit = jobCategoryLimit;
+        if (ageLimit != null) this.ageLimit = ageLimit;
         this.isFirstCome = isFirstCome;
+        setPostTagList(tagIdList);
     }
 
     public static Post createPost(
@@ -106,7 +104,8 @@ public class Post extends Timestamped {
             Gender genderLimit,
             JobCategory jobCategoryLimit,
             AgeLimit ageLimit,
-            Boolean isFirstCome
+            Boolean isFirstCome,
+            List<Long> tagIdList
     ) {
         return new Post(
                 authorId,
@@ -117,7 +116,8 @@ public class Post extends Timestamped {
                 genderLimit,
                 jobCategoryLimit,
                 ageLimit,
-                isFirstCome
+                isFirstCome,
+                tagIdList
         );
     }
 
@@ -129,7 +129,8 @@ public class Post extends Timestamped {
             Integer maxParticipants,
             Gender genderLimit,
             JobCategory jobCategoryLimit,
-            AgeLimit ageLimit
+            AgeLimit ageLimit,
+            List<Long> tagIdList
     ) {
         if (title != null) this.title = title;
         if (timeSlot != null) this.timeSlot = timeSlot;
@@ -137,7 +138,16 @@ public class Post extends Timestamped {
         if (maxParticipants != null && maxParticipants >= 1) this.maxParticipants = maxParticipants;
         if (genderLimit != null) this.genderLimit = genderLimit;
         if (jobCategoryLimit != null) this.jobCategoryLimit = jobCategoryLimit;
+        if (postTagList != null) this.postTagList = postTagList;
         if (ageLimit != null) this.ageLimit = ageLimit;
+        this.postTagList.clear();
+        setPostTagList(tagIdList);
+    }
+
+    public void setPostTagList(List<Long> tagIdList) {
+        for (Long tagId : tagIdList) {
+            this.postTagList.add(PostTag.create(this, tagId));
+        }
     }
 
     //상태 변경 메서드
