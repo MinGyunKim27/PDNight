@@ -27,7 +27,5 @@ public class PostUpdateRequest {
     private JobCategory jobCategoryLimit;
     private AgeLimit ageLimit;
 
-    private List<Long> hobbyIdList;
-    private List<Long> techStackIdList;
-
+    private List<Long> tagIdList;
 }

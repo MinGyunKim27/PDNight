@@ -25,6 +25,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -46,6 +47,9 @@ class PostCommanderServiceTest {
     @Mock
     private UserPort userPort;
 
+    @Mock
+    private PostInfoAssembler postInfoAssembler;
+
     private PostRequest postRequest;
     private Post post;
     private Post testPost;
@@ -54,11 +58,14 @@ class PostCommanderServiceTest {
     @BeforeEach
     void setUp() {
         //요청 DTO 세팅
+        List<Long> idList = List.of(1L, 2L);
+
         postRequest = PostRequest.builder()
                 .title("제목")
                 .timeSlot(LocalDateTime.now())
                 .publicContent("공개 내용")
                 .maxParticipants(4)
+                .tagIdList(idList)
                 .build();
 
         // 테스트 용 post 객체
@@ -71,7 +78,8 @@ class PostCommanderServiceTest {
                 postRequest.getGenderLimit(),
                 postRequest.getJobCategoryLimit(),
                 postRequest.getAgeLimit(),
-                false
+                false,
+                postRequest.getTagIdList()
         );
         post.setStatus(PostStatus.OPEN);
 
@@ -85,7 +93,8 @@ class PostCommanderServiceTest {
                 Gender.ALL,
                 JobCategory.ALL,
                 AgeLimit.ALL,
-                true
+                true,
+                Collections.emptyList()
         );
         testPost = postCommander.save(testPost);
     }
@@ -101,10 +110,13 @@ class PostCommanderServiceTest {
                 LocalDateTime.now(),
                 "공개 내용",
                 4,
-                null, null, null, false);
+                null, null, null, false, Collections.emptyList());
         when(postCommander.save(any())).thenReturn(post);
 
+        when(postInfoAssembler.toDto(any(Post.class))).thenReturn(PostResponse.from(post, Collections.emptyList()));
+
         when(userPort.findFollowersOf(userId)).thenReturn(Collections.emptyList());
+
 
         //when
         PostResponse createPost = postCommanderService.createPost(userId, postRequest);
@@ -148,11 +160,26 @@ class PostCommanderServiceTest {
                 .genderLimit(Gender.FEMALE)
                 .jobCategoryLimit(JobCategory.BACK_END_DEVELOPER)
                 .ageLimit(AgeLimit.AGE_30S)
+                .tagIdList(Collections.emptyList())
                 .build();
 
         //
         when(postCommander.findByIdAndIsDeletedIsFalse(postId)).thenReturn(Optional.of(post));
 
+        Post post2 = Post.createPost(
+                1L,
+                postUpdateRequest.getTitle(),
+                postUpdateRequest.getTimeSlot(),
+                postUpdateRequest.getPublicContent(),
+                postUpdateRequest.getMaxParticipants(),
+                postUpdateRequest.getGenderLimit(),
+                postUpdateRequest.getJobCategoryLimit(),
+                postUpdateRequest.getAgeLimit(),
+                false,
+                postUpdateRequest.getTagIdList()
+        );
+
+        when(postInfoAssembler.toDto(any(Post.class))).thenReturn(PostResponse.from(post2, Collections.emptyList()));
         //when
         PostResponse postResponse = postCommanderService.updatePostDetails(userId, postId, postUpdateRequest);
         //then

@@ -350,6 +350,7 @@ public class PostController {
     }
     //endregion
 
+    //초대 수락
     @PostMapping("/post/{postId}/invite/accept")
     @Operation(summary = "받은 초대 수락", description = "본인이 받은 초대를 수락한다", tags = {"Invite"})
     public ResponseEntity<ApiResponse<Void>> acceptForInvite(
@@ -362,6 +363,7 @@ public class PostController {
         return ResponseEntity.ok(ApiResponse.ok("초대를 수락하였습니다.", null));
     }
 
+    //초대 거절
     @PostMapping("/post/{postId}/invite/reject")
     @Operation(summary = "받은 초대 거절", description = "본인이 받은 초대를 거절한다", tags = {"Invite"})
     public ResponseEntity<ApiResponse<Void>> rejectForInvite(
@@ -375,4 +377,122 @@ public class PostController {
     }
 
     //endregion
+
+
+    // ----------------------------------이하 ES 메서드----------------------------------------
+
+    //게시물 단건 조회
+    @GetMapping("/posts/{id}/ES")
+    public ResponseEntity<ApiResponse<PostResponse>> getPostByIdES(@PathVariable Long id) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.ok("게시글이 조회되었습니다.", postService.findPostES(id)));
+    }
+
+    // 내가 작성한 게시글 조회
+    @GetMapping("/my/written-posts/ES")
+    public ResponseEntity<ApiResponse<PagedResponse<PostResponse>>> getMyWrittenPostsES(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PageableDefault(size = 10, page = 0) Pageable pageable
+    ) {
+        Long id = userDetails.getUserId();
+        PagedResponse<PostResponse> myLikedPost = postService.findMyWrittenPostsES(id, pageable);
+        return ResponseEntity.ok(ApiResponse.ok("내가 작성 한 게시물이 조회되었습니다.", myLikedPost));
+    }
+
+
+    //추천 게시물 조회
+
+    // 내 좋아요 게시글 목록 조회
+    @GetMapping("/my/likes/ES")
+    public ResponseEntity<ApiResponse<PagedResponse<PostResponse>>> getMyLikedPostsES(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PageableDefault(size = 10, page = 0) Pageable pageable
+    ) {
+        Long id = userDetails.getUserId();
+        PagedResponse<PostResponse> myLikedPost = postService.findMyLikedPostsES(id, pageable);
+        return ResponseEntity.ok(ApiResponse.ok("내 좋아요 게시글 목록이 조회되었습니다.", myLikedPost));
+    }
+
+    //내 신청/성사된 게시글 조회
+    @GetMapping("/my/confirmed-posts/ES")
+    public ResponseEntity<ApiResponse<PagedResponse<PostResponse>>> getMyConfirmedPostsES(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam(required = false) JoinStatus joinStatus,
+            @PageableDefault(size = 10, page = 0) Pageable pageable
+    ) {
+        Long id = userDetails.getUserId();
+        PagedResponse<PostResponse> myLikedPost = postService.findMyConfirmedPostsES(id, joinStatus, pageable);
+        return ResponseEntity.ok(ApiResponse.ok("참여 신청한 게시글 목록이 조회되었습니다.", myLikedPost));
+    }
+
+    // 게시물 조건 조회
+    @GetMapping("/posts/ES")
+    public ResponseEntity<ApiResponse<PagedResponse<PostResponse>>> searchPostsES(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "1") Integer maxParticipants,
+            @RequestParam(required = false) AgeLimit ageLimit,
+            @RequestParam(required = false) JobCategory jobCategoryLimit,
+            @RequestParam(required = false) Gender genderLimit
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        PagedResponse<PostResponse> pagedResponse = postService.getPostDtosBySearchES(
+                pageable, maxParticipants, ageLimit, jobCategoryLimit, genderLimit);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.ok("게시글 목록이 조회되었습니다.", pagedResponse));
+    }
+
+    // 신청자 목록 조회
+    @GetMapping("/posts/{postId}/participant/ES")
+    public ResponseEntity<ApiResponse<PagedResponse<ParticipantResponse>>> getPendingParticipantListES(
+            @AuthenticationPrincipal CustomUserDetails author,
+            @PathVariable Long postId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        PagedResponse<ParticipantResponse> response = postService.getParticipantListByPendingES(author.getUserId(), postId, page, size);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.ok("신청자 목록이 조회되었습니다.", response));
+    }
+
+    // 참가자 목록 조회
+    @GetMapping("/posts/{postId}/participate/confirmed/ES")
+    public ResponseEntity<ApiResponse<PagedResponse<ParticipantResponse>>> getAcceptedParticipantListES(
+            @AuthenticationPrincipal CustomUserDetails loginUser,
+            @PathVariable Long postId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        PagedResponse<ParticipantResponse> response = postService.getParticipantListByAcceptedES(loginUser.getUserId(), postId, page, size);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.ok("참여자 목록이 조회되었습니다.", response));
+    }
+
+    //내 초대받은 목록 조회
+    @GetMapping("/my/invited/ES")
+    public ResponseEntity<ApiResponse<PagedResponse<InviteResponse>>> getMyInvitedES(
+            @AuthenticationPrincipal CustomUserDetails loggedInUser,
+            @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
+            Pageable pageable
+    ) {
+        Long userId = loggedInUser.getUserId();
+        PagedResponse<InviteResponse> inviteResponseDto = postService.getMyInvitedES(userId, pageable);
+
+        return ResponseEntity.ok(ApiResponse.ok("초대 받은 목록 조회가 완료되었습니다", inviteResponseDto));
+    }
+
+    //내가 보낸 초대 목록 조회
+    @GetMapping("/my/invite/ES")
+    public ResponseEntity<ApiResponse<PagedResponse<InviteResponse>>> getMyInviteES(
+            @AuthenticationPrincipal CustomUserDetails loggedInUser,
+            @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
+            Pageable pageable
+    ) {
+        Long userId = loggedInUser.getUserId();
+        PagedResponse<InviteResponse> inviteResponseDto = postService.getMyInviteES(userId, pageable);
+
+        return ResponseEntity.ok(ApiResponse.ok("초대 보낸 목록 조회가 완료되었습니다", inviteResponseDto));
+    }
+
 }
