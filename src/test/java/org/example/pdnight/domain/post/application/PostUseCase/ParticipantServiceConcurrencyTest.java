@@ -20,6 +20,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -65,7 +66,8 @@ public class ParticipantServiceConcurrencyTest {
                 Gender.ALL,
                 JobCategory.ALL,
                 AgeLimit.ALL,
-                true
+                true,
+                Collections.emptyList()
         );
         firstComeTestPost = postCommander.save(firstComeTestPost);
 
@@ -79,7 +81,8 @@ public class ParticipantServiceConcurrencyTest {
                 Gender.ALL,
                 JobCategory.ALL,
                 AgeLimit.ALL,
-                false
+                false,
+                Collections.emptyList()
         );
         requestTestPost = postCommander.save(requestTestPost);
 
@@ -93,7 +96,8 @@ public class ParticipantServiceConcurrencyTest {
                 Gender.ALL,
                 JobCategory.ALL,
                 AgeLimit.ALL,
-                false
+                false,
+                Collections.emptyList()
         );
         InviteTestPost = postCommander.save(InviteTestPost);
     }

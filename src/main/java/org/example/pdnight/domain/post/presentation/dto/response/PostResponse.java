@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.example.pdnight.domain.post.domain.post.Post;
 import org.example.pdnight.domain.post.domain.post.PostDocument;
 import org.example.pdnight.domain.post.enums.AgeLimit;
@@ -13,6 +14,7 @@ import org.example.pdnight.domain.post.enums.PostStatus;
 import org.example.pdnight.global.common.enums.JobCategory;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -28,6 +30,8 @@ public class PostResponse {
     private final Integer maxParticipants;
     private final Gender genderLimit;
     private final JobCategory jobCategoryLimit;
+    @Setter
+    private List<String> tagList;
     private final AgeLimit ageLimit;
     private Integer acceptedParticipantsCount;
     private Integer participantsCount;
@@ -37,7 +41,7 @@ public class PostResponse {
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
 
-    private PostResponse(Post post) {
+    private PostResponse(Post post, List<String> tagNameList) {
         this.postId = post.getId();
         this.authorId = post.getAuthorId();
         this.title = post.getTitle();
@@ -47,13 +51,14 @@ public class PostResponse {
         this.maxParticipants = post.getMaxParticipants();
         this.genderLimit = post.getGenderLimit();
         this.jobCategoryLimit = post.getJobCategoryLimit();
+        this.tagList = tagNameList;
         this.ageLimit = post.getAgeLimit();
         this.isFirstCome = post.getIsFirstCome();
         this.createdAt = post.getCreatedAt();
         this.updatedAt = post.getUpdatedAt();
     }
 
-    private PostResponse(Post post, Integer acceptedParticipantsCount, Integer participantsCount) {
+    private PostResponse(Post post, List<String> postTags, Integer acceptedParticipantsCount, Integer participantsCount) {
         this.postId = post.getId();
         this.authorId = post.getAuthorId();
         this.title = post.getTitle();
@@ -63,6 +68,7 @@ public class PostResponse {
         this.maxParticipants = post.getMaxParticipants();
         this.genderLimit = post.getGenderLimit();
         this.jobCategoryLimit = post.getJobCategoryLimit();
+        this.tagList = postTags;
         this.ageLimit = post.getAgeLimit();
         this.isFirstCome = post.getIsFirstCome();
         this.acceptedParticipantsCount = acceptedParticipantsCount;
@@ -71,12 +77,12 @@ public class PostResponse {
         this.updatedAt = post.getUpdatedAt();
     }
 
-    public static PostResponse toDto(Post post) {
-        return new PostResponse(post);
+    public static PostResponse toDtoWithCount(Post post, List<String> postTags, int acceptedParticipantsCount, int participantsCount) {
+        return new PostResponse(post, postTags, acceptedParticipantsCount, participantsCount);
     }
 
-    public static PostResponse toDtoWithCount(Post post, int acceptedParticipantsCount, int participantsCount) {
-        return new PostResponse(post, acceptedParticipantsCount, participantsCount);
+    public static PostResponse from(Post post, List<String> tagNameList) {
+        return new PostResponse(post, tagNameList);
     }
 
     @QueryProjection
