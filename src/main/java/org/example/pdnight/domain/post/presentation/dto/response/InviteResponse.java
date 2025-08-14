@@ -26,7 +26,17 @@ public class InviteResponse {
         this.postId = postId;
     }
 
+    public InviteResponse(Long inviteeId, Long postId) {
+        this.inviteeId = inviteeId;
+        this.postId = postId;
+    }
+
     public static InviteResponse from(Invite invite) {
         return new InviteResponse(invite);
     }
+
+    public static InviteResponse from(Long inviteeId, Long postId) {
+        return new InviteResponse(inviteeId, postId);
+    }
+
 }
