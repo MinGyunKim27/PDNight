@@ -80,8 +80,6 @@ public class PostReaderImpl implements PostReader {
         return postESRepository.findById(postId);
     }
 
-    // 내 좋아요 게시글 목록 조회
-    @Override
     private Map<Long, List<String>> getPostTagMap(List<Long> postIds) {
         if (postIds == null || postIds.isEmpty()) return Collections.emptyMap();
         return queryFactory
@@ -98,6 +96,7 @@ public class PostReaderImpl implements PostReader {
                 ));
     }
 
+    // 내 좋아요 게시글 목록 조회
     public Page<PostResponse> getMyLikePost(Long userId, Pageable pageable) {
         BooleanBuilder builder = new BooleanBuilder()
                 .and(postLike.userId.eq(userId))
