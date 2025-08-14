@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.example.pdnight.domain.post.domain.post.Post;
+import org.example.pdnight.domain.post.domain.post.PostDocument;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.enums.JoinStatus;
@@ -148,5 +149,47 @@ public class PostResponse {
         this.appliedAt = appliedAt;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+    }
+
+    private PostResponse(PostDocument post) {
+        this.postId = post.getId();
+        this.authorId = post.getAuthorId();
+        this.title = post.getTitle();
+        this.timeSlot = post.getTimeSlot();
+        this.publicContent = post.getPublicContent();
+        this.status = post.getStatus();
+        this.maxParticipants = post.getMaxParticipants();
+        this.genderLimit = post.getGenderLimit();
+        this.jobCategoryLimit = post.getJobCategoryLimit();
+        this.ageLimit = post.getAgeLimit();
+        this.isFirstCome = post.getIsFirstCome();
+        this.createdAt = post.getCreatedAt();
+        this.updatedAt = post.getUpdatedAt();
+    }
+
+    public static PostResponse toDtoES(PostDocument post) {
+        return new PostResponse(post);
+    }
+
+    private PostResponse(PostDocument post, Integer acceptedParticipantsCount, Integer participantsCount) {
+        this.postId = post.getId();
+        this.authorId = post.getAuthorId();
+        this.title = post.getTitle();
+        this.timeSlot = post.getTimeSlot();
+        this.publicContent = post.getPublicContent();
+        this.status = post.getStatus();
+        this.maxParticipants = post.getMaxParticipants();
+        this.genderLimit = post.getGenderLimit();
+        this.jobCategoryLimit = post.getJobCategoryLimit();
+        this.ageLimit = post.getAgeLimit();
+        this.isFirstCome = post.getIsFirstCome();
+        this.acceptedParticipantsCount = acceptedParticipantsCount;
+        this.participantsCount = participantsCount;
+        this.createdAt = post.getCreatedAt();
+        this.updatedAt = post.getUpdatedAt();
+    }
+
+    public static PostResponse toDtoWithCountES(PostDocument post, int acceptedParticipantsCount, int participantsCount) {
+        return new PostResponse(post, acceptedParticipantsCount, participantsCount);
     }
 }

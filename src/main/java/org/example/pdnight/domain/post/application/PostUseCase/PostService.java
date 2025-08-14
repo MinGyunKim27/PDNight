@@ -72,4 +72,22 @@ public interface PostService {
     void acceptForInvite(Long postId, Long loginUserId);
 
     void rejectForInvite(Long postId, Long loginUserId);
+
+    PostResponse findPostES(Long id);
+
+    PagedResponse<PostResponse> findMyWrittenPostsES(Long id, Pageable pageable);
+
+    PagedResponse<PostResponse> findMyLikedPostsES(Long id, Pageable pageable);
+
+    PagedResponse<PostResponse> findMyConfirmedPostsES(Long id, JoinStatus joinStatus, Pageable pageable);
+
+    PagedResponse<PostResponse> getPostDtosBySearchES(Pageable pageable, Integer maxParticipants, AgeLimit ageLimit, JobCategory jobCategoryLimit, Gender genderLimit);
+
+    PagedResponse<ParticipantResponse> getParticipantListByPendingES(Long userId, Long postId, int page, int size);
+
+    PagedResponse<ParticipantResponse> getParticipantListByAcceptedES(Long userId, Long postId, int page, int size);
+
+    PagedResponse<InviteResponse> getMyInvitedES(Long userId, Pageable pageable);
+
+    PagedResponse<InviteResponse> getMyInviteES(Long userId, Pageable pageable);
 }
