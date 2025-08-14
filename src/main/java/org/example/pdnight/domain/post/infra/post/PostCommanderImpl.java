@@ -14,6 +14,7 @@ public class PostCommanderImpl implements PostCommander {
 
     private final PostJpaRepository postJpaRepository;
     private final PostESRepository postESRepository;
+    private final TagAdaptor tagAdaptor;
 
     @Override
     public Optional<Post> findByIdAndStatus(Long id, PostStatus status) {
@@ -33,6 +34,11 @@ public class PostCommanderImpl implements PostCommander {
     @Override
     public void deletePost(Post post) {
         postJpaRepository.delete(post);
+        List<Long> tagIds = post.getPostTagList().stream()
+                .map(PostTag::getTagId)
+                .toList();
+        List<String> tagNames = tagAdaptor.findAllTagNames(tagIds);
+
         postESRepository.delete(PostDocument.createPostDocument(
                 post.getId(),
                 post.getAuthorId(),
@@ -54,9 +60,7 @@ public class PostCommanderImpl implements PostCommander {
                 post.getInvites().stream()
                         .map(invite-> InviteDocument.create(invite.getInviterId(), invite.getInviteeId(), invite.getPost().getId()))
                         .toList(),
-                post.getPostTagList().stream()
-                        .map(postTag -> PostTagDocument.create(postTag.getId(), postTag.getTagId()))
-                        .toList(),
+                tagNames,
                 post.getIsDeleted(),
                 post.getDeletedAt(),
                 post.getCreatedAt()));
@@ -77,6 +81,11 @@ public class PostCommanderImpl implements PostCommander {
 
     @Override
     public void saveES(Post foundPost) {
+        List<Long> tagIds = foundPost.getPostTagList().stream()
+                .map(PostTag::getTagId)
+                .toList();
+        List<String> tagNames = tagAdaptor.findAllTagNames(tagIds);
+        System.out.println("tagNames: " + tagNames);
         postESRepository.save(PostDocument.createPostDocument(
                 foundPost.getId(),
                 foundPost.getAuthorId(),
@@ -98,9 +107,7 @@ public class PostCommanderImpl implements PostCommander {
                 foundPost.getInvites().stream()
                         .map(invite-> InviteDocument.create(invite.getInviterId(), invite.getInviteeId(), invite.getPost().getId()))
                         .toList(),
-                foundPost.getPostTagList().stream()
-                        .map(postTag -> PostTagDocument.create(postTag.getId(), postTag.getTagId()))
-                        .toList(),
+                tagNames,
                 foundPost.getIsDeleted(),
                 foundPost.getDeletedAt(),
                 foundPost.getCreatedAt()

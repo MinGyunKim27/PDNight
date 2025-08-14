@@ -54,8 +54,8 @@ public class PostDocument {
     @Field(type = FieldType.Nested)
     private final List<InviteDocument> invites;
 
-    @Field(type = FieldType.Nested)
-    private List<PostTagDocument> tags;
+    @Field(type = FieldType.Keyword)
+    private final List<String> tags;
 
     private final Boolean isDeleted;
 
@@ -83,7 +83,7 @@ public class PostDocument {
             List<PostLikeDocument> postLikes,
             List<PostParticipantDocument> postParticipants,
             List<InviteDocument> invites,
-            List<PostTagDocument> tags,
+            List<String> tags,
             Boolean isDeleted,
             LocalDateTime deletedAt,
             LocalDateTime createdAt
@@ -101,7 +101,7 @@ public class PostDocument {
         this.isFirstCome = isFirstCome;
         this.postLikes = postLikes;
         this.postParticipants = postParticipants;
-        this.tags = tags;
+        this.tags = (tags != null) ? tags : new ArrayList<>();
         this.invites = invites;
         this.isDeleted = isDeleted;
         this.deletedAt = deletedAt;
@@ -124,7 +124,7 @@ public class PostDocument {
             List<PostLikeDocument> postLikes,
             List<PostParticipantDocument> postParticipants,
             List<InviteDocument> invites,
-            List<PostTagDocument> tags,
+            List<String> tags,
             Boolean isDeleted,
             LocalDateTime deletedAt,
             LocalDateTime createdAt
@@ -144,7 +144,7 @@ public class PostDocument {
                 postLikes,
                 postParticipants,
                 invites,
-                tags,
+                (tags != null) ? tags : new ArrayList<>(),
                 isDeleted,
                 deletedAt,
                 createdAt

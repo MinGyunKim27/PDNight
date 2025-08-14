@@ -71,7 +71,6 @@ public class PostCommanderService {
             postProducer.produce("followee.post.created", new FolloweePostCreatedEvent(authorId, post.getId(), followeeIds));
         }
 
-
         return postInfoAssembler.toDto(post);
     }
 
