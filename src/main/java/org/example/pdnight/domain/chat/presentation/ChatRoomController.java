@@ -1,5 +1,6 @@
 package org.example.pdnight.domain.chat.presentation;
 
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.chat.application.chatRoomUseCase.ChatRoomService;
 import org.example.pdnight.domain.chat.domain.ChatRoom;
@@ -43,6 +44,7 @@ public class ChatRoomController {
     // 모든 채팅방 목록 반환
     @GetMapping("/chat/list")
     @ResponseBody
+    @Operation(summary = "채팅방 목록 조회", description = "채팅방 목록을 조회합니다", tags = {"Chat"})
     public ResponseEntity<ApiResponse<List<ChatRoomResponse>>> room() {
         return ResponseEntity.ok(ApiResponse.ok("채팅방 목록이 조회되었습니다.", chatRoomService.list()));
     }
@@ -50,6 +52,7 @@ public class ChatRoomController {
     // 채팅방 생성
     @PostMapping("/chat/room")
     @ResponseBody
+    @Operation(summary = "채팅방 생성", description = "채팅방을 생성합니다", tags = {"Chat"})
     public ResponseEntity<ApiResponse<ChatRoomResponse>> createRoom(@RequestParam String name) {
         ChatRoom chatRoom = chatRoomService.create(name);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse
@@ -59,6 +62,7 @@ public class ChatRoomController {
     // 특정 채팅방 정보 조회
     @GetMapping("/chat/room/{roomId}")
     @ResponseBody
+    @Operation(summary = "채팅방 정보 조회", description = "채팅방 정보를 조회합니다", tags = {"Chat"})
     public ResponseEntity<ApiResponse<ChatRoomResponse>> roomInfo(@PathVariable Long roomId) {
         return ResponseEntity.ok(ApiResponse.ok("채팅방 정보가 조회되었습니다.", chatRoomService.roomInfo(roomId)));
     }
@@ -66,6 +70,7 @@ public class ChatRoomController {
     // 채팅방 접속시 닉네임 정보 조회
     @GetMapping("/chat/enter/me")
     @ResponseBody
+    @Operation(summary = "본인 닉네임 조회", description = "본인의 닉네임을 조회합니다", tags = {"Chat"})
     public ResponseEntity<ApiResponse<NicknameResponse>> nicknameInfo(@AuthenticationPrincipal CustomUserDetails userDetails) {
         return ResponseEntity.ok(ApiResponse.ok("닉네임이 조회되었습니다", NicknameResponse.from(userDetails.getUsername())));
     }
