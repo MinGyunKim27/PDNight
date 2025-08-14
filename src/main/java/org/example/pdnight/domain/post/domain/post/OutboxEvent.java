@@ -1,10 +1,17 @@
 package org.example.pdnight.domain.post.domain.post;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.example.pdnight.domain.post.enums.OutboxStatus;
 import org.example.pdnight.global.common.entity.Timestamped;
 
 @Entity
 @Table(name = "outbox_event")
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class OutboxEvent extends Timestamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,4 +26,8 @@ public class OutboxEvent extends Timestamped {
 
     @Enumerated(EnumType.STRING)
     private OutboxStatus status;
+
+    public void setStatus(OutboxStatus status) {
+        this.status = status;
+    }
 }

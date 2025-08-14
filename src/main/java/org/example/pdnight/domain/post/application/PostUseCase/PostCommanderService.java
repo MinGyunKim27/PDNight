@@ -38,7 +38,9 @@ public class PostCommanderService {
     private final PostCommander postCommander;
     private final PostProducer postProducer;
     private final UserPort userPort;
+    private final TagPort tagPort;
     private final PostInfoAssembler postInfoAssembler;
+    private final OutboxService outboxService;
 
     // region  게시물
     @Transactional
@@ -70,6 +72,38 @@ public class PostCommanderService {
             Long authorId = post.getAuthorId();
             postProducer.produce("followee.post.created", new FolloweePostCreatedEvent(authorId, post.getId(), followeeIds));
         }
+
+        // 태그 이름 조회
+        List<String> tagNames = tagPort.findAllTagNames(request.getTagIdList());
+
+        PostDocument document = PostDocument.createPostDocument(
+                post.getId(),
+                post.getAuthorId(),
+                post.getTitle(),
+                post.getTimeSlot(),
+                post.getPublicContent(),
+                post.getStatus(),
+                post.getMaxParticipants(),
+                post.getGenderLimit(),
+                post.getJobCategoryLimit(),
+                post.getAgeLimit(),
+                post.getIsFirstCome(),
+                post.getPostLikes().stream().map(
+                        postLike -> PostLikeDocument.create(postLike.getPost().getId(), postLike.getUserId())
+                ).toList(),
+                post.getPostParticipants().stream().map(
+                        postParticipant -> PostParticipantDocument.create(postParticipant.getPost().getId(), postParticipant.getUserId(), postParticipant.getStatus(), postParticipant.getCreatedAt())
+                ).toList(),
+                post.getInvites().stream().map(
+                        invite -> InviteDocument.create(invite.getInviterId(), invite.getInviteeId(), invite.getPost().getId())
+                ).toList(),
+                tagNames,
+                post.getIsDeleted(),
+                post.getDeletedAt(),
+                post.getCreatedAt()
+        );
+
+        outboxService.saveOutboxEvent("POST", post.getId(), document);
 
         return postInfoAssembler.toDto(post);
     }

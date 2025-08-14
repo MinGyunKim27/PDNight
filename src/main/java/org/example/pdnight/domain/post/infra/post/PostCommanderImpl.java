@@ -69,7 +69,7 @@ public class PostCommanderImpl implements PostCommander {
     @Override
     public Post save(Post post) {
         Post savePost = postJpaRepository.save(post);
-        saveES(savePost);
+        // saveES(savePost);
 
         return savePost;
     }

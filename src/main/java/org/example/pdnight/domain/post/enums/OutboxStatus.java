@@ -1,4 +1,4 @@
-package org.example.pdnight.domain.post.domain.post;
+package org.example.pdnight.domain.post.enums;
 
 public enum OutboxStatus {
     PENDING,
