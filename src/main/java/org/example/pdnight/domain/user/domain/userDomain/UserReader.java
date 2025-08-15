@@ -4,6 +4,7 @@ import org.example.pdnight.domain.user.domain.entity.User;
 import org.example.pdnight.domain.user.domain.entity.UserCoupon;
 import org.example.pdnight.domain.user.presentation.dto.userDto.response.FollowingResponse;
 import org.example.pdnight.domain.user.presentation.dto.userDto.response.UserCouponResponse;
+import org.example.pdnight.domain.user.presentation.dto.userDto.response.UserResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -16,9 +17,9 @@ public interface UserReader {
 
     Optional<User> findByIdWithFollow(Long id);
 
-    Page<User> searchUsers(String search, Pageable pageable);
+    Page<UserResponse> searchUsers(String search, Pageable pageable);
 
-    Page<User> findAll(Pageable pageable);
+    Page<UserResponse> findAll(Pageable pageable);
 
     Page<FollowingResponse> findFollowingsByUserId(Long userId, Pageable pageable);
 
