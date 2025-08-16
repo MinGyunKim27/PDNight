@@ -1,10 +1,10 @@
-package org.example.pdnight.domain.post.domain.post;
+package org.example.pdnight.domain.outbox.domain;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.example.pdnight.domain.post.enums.OutboxStatus;
+import org.example.pdnight.domain.outbox.enums.OutboxStatus;
 import org.example.pdnight.global.common.entity.Timestamped;
 
 @Entity
@@ -29,5 +29,17 @@ public class OutboxEvent extends Timestamped {
 
     public void setStatus(OutboxStatus status) {
         this.status = status;
+    }
+
+    private OutboxEvent(String aggregateType, Long aggregateId, String type, String payload, OutboxStatus status) {
+        this.aggregateType = aggregateType;
+        this.aggregateId = aggregateId.toString();
+        this.type = type;
+        this.payload = payload;
+        this.status = status;
+    }
+
+    public static OutboxEvent create(String aggregateType, Long aggregateId, String type, String payload, OutboxStatus status) {
+        return new OutboxEvent(aggregateType, aggregateId, type, payload, status);
     }
 }

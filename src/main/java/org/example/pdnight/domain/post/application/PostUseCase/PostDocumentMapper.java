@@ -6,7 +6,7 @@ import java.util.List;
 
 public class PostDocumentMapper {   // Entity를 Elasticsearch 전송용 Dto로 변환
     public static PostDocument from(Post post, List<String> tagNames){
-        return PostDocument.createPostDocument(
+        return new PostDocument(
                 post.getId(),
                 post.getAuthorId(),
                 post.getTitle(),
@@ -30,7 +30,8 @@ public class PostDocumentMapper {   // Entity를 Elasticsearch 전송용 Dto로 
                 tagNames,
                 post.getIsDeleted(),
                 post.getDeletedAt(),
-                post.getCreatedAt()
+                post.getCreatedAt(),
+                post.getUpdatedAt()
         );
     }
 }

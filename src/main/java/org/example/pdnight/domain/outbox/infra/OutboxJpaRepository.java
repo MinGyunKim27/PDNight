@@ -1,7 +1,7 @@
-package org.example.pdnight.domain.post.infra.post;
+package org.example.pdnight.domain.outbox.infra;
 
-import org.example.pdnight.domain.post.domain.post.OutboxEvent;
-import org.example.pdnight.domain.post.enums.OutboxStatus;
+import org.example.pdnight.domain.outbox.domain.OutboxEvent;
+import org.example.pdnight.domain.outbox.enums.OutboxStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

@@ -2,6 +2,7 @@ package org.example.pdnight.domain.post.application.PostUseCase;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.pdnight.domain.outbox.application.OutboxService;
 import org.example.pdnight.domain.post.domain.post.*;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
@@ -76,7 +77,7 @@ public class PostCommanderService {
         // 태그 이름 조회
         List<String> tagNames = tagPort.findAllTagNames(request.getTagIdList());
 
-        PostDocument document = PostDocument.createPostDocument(
+        PostDocument document = new PostDocument(
                 post.getId(),
                 post.getAuthorId(),
                 post.getTitle(),
@@ -100,10 +101,12 @@ public class PostCommanderService {
                 tagNames,
                 post.getIsDeleted(),
                 post.getDeletedAt(),
-                post.getCreatedAt()
+                post.getCreatedAt(),
+                post.getUpdatedAt()
         );
 
-        outboxService.saveOutboxEvent("POST", post.getId(), document);
+        outboxService.saveOutboxEvent("POST", post.getId(), "CREATED", document);
+        postProducer.produce("post", document);
 
         return postInfoAssembler.toDto(post);
     }

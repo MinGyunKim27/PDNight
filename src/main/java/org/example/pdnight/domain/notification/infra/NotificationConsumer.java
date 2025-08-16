@@ -1,10 +1,13 @@
 package org.example.pdnight.domain.notification.infra;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.example.pdnight.domain.notification.application.notificationUseCase.NotificationConsumerService;
 import org.example.pdnight.domain.notification.enums.NotificationType;
+import org.example.pdnight.domain.post.domain.post.PostDocument;
 import org.example.pdnight.global.event.*;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
@@ -17,6 +20,7 @@ import java.util.List;
 public class NotificationConsumer {
 
     private final NotificationConsumerService notificationConsumerService;
+    private final ElasticsearchIndexService elasticsearchIndexService;
 
     // 팔로우한 사람이 게시물 작성 (작성자 -> 팔로워들)
     @KafkaListener(topics = "followee.post.created", groupId = "alert-social-group", containerFactory = "notificationListenerContainerFactory")
@@ -389,7 +393,22 @@ public class NotificationConsumer {
                 log.error("지정 되지 않은 토픽이 들어옴, topic.name = {}", record.topic());
                 break;
         }
+    }
 
+    @KafkaListener(
+            topics = "post",
+            groupId = "search-indexer-group",
+            containerFactory = "kafkaListenerContainerFactory" // JSON 역직렬화 가능하도록
+    )
+    public void consumePostEvent(PostDocument postDocument) throws JsonProcessingException {
+        try {
+            log.info("Processing PostDocument: {}", postDocument);
+            log.info("Indexing DTO: {}", new ObjectMapper().writeValueAsString(postDocument));
+            elasticsearchIndexService.indexPost(postDocument);
+        } catch (Exception e) {
+            log.error("Failed to process PostDocument {}: {}", postDocument.getId(), e.getMessage(), e);
+            throw e; // rethrow so retry works
+        }
     }
 }
 

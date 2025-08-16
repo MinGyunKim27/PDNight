@@ -39,7 +39,7 @@ public class PostCommanderImpl implements PostCommander {
                 .toList();
         List<String> tagNames = tagAdaptor.findAllTagNames(tagIds);
 
-        postESRepository.delete(PostDocument.createPostDocument(
+        postESRepository.delete(new PostDocument(
                 post.getId(),
                 post.getAuthorId(),
                 post.getTitle(),
@@ -63,7 +63,9 @@ public class PostCommanderImpl implements PostCommander {
                 tagNames,
                 post.getIsDeleted(),
                 post.getDeletedAt(),
-                post.getCreatedAt()));
+                post.getCreatedAt(),
+                post.getUpdatedAt()
+        ));
     }
 
     @Override
@@ -86,7 +88,7 @@ public class PostCommanderImpl implements PostCommander {
                 .toList();
         List<String> tagNames = tagAdaptor.findAllTagNames(tagIds);
         System.out.println("tagNames: " + tagNames);
-        postESRepository.save(PostDocument.createPostDocument(
+        postESRepository.save(new PostDocument(
                 foundPost.getId(),
                 foundPost.getAuthorId(),
                 foundPost.getTitle(),
@@ -110,7 +112,8 @@ public class PostCommanderImpl implements PostCommander {
                 tagNames,
                 foundPost.getIsDeleted(),
                 foundPost.getDeletedAt(),
-                foundPost.getCreatedAt()
+                foundPost.getCreatedAt(),
+                foundPost.getUpdatedAt()
         ));
     }
 }
