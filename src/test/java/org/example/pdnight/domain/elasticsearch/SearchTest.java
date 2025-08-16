@@ -45,7 +45,7 @@ public class SearchTest {
     void setUp() {
         List<Post> postList = new ArrayList<>();
         List<PostDocument> postDocumentList = new ArrayList<>();
-        for (Long i = 0L; i < 10000; i++) {
+        for (Long i = 0L; i < 100000; i++) {
             int num = (int) (Math.random()*3);
             Gender gender;
             if(num == 0)  {

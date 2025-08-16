@@ -6,7 +6,9 @@ import org.springframework.data.elasticsearch.client.elc.ElasticsearchConfigurat
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 
 @Configuration
-@EnableElasticsearchRepositories(basePackages = "org.springframework.data.elasticsearch.repository")
+@EnableElasticsearchRepositories(
+        basePackages = "org.example.pdnight.domain.post.infra.post"
+)
 public class ElasticSearchConfig extends ElasticsearchConfiguration {
 
     @Override
