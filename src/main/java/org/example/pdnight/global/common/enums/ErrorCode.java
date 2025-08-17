@@ -112,6 +112,9 @@ public enum ErrorCode {
     ALREADY_READ_NOTIFICATION(HttpStatus.BAD_REQUEST, "이미 읽은 알림입니다."),
     NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "알림을 찾을 수 없습니다."),
 
+    // OAuth 관련
+    OAUTH_PKCE_GENERATION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "OAuth PKCE 처리 중 오류가 발생했습니다."),
+
     // 카프카 관련
     KAFKA_SEND_TIMEOUT(HttpStatus.SERVICE_UNAVAILABLE, "카프카 서버 오류"),
     KAFKA_DLT_PAYLOAD_NULL(HttpStatus.BAD_REQUEST, "메시지 포맷이 유효하지 않습니다.")
