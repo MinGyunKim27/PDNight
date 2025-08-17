@@ -55,8 +55,16 @@ public class PostReviewCommanderService {
         if (!userId.equals(postReview.getAuthId())) {
             throw new BaseException(POST_REVIEW_FORBIDDEN);
         }
-        List<String> imagesPath = saveFile(request.getImages(), "images");
-        List<String> videosPath = saveFile(request.getImages(), "videos");
+
+        List<String> imagesPath = new ArrayList<>();
+        List<String> videosPath = new ArrayList<>();
+
+        if(request.getImages() != null) {
+            imagesPath = saveFile(request.getImages(), "images");
+        }
+        if(request.getVideos() != null) {
+            videosPath = saveFile(request.getVideos(), "videos");
+        }
 
         postReview.update(request, imagesPath, videosPath);
         PostReviewDocument updatePostReview = postReviewCommander.save(postReview);
