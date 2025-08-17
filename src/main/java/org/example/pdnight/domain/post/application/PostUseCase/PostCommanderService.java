@@ -106,8 +106,6 @@ public class PostCommanderService {
         );
 
         outboxService.saveOutboxEvent("POST", post.getId(), "CREATED", document);
-        postProducer.produce("post", document);
-
         return postInfoAssembler.toDto(post);
     }
 

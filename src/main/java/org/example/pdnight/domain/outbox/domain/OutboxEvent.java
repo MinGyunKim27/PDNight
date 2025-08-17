@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import org.example.pdnight.domain.outbox.enums.OutboxStatus;
 import org.example.pdnight.global.common.entity.Timestamped;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "outbox_event")
 @Getter
@@ -27,6 +29,9 @@ public class OutboxEvent extends Timestamped {
     @Enumerated(EnumType.STRING)
     private OutboxStatus status;
 
+    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime updatedAt = LocalDateTime.now();
+
     public void setStatus(OutboxStatus status) {
         this.status = status;
     }
@@ -41,5 +46,19 @@ public class OutboxEvent extends Timestamped {
 
     public static OutboxEvent create(String aggregateType, Long aggregateId, String type, String payload, OutboxStatus status) {
         return new OutboxEvent(aggregateType, aggregateId, type, payload, status);
+    }
+
+    public void markAsSent() {
+        this.status = OutboxStatus.SENT;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void markAsFailed() {
+        this.status = OutboxStatus.FAILED;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }
