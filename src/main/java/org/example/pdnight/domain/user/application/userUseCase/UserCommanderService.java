@@ -1,6 +1,7 @@
 package org.example.pdnight.domain.user.application.userUseCase;
 
 import lombok.RequiredArgsConstructor;
+import org.example.pdnight.domain.recommendation.presentaion.event.UserProfileEdited;
 import org.example.pdnight.domain.user.domain.entity.Follow;
 import org.example.pdnight.domain.user.domain.entity.User;
 import org.example.pdnight.domain.user.domain.entity.UserCoupon;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.example.pdnight.global.common.enums.ErrorCode.*;
 
@@ -32,6 +34,8 @@ public class UserCommanderService {
     private final UserInfoAssembler userInfoAssembler;
     private final UserCouponPort userCouponPort;
     private final UserProducer producer;
+    private final TechStackPort techStackPort;
+    private final HobbyPort hobbyPort;
 
     @Transactional
     public UserResponse updateMyProfile(Long userId, UserUpdateRequest request) {
@@ -49,6 +53,13 @@ public class UserCommanderService {
                 request.getTechStackIdList());
 
         userCommander.save(user);
+        // 기술스택 이름 조회
+        List<String> techStackNames = techStackPort.getTechStackNames(request.getTechStackIdList());
+        List<String> hobbies = hobbyPort.getHobbies(request.getHobbyIdList());
+
+        if(!request.getHobbyIdList().isEmpty() || !request.getTechStackIdList().isEmpty()) {
+            producer.produceAck("user.profile.edited", new UserProfileEdited(userId,hobbies,techStackNames));
+        }
 
         return userInfoAssembler.toDto(user);
     }

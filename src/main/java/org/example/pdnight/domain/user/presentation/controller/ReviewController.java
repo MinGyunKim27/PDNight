@@ -1,5 +1,7 @@
 package org.example.pdnight.domain.user.presentation.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.user.application.reviewUserCase.ReviewService;
 import org.example.pdnight.domain.user.presentation.dto.reviewDto.request.ReviewRequest;
@@ -15,6 +17,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "Review")
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
@@ -23,6 +26,7 @@ public class ReviewController {
 
     // -------------------------- Command Api -------------------------------------------------//
     @PostMapping("/posts/{postId}/participants/{userId}/review")
+    @Operation(summary = "리뷰 등록", description = "상대방의 리뷰를 작성한다")
     public ResponseEntity<ApiResponse<ReviewResponse>> createReview(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long postId,
@@ -38,6 +42,7 @@ public class ReviewController {
 
     //사용자가 받은 리뷰 리스트 조회
     @GetMapping("/users/{userId}/review")
+    @Operation(summary = "사용자 리뷰 조회", description = "사용자의 리뷰를 조회한다")
     public ResponseEntity<ApiResponse<PagedResponse<ReviewResponse>>> getReviews(
             @PathVariable("userId") Long userId,
             @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
@@ -48,6 +53,7 @@ public class ReviewController {
 
     //내가 받은 리뷰 리스트 조회
     @GetMapping("/users/my/review")
+    @Operation(summary = "내 리뷰 조회", description = "본인이 받은 리뷰를 조회한다")
     public ResponseEntity<ApiResponse<PagedResponse<ReviewResponse>>> getMyReviews(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
@@ -59,6 +65,7 @@ public class ReviewController {
 
     //내가 작성한 리뷰 리스트 조회
     @GetMapping("/users/my/writtenReview")
+    @Operation(summary = "작성한 리뷰 조회", description = "본인이 작성한 리뷰를 조회한다")
     public ResponseEntity<ApiResponse<PagedResponse<ReviewResponse>>> getMyWrittenReviews(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)

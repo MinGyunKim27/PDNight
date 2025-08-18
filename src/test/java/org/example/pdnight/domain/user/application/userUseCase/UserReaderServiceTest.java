@@ -169,13 +169,10 @@ public class UserReaderServiceTest {
         User user = User.createTestUser(1L, "Alice", "alice@email.com", "1234");
         user.updateNickname("알리");
 
-        UserResponse dto = UserResponse.from(user,new ArrayList<>(),new ArrayList<>());
-
-        Page<User> userPage = new PageImpl<>(List.of(user), pageable, 1);
-        List<UserResponse> dtoList = List.of(dto);
+        UserResponse response = UserResponse.from(user, new ArrayList<>(), new ArrayList<>());
+        Page<UserResponse> userPage = new PageImpl<>(List.of(response), pageable, 1);
 
         when(userReader.searchUsers(eq(keyword), eq(pageable))).thenReturn(userPage);
-        when(userInfoAssembler.toDtoList(userPage)).thenReturn(dtoList);
 
         // when
         PagedResponse<UserResponse> result = userReaderService.searchUsers(keyword, pageable);
@@ -191,10 +188,8 @@ public class UserReaderServiceTest {
         String keyword = "존재하지않음";
         Pageable pageable = PageRequest.of(0, 10);
 
-        Page<User> emptyPage = new PageImpl<>(Collections.emptyList(), pageable, 0);
-
+        Page<UserResponse> emptyPage = new PageImpl<>(Collections.emptyList(), pageable, 0);
         when(userReader.searchUsers(eq(keyword), eq(pageable))).thenReturn(emptyPage);
-        when(userInfoAssembler.toDtoList(emptyPage)).thenReturn(Collections.emptyList());
 
         // when
         PagedResponse<UserResponse> result = userReaderService.searchUsers(keyword, pageable);
@@ -211,10 +206,8 @@ public class UserReaderServiceTest {
         Pageable pageable = PageRequest.of(0, 10);
 
         // Repository에서 이미 걸러졌다고 가정
-        Page<User> page = new PageImpl<>(Collections.emptyList(), pageable, 0);
-
-        when(userReader.searchUsers(eq(keyword), eq(pageable))).thenReturn(page);
-        when(userInfoAssembler.toDtoList(page)).thenReturn(Collections.emptyList());
+        Page<UserResponse> emptyPage = new PageImpl<>(Collections.emptyList(), pageable, 0);
+        when(userReader.searchUsers(eq(keyword), eq(pageable))).thenReturn(emptyPage);
 
         // when
         PagedResponse<UserResponse> result = userReaderService.searchUsers(keyword, pageable);
@@ -230,13 +223,10 @@ public class UserReaderServiceTest {
 
         User user = User.createTestUser(1L, "Alice", "alice@email.com", "1234");
 
-        UserResponse dto = UserResponse.from(user,new ArrayList<>(),new ArrayList<>());
-
-        Page<User> userPage = new PageImpl<>(List.of(user), pageable, 1);
-        List<UserResponse> dtoList = List.of(dto);
+        UserResponse response = UserResponse.from(user, new ArrayList<>(), new ArrayList<>());
+        Page<UserResponse> userPage = new PageImpl<>(List.of(response), pageable, 1);
 
         when(userReader.findAll(pageable)).thenReturn(userPage);
-        when(userInfoAssembler.toDtoList(userPage)).thenReturn(dtoList);
 
         // when
         PagedResponse<UserResponse> result = userReaderService.getAllUsers(pageable);

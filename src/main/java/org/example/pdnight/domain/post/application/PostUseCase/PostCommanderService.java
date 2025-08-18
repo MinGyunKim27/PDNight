@@ -14,6 +14,8 @@ import org.example.pdnight.domain.post.presentation.dto.response.InviteResponse;
 import org.example.pdnight.domain.post.presentation.dto.response.ParticipantResponse;
 import org.example.pdnight.domain.post.presentation.dto.response.PostLikeResponse;
 import org.example.pdnight.domain.post.presentation.dto.response.PostResponse;
+import org.example.pdnight.domain.recommendation.presentaion.event.ParticipationConfirmed;
+import org.example.pdnight.domain.recommendation.presentaion.event.PostLiked;
 import org.example.pdnight.global.aop.DistributedLock;
 import org.example.pdnight.global.common.enums.ErrorCode;
 import org.example.pdnight.global.common.enums.JobCategory;
@@ -40,6 +42,7 @@ public class PostCommanderService {
     private final UserPort userPort;
     private final TagPort tagPort;
     private final PostInfoAssembler postInfoAssembler;
+    private final TagPort tagPort;
 
     // region  게시물
     @Transactional
@@ -189,21 +192,27 @@ public class PostCommanderService {
             foundPost.updateStatus(request.getStatus());
 
             // 명시적으로 save
-            postCommander.save(foundPost);
+
+            postCommander.saveES(foundPost);
+            List<String> allTagNames = tagPort.findAllTagNames(foundPost.getPostTagList().stream().map(PostTag::getTagId).toList());
 
             // 참가자들에게 이벤트 발행
             if (request.getStatus().equals(PostStatus.CONFIRMED)) {
+
+                List<Long> confirmedUserIds = foundPost.getPostParticipants().stream()
+                        .filter(p -> p.getStatus() == JoinStatus.ACCEPTED)
+                        .map(PostParticipant::getUserId)
+                        .toList();
                 // Kafka 이벤트 발행
                 postProducer.produce("post.confirmed",
                         new PostConfirmedEvent(
                                 foundPost.getId(),
                                 foundPost.getAuthorId(),
                                 foundPost.getTitle(),
-                                foundPost.getPostParticipants().stream()
-                                        .filter(p -> p.getStatus() == JoinStatus.ACCEPTED)
-                                        .map(PostParticipant::getUserId).toList()
+                                confirmedUserIds
                         )
                 );
+                postProducer.produceAck("user.participation.confirmed",new ParticipationConfirmed(confirmedUserIds,allTagNames));
             }
 
             PostDocument document = makePostDocument(foundPost);
@@ -337,12 +346,16 @@ public class PostCommanderService {
 
         PostLike postLike = PostLike.create(post, userId);
         post.addLike(postLike);
+        List<String> allTagNames = tagPort.findAllTagNames(post.getPostTagList().stream().map(PostTag::getTagId).toList());
 
         // 명시적으로 save
         postCommander.save(post);
 
         PostDocument document = makePostDocument(post);
         postProducer.producePostEvent(new PostEvent(PostEvent.Operation.UPDATE, document));
+
+        postProducer.produceAck("user.post.liked",new PostLiked(userId,allTagNames));
+
 
         return PostLikeResponse.from(postLike);
     }
@@ -593,7 +606,9 @@ public class PostCommanderService {
         if (post.getMaxParticipants().equals(participantSize)) {
             post.updateStatus(PostStatus.CONFIRMED);
 
-            // Kafka 이벤트 발행
+            List<String> allTagNames = tagPort.findAllTagNames(post.getPostTagList().stream().map(PostTag::getTagId).toList());
+
+            // 참가 확정 된 사람들의 id 목록 조회
             List<Long> confirmedUserIds = post.getPostParticipants().stream()
                     .filter(p -> p.getStatus() == JoinStatus.ACCEPTED)
                     .map(PostParticipant::getUserId)
@@ -601,6 +616,7 @@ public class PostCommanderService {
 
             // Kafka 이벤트 발행
             postProducer.produce("post.confirmed", new PostConfirmedEvent(post.getId(), post.getAuthorId(), post.getTitle(), confirmedUserIds));
+            postProducer.produceAck("user.participation.confirmed", new ParticipationConfirmed(confirmedUserIds,allTagNames));
         }
     }
 
