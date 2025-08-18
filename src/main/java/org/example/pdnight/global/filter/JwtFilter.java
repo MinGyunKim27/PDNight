@@ -60,6 +60,7 @@ public class JwtFilter implements Filter {
                 || url.startsWith("/chat/view")
                 || url.startsWith("/chat/view/enter/")
                 || url.startsWith("/oauth/")
+                || url.startsWith("/api/auth/reissue")
         ) {
 
             chain.doFilter(request, response);

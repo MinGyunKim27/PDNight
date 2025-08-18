@@ -34,7 +34,7 @@ public class OAuthServiceImpl implements OAuthService {
     private final OAuthUrlBuilder urlBuilder;
     private final AuthCommander authCommander;
     private final JwtUtil jwtUtil;
-    //private final UserQueryPort userQueryPort;
+    private final TokenStorePort tokenStorePort;
     private final AuthProducer producer;
 
     private final SecureRandom secureRandom = new SecureRandom();
@@ -130,7 +130,11 @@ public class OAuthServiceImpl implements OAuthService {
         String token = jwtUtil.createToken(
                 auth.getId(), auth.getRole(), null,
                 null, null, null);
-        return LoginResponse.from(token);
+
+        String refreshToken = jwtUtil.createRefreshToken(auth.getId());
+        tokenStorePort.saveRefreshToken(auth.getId(), refreshToken, jwtUtil.getExpiration(refreshToken));
+
+        return LoginResponse.from(token, refreshToken);
     }
 
 }

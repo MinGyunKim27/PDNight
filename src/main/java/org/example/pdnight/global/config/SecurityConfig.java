@@ -27,16 +27,22 @@ public class SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable)
                 .addFilterBefore(jwtFilter, SecurityContextHolderAwareRequestFilter.class)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/signup").permitAll()
-                        .requestMatchers("/api/auth/login").permitAll()
-                        .requestMatchers("/oauth/**").permitAll()
+                        .requestMatchers(
+                                "/api/auth/signup",
+                                "/api/auth/login",
+                                "/api/auth/reissue",
+                                "/oauth/**",
+                                "/login",
+                                "/webjars/**",
+                                "/css/**",
+                                "/js/**",
+                                "/images/**",
+                                "/ws-stomp/**",
+                                "/chat/view",
+                                "/chat/view/enter/**",
+                                "/health"
+                        ).permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/login").permitAll()
-                        .requestMatchers("/webjars/**", "/css/**", "/js/**", "/images/**").permitAll()
-                        .requestMatchers("/ws-stomp/**").permitAll()
-                        .requestMatchers("/chat/view").permitAll()
-                        .requestMatchers("/chat/view/enter/**").permitAll()
-                        .requestMatchers("/health").permitAll()
                         .anyRequest().authenticated()
                 )
                 .build();

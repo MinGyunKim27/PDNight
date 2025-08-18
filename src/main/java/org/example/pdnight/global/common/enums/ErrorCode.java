@@ -117,7 +117,11 @@ public enum ErrorCode {
 
     // 카프카 관련
     KAFKA_SEND_TIMEOUT(HttpStatus.SERVICE_UNAVAILABLE, "카프카 서버 오류"),
-    KAFKA_DLT_PAYLOAD_NULL(HttpStatus.BAD_REQUEST, "메시지 포맷이 유효하지 않습니다.")
+    KAFKA_DLT_PAYLOAD_NULL(HttpStatus.BAD_REQUEST, "메시지 포맷이 유효하지 않습니다."),
+
+    // 리프레시 토큰관련
+    INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 리프레시 토큰입니다."),
+    REFRESH_TOKEN_MISMATCH(HttpStatus.UNAUTHORIZED, "리프레시 토큰이 일치하지 않습니다.")
     ;
     private final HttpStatus status;// HTTP 상태 코드
     private final String message;// 에러 메시지
