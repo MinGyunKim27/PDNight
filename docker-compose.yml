@@ -1,7 +1,6 @@
 version: "3.8"
 
-# .env 파일에 아래 값 준비 권장
-# EC2_PRIVATE_IP=10.0.1.23   # VPC 내에서 접속할 프라이빗 IP 또는 호스트네임
+# 배포 하는 서비스들
 
 services:
   redis:
@@ -183,32 +182,6 @@ services:
     networks:
       - elk
 
-  logstash:
-    build:
-      context: logstash/
-      args:
-        ELK_VERSION: 8.14.0
-    volumes:
-      - type: bind
-        source: ./logstash/config/logstash.conf
-        target: /usr/share/logstash/config/logstash.conf
-        read_only: true
-      - type: bind
-        source: ./logstash/pipeline
-        target: /usr/share/logstash/pipeline
-        read_only: true
-    ports:
-      - "5044:5044"
-      - "15000:5000/tcp"
-      - "15000:5000/udp"
-      - "9600:9600"
-    environment:
-      LS_JAVA_OPTS: "-Xms128M -Xmx256M"
-    networks:
-      - elk
-    depends_on:
-      - elasticsearch
-
   kibana:
     build:
       context: kibana/
@@ -227,23 +200,6 @@ services:
       - elk
     depends_on:
       - elasticsearch
-
-  filebeat:
-    build:
-      context: filebeat/
-      args:
-        ELK_VERSION: 8.14.0
-    volumes:
-      - ./log:/usr/share/log/host_logs:ro
-      - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml
-    environment:
-      SERVER_JAVA_OPTS: "-Xms48M -Xmx96M"
-    networks:
-      - elk
-    depends_on:
-      - logstash
-    entrypoint: >
-      sh -c "chmod go-w /usr/share/filebeat/filebeat.yml && filebeat"  
 
   kafka-exporter:
     image: danielqsj/kafka-exporter:latest
