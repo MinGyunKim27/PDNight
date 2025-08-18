@@ -218,14 +218,6 @@ public class NotificationConsumer {
     )
     public void consumePostEvent(PostEvent event) {
         log.info("Consuming PostEvent: {}", event);
-//        try{
-//            PostDocument document = event.document(); // PostEvent에서 PostDocument 추출
-//            log.info("Indexing PostDocument to Elasticsearch, id={}", document.getId());
-//            elasticsearchIndexService.indexPost(document);
-//        } catch (Exception e) {
-//            log.error("Failed to index PostDocument id={}", event.document().getId(), e);
-//            // 필요 시 DLT 전송 또는 재시도 로직 추가
-//        }
 
         try {
             PostDocument document = event.document(); // 유효성 검증
@@ -256,18 +248,47 @@ public class NotificationConsumer {
     }
 
     private void flush() {
-        try {
-            log.info("Flushing {} PostEvents to Elasticsearch", buffer.size());
-            List<PostDocument> documents = buffer.stream()
-                    .map(PostEvent::document) // PostEvent 안에 PostDocument getter가 있다고 가정
-                    .toList();
-            elasticsearchIndexService.bulkIndexPosts(documents);
-            buffer.clear();
-        } catch (Exception e) {
-            log.error("Failed to bulk index posts", e);
-            // 실패 시 재처리 전략 필요 (DLT, 재시도 큐 등)
+        if (buffer.isEmpty()) {
+            return;
+        }
+
+        List<PostEvent> currentBatch = new ArrayList<>(buffer);
+        buffer.clear();
+
+        int maxRetries = 3;
+        int attempt = 0;
+        boolean success = false;
+
+        while (attempt < maxRetries && !success) {
+            try {
+                attempt++;
+                log.info("Flushing attempt {} for {} PostEvents", attempt, currentBatch.size());
+                List<PostDocument> documents = currentBatch.stream()
+                        .map(PostEvent::document)
+                        .toList();
+
+                elasticsearchIndexService.bulkIndexPosts(documents);
+                log.info("Successfully bulk indexed {} posts", documents.size());
+                success = true;
+
+            } catch (Exception e) {
+                log.error("Failed to bulk index batch (attempt {}/{}). Retrying...", attempt, maxRetries, e);
+
+                try {
+                    Thread.sleep(2000L); // 2초 대기 후 재시도
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }
+
+        if (!success) {
+            // 실패하면 다시 버퍼에 추가 (맨 앞에 넣어서 우선 처리)
+            buffer.addAll(0, currentBatch);
+            log.error("Giving up after {} attempts. Returning batch to buffer.", maxRetries);
         }
     }
+
 
     // 알림 관련 DLT
     @KafkaListener(
