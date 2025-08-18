@@ -3,7 +3,7 @@ package org.example.pdnight.domain.auth.presentation.controller;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.auth.application.authUseCase.OAuthService;
-import org.example.pdnight.domain.auth.presentation.dto.response.LoginResponse;
+import org.example.pdnight.domain.auth.presentation.dto.response.OAuthLoginResponse;
 import org.example.pdnight.global.common.dto.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,7 +27,7 @@ public class OAuthController {
     }
 
     @GetMapping("/callback/google")
-    public ResponseEntity<ApiResponse<LoginResponse>> googleCallback(
+    public ResponseEntity<ApiResponse<OAuthLoginResponse>> googleCallback(
             @RequestParam String code,
             @RequestParam String state
     ) {

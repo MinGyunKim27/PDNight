@@ -5,7 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.pdnight.domain.auth.domain.AuthCommander;
 import org.example.pdnight.domain.auth.domain.AuthProducer;
 import org.example.pdnight.domain.auth.domain.entity.Auth;
-import org.example.pdnight.domain.auth.presentation.dto.response.LoginResponse;
+import org.example.pdnight.domain.auth.presentation.dto.response.OAuthLoginResponse;
+import org.example.pdnight.domain.auth.presentation.dto.response.UserInfo;
 import org.example.pdnight.global.common.enums.ErrorCode;
 import org.example.pdnight.global.common.enums.KafkaTopic;
 import org.example.pdnight.global.common.enums.UserRole;
@@ -36,6 +37,7 @@ public class OAuthServiceImpl implements OAuthService {
     private final JwtUtil jwtUtil;
     private final TokenStorePort tokenStorePort;
     private final AuthProducer producer;
+    private final UserQueryPort userQueryPort;
 
     private final SecureRandom secureRandom = new SecureRandom();
     private final Map<String, String> codeVerifierStore = new ConcurrentHashMap<>();
@@ -89,10 +91,10 @@ public class OAuthServiceImpl implements OAuthService {
      * - access_token으로 사용자 정보 조회
      */
     @Override
-    public LoginResponse loginWithOAuth(String code, String state) {
+    public OAuthLoginResponse loginWithOAuth(String code, String state) {
         String codeVerifier = codeVerifierStore.remove(state);
 
-        //
+        // Oauth tokenResponse를 받기위한 전달 값들 설정
         MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
         form.add("grant_type", "authorization_code");
         form.add("code", code);
@@ -106,38 +108,53 @@ public class OAuthServiceImpl implements OAuthService {
         String accessToken = (String) tokenResponse.get("access_token");
 
         // 토큰을 이용하여 OAuth 사용자 정보 추출
-        Map<String, Object> userInfo = httpClient.get(providerInfo.getUserInfoEndpoint(), accessToken);
-        String email = (String) userInfo.get("email");
-        String name = (String) userInfo.get("name");
+        Map<String, Object> userOAuthInfo = httpClient.get(providerInfo.getUserInfoEndpoint(), accessToken);
+        String email = (String) userOAuthInfo.get("email");
+        String name = (String) userOAuthInfo.get("name");
 
         // 이메일로 가입된 계정이 있다면 로그인 없으면 회원가입 진행
         Auth auth = authCommander.findByEmail(email).orElseGet(() -> {
             Auth newAuth = Auth.create(email, null, UserRole.USER);
             Auth saved = authCommander.save(newAuth);
 
-            producer.produce(KafkaTopic.AUTH_SIGNED_UP.topicName(), new AuthSignedUpEvent(
-                    saved.getId(),
-                    name,
-                    "social_user_" + UUID.randomUUID().toString().substring(0, 8),
-                    null,
-                    null,
-                    null
-            ));
-
-            return saved;
+            try {
+                producer.produce(KafkaTopic.AUTH_SIGNED_UP.topicName(), new AuthSignedUpEvent(
+                        saved.getId(),
+                        name,
+                        "social_user_" + UUID.randomUUID().toString().substring(0, 8),
+                        null,
+                        null,
+                        null
+                ));
+                return saved;
+            } catch (Exception e) {
+                throw new BaseException(ErrorCode.KAFKA_SEND_TIMEOUT);
+            }
         });
 
-        // Todo: 로그인완료시 API 추후 호출해서 JWT에 추가하는 방식으로 진행해야할꺼같음
-        //UserInfo user = userQueryPort.getUserInfoById(auth.getId());
+        // 회원가입시 카프카 비동기처리로 유저정보를 바로 못가져옴
+        // profileCompleted가 false일떄 유저정보 입력칸으로 프론트에서 이동 로직필요
+        UserInfo userInfo = null;
+        boolean profileCompleted = false;
+        try {
+            userInfo = userQueryPort.getUserInfoById(auth.getId());
+            profileCompleted = true;
+        } catch (BaseException e) {
+            log.error(e.getMessage());
+        }
 
         String token = jwtUtil.createToken(
-                auth.getId(), auth.getRole(), null,
-                null, null, null);
+                auth.getId(), auth.getRole(),
+                profileCompleted ? userInfo.getNickname() : null,
+                profileCompleted ? userInfo.getAge() : null,
+                profileCompleted ? userInfo.getGender() : null,
+                profileCompleted ? userInfo.getJobCategory() : null
+        );
 
         String refreshToken = jwtUtil.createRefreshToken(auth.getId());
         tokenStorePort.saveRefreshToken(auth.getId(), refreshToken, jwtUtil.getExpiration(refreshToken));
 
-        return LoginResponse.from(token, refreshToken);
+        return OAuthLoginResponse.from(token, refreshToken, profileCompleted);
     }
 
 }
