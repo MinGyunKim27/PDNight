@@ -1,5 +1,6 @@
 package org.example.pdnight.domain.post.presentation.dto.request;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -31,6 +32,10 @@ public class PostRequest {
     private Gender genderLimit;
     private JobCategory jobCategoryLimit;
     private AgeLimit ageLimit;
+
+    @Schema(description = "선착순 여부", example = "false")
     private boolean isFirstCome;
+
+    @Schema(description = "태그 ID 목록", example = "[1, 2]")
     private List<Long> tagIdList;
 }

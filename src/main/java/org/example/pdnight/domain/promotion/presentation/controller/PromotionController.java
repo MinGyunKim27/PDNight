@@ -1,5 +1,6 @@
 package org.example.pdnight.domain.promotion.presentation.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.promotion.application.promotionUseCase.PromotionService;
 import org.example.pdnight.domain.promotion.presentation.dto.request.PromotionCreateRequest;
@@ -24,6 +25,7 @@ public class PromotionController {
 
     // 프로모션 조회
     @GetMapping("/promotions/{id}")
+    @Operation(summary = "프로모션 조회", description = "프로모션 하나를 조회한다", tags = {"Promotion"})
     public ResponseEntity<ApiResponse<PromotionResponse>> findPromotionById(
             @PathVariable Long id
     ) {
@@ -34,6 +36,7 @@ public class PromotionController {
 
     // 프로모션 리스트 조회
     @GetMapping("/promotions")
+    @Operation(summary = "프로모션 목록 조회", description = "프로모션 목록을 조회한다", tags = {"Promotion"})
     public ResponseEntity<ApiResponse<PagedResponse<PromotionResponse>>> findPromotionById(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
@@ -46,6 +49,7 @@ public class PromotionController {
 
     // 프로모션 참가 신청
     @PostMapping("/promotions/{id}/participants")
+    @Operation(summary = "프로모션 참가 신청", description = "특정 프로모션에 참가 신청한다", tags = {"Promotion"})
     public ResponseEntity<ApiResponse<Void>> addParticipant(
             @PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetails loginUser
@@ -59,6 +63,7 @@ public class PromotionController {
 
     // 내가 참가한 프로모션 조회
     @GetMapping("/my/participant-promotions")
+    @Operation(summary = "참가한 프로모션 조회", description = "본인이 참가한 프로모션 목록을 조회한다", tags = {"Promotion"})
     public ResponseEntity<ApiResponse<PagedResponse<PromotionResponse>>> getMyParticipantPromotions(
             @AuthenticationPrincipal CustomUserDetails loginUser,
             @PageableDefault() Pageable pageable
@@ -74,6 +79,7 @@ public class PromotionController {
 
     // 프로모션 생성
     @PostMapping("/admin/promotions")
+    @Operation(summary = "[관리자] 프로모션 생성", description = "관리자가 프로모션을 생성한다", tags = {"AdminPromotion"})
     public ResponseEntity<ApiResponse<PromotionResponse>> createPromotion(
             @RequestBody PromotionCreateRequest request
     ) {
@@ -84,6 +90,7 @@ public class PromotionController {
 
     // 프로모션 수정
     @PatchMapping("/admin/promotions/{id}")
+    @Operation(summary = "[관리자] 프로모션 수정", description = "관리자가 프로모션을 수정한다", tags = {"AdminPromotion"})
     public ResponseEntity<ApiResponse<PromotionResponse>> updatePromotion(
             @PathVariable Long id,
             @RequestBody PromotionCreateRequest request
@@ -95,6 +102,7 @@ public class PromotionController {
 
     // 프로모션 삭제
     @DeleteMapping("/admin/promotions/{id}")
+    @Operation(summary = "[관리자] 프로모션 삭제", description = "관리자가 프로모션을 삭제한다", tags = {"AdminPromotion"})
     public ResponseEntity<ApiResponse<Void>> deletePromotion(
             @PathVariable Long id
     ) {
@@ -106,6 +114,7 @@ public class PromotionController {
 
     // 프로모션 참가 인원 리스트 조회
     @GetMapping("/admin/promotions/{id}/participants")
+    @Operation(summary = "[관리자] 프로모션 참가자 조회", description = "관리자가 프로모션에 참가한 사용자들을 조회한다", tags = {"AdminPromotion"})
     public ResponseEntity<ApiResponse<PagedResponse<PromotionParticipantResponse>>> getPromotionParticipants(
             @PathVariable Long id,
             @RequestParam(defaultValue = "0") int page,

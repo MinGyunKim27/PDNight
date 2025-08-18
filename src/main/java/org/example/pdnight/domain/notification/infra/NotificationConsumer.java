@@ -175,7 +175,7 @@ public class NotificationConsumer {
 
     // 모임 참여 신청 (신청자 -> 작성자)
 
-    @KafkaListener(topics = "post.participant.applied", groupId = "alert-post-group", containerFactory = "notificationListenerContainerFactory",concurrency = "24")
+    @KafkaListener(topics = "post.participant.applied", groupId = "alert-post-group", containerFactory = "notificationListenerContainerFactory", concurrency = "24")
 
     public void consumeParticipateAppliedEvent(PostParticipateAppliedEvent event) {
         notificationConsumerService.one(

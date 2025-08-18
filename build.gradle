@@ -86,10 +86,11 @@ dependencies {
     // Elasticsearch
     implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
     implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
-
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 
-}
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9'
+
+
 
 tasks.named('test') {
     useJUnitPlatform()

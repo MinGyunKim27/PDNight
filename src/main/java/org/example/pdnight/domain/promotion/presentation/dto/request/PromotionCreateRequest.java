@@ -1,5 +1,6 @@
 package org.example.pdnight.domain.promotion.presentation.dto.request;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -14,6 +15,7 @@ public class PromotionCreateRequest {
     @NotBlank(message = "내용은 필수 입력값입니다.")
     private String content;
 
+    @Schema(example = "2")
     @NotNull(message = "정원은 필수 입력값입니다.")
     private Integer maxParticipants;
 

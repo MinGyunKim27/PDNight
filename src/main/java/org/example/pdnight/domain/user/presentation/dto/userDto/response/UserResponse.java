@@ -1,6 +1,9 @@
 package org.example.pdnight.domain.user.presentation.dto.userDto.response;
 
+import com.querydsl.core.annotations.QueryProjection;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.user.domain.entity.User;
 import org.example.pdnight.domain.user.domain.enums.Region;
@@ -10,6 +13,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserResponse {
 
     private Long id;
@@ -42,7 +46,39 @@ public class UserResponse {
         this.updatedAt = user.getUpdatedAt();
     }
 
+    @QueryProjection
+    public UserResponse(
+            Long id,
+            String name,
+            String nickname,
+            Gender gender,
+            Long age,
+            JobCategory jobCategory,
+            Region region,
+            Region workLocation,
+            String comment,
+            LocalDateTime createdAt,
+            LocalDateTime updatedAt
+    ) {
+        this.id = id;
+        this.name = name;
+        this.nickname = nickname;
+        this.gender = gender;
+        this.age = age;
+        this.jobCategory = jobCategory;
+        this.region = region;
+        this.workLocation = workLocation;
+        this.comment = comment;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
+
     public static UserResponse from(User user, List<String> hobbyNames, List<String> techNames) {
         return new UserResponse(user, hobbyNames, techNames);
+    }
+
+    public void setHobbyAndTech(List<String> hobbyList, List<String> techList) {
+        this.hobbyList = hobbyList;
+        this.techStackList = techList;
     }
 }

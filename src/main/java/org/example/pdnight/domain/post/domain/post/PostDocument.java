@@ -1,5 +1,6 @@
 package org.example.pdnight.domain.post.domain.post;
 
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -8,6 +9,9 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
+import jakarta.persistence.Id;
+import lombok.AllArgsConstructor;
+
 import lombok.Getter;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
@@ -19,11 +23,13 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Document(indexName = "posts")
 @Getter
 @NoArgsConstructor(force = true)
 @Builder
+@AllArgsConstructor
 public class PostDocument {
 
     @Id
@@ -85,7 +91,6 @@ public class PostDocument {
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @Field(type = FieldType.Date, format = {}, pattern = "yyyy-MM-dd'T'HH:mm:ss||strict_date_time")
     private LocalDateTime updatedAt;
-
 //    @JsonCreator
 //    private PostDocument(
 //            @JsonProperty("id") Long id,
@@ -171,8 +176,29 @@ public class PostDocument {
 //        );
 //    }
 
-    // 모든 필드를 받는 생성자 (Builder용)
-    public PostDocument(
+
+    // ====== 새로 추가한 카운터/버킷 필드 ======
+    @Field(type = FieldType.Long)
+    private Long viewCount;
+
+    @Field(type = FieldType.Long)
+    private Long applyCount;
+
+    @Field(type = FieldType.Long)
+    private Long popView7d;
+
+    @Field(type = FieldType.Long)
+    private Long popApply7d;
+
+    @Field(type = FieldType.Object)
+    private Map<String, Integer> viewDaily;   // key: "yyyy-MM-dd"
+
+    @Field(type = FieldType.Object)
+    private Map<String, Integer> applyDaily;  // key: "yyyy-MM-dd"
+    // =========================================
+
+    private PostDocument(
+
             Long id,
             Long authorId,
             String title,
