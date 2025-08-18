@@ -1,6 +1,7 @@
 package org.example.pdnight.domain.post.application.PostUseCase;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.pdnight.domain.post.domain.post.PostDocument;
 import org.example.pdnight.domain.post.domain.post.PostParticipantDocument;
 import org.example.pdnight.domain.post.domain.post.PostReader;
@@ -27,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PostReaderESService {
@@ -63,6 +65,8 @@ public class PostReaderESService {
                 ageLimit, jobCategoryLimit, genderLimit);
         Page<PostResponse> postDtosBySearch = postSearch.map(search -> {
             int participantCount = acceptedParticipantsCounter(search.getPostParticipants());
+            log.info("participantCount : {}", participantCount);
+            log.info("search.getPostParticipants().size() : {}", search.getPostParticipants().size());
             return PostResponse.toDtoWithCountES(search, participantCount, search.getPostParticipants().size());
         });
         return PagedResponse.from(postDtosBySearch);
