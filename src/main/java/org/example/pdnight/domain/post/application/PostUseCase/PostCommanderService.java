@@ -2,7 +2,6 @@ package org.example.pdnight.domain.post.application.PostUseCase;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.pdnight.domain.outbox.application.OutboxService;
 import org.example.pdnight.domain.post.domain.post.*;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
@@ -41,7 +40,6 @@ public class PostCommanderService {
     private final UserPort userPort;
     private final TagPort tagPort;
     private final PostInfoAssembler postInfoAssembler;
-    private final OutboxService outboxService;
 
     // region  게시물
     @Transactional
@@ -74,9 +72,10 @@ public class PostCommanderService {
             postProducer.produce("followee.post.created", new FolloweePostCreatedEvent(authorId, post.getId(), followeeIds));
         }
 
+        // Elasticsearch 색인을 위한 이벤트 발행
         PostDocument document = makePostDocument(post);
-        postProducer.produce("post", new PostOutboxEvent(document));
-//        outboxService.saveOutboxEvent("POST", post.getId(), "CREATED", document);
+        postProducer.producePostEvent(new PostEvent(PostEvent.Operation.CREATE, document));
+
         return postInfoAssembler.toDto(post);
     }
 
@@ -97,11 +96,10 @@ public class PostCommanderService {
         foundPost.softDelete();
 
         // 명시적으로 save
-        postCommander.saveES(foundPost);
+        postCommander.save(foundPost);
 
         PostDocument document = makePostDocument(foundPost);
-        postProducer.produce("post.deleted", new PostOutboxEvent(document));
-//        outboxService.saveOutboxEvent("DELETE", postId, "DELETED", "게시글 삭제 postId: " + foundPost.getId());
+        postProducer.producePostEvent(new PostEvent(PostEvent.Operation.DELETE, document));
     }
 
     // 물리적 삭제
@@ -122,8 +120,8 @@ public class PostCommanderService {
         try {
             postProducer.produceAck("post.deleted", PostDeletedEvent.of(postId));
             PostDocument document = makePostDocument(foundPost);
-            postProducer.produce("post", new PostOutboxEvent(document));
-//            outboxService.saveOutboxEvent("DELETE", postId, "DELETED", null);
+            postProducer.producePostEvent(new PostEvent(PostEvent.Operation.DELETE, document));
+
         } catch (Exception e) {
             throw new BaseException(KAFKA_SEND_TIMEOUT);
         }
@@ -159,11 +157,10 @@ public class PostCommanderService {
                 request.getTagIdList()
         );
         // 명시적으로 save
-        postCommander.saveES(foundPost);
+        postCommander.save(foundPost);
 
         PostDocument document = makePostDocument(foundPost);
-        postProducer.produce("post", new PostOutboxEvent(document));
-//        outboxService.saveOutboxEvent("PATCH", postId, "UPDATED", document);
+        postProducer.producePostEvent(new PostEvent(PostEvent.Operation.UPDATE, document));
 
         return postInfoAssembler.toDto(foundPost);
     }
@@ -192,7 +189,7 @@ public class PostCommanderService {
             foundPost.updateStatus(request.getStatus());
 
             // 명시적으로 save
-            postCommander.saveES(foundPost);
+            postCommander.save(foundPost);
 
             // 참가자들에게 이벤트 발행
             if (request.getStatus().equals(PostStatus.CONFIRMED)) {
@@ -210,7 +207,7 @@ public class PostCommanderService {
             }
 
             PostDocument document = makePostDocument(foundPost);
-            outboxService.saveOutboxEvent("PATCH", postId, "UPDATED", document);
+            postProducer.producePostEvent(new PostEvent(PostEvent.Operation.UPDATE, document));
         }
 
         return postInfoAssembler.toDto(foundPost);
@@ -249,10 +246,10 @@ public class PostCommanderService {
         postProducer.produce("post.participant.applied", new PostParticipateAppliedEvent(foundPost.getId(), foundPost.getAuthorId(), loginId));
 
         // 명시적으로 save
-        postCommander.saveES(foundPost);
+        postCommander.save(foundPost);
 
         PostDocument document = makePostDocument(foundPost);
-        outboxService.saveOutboxEvent("PATCH", postId, "UPDATED", document);
+        postProducer.producePostEvent(new PostEvent(PostEvent.Operation.UPDATE, document));
 
         return ParticipantResponse.from(
                 loginId,
@@ -278,8 +275,10 @@ public class PostCommanderService {
 
         // 정상 삭제
         post.removeParticipant(pending);
-        postCommander.saveES(post);
-        outboxService.saveOutboxEvent("PATCH", postId, "UPDATED", post);
+        postCommander.save(post);
+
+        PostDocument document = makePostDocument(post);
+        postProducer.producePostEvent(new PostEvent(PostEvent.Operation.UPDATE, document));
     }
 
     //참가 확정(작성자)
@@ -299,7 +298,7 @@ public class PostCommanderService {
         pending.changeStatus(joinStatus);
 
         // 명시적으로 save
-        postCommander.saveES(post);
+        postCommander.save(post);
 
         // 모임 참여 수락
         if (joinStatus.equals(JoinStatus.ACCEPTED)) {
@@ -312,7 +311,9 @@ public class PostCommanderService {
 
         // 게시글 인원이 꽉차게 되면 게시글 상태를 마감으로 변경 (CONFIRMED)
         updatePostStatusIfFull(post);
-        outboxService.saveOutboxEvent("PATCH", postId, "UPDATED", post);
+
+        PostDocument document = makePostDocument(post);
+        postProducer.producePostEvent(new PostEvent(PostEvent.Operation.UPDATE, document));
 
         return ParticipantResponse.from(
                 userId,
@@ -338,8 +339,10 @@ public class PostCommanderService {
         post.addLike(postLike);
 
         // 명시적으로 save
-        postCommander.saveES(post);
-        outboxService.saveOutboxEvent("PATCH", id, "UPDATED", post);
+        postCommander.save(post);
+
+        PostDocument document = makePostDocument(post);
+        postProducer.producePostEvent(new PostEvent(PostEvent.Operation.UPDATE, document));
 
         return PostLikeResponse.from(postLike);
     }
@@ -354,8 +357,10 @@ public class PostCommanderService {
         post.removeLike(like);
 
         // 명시적으로 save
-        postCommander.saveES(post);
-        outboxService.saveOutboxEvent("PATCH", id, "UPDATED", post);
+        postCommander.save(post);
+
+        PostDocument document = makePostDocument(post);
+        postProducer.producePostEvent(new PostEvent(PostEvent.Operation.UPDATE, document));
     }
 
     //endregion
@@ -371,11 +376,14 @@ public class PostCommanderService {
         post.addInvite(invite);
 
         // 명시적으로 save
-        postCommander.saveES(post);
+        postCommander.save(post);
 
         // 초대 전송
         postProducer.produce("invite.sent", new InviteSentEvent(loginUserId, userId, postId));
-        outboxService.saveOutboxEvent("PATCH", postId, "UPDATED", post);
+
+        PostDocument document = makePostDocument(post);
+        postProducer.producePostEvent(new PostEvent(PostEvent.Operation.UPDATE, document));
+
         return InviteResponse.from(invite);
     }
 
@@ -391,8 +399,10 @@ public class PostCommanderService {
         post.removeInvite(findInvite);
 
         // 명시적으로 save
-        postCommander.saveES(post);
-        outboxService.saveOutboxEvent("PATCH", postId, "UPDATED", post);
+        postCommander.save(post);
+
+        PostDocument document = makePostDocument(post);
+        postProducer.producePostEvent(new PostEvent(PostEvent.Operation.UPDATE, document));
     }
     //endregion
 
@@ -415,8 +425,10 @@ public class PostCommanderService {
         post.removeInvite(findInvite);
 
         // 명시적으로 save
-        postCommander.saveES(post);
-        outboxService.saveOutboxEvent("PATCH", postId, "UPDATED", post);
+        postCommander.save(post);
+
+        PostDocument document = makePostDocument(post);
+        postProducer.producePostEvent(new PostEvent(PostEvent.Operation.UPDATE, document));
     }
 
     //내가 받은 초대 거절
@@ -432,10 +444,12 @@ public class PostCommanderService {
         post.removeInvite(findInvite);
 
         // 명시적으로 save
-        postCommander.saveES(post);
+        postCommander.save(post);
 
         postProducer.produce("invite.denied", new InviteDeniedEvent(post.getAuthorId(), loginUserId, postId));
-        outboxService.saveOutboxEvent("PATCH", postId, "UPDATED", post);
+
+        PostDocument document = makePostDocument(post);
+        postProducer.producePostEvent(new PostEvent(PostEvent.Operation.UPDATE, document));
     }
 
     //region ----------------------------------- HELPER 메서드 ------------------------------------------------------

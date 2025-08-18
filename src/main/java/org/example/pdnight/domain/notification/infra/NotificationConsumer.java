@@ -7,13 +7,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.example.pdnight.domain.notification.application.notificationUseCase.NotificationConsumerService;
 import org.example.pdnight.domain.notification.enums.NotificationType;
-import org.example.pdnight.domain.outbox.application.OutboxService;
-import org.example.pdnight.domain.outbox.infra.ElasticsearchIndexService;
 import org.example.pdnight.domain.post.domain.post.PostDocument;
 import org.example.pdnight.global.event.*;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -23,7 +23,11 @@ public class NotificationConsumer {
 
     private final NotificationConsumerService notificationConsumerService;
     private final ElasticsearchIndexService elasticsearchIndexService;
-    private final OutboxService outboxService;
+
+    private final List<PostEvent> buffer = new ArrayList<>();
+    private final Object lock = new Object();
+
+    private static final int BATCH_SIZE = 500;
 
     // 팔로우한 사람이 게시물 작성 (작성자 -> 팔로워들)
     @KafkaListener(topics = "followee.post.created", groupId = "alert-social-group", containerFactory = "notificationListenerContainerFactory")
@@ -207,10 +211,62 @@ public class NotificationConsumer {
         );
     }
 
-    // 게시글 생성
-    @KafkaListener(topics = "post", groupId = "alert-post-group", containerFactory = "notificationListenerContainerFactory")
-    public void consumePostEvent(PostOutboxEvent event) {
+    @KafkaListener(
+            topics = "post",
+            groupId = "search-indexer-group",
+            containerFactory = "kafkaListenerContainerFactory"
+    )
+    public void consumePostEvent(PostEvent event) {
+        log.info("Consuming PostEvent: {}", event);
+//        try{
+//            PostDocument document = event.document(); // PostEvent에서 PostDocument 추출
+//            log.info("Indexing PostDocument to Elasticsearch, id={}", document.getId());
+//            elasticsearchIndexService.indexPost(document);
+//        } catch (Exception e) {
+//            log.error("Failed to index PostDocument id={}", event.document().getId(), e);
+//            // 필요 시 DLT 전송 또는 재시도 로직 추가
+//        }
 
+        try {
+            PostDocument document = event.document(); // 유효성 검증
+            log.info("Valid PostDocument extracted, id={}", document.getId());
+
+            synchronized (lock) {
+                buffer.add(event);
+                log.info("Added PostEvent to buffer. Current buffer size: {}", buffer.size());
+
+                if (buffer.size() >= BATCH_SIZE) {
+                    flush();
+                }
+            }
+        } catch (Exception e) {
+            log.error("Failed to process PostEvent: {}", event, e);
+            // DLT로 전송하거나 재시도 로직 추가 필요
+            throw e; // 원하면 예외를 다시 던져서 Kafka 재시도 메커니즘 활용
+        }
+    }
+
+    @Scheduled(fixedDelay = 10000) // 10초마다 강제 flush
+    public void scheduledFlush() {
+        synchronized (lock) {
+            if (!buffer.isEmpty()) {
+                flush();
+            }
+        }
+    }
+
+    private void flush() {
+        try {
+            log.info("Flushing {} PostEvents to Elasticsearch", buffer.size());
+            List<PostDocument> documents = buffer.stream()
+                    .map(PostEvent::document) // PostEvent 안에 PostDocument getter가 있다고 가정
+                    .toList();
+            elasticsearchIndexService.bulkIndexPosts(documents);
+            buffer.clear();
+        } catch (Exception e) {
+            log.error("Failed to bulk index posts", e);
+            // 실패 시 재처리 전략 필요 (DLT, 재시도 큐 등)
+        }
     }
 
     // 알림 관련 DLT
@@ -401,22 +457,6 @@ public class NotificationConsumer {
             default:
                 log.error("지정 되지 않은 토픽이 들어옴, topic.name = {}", record.topic());
                 break;
-        }
-    }
-
-    @KafkaListener(
-            topics = "post",
-            groupId = "search-indexer-group",
-            containerFactory = "kafkaListenerContainerFactory" // JSON 역직렬화 가능하도록
-    )
-    public void consumePostEvent(PostDocument postDocument) throws JsonProcessingException {
-        try {
-            log.info("Processing PostDocument: {}", postDocument);
-            log.info("Indexing DTO: {}", new ObjectMapper().writeValueAsString(postDocument));
-            elasticsearchIndexService.indexPost(postDocument);
-        } catch (Exception e) {
-            log.error("Failed to process PostDocument {}: {}", postDocument.getId(), e.getMessage(), e);
-            throw e; // rethrow so retry works
         }
     }
 }

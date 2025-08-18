@@ -2,6 +2,7 @@ package org.example.pdnight.domain.post.infra.post;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.pdnight.domain.post.domain.post.PostProducer;
+import org.example.pdnight.global.event.PostEvent;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
@@ -32,6 +33,11 @@ public class PostProducerImpl implements PostProducer {
             producer.send(topic, message);
             return true;
         });
+    }
+
+    public void producePostEvent(PostEvent event) {
+        log.info("producePostEvent: {}", event);
+        kafkaTemplate.send("post", event.document().getId().toString(), event);
     }
 
 }
