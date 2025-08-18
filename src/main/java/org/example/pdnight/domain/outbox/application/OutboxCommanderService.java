@@ -35,5 +35,4 @@ public class OutboxCommanderService {
             throw new BaseException(ErrorCode.FAILED_TO_SAVE_OUTBOX_EVENT);
         }
     }
-
 }

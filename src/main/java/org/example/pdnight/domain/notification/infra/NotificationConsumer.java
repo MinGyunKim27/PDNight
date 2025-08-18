@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.example.pdnight.domain.notification.application.notificationUseCase.NotificationConsumerService;
 import org.example.pdnight.domain.notification.enums.NotificationType;
+import org.example.pdnight.domain.outbox.application.OutboxService;
+import org.example.pdnight.domain.outbox.infra.ElasticsearchIndexService;
 import org.example.pdnight.domain.post.domain.post.PostDocument;
 import org.example.pdnight.global.event.*;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -21,6 +23,7 @@ public class NotificationConsumer {
 
     private final NotificationConsumerService notificationConsumerService;
     private final ElasticsearchIndexService elasticsearchIndexService;
+    private final OutboxService outboxService;
 
     // 팔로우한 사람이 게시물 작성 (작성자 -> 팔로워들)
     @KafkaListener(topics = "followee.post.created", groupId = "alert-social-group", containerFactory = "notificationListenerContainerFactory")
@@ -202,6 +205,12 @@ public class NotificationConsumer {
                 "모임 참여 거절 알림 저장 완료!",
                 NotificationType.PARTICIPANT_REJECTED
         );
+    }
+
+    // 게시글 생성
+    @KafkaListener(topics = "post", groupId = "alert-post-group", containerFactory = "notificationListenerContainerFactory")
+    public void consumePostEvent(PostOutboxEvent event) {
+
     }
 
     // 알림 관련 DLT

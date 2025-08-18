@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.pdnight.domain.notification.infra.ElasticsearchIndexService;
 import org.example.pdnight.domain.outbox.domain.OutboxEvent;
 import org.example.pdnight.domain.outbox.enums.OutboxStatus;
 import org.example.pdnight.domain.post.domain.post.PostDocument;
@@ -13,7 +12,6 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -46,10 +44,10 @@ public class OutboxPublisher {
                 // 상태를 PROCESSING으로 미리 마킹
                 markProcessing(event);
 
-                boolean kafkaSuccess = sendToKafka(event);
+//                boolean kafkaSuccess = sendToKafka(event);
                 boolean esSuccess = sendToElasticsearch(event);
 
-                if (kafkaSuccess && esSuccess) {
+                if (esSuccess) {
                     markSent(event);
                 } else {
                     markFailed(event);
@@ -82,23 +80,23 @@ public class OutboxPublisher {
         log.debug("[OutboxPublisher] PROCESSING 상태로 마킹: id={}", event.getId());
     }
 
-    protected boolean sendToKafka(OutboxEvent event) {
-        try {
-            // payload를 PostDocument로 역직렬화
-            PostDocument postDocument = new ObjectMapper()
-                    .registerModule(new JavaTimeModule())
-                    .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-                    .readValue(event.getPayload(), PostDocument.class);
-
-            kafkaTemplate.send("post", postDocument).get(); // 동기 발행
-            log.info("[OutboxPublisher] Kafka 발행 성공: id={}", event.getId());
-            return true;
-        } catch (Exception e) {
-            log.error("[OutboxPublisher] Kafka 발행 실패: id={}, message={}",
-                    event.getId(), e.getMessage(), e);
-            return false;
-        }
-    }
+//    protected boolean sendToKafka(OutboxEvent event) {
+//        try {
+//            // payload를 PostDocument로 역직렬화
+//            PostDocument postDocument = new ObjectMapper()
+//                    .registerModule(new JavaTimeModule())
+//                    .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+//                    .readValue(event.getPayload(), PostDocument.class);
+//
+//            kafkaTemplate.send("post", postDocument).get(); // 동기 발행
+//            log.info("[OutboxPublisher] Kafka 발행 성공: id={}", event.getId());
+//            return true;
+//        } catch (Exception e) {
+//            log.error("[OutboxPublisher] Kafka 발행 실패: id={}, message={}",
+//                    event.getId(), e.getMessage(), e);
+//            return false;
+//        }
+//    }
 
     protected boolean sendToElasticsearch(OutboxEvent event) {
         try {

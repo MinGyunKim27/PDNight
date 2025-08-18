@@ -188,4 +188,7 @@ public class Post extends Timestamped {
         this.authorId = 0L;
     }
 
+    public List<Long> getTagIdList() {
+        return this.postTagList.stream().map(PostTag::getTagId).toList();
+    }
 }

@@ -74,38 +74,9 @@ public class PostCommanderService {
             postProducer.produce("followee.post.created", new FolloweePostCreatedEvent(authorId, post.getId(), followeeIds));
         }
 
-        // 태그 이름 조회
-        List<String> tagNames = tagPort.findAllTagNames(request.getTagIdList());
-
-        PostDocument document = new PostDocument(
-                post.getId(),
-                post.getAuthorId(),
-                post.getTitle(),
-                post.getTimeSlot(),
-                post.getPublicContent(),
-                post.getStatus(),
-                post.getMaxParticipants(),
-                post.getGenderLimit(),
-                post.getJobCategoryLimit(),
-                post.getAgeLimit(),
-                post.getIsFirstCome(),
-                post.getPostLikes().stream().map(
-                        postLike -> PostLikeDocument.create(postLike.getPost().getId(), postLike.getUserId())
-                ).toList(),
-                post.getPostParticipants().stream().map(
-                        postParticipant -> PostParticipantDocument.create(postParticipant.getPost().getId(), postParticipant.getUserId(), postParticipant.getStatus(), postParticipant.getCreatedAt())
-                ).toList(),
-                post.getInvites().stream().map(
-                        invite -> InviteDocument.create(invite.getInviterId(), invite.getInviteeId(), invite.getPost().getId())
-                ).toList(),
-                tagNames,
-                post.getIsDeleted(),
-                post.getDeletedAt(),
-                post.getCreatedAt(),
-                post.getUpdatedAt()
-        );
-
-        outboxService.saveOutboxEvent("POST", post.getId(), "CREATED", document);
+        PostDocument document = makePostDocument(post);
+        postProducer.produce("post", new PostOutboxEvent(document));
+//        outboxService.saveOutboxEvent("POST", post.getId(), "CREATED", document);
         return postInfoAssembler.toDto(post);
     }
 
@@ -127,6 +98,10 @@ public class PostCommanderService {
 
         // 명시적으로 save
         postCommander.saveES(foundPost);
+
+        PostDocument document = makePostDocument(foundPost);
+        postProducer.produce("post.deleted", new PostOutboxEvent(document));
+//        outboxService.saveOutboxEvent("DELETE", postId, "DELETED", "게시글 삭제 postId: " + foundPost.getId());
     }
 
     // 물리적 삭제
@@ -146,6 +121,9 @@ public class PostCommanderService {
 
         try {
             postProducer.produceAck("post.deleted", PostDeletedEvent.of(postId));
+            PostDocument document = makePostDocument(foundPost);
+            postProducer.produce("post", new PostOutboxEvent(document));
+//            outboxService.saveOutboxEvent("DELETE", postId, "DELETED", null);
         } catch (Exception e) {
             throw new BaseException(KAFKA_SEND_TIMEOUT);
         }
@@ -182,6 +160,10 @@ public class PostCommanderService {
         );
         // 명시적으로 save
         postCommander.saveES(foundPost);
+
+        PostDocument document = makePostDocument(foundPost);
+        postProducer.produce("post", new PostOutboxEvent(document));
+//        outboxService.saveOutboxEvent("PATCH", postId, "UPDATED", document);
 
         return postInfoAssembler.toDto(foundPost);
     }
@@ -226,6 +208,9 @@ public class PostCommanderService {
                         )
                 );
             }
+
+            PostDocument document = makePostDocument(foundPost);
+            outboxService.saveOutboxEvent("PATCH", postId, "UPDATED", document);
         }
 
         return postInfoAssembler.toDto(foundPost);
@@ -266,6 +251,9 @@ public class PostCommanderService {
         // 명시적으로 save
         postCommander.saveES(foundPost);
 
+        PostDocument document = makePostDocument(foundPost);
+        outboxService.saveOutboxEvent("PATCH", postId, "UPDATED", document);
+
         return ParticipantResponse.from(
                 loginId,
                 postId,
@@ -291,6 +279,7 @@ public class PostCommanderService {
         // 정상 삭제
         post.removeParticipant(pending);
         postCommander.saveES(post);
+        outboxService.saveOutboxEvent("PATCH", postId, "UPDATED", post);
     }
 
     //참가 확정(작성자)
@@ -323,6 +312,7 @@ public class PostCommanderService {
 
         // 게시글 인원이 꽉차게 되면 게시글 상태를 마감으로 변경 (CONFIRMED)
         updatePostStatusIfFull(post);
+        outboxService.saveOutboxEvent("PATCH", postId, "UPDATED", post);
 
         return ParticipantResponse.from(
                 userId,
@@ -349,6 +339,7 @@ public class PostCommanderService {
 
         // 명시적으로 save
         postCommander.saveES(post);
+        outboxService.saveOutboxEvent("PATCH", id, "UPDATED", post);
 
         return PostLikeResponse.from(postLike);
     }
@@ -364,6 +355,7 @@ public class PostCommanderService {
 
         // 명시적으로 save
         postCommander.saveES(post);
+        outboxService.saveOutboxEvent("PATCH", id, "UPDATED", post);
     }
 
     //endregion
@@ -383,7 +375,7 @@ public class PostCommanderService {
 
         // 초대 전송
         postProducer.produce("invite.sent", new InviteSentEvent(loginUserId, userId, postId));
-
+        outboxService.saveOutboxEvent("PATCH", postId, "UPDATED", post);
         return InviteResponse.from(invite);
     }
 
@@ -400,6 +392,7 @@ public class PostCommanderService {
 
         // 명시적으로 save
         postCommander.saveES(post);
+        outboxService.saveOutboxEvent("PATCH", postId, "UPDATED", post);
     }
     //endregion
 
@@ -423,6 +416,7 @@ public class PostCommanderService {
 
         // 명시적으로 save
         postCommander.saveES(post);
+        outboxService.saveOutboxEvent("PATCH", postId, "UPDATED", post);
     }
 
     //내가 받은 초대 거절
@@ -441,6 +435,7 @@ public class PostCommanderService {
         postCommander.saveES(post);
 
         postProducer.produce("invite.denied", new InviteDeniedEvent(post.getAuthorId(), loginUserId, postId));
+        outboxService.saveOutboxEvent("PATCH", postId, "UPDATED", post);
     }
 
     //region ----------------------------------- HELPER 메서드 ------------------------------------------------------
@@ -626,6 +621,40 @@ public class PostCommanderService {
                 .anyMatch(invite -> invite.getInviteeId().equals(userId) && invite.getInviterId().equals(loginUserId))) {
             throw new BaseException(INVITE_ALREADY_EXISTS);
         }
+    }
+
+    // post를 postDocument로 변환
+    private PostDocument makePostDocument(Post post) {
+        // 태그 이름 조회
+        List<String> tagNames = tagPort.findAllTagNames(post.getTagIdList());
+
+        return new PostDocument(
+                post.getId(),
+                post.getAuthorId(),
+                post.getTitle(),
+                post.getTimeSlot(),
+                post.getPublicContent(),
+                post.getStatus(),
+                post.getMaxParticipants(),
+                post.getGenderLimit(),
+                post.getJobCategoryLimit(),
+                post.getAgeLimit(),
+                post.getIsFirstCome(),
+                post.getPostLikes().stream().map(
+                        postLike -> PostLikeDocument.create(postLike.getPost().getId(), postLike.getUserId())
+                ).toList(),
+                post.getPostParticipants().stream().map(
+                        postParticipant -> PostParticipantDocument.create(postParticipant.getPost().getId(), postParticipant.getUserId(), postParticipant.getStatus(), postParticipant.getCreatedAt())
+                ).toList(),
+                post.getInvites().stream().map(
+                        invite -> InviteDocument.create(invite.getInviterId(), invite.getInviteeId(), invite.getPost().getId())
+                ).toList(),
+                tagNames,
+                post.getIsDeleted(),
+                post.getDeletedAt(),
+                post.getCreatedAt(),
+                post.getUpdatedAt()
+        );
     }
 
     //endregion
