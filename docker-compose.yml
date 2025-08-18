@@ -49,6 +49,8 @@ services:
 
       # --- JVM/JMX Exporter(javaagent) ---
       - KAFKA_OPTS=-javaagent:/opt/jmx/jmx_prometheus_javaagent.jar=7071:/opt/jmx/kafka-jmx.yml
+      - KAFKA_HEAP_OPTS=-Xms384M -Xmx512M
+      - KAFKA_JVM_PERFORMANCE_OPTS=-XX:+UseG1GC -XX:MaxGCPauseMillis=30 -XX:InitiatingHeapOccupancyPercent=20 -XX:+ExplicitGCInvokesConcurrent
     volumes:
       - Kafka00:/bitnami/kafka
       - ./jmx:/opt/jmx:ro
@@ -87,6 +89,8 @@ services:
       - KAFKA_CFG_LOG_RETENTION_HOURS=168
 
       - KAFKA_OPTS=-javaagent:/opt/jmx/jmx_prometheus_javaagent.jar=7071:/opt/jmx/kafka-jmx.yml
+      - KAFKA_HEAP_OPTS=-Xms384M -Xmx512M
+      - KAFKA_JVM_PERFORMANCE_OPTS=-XX:+UseG1GC -XX:MaxGCPauseMillis=30 -XX:InitiatingHeapOccupancyPercent=20 -XX:+ExplicitGCInvokesConcurrent
     volumes:
       - Kafka01:/bitnami/kafka
       - ./jmx:/opt/jmx:ro
@@ -125,6 +129,8 @@ services:
       - KAFKA_CFG_LOG_RETENTION_HOURS=168
 
       - KAFKA_OPTS=-javaagent:/opt/jmx/jmx_prometheus_javaagent.jar=7071:/opt/jmx/kafka-jmx.yml
+      - KAFKA_HEAP_OPTS=-Xms384M -Xmx512M
+      - KAFKA_JVM_PERFORMANCE_OPTS=-XX:+UseG1GC -XX:MaxGCPauseMillis=30 -XX:InitiatingHeapOccupancyPercent=20 -XX:+ExplicitGCInvokesConcurrent
     volumes:
       - Kafka02:/bitnami/kafka
       - ./jmx:/opt/jmx:ro
@@ -150,6 +156,7 @@ services:
       - Kafka02Service
     networks:
       - kafka_network
+
   elasticsearch:
     build:
       context: elasticsearch/
@@ -167,7 +174,7 @@ services:
       - "9200:9200"
       - "9300:9300"
     environment:
-      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+      ES_JAVA_OPTS: "-Xms128M -Xmx256M"
       ELASTIC_PASSWORD: elastic
       # Use single node discovery in order to disable production mode and avoid bootstrap checks
       # see https://www.elastic.co/guide/en/elasticsearch/reference/current/bootstrap-checks.html
@@ -196,7 +203,7 @@ services:
       - "15000:5000/udp"
       - "9600:9600"
     environment:
-      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+      LS_JAVA_OPTS: "-Xms128M -Xmx256M"
     networks:
       - elk
     depends_on:
@@ -214,6 +221,8 @@ services:
         read_only: true
     ports:
       - "5601:5601"
+    environment:
+      SERVER_JAVA_OPTS: "-Xms96M -Xmx128M"
     networks:
       - elk
     depends_on:
@@ -227,6 +236,8 @@ services:
     volumes:
       - ./log:/usr/share/log/host_logs:ro
       - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml
+    environment:
+      SERVER_JAVA_OPTS: "-Xms48M -Xmx96M"
     networks:
       - elk
     depends_on:
