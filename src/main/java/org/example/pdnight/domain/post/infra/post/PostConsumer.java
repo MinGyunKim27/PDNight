@@ -21,5 +21,4 @@ public class PostConsumer {
     public void dltHandler(AuthDeletedEvent event) {
         postConsumerService.handleAuthDelete(event);
     }
-
 }

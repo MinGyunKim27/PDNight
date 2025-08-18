@@ -40,6 +40,7 @@ public class PostCommanderService {
     private final PostCommander postCommander;
     private final PostProducer postProducer;
     private final UserPort userPort;
+    private final TagPort tagPort;
     private final PostInfoAssembler postInfoAssembler;
     private final TagPort tagPort;
 
@@ -73,6 +74,11 @@ public class PostCommanderService {
             Long authorId = post.getAuthorId();
             postProducer.produce("followee.post.created", new FolloweePostCreatedEvent(authorId, post.getId(), followeeIds));
         }
+
+        // Elasticsearch 색인을 위한 이벤트 발행
+        PostDocument document = makePostDocument(post);
+        postProducer.producePostEvent(new PostEvent(PostEvent.Operation.CREATE, document));
+
         return postInfoAssembler.toDto(post);
     }
 
@@ -93,7 +99,10 @@ public class PostCommanderService {
         foundPost.softDelete();
 
         // 명시적으로 save
-        postCommander.saveES(foundPost);
+        postCommander.save(foundPost);
+
+        PostDocument document = makePostDocument(foundPost);
+        postProducer.producePostEvent(new PostEvent(PostEvent.Operation.DELETE, document));
     }
 
     // 물리적 삭제
@@ -113,6 +122,9 @@ public class PostCommanderService {
 
         try {
             postProducer.produceAck("post.deleted", PostDeletedEvent.of(postId));
+            PostDocument document = makePostDocument(foundPost);
+            postProducer.producePostEvent(new PostEvent(PostEvent.Operation.DELETE, document));
+
         } catch (Exception e) {
             throw new BaseException(KAFKA_SEND_TIMEOUT);
         }
@@ -148,7 +160,10 @@ public class PostCommanderService {
                 request.getTagIdList()
         );
         // 명시적으로 save
-        postCommander.saveES(foundPost);
+        postCommander.save(foundPost);
+
+        PostDocument document = makePostDocument(foundPost);
+        postProducer.producePostEvent(new PostEvent(PostEvent.Operation.UPDATE, document));
 
         return postInfoAssembler.toDto(foundPost);
     }
@@ -177,6 +192,7 @@ public class PostCommanderService {
             foundPost.updateStatus(request.getStatus());
 
             // 명시적으로 save
+
             postCommander.saveES(foundPost);
             List<String> allTagNames = tagPort.findAllTagNames(foundPost.getPostTagList().stream().map(PostTag::getTagId).toList());
 
@@ -198,6 +214,9 @@ public class PostCommanderService {
                 );
                 postProducer.produceAck("user.participation.confirmed",new ParticipationConfirmed(confirmedUserIds,allTagNames));
             }
+
+            PostDocument document = makePostDocument(foundPost);
+            postProducer.producePostEvent(new PostEvent(PostEvent.Operation.UPDATE, document));
         }
 
         return postInfoAssembler.toDto(foundPost);
@@ -236,7 +255,10 @@ public class PostCommanderService {
         postProducer.produce("post.participant.applied", new PostParticipateAppliedEvent(foundPost.getId(), foundPost.getAuthorId(), loginId));
 
         // 명시적으로 save
-        postCommander.saveES(foundPost);
+        postCommander.save(foundPost);
+
+        PostDocument document = makePostDocument(foundPost);
+        postProducer.producePostEvent(new PostEvent(PostEvent.Operation.UPDATE, document));
 
         return ParticipantResponse.from(
                 loginId,
@@ -262,7 +284,10 @@ public class PostCommanderService {
 
         // 정상 삭제
         post.removeParticipant(pending);
-        postCommander.saveES(post);
+        postCommander.save(post);
+
+        PostDocument document = makePostDocument(post);
+        postProducer.producePostEvent(new PostEvent(PostEvent.Operation.UPDATE, document));
     }
 
     //참가 확정(작성자)
@@ -282,7 +307,7 @@ public class PostCommanderService {
         pending.changeStatus(joinStatus);
 
         // 명시적으로 save
-        postCommander.saveES(post);
+        postCommander.save(post);
 
         // 모임 참여 수락
         if (joinStatus.equals(JoinStatus.ACCEPTED)) {
@@ -295,6 +320,9 @@ public class PostCommanderService {
 
         // 게시글 인원이 꽉차게 되면 게시글 상태를 마감으로 변경 (CONFIRMED)
         updatePostStatusIfFull(post);
+
+        PostDocument document = makePostDocument(post);
+        postProducer.producePostEvent(new PostEvent(PostEvent.Operation.UPDATE, document));
 
         return ParticipantResponse.from(
                 userId,
@@ -321,8 +349,13 @@ public class PostCommanderService {
         List<String> allTagNames = tagPort.findAllTagNames(post.getPostTagList().stream().map(PostTag::getTagId).toList());
 
         // 명시적으로 save
-        postCommander.saveES(post);
+        postCommander.save(post);
+
+        PostDocument document = makePostDocument(post);
+        postProducer.producePostEvent(new PostEvent(PostEvent.Operation.UPDATE, document));
+
         postProducer.produceAck("user.post.liked",new PostLiked(userId,allTagNames));
+
 
         return PostLikeResponse.from(postLike);
     }
@@ -337,7 +370,10 @@ public class PostCommanderService {
         post.removeLike(like);
 
         // 명시적으로 save
-        postCommander.saveES(post);
+        postCommander.save(post);
+
+        PostDocument document = makePostDocument(post);
+        postProducer.producePostEvent(new PostEvent(PostEvent.Operation.UPDATE, document));
     }
 
     //endregion
@@ -353,10 +389,13 @@ public class PostCommanderService {
         post.addInvite(invite);
 
         // 명시적으로 save
-        postCommander.saveES(post);
+        postCommander.save(post);
 
         // 초대 전송
         postProducer.produce("invite.sent", new InviteSentEvent(loginUserId, userId, postId));
+
+        PostDocument document = makePostDocument(post);
+        postProducer.producePostEvent(new PostEvent(PostEvent.Operation.UPDATE, document));
 
         return InviteResponse.from(invite);
     }
@@ -373,7 +412,10 @@ public class PostCommanderService {
         post.removeInvite(findInvite);
 
         // 명시적으로 save
-        postCommander.saveES(post);
+        postCommander.save(post);
+
+        PostDocument document = makePostDocument(post);
+        postProducer.producePostEvent(new PostEvent(PostEvent.Operation.UPDATE, document));
     }
     //endregion
 
@@ -396,7 +438,10 @@ public class PostCommanderService {
         post.removeInvite(findInvite);
 
         // 명시적으로 save
-        postCommander.saveES(post);
+        postCommander.save(post);
+
+        PostDocument document = makePostDocument(post);
+        postProducer.producePostEvent(new PostEvent(PostEvent.Operation.UPDATE, document));
     }
 
     //내가 받은 초대 거절
@@ -412,9 +457,12 @@ public class PostCommanderService {
         post.removeInvite(findInvite);
 
         // 명시적으로 save
-        postCommander.saveES(post);
+        postCommander.save(post);
 
         postProducer.produce("invite.denied", new InviteDeniedEvent(post.getAuthorId(), loginUserId, postId));
+
+        PostDocument document = makePostDocument(post);
+        postProducer.producePostEvent(new PostEvent(PostEvent.Operation.UPDATE, document));
     }
 
     //region ----------------------------------- HELPER 메서드 ------------------------------------------------------
@@ -603,6 +651,40 @@ public class PostCommanderService {
                 .anyMatch(invite -> invite.getInviteeId().equals(userId) && invite.getInviterId().equals(loginUserId))) {
             throw new BaseException(INVITE_ALREADY_EXISTS);
         }
+    }
+
+    // post를 postDocument로 변환
+    private PostDocument makePostDocument(Post post) {
+        // 태그 이름 조회
+        List<String> tagNames = tagPort.findAllTagNames(post.getTagIdList());
+
+        return new PostDocument(
+                post.getId(),
+                post.getAuthorId(),
+                post.getTitle(),
+                post.getTimeSlot(),
+                post.getPublicContent(),
+                post.getStatus(),
+                post.getMaxParticipants(),
+                post.getGenderLimit(),
+                post.getJobCategoryLimit(),
+                post.getAgeLimit(),
+                post.getIsFirstCome(),
+                post.getPostLikes().stream().map(
+                        postLike -> PostLikeDocument.create(postLike.getPost().getId(), postLike.getUserId())
+                ).toList(),
+                post.getPostParticipants().stream().map(
+                        postParticipant -> PostParticipantDocument.create(postParticipant.getPost().getId(), postParticipant.getUserId(), postParticipant.getStatus(), postParticipant.getCreatedAt())
+                ).toList(),
+                post.getInvites().stream().map(
+                        invite -> InviteDocument.create(invite.getInviterId(), invite.getInviteeId(), invite.getPost().getId())
+                ).toList(),
+                tagNames,
+                post.getIsDeleted(),
+                post.getDeletedAt(),
+                post.getCreatedAt(),
+                post.getUpdatedAt()
+        );
     }
 
     //endregion

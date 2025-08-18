@@ -465,6 +465,32 @@ public class PostReaderImpl implements PostReader {
         return PageableExecutionUtils.getPage(contents, pageable, () -> Optional.ofNullable(count).orElse(0L));
     }
 
+    // 추천 게시글 목록 조회 -> 추천 알고리즘
+    @Override
+    public Page<Post> getSuggestedPostES(Long userId, Pageable pageable) {
+        List<Post> contents = queryFactory
+                .select(post)
+                .from(post)
+                .leftJoin(postLike).on(postLike.post.eq(post)) // 좋아요 조인
+                .groupBy(post.id)
+                .where(postLike.userId.eq(userId)
+                        .and(post.status.eq(PostStatus.OPEN))
+                        .and(post.isDeleted.eq(false)))
+                .orderBy(postLike.count().desc()) // 좋아요 수 내림차순 정렬
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        Long count = queryFactory
+                .select(post.countDistinct())
+                .from(post)
+                .leftJoin(postLike).on(postLike.post.eq(post))
+                .where(postLike.userId.eq(userId))
+                .fetchOne();
+
+        return PageableExecutionUtils.getPage(contents, pageable, () -> Optional.ofNullable(count).orElse(0L));
+    }
+
 
     // 초대받은 리스트
     @Override

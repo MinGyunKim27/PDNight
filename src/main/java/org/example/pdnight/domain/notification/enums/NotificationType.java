@@ -73,6 +73,10 @@ public enum NotificationType {
     /**
      *모임 삭제
      */
-    POST_DELETED
+    POST_DELETED,
 
+    /**
+     *모임 생성
+     */
+    POST_CREATED
 }

@@ -11,7 +11,7 @@ filter {
       "message" => "\[%{TIMESTAMP_ISO8601:log_timestamp}\]\[%{NOTSPACE:thread_name}\] %{WORD} %{NOTSPACE} - \[%{WORD:log_type}\] %{WORD:http_method} %{NOTSPACE:api_path} \| %{GREEDYDATA:log_data}"
     }
   }
-  
+    
   if [api_path] =~ "admin" {
     mutate { add_field => { "role" => "admin" } }
   } else {
@@ -48,5 +48,6 @@ output {
     user => "elastic"
     password => "elastic"
     ecs_compatibility => disabled
+
   }
 }

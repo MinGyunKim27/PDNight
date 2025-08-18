@@ -14,6 +14,7 @@ public class PostCommanderImpl implements PostCommander {
 
     private final PostJpaRepository postJpaRepository;
     private final PostESRepository postESRepository;
+    private final TagAdaptor tagAdaptor;
 
     @Override
     public Optional<Post> findByIdAndStatus(Long id, PostStatus status) {
@@ -33,7 +34,12 @@ public class PostCommanderImpl implements PostCommander {
     @Override
     public void deletePost(Post post) {
         postJpaRepository.delete(post);
-        postESRepository.delete(PostDocument.createPostDocument(
+        List<Long> tagIds = post.getPostTagList().stream()
+                .map(PostTag::getTagId)
+                .toList();
+        List<String> tagNames = tagAdaptor.findAllTagNames(tagIds);
+
+        postESRepository.delete(new PostDocument(
                 post.getId(),
                 post.getAuthorId(),
                 post.getTitle(),
@@ -54,15 +60,18 @@ public class PostCommanderImpl implements PostCommander {
                 post.getInvites().stream()
                         .map(invite-> InviteDocument.create(invite.getInviterId(), invite.getInviteeId(), invite.getPost().getId()))
                         .toList(),
+                tagNames,
                 post.getIsDeleted(),
                 post.getDeletedAt(),
-                post.getCreatedAt()));
+                post.getCreatedAt(),
+                post.getUpdatedAt()
+        ));
     }
 
     @Override
     public Post save(Post post) {
         Post savePost = postJpaRepository.save(post);
-        saveES(savePost);
+        // saveES(savePost);
 
         return savePost;
     }
@@ -74,7 +83,12 @@ public class PostCommanderImpl implements PostCommander {
 
     @Override
     public void saveES(Post foundPost) {
-        postESRepository.save(PostDocument.createPostDocument(
+        List<Long> tagIds = foundPost.getPostTagList().stream()
+                .map(PostTag::getTagId)
+                .toList();
+        List<String> tagNames = tagAdaptor.findAllTagNames(tagIds);
+        System.out.println("tagNames: " + tagNames);
+        postESRepository.save(new PostDocument(
                 foundPost.getId(),
                 foundPost.getAuthorId(),
                 foundPost.getTitle(),
@@ -95,9 +109,11 @@ public class PostCommanderImpl implements PostCommander {
                 foundPost.getInvites().stream()
                         .map(invite-> InviteDocument.create(invite.getInviterId(), invite.getInviteeId(), invite.getPost().getId()))
                         .toList(),
+                tagNames,
                 foundPost.getIsDeleted(),
                 foundPost.getDeletedAt(),
-                foundPost.getCreatedAt()
+                foundPost.getCreatedAt(),
+                foundPost.getUpdatedAt()
         ));
     }
 }
