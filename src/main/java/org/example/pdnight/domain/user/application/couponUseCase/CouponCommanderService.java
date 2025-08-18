@@ -19,7 +19,7 @@ public class CouponCommanderService {
 
     // --------------------- Admin Api ------------------------------------------------//
     // 쿠폰생성
-    @Transactional
+    @Transactional(transactionManager = "transactionManager")
     public CouponResponse createCoupon(CouponRequest dto) {
         Coupon coupon = Coupon.create(dto.getCouponInfo(), dto.getDefaultDeadlineDays());
         couponCommander.save(coupon);
@@ -28,7 +28,7 @@ public class CouponCommanderService {
     }
 
     // 쿠폰 수정
-    @Transactional
+    @Transactional(transactionManager = "transactionManager")
     public CouponResponse updateCoupon(Long id, UpdateCouponRequest dto) {
         Coupon coupon = getCouponById(id);
         coupon.updateCoupon(dto.getCouponInfo(), dto.getDefaultDeadlineDays());
@@ -36,7 +36,7 @@ public class CouponCommanderService {
     }
 
     // 쿠폰삭제
-    @Transactional
+    @Transactional(transactionManager = "transactionManager")
     public void deleteCoupon(Long id) {
         Coupon coupon = getCouponById(id);
         couponCommander.delete(coupon);

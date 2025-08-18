@@ -33,7 +33,7 @@ public class UserReaderService {
     private final UserReader userReader;
     private final UserProducer userProducer;
 
-    @Transactional(readOnly = true)
+    @Transactional(transactionManager = "transactionManager", readOnly = true)
     public UserResponse getProfile(Long userId) {
         // id로 유저 조회
         User user = getUserById(userId);
@@ -42,7 +42,7 @@ public class UserReaderService {
         return userInfoAssembler.toDto(user);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional(transactionManager = "transactionManager", readOnly = true)
     public UserEvaluationResponse getEvaluation(Long userId) {
         // id로 유저 조회
         User user = getUserById(userId);
@@ -51,7 +51,7 @@ public class UserReaderService {
     }
 
     //유저 이름이나 닉네임이나 이메일로 검색
-    @Transactional(readOnly = true)
+    @Transactional(transactionManager = "transactionManager", readOnly = true)
     public PagedResponse<UserResponse> searchUsers(String search, Pageable pageable) {
         Page<User> page = userReader.searchUsers(search, pageable);
 
@@ -68,14 +68,14 @@ public class UserReaderService {
     }
 
     //  보유한 사용가능한 쿠폰 조회
-    @Transactional(readOnly = true)
+    @Transactional(transactionManager = "transactionManager", readOnly = true)
     public PagedResponse<UserCouponResponse> getValidCoupons(Long userId, Pageable pageable) {
         LocalDateTime now = LocalDateTime.now();
         return PagedResponse.from(userReader.findUserCoupons(userId, now, pageable));
     }
 
     @Scheduled(cron = "0 0 12 * * *")
-    @Transactional
+    @Transactional(transactionManager = "transactionManager")
     public void couponDeadLineChecker() {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime plusOneDay = now.plusDays(1);
@@ -92,7 +92,7 @@ public class UserReaderService {
 
     // --------------------- Admin 조회 Api ----------------------------------------------------//
 
-    @Transactional(readOnly = true)
+    @Transactional(transactionManager = "transactionManager", readOnly = true)
     public PagedResponse<UserResponse> getAllUsers(Pageable pageable) {
 
         Page<User> page = userReader.findAll(pageable);

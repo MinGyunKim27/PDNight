@@ -20,7 +20,7 @@ public class ReviewCommanderService {
     private final ReviewCommander reviewCommander;
     private final ReviewProducer producer;
 
-    @Transactional
+    @Transactional(transactionManager = "transactionManager")
     public ReviewResponse createReview(Long userId, Long ratedUserId, Long postId, ReviewRequest requestDto) {
         // 존재 여부 판단
         validateExists(userId, ratedUserId, postId);

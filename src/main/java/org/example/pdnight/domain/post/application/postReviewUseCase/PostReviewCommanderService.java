@@ -9,6 +9,7 @@ import org.example.pdnight.domain.post.presentation.dto.response.PostParticipant
 import org.example.pdnight.domain.post.presentation.dto.response.PostReviewResponse;
 import org.example.pdnight.global.common.exception.BaseException;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -28,6 +29,7 @@ public class PostReviewCommanderService {
     private final PostReviewCommander postReviewCommander;
     private final PostReviewPort postReviewPort;
 
+    @Transactional(transactionManager = "mongoTransactionManager")
     public PostReviewResponse createPostReview(Long userId, PostReviewRequest request) throws IOException {
         PostParticipantInfo participants = postReviewPort.findById(Long.parseLong(request.getPostId()));
         if (!participants.getAuthId().equals(userId) && participants.getParticipants().stream().noneMatch(p -> p.equals(userId))) {
@@ -47,10 +49,13 @@ public class PostReviewCommanderService {
         PostReviewDocument postReview = PostReviewDocument.create(request, userId, imagesPath, videosPath, LocalDateTime.now());
 
         PostReviewDocument savePostReview = postReviewCommander.save(postReview);
+
         return PostReviewResponse.create(savePostReview);
     }
 
+    @Transactional(transactionManager = "mongoTransactionManager")
     public PostReviewResponse updatePostReview(Long userId, String reviewId, PostReviewUpdateRequest request) throws IOException {
+
         PostReviewDocument postReview = postReviewCommander.findById(reviewId).orElseThrow(() -> new BaseException(POST_REVIEW_NOT_FOUND));
         if (!userId.equals(postReview.getAuthId())) {
             throw new BaseException(POST_REVIEW_FORBIDDEN);
@@ -68,9 +73,11 @@ public class PostReviewCommanderService {
 
         postReview.update(request, imagesPath, videosPath);
         PostReviewDocument updatePostReview = postReviewCommander.save(postReview);
+
         return PostReviewResponse.create(updatePostReview);
     }
 
+    @Transactional(transactionManager = "mongoTransactionManager")
     public void deletePostReview(Long userId, String reviewId) {
         PostReviewDocument postReview = postReviewCommander.findById(reviewId).orElseThrow(() -> new BaseException(POST_REVIEW_NOT_FOUND));
         if (!userId.equals(postReview.getAuthId())) {

@@ -36,7 +36,7 @@ public class AuthCommanderService {
     private final RedisTemplate<String, String> redisTemplate;
     private final UserQueryPort userQueryPort;
 
-    @Transactional
+    @Transactional(transactionManager = "transactionManager")
     public SignupResponse signup(SignupRequest request) {
         // auth 저장
         if (authCommander.findByEmail(request.getEmail()).isPresent()) {
@@ -69,7 +69,7 @@ public class AuthCommanderService {
         return SignupResponse.from(saveAuth);
     }
 
-    @Transactional
+    @Transactional(transactionManager = "transactionManager")
     public LoginResponse login(LoginRequest request) {
         Auth auth = getAuthByEmail(request.getEmail());
         validateAuth(auth, request.getPassword());
@@ -90,7 +90,7 @@ public class AuthCommanderService {
         redisTemplate.opsForSet().add(CacheName.BLACKLIST_TOKEN, token);
     }
 
-    @Transactional
+    @Transactional(transactionManager = "transactionManager")
     public void withdraw(Long userId, WithdrawRequest request) {
         Auth auth = getAuthById(userId);
         validateAuth(auth, request.getPassword());
@@ -106,7 +106,7 @@ public class AuthCommanderService {
 
     }
 
-    @Transactional
+    @Transactional(transactionManager = "transactionManager")
     public void updatePassword(Long userId, UserPasswordUpdateRequest request) {
         Auth auth = getAuthById(userId);
 

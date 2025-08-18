@@ -17,7 +17,7 @@ public class PostConsumerService {
 
     private final PostCommander postCommander;
 
-    @Transactional
+    @Transactional(transactionManager = "transactionManager")
     public void handleAuthDelete(AuthDeletedEvent event) {
         List<Post> posts = postCommander.findAllByAuthorId(event.authId());
         for (Post post : posts) {

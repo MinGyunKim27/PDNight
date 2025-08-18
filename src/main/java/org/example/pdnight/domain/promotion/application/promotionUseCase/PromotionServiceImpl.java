@@ -20,8 +20,8 @@ public class PromotionServiceImpl implements PromotionService {
     private final PromotionReaderService promotionReaderService;
 
     @SaveLog
-    @Transactional
-    public PromotionResponse createPromotion(PromotionCreateRequest request) {
+    @Transactional(transactionManager = "transactionManager")
+        public PromotionResponse createPromotion(PromotionCreateRequest request) {
         return promotionCommanderService.createPromotion(request);
     }
 

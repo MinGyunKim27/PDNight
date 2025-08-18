@@ -17,7 +17,7 @@ public class CouponReaderService {
 
     // --------------------- Admin 조회 Api ----------------------------------------------------//
     // 쿠폰 단건 조회
-    @Transactional(readOnly = true)
+    @Transactional(transactionManager = "transactionManager", readOnly = true)
     public CouponResponse getCoupon(Long id) {
         Coupon coupon = getCouponById(id);
         return CouponResponse.from(coupon);

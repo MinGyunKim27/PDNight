@@ -16,7 +16,7 @@ public class TechStackCommanderService {
 
     private final TechStackCommander techStackCommander;
 
-    @Transactional
+    @Transactional(transactionManager = "transactionManager")
     public TechStackResponse createTechStack(TechStackRequest dto) {
         validateExistTech(dto);
 

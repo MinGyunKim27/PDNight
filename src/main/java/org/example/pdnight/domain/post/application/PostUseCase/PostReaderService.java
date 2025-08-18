@@ -35,7 +35,7 @@ public class PostReaderService {
 
     //region 게시글 조회
     // 게시글 단건 조회
-    @Transactional(readOnly = true)
+    @Transactional(transactionManager = "transactionManager", readOnly = true)
     @Cacheable(value = CacheName.ONE_POST, key = "#id")
     public PostResponse findPost(Long id) {
         Post foundPost = getPost(id);
@@ -50,7 +50,7 @@ public class PostReaderService {
     }
 
     //게시물 조건 검색
-    @Transactional(readOnly = true)
+    @Transactional(transactionManager = "transactionManager", readOnly = true)
     @Cacheable(
             value = CacheName.SEARCH_POST,
             key = "{#pageable.pageNumber, #pageable.pageSize, #maxParticipants, #ageLimit, #jobCategoryLimit, #genderLimit}"

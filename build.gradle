@@ -54,7 +54,6 @@ dependencies {
     annotationProcessor "jakarta.persistence:jakarta.persistence-api"
 
     testRuntimeOnly 'com.h2database:h2'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
     // WebClient를 위한 Spring WebFlux
     implementation 'org.springframework.boot:spring-boot-starter-webflux'

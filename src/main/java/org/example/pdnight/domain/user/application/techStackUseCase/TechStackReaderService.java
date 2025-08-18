@@ -15,7 +15,7 @@ public class TechStackReaderService {
 
     private final TechStackReader techStackReader;
 
-    @Transactional(readOnly = true)
+    @Transactional(transactionManager = "transactionManager", readOnly = true)
     public List<TechStackResponse> searchTechStackList(String techStack) {
         List<TechStack> byTechStackContaining = techStackReader.searchTechStack(techStack);
         return byTechStackContaining.stream().map(TechStackResponse::from).toList();

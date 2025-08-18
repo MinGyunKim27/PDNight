@@ -17,7 +17,7 @@ public class ReviewReaderService {
     private final ReviewReader reviewReader;
 
     // 사용자의 받은 리뷰 리스트 조회
-    @Transactional(readOnly = true)
+    @Transactional(transactionManager = "transactionManager", readOnly = true)
     public PagedResponse<ReviewResponse> getReceivedReviewsByUser(Long userId, Pageable pageable) {
         Page<Review> reviews = reviewReader.findByReviewee(userId, pageable);
 
@@ -25,7 +25,7 @@ public class ReviewReaderService {
     }
 
     // 사용자의 작성한 리뷰 리스트 조회
-    @Transactional(readOnly = true)
+    @Transactional(transactionManager = "transactionManager", readOnly = true)
     public PagedResponse<ReviewResponse> getWrittenReviewsByUser(Long userId, Pageable pageable) {
         Page<Review> reviews = reviewReader.findByReviewer(userId, pageable);
 

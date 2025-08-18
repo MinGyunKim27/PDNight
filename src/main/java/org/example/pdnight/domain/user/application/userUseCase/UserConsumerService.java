@@ -18,13 +18,13 @@ import java.util.List;
 public class UserConsumerService {
     private final UserCommander userCommander;
 
-    @Transactional
+    @Transactional(transactionManager = "transactionManager")
     public void consumeAuthSignedUpEvent(AuthSignedUpEvent event) {
         User user = User.fromAuthSignUpEvent(event.authId(), event.name(), event.nickname(), event.gender(), event.age(), event.jobCategory());
         userCommander.save(user);
     }
 
-    @Transactional
+    @Transactional(transactionManager = "transactionManager")
     public void handleAuthDelete(AuthDeletedEvent event) {
         User user = userCommander.findById(event.authId())
                 .orElseThrow(()-> new BaseException(ErrorCode.USER_NOT_FOUND));

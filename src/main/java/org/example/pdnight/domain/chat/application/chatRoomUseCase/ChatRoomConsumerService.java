@@ -1,6 +1,5 @@
 package org.example.pdnight.domain.chat.application.chatRoomUseCase;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.chat.domain.ChatParticipant;
 import org.example.pdnight.domain.chat.domain.ChatRoom;
@@ -10,6 +9,7 @@ import org.example.pdnight.global.common.enums.KafkaTopic;
 import org.example.pdnight.global.event.ChatroomCreatedEvent;
 import org.example.pdnight.global.event.PostConfirmedEvent;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -20,7 +20,7 @@ public class ChatRoomConsumerService {
     private final ChatRoomCommander chatRoomCommander;
     private final ChatRoomProducer producer;
 
-    @Transactional
+    @Transactional(transactionManager = "transactionManager")
     public void handlePostConfirmed(PostConfirmedEvent event) {
 
         ChatRoom findByPostId = chatRoomCommander.findByPostId(event.postId());

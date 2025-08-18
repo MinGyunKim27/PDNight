@@ -46,7 +46,7 @@ public class CommentCommanderService {
     }
 
     //댓글 삭제 메서드
-    @Transactional
+    @Transactional(transactionManager = "transactionManager")
     public void deleteCommentById(Long postId, Long id, Long loginId) {
         if (!postPort.existsByIdAndIsDeletedIsFalse(postId)) {
             throw new BaseException(ErrorCode.POST_NOT_FOUND);
@@ -62,7 +62,7 @@ public class CommentCommanderService {
     }
 
     //댓글 수정 메서드
-    @Transactional
+    @Transactional(transactionManager = "transactionManager")
     public CommentResponse updateCommentByDto(Long postId, Long id, Long loginId, CommentRequest request) {
         if (!postPort.existsByIdAndIsDeletedIsFalse(postId)) {
             throw new BaseException(ErrorCode.POST_NOT_FOUND);
@@ -103,7 +103,7 @@ public class CommentCommanderService {
     }
 
     //어드민 권한 댓글 삭제 메서드
-    @Transactional
+    @Transactional(transactionManager = "transactionManager")
     public void deleteCommentByAdmin(Long postId, Long id, Long adminId) {
         //해당 게시물이 없으면 예외 쓰로우
         if (!postPort.existsByIdAndIsDeletedIsFalse(postId)) {

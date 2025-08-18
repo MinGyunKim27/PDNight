@@ -21,7 +21,7 @@ public class PromotionCommanderService {
     private final PromotionCommander promotionCommander;
 
     // 프로모션 생성
-    @Transactional
+    @Transactional(transactionManager = "transactionManager")
     public PromotionResponse createPromotion(PromotionCreateRequest request) {
         if (request.getMaxParticipants() < 1) {
             throw new BaseException(ErrorCode.PROMOTION_INVALID_PARTICIPANT);
@@ -46,7 +46,7 @@ public class PromotionCommanderService {
         return PromotionResponse.from(savePromotion);
     }
 
-    @Transactional
+    @Transactional(transactionManager = "transactionManager")
     public PromotionResponse updatePromotion(Long id, PromotionCreateRequest request) {
         Promotion promotion = getPromotionById(id);
 
@@ -66,13 +66,13 @@ public class PromotionCommanderService {
         return PromotionResponse.from(savePromotion);
     }
 
-    @Transactional
+    @Transactional(transactionManager = "transactionManager")
     public void deletePromotionById(Long id) {
         Promotion promotion = getPromotionById(id);
         promotionCommander.delete(promotion);
     }
 
-    @Transactional
+    @Transactional(transactionManager = "transactionManager")
     @DistributedLock(
             key = "#promotionId",
             timeoutMs = 5000

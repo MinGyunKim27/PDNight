@@ -41,7 +41,7 @@ public class PostCommanderService {
     private final PostInfoAssembler postInfoAssembler;
 
     // region  게시물
-    @Transactional
+    @Transactional(transactionManager = "transactionManager")
     @Caching(evict = {
             @CacheEvict(value = CacheName.SEARCH_POST, allEntries = true),
             @CacheEvict(value = CacheName.SUGGESTED_POST, allEntries = true),
@@ -74,7 +74,7 @@ public class PostCommanderService {
     }
 
     // 논리적 삭제
-    @Transactional
+    @Transactional(transactionManager = "transactionManager")
     @Caching(evict = {
             @CacheEvict(value = CacheName.SEARCH_POST, allEntries = true),
             @CacheEvict(value = CacheName.ONE_POST, key = "#postId"),
@@ -94,7 +94,7 @@ public class PostCommanderService {
     }
 
     // 물리적 삭제
-    @Transactional
+    @Transactional(transactionManager = "transactionManager")
     @Caching(evict = {
             @CacheEvict(value = CacheName.SEARCH_POST, allEntries = true),
             @CacheEvict(value = CacheName.ONE_POST, key = "#postId"),
@@ -115,7 +115,7 @@ public class PostCommanderService {
         }
     }
 
-    @Transactional
+    @Transactional(transactionManager = "transactionManager")
     @Caching(evict = {
             @CacheEvict(value = CacheName.SEARCH_POST, allEntries = true),
             @CacheEvict(value = CacheName.ONE_POST, key = "#postId"),
@@ -150,7 +150,7 @@ public class PostCommanderService {
         return postInfoAssembler.toDto(foundPost);
     }
 
-    @Transactional
+    @Transactional(transactionManager = "transactionManager")
     @Caching(evict = {
             @CacheEvict(value = CacheName.SEARCH_POST, allEntries = true),
             @CacheEvict(value = CacheName.ONE_POST, key = "#postId"),
@@ -195,7 +195,7 @@ public class PostCommanderService {
         return postInfoAssembler.toDto(foundPost);
     }
 
-    @Transactional
+    @Transactional(transactionManager = "transactionManager")
     @Caching(evict = {
             @CacheEvict(value = CacheName.SEARCH_POST, allEntries = true),
             @CacheEvict(value = CacheName.ONE_POST, key = "#id"),
@@ -211,7 +211,7 @@ public class PostCommanderService {
 
     // region  게시물 신청자
     //참가 신청
-    @Transactional
+    @Transactional(transactionManager = "transactionManager")
     @CacheEvict(value = CacheName.CONFIRMED_POST, allEntries = true)
     @DistributedLock(key = "#postId", timeoutMs = 5000)
     public ParticipantResponse applyParticipant(Long loginId, Long age, Gender gender, JobCategory jobCategory, Long postId) {
@@ -241,7 +241,7 @@ public class PostCommanderService {
 
     // 참가 취소
     // @DistributedLock(key = "#postId", timeoutMs = 5000)
-    @Transactional
+    @Transactional(transactionManager = "transactionManager")
     public void deleteParticipant(Long loginId, Long postId) {
         Post post = getOpenPostByIdAndNotDeleted(postId);
 
@@ -258,7 +258,7 @@ public class PostCommanderService {
     }
 
     //참가 확정(작성자)
-    @Transactional
+    @Transactional(transactionManager = "transactionManager")
     @CacheEvict(value = CacheName.CONFIRMED_POST, allEntries = true)
     @DistributedLock(key = "#postId", timeoutMs = 5000)
     public ParticipantResponse changeStatusParticipant(Long authorId, Long userId, Long postId, String status) {
@@ -300,7 +300,7 @@ public class PostCommanderService {
 
     //region 게시물 좋아요
     @CacheEvict(value = CacheName.LIKED_POST, allEntries = true)
-    @Transactional
+    @Transactional(transactionManager = "transactionManager")
     public PostLikeResponse addLike(Long id, Long userId) {
 
         Post post = getPostByIdAndNotDeleted(id);
@@ -318,7 +318,7 @@ public class PostCommanderService {
     }
 
     @CacheEvict(value = CacheName.LIKED_POST, allEntries = true)
-    @Transactional
+    @Transactional(transactionManager = "transactionManager")
     public void removeLike(Long id, Long userId) {
 
         Post post = getPostByIdAndNotDeleted(id);
@@ -334,7 +334,7 @@ public class PostCommanderService {
 
     //region 게시물 초대
     // 초대생성
-    @Transactional
+    @Transactional(transactionManager = "transactionManager")
     public InviteResponse createInvite(Long postId, Long userId, Long loginUserId) {
         Post post = getOpenPostByIdAndNotDeleted(postId);
         validateNotAlreadyInvited(post, userId, loginUserId);
@@ -352,7 +352,7 @@ public class PostCommanderService {
     }
 
     // 초대삭제
-    @Transactional
+    @Transactional(transactionManager = "transactionManager")
     public void deleteInvite(Long postId, Long userId, Long loginUserId) {
         Post post = getPostByIdAndNotDeleted(postId);
         Invite findInvite = post.getInvites().stream()
@@ -368,7 +368,7 @@ public class PostCommanderService {
     //endregion
 
     //내가 받은 초대 승인
-    @Transactional
+    @Transactional(transactionManager = "transactionManager")
     @DistributedLock(key = "#postId", timeoutMs = 50000)
     public void decisionForInvite(Long postId, Long loginUserId) {
         Post post = getPostByIdAndNotDeleted(postId);
@@ -390,7 +390,7 @@ public class PostCommanderService {
     }
 
     //내가 받은 초대 거절
-    @Transactional
+    @Transactional(transactionManager = "transactionManager")
     public void rejectForInvite(Long postId, Long loginUserId) {
         Post post = getPostByIdAndNotDeleted(postId);
 

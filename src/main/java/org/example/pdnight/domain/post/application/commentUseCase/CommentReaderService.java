@@ -23,7 +23,7 @@ public class CommentReaderService {
     private final PostPort postPort;
 
     //댓글 다건 조회 메서드 : 해당게시글의 댓글리스트
-    @Transactional(readOnly = true)
+    @Transactional(transactionManager = "transactionManager", readOnly = true)
     public PagedResponse<CommentResponse> getCommentsByPostId(Long postId, Pageable pageable) {
 
         if (!postPort.existsByIdAndIsDeletedIsFalse(postId)) {

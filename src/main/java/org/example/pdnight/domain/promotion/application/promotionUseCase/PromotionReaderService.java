@@ -20,14 +20,14 @@ public class PromotionReaderService {
 
     private final PromotionReader promotionReader;
 
-    @Transactional(readOnly = true)
+    @Transactional(transactionManager = "transactionManager", readOnly = true)
     public PromotionResponse findPromotionById(Long id) {
         Promotion promotion = getPromotionById(id);
 
         return PromotionResponse.from(promotion);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional(transactionManager = "transactionManager", readOnly = true)
     public PagedResponse<PromotionResponse> findPromotionList(Pageable pageable) {
         Page<Promotion> promotionPage = promotionReader.findAllPromotion(pageable);
         return PagedResponse.from(promotionPage.map(PromotionResponse::from));

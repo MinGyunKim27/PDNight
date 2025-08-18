@@ -16,7 +16,7 @@ public class HobbyCommanderService {
 
     private final HobbyCommander hobbyCommander;
 
-    @Transactional
+    @Transactional(transactionManager = "transactionManager")
     public HobbyResponse createHobby(HobbyRequest dto){
         validateExistHobby(dto.getHobby());
 

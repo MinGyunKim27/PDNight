@@ -19,6 +19,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -92,6 +93,7 @@ public class SearchTest {
 
     @Test
     @DisplayName("MYSQL 데이터 조회")
+    @Transactional("transactionManager")
     void mysqlSearch() {
         long start = System.currentTimeMillis();
         Pageable pageable = PageRequest.of(1, 10);

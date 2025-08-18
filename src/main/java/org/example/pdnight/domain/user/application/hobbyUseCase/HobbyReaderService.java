@@ -15,7 +15,7 @@ public class HobbyReaderService {
 
     private final HobbyReader hobbyReader;
 
-    @Transactional(readOnly = true)
+    @Transactional(transactionManager = "transactionManager", readOnly = true)
     public List<HobbyResponse> searchHobby(String searchHobby) {
         List<Hobby> hobbies = hobbyReader.searchHobby(searchHobby);
         return hobbies.stream().map(HobbyResponse::from).toList();

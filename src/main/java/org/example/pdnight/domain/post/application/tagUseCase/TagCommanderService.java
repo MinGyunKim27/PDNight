@@ -16,7 +16,7 @@ public class TagCommanderService {
 
     private final TagCommander tagCommander;
 
-    @Transactional
+    @Transactional(transactionManager = "transactionManager")
     public TagResponse createTag(TagRequest dto) {
         validateExistTag(dto);
 

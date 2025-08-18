@@ -15,7 +15,7 @@ public class TagReaderService {
 
     private final TagReader tagReader;
 
-    @Transactional(readOnly = true)
+    @Transactional(transactionManager = "transactionManager", readOnly = true)
     public List<TagResponse> searchTags(String tagName) {
         List<Tag> tagList = tagReader.searchTags(tagName);
         return tagList.stream()

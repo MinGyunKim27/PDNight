@@ -33,7 +33,7 @@ public class UserCommanderService {
     private final UserCouponPort userCouponPort;
     private final UserProducer producer;
 
-    @Transactional
+    @Transactional(transactionManager = "transactionManager")
     public UserResponse updateMyProfile(Long userId, UserUpdateRequest request) {
         User user = getUserById(userId);
 
@@ -53,7 +53,7 @@ public class UserCommanderService {
         return userInfoAssembler.toDto(user);
     }
 
-    @Transactional
+    @Transactional(transactionManager = "transactionManager")
     public UserResponse updateNickname(Long userId, UserNicknameUpdate dto) {
         User user = getUserById(userId);
 
@@ -64,7 +64,7 @@ public class UserCommanderService {
         return userInfoAssembler.toDto(user);
     }
 
-    @Transactional
+    @Transactional(transactionManager = "transactionManager")
     public void delete(Long userId) {
         User user = getUserById(userId);
 
@@ -76,7 +76,7 @@ public class UserCommanderService {
     }
 
     //팔로우
-    @Transactional
+    @Transactional(transactionManager = "transactionManager")
     public FollowResponse follow(Long userId, Long loginId) {
 
         User targetUser = getUserById(userId);
@@ -97,7 +97,7 @@ public class UserCommanderService {
     }
 
     //언팔로우
-    @Transactional
+    @Transactional(transactionManager = "transactionManager")
     public void unfollow(Long userId, Long loginId) {
         User follower = getUserById(loginId);
         User following = getUserById(userId);
@@ -111,7 +111,7 @@ public class UserCommanderService {
     }
 
     // 쿠폰 부여
-    @Transactional
+    @Transactional(transactionManager = "transactionManager")
     public UserCouponResponse giveCouponToUser(GiveCouponRequest request) {
         User user = getUserById(request.getUserId());
 
@@ -125,7 +125,7 @@ public class UserCommanderService {
     }
 
     // 쿠폰사용
-    @Transactional
+    @Transactional(transactionManager = "transactionManager")
     public UserCouponResponse useCoupon(Long couponId, Long userId) {
         LocalDateTime now = LocalDateTime.now();
 
