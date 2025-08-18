@@ -28,10 +28,12 @@ public class SecurityConfig {
                 .addFilterBefore(jwtFilter, SecurityContextHolderAwareRequestFilter.class)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
+                                // auth
                                 "/api/auth/signup",
                                 "/api/auth/login",
                                 "/api/auth/reissue",
                                 "/oauth/**",
+                                // 프론트용
                                 "/login",
                                 "/webjars/**",
                                 "/css/**",
@@ -40,6 +42,7 @@ public class SecurityConfig {
                                 "/ws-stomp/**",
                                 "/chat/view",
                                 "/chat/view/enter/**",
+                                // 서버체크용
                                 "/health"
                         ).permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")

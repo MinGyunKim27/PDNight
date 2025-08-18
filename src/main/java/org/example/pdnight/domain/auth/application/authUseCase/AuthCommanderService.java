@@ -127,13 +127,16 @@ public class AuthCommanderService {
     public LoginResponse reissue(String refreshTokenHeader) {
         String refreshToken = jwtUtil.substringToken(refreshTokenHeader);
 
+        // 리프레쉬 토큰 유효성 검사
         if (!jwtUtil.validateToken(refreshToken)) {
             throw new BaseException(ErrorCode.INVALID_REFRESH_TOKEN);
         }
 
         Long userId = jwtUtil.getUserIdFromToken(refreshToken);
+        // 레디스에 저장된 리프레쉬 토큰 정보 가져오기
         String redisRefresh = tokenStorePort.getRefreshToken(userId);
 
+        // 리프레쉬토큰이 레디스정보와 일치하는지 확인
         if (redisRefresh == null || !redisRefresh.equals(refreshToken)) {
             throw new BaseException(ErrorCode.REFRESH_TOKEN_MISMATCH);
         }
@@ -143,11 +146,13 @@ public class AuthCommanderService {
 
         UserInfo user = userQueryPort.getUserInfoById(userId);
 
+        // 새로운 토큰 생성
         String newAccessToken = jwtUtil.createToken(
                 userId, auth.getRole(), user.getNickname(), user.getAge(), user.getGender(), user.getJobCategory()
         );
         String newRefreshToken = jwtUtil.createRefreshToken(userId);
 
+        // 새로운 리프래쉬 토큰 저장
         tokenStorePort.saveRefreshToken(userId, newRefreshToken, jwtUtil.getExpiration(newRefreshToken));
 
         return LoginResponse.from(newAccessToken, newRefreshToken);

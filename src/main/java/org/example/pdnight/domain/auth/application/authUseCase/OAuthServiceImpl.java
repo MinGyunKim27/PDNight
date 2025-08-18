@@ -92,6 +92,7 @@ public class OAuthServiceImpl implements OAuthService {
     public LoginResponse loginWithOAuth(String code, String state) {
         String codeVerifier = codeVerifierStore.remove(state);
 
+        //
         MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
         form.add("grant_type", "authorization_code");
         form.add("code", code);
@@ -100,9 +101,11 @@ public class OAuthServiceImpl implements OAuthService {
         form.add("client_secret", providerInfo.getClientSecret());
         form.add("code_verifier", codeVerifier);
 
+        // OAuth 클라이언트에 토큰 요청
         Map<String, Object> tokenResponse = httpClient.postForm(providerInfo.getTokenEndpoint(), form);
         String accessToken = (String) tokenResponse.get("access_token");
 
+        // 토큰을 이용하여 OAuth 사용자 정보 추출
         Map<String, Object> userInfo = httpClient.get(providerInfo.getUserInfoEndpoint(), accessToken);
         String email = (String) userInfo.get("email");
         String name = (String) userInfo.get("name");
