@@ -42,7 +42,6 @@ public class PostCommanderService {
     private final UserPort userPort;
     private final TagPort tagPort;
     private final PostInfoAssembler postInfoAssembler;
-    private final TagPort tagPort;
 
     // region  게시물
     @Transactional
@@ -193,7 +192,7 @@ public class PostCommanderService {
 
             // 명시적으로 save
 
-            postCommander.saveES(foundPost);
+            postCommander.save(foundPost);
             List<String> allTagNames = tagPort.findAllTagNames(foundPost.getPostTagList().stream().map(PostTag::getTagId).toList());
 
             // 참가자들에게 이벤트 발행

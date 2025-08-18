@@ -9,9 +9,7 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
-import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
-
 import lombok.Getter;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
@@ -91,90 +89,90 @@ public class PostDocument {
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @Field(type = FieldType.Date, format = {}, pattern = "yyyy-MM-dd'T'HH:mm:ss||strict_date_time")
     private LocalDateTime updatedAt;
-//    @JsonCreator
-//    private PostDocument(
-//            @JsonProperty("id") Long id,
-//            @JsonProperty("authorId") Long authorId,
-//            @JsonProperty("title") String title,
-//            @JsonProperty("timeSlot") LocalDateTime timeSlot,
-//            @JsonProperty("publicContent") String publicContent,
-//            @JsonProperty("status") PostStatus status,
-//            @JsonProperty("maxParticipants") Integer maxParticipants,
-//            @JsonProperty("genderLimit") Gender genderLimit,
-//            @JsonProperty("jobCategoryLimit") JobCategory jobCategoryLimit,
-//            @JsonProperty("ageLimit") AgeLimit ageLimit,
-//            @JsonProperty("isFirstCome") Boolean isFirstCome,
-//            @JsonProperty("postLikes") List<PostLikeDocument> postLikes,
-//            @JsonProperty("postParticipants") List<PostParticipantDocument> postParticipants,
-//            @JsonProperty("invites") List<InviteDocument> invites,
-//            @JsonProperty("tags") List<String> tags,
-//            @JsonProperty("isDeleted") Boolean isDeleted,
-//            @JsonProperty("deletedAt") LocalDateTime deletedAt,
-//            @JsonProperty("createdAt") LocalDateTime createdAt
-//    ) {
-//
-//        this.id = id;
-//        this.authorId = authorId;
-//        this.title = title;
-//        this.timeSlot = timeSlot;
-//        this.publicContent = publicContent;
-//        this.status = status;
-//        this.maxParticipants = maxParticipants;
-//        this.genderLimit = genderLimit;
-//        this.jobCategoryLimit = jobCategoryLimit;
-//        this.ageLimit = ageLimit;
-//        this.isFirstCome = isFirstCome;
-//        this.postLikes = postLikes;
-//        this.postParticipants = postParticipants;
-//        this.tags = (tags != null) ? tags : new ArrayList<>();
-//        this.invites = invites;
-//        this.isDeleted = isDeleted;
-//        this.deletedAt = deletedAt;
-//        this.createdAt = createdAt;
-//        this.updatedAt = LocalDateTime.now();
-//    }
-//
-//    public static PostDocument createPostDocument(
-//            Long id,
-//            Long authorId,
-//            String title,
-//            LocalDateTime timeSlot,
-//            String publicContent,
-//            PostStatus status,
-//            Integer maxParticipants,
-//            Gender genderLimit,
-//            JobCategory jobCategoryLimit,
-//            AgeLimit ageLimit,
-//            Boolean isFirstCome,
-//            List<PostLikeDocument> postLikes,
-//            List<PostParticipantDocument> postParticipants,
-//            List<InviteDocument> invites,
-//            List<String> tags,
-//            Boolean isDeleted,
-//            LocalDateTime deletedAt,
-//            LocalDateTime createdAt
-//    ) {
-//        return new PostDocument(
-//                id,
-//                authorId,
-//                title,
-//                timeSlot,
-//                publicContent,
-//                status,
-//                maxParticipants,
-//                genderLimit,
-//                jobCategoryLimit,
-//                ageLimit,
-//                isFirstCome,
-//                postLikes,
-//                postParticipants,
-//                invites,
-//                (tags != null) ? tags : new ArrayList<>(),
-//                isDeleted,
-//                deletedAt,
-//                createdAt
-//        );
-//    }
+    @JsonCreator
+    private PostDocument(
+            @JsonProperty("id") Long id,
+            @JsonProperty("authorId") Long authorId,
+            @JsonProperty("title") String title,
+            @JsonProperty("timeSlot") LocalDateTime timeSlot,
+            @JsonProperty("publicContent") String publicContent,
+            @JsonProperty("status") PostStatus status,
+            @JsonProperty("maxParticipants") Integer maxParticipants,
+            @JsonProperty("genderLimit") Gender genderLimit,
+            @JsonProperty("jobCategoryLimit") JobCategory jobCategoryLimit,
+            @JsonProperty("ageLimit") AgeLimit ageLimit,
+            @JsonProperty("isFirstCome") Boolean isFirstCome,
+            @JsonProperty("postLikes") List<PostLikeDocument> postLikes,
+            @JsonProperty("postParticipants") List<PostParticipantDocument> postParticipants,
+            @JsonProperty("invites") List<InviteDocument> invites,
+            @JsonProperty("tags") List<String> tags,
+            @JsonProperty("isDeleted") Boolean isDeleted,
+            @JsonProperty("deletedAt") LocalDateTime deletedAt,
+            @JsonProperty("createdAt") LocalDateTime createdAt
+    ) {
+
+        this.id = id;
+        this.authorId = authorId;
+        this.title = title;
+        this.timeSlot = timeSlot;
+        this.publicContent = publicContent;
+        this.status = status;
+        this.maxParticipants = maxParticipants;
+        this.genderLimit = genderLimit;
+        this.jobCategoryLimit = jobCategoryLimit;
+        this.ageLimit = ageLimit;
+        this.isFirstCome = isFirstCome;
+        this.postLikes = postLikes;
+        this.postParticipants = postParticipants;
+        this.tags = (tags != null) ? tags : new ArrayList<>();
+        this.invites = invites;
+        this.isDeleted = isDeleted;
+        this.deletedAt = deletedAt;
+        this.createdAt = createdAt;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public static PostDocument createPostDocument(
+            Long id,
+            Long authorId,
+            String title,
+            LocalDateTime timeSlot,
+            String publicContent,
+            PostStatus status,
+            Integer maxParticipants,
+            Gender genderLimit,
+            JobCategory jobCategoryLimit,
+            AgeLimit ageLimit,
+            Boolean isFirstCome,
+            List<PostLikeDocument> postLikes,
+            List<PostParticipantDocument> postParticipants,
+            List<InviteDocument> invites,
+            List<String> tags,
+            Boolean isDeleted,
+            LocalDateTime deletedAt,
+            LocalDateTime createdAt
+    ) {
+        return new PostDocument(
+                id,
+                authorId,
+                title,
+                timeSlot,
+                publicContent,
+                status,
+                maxParticipants,
+                genderLimit,
+                jobCategoryLimit,
+                ageLimit,
+                isFirstCome,
+                postLikes,
+                postParticipants,
+                invites,
+                (tags != null) ? tags : new ArrayList<>(),
+                isDeleted,
+                deletedAt,
+                createdAt
+        );
+    }
 
 
     // ====== 새로 추가한 카운터/버킷 필드 ======
@@ -197,7 +195,7 @@ public class PostDocument {
     private Map<String, Integer> applyDaily;  // key: "yyyy-MM-dd"
     // =========================================
 
-    private PostDocument(
+    public PostDocument(
 
             Long id,
             Long authorId,
