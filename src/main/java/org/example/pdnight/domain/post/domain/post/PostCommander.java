@@ -18,6 +18,4 @@ public interface PostCommander {
     Post save(Post post);
 
     List<Post> findAllByAuthorId(Long authorId);
-
-    void saveES(Post foundPost);
 }
