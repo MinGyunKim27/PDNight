@@ -11,6 +11,7 @@ import org.example.pdnight.domain.post.presentation.dto.response.InviteResponse;
 import org.example.pdnight.domain.post.presentation.dto.response.ParticipantResponse;
 import org.example.pdnight.domain.post.presentation.dto.response.PostLikeResponse;
 import org.example.pdnight.domain.post.presentation.dto.response.PostResponse;
+import org.example.pdnight.global.aop.SaveLog;
 import org.example.pdnight.global.common.dto.PagedResponse;
 import org.example.pdnight.global.common.enums.JobCategory;
 import org.springframework.data.domain.Pageable;
@@ -22,6 +23,7 @@ public class PostServiceImpl implements PostService {
 
     private final PostReaderService postReaderService;
     private final PostCommanderService postCommanderService;
+    private final PostReaderESService postReaderESService;
 
     @Override
     public PagedResponse<ParticipantResponse> getParticipantListByPending(Long authorId, Long postId, int page, int size) {
@@ -144,10 +146,54 @@ public class PostServiceImpl implements PostService {
         return postReaderService.getMyInvite(userId, pageable);
     }
 
+    @SaveLog
     @Override
     public void deleteAdminPostById(Long id) {
         postCommanderService.deleteAdminPostById(id);
     }
 
+    @Override
+    public PostResponse findPostES(Long id) {
+        return postReaderESService.findPostES(id);
+    }
 
+    @Override
+    public PagedResponse<PostResponse> findMyWrittenPostsES(Long id, Pageable pageable) {
+        return postReaderESService.findMyWrittenPostsES(id, pageable);
+    }
+
+    @Override
+    public PagedResponse<PostResponse> findMyLikedPostsES(Long id, Pageable pageable) {
+        return postReaderESService.findMyLikedPostsES(id, pageable);
+    }
+
+    @Override
+    public PagedResponse<PostResponse> findMyConfirmedPostsES(Long id, JoinStatus joinStatus, Pageable pageable) {
+        return postReaderESService.findMyConfirmedPostsES(id, joinStatus, pageable);
+    }
+
+    @Override
+    public PagedResponse<PostResponse> getPostDtosBySearchES(Pageable pageable, Integer maxParticipants, AgeLimit ageLimit, JobCategory jobCategoryLimit, Gender genderLimit) {
+        return postReaderESService.getPostDtosBySearchES(pageable, maxParticipants, ageLimit, jobCategoryLimit, genderLimit);
+    }
+
+    @Override
+    public PagedResponse<ParticipantResponse> getParticipantListByPendingES(Long userId, Long postId, int page, int size) {
+        return postReaderESService.getParticipantListByPendingES(userId, postId, page, size);
+    }
+
+    @Override
+    public PagedResponse<ParticipantResponse> getParticipantListByAcceptedES(Long userId, Long postId, int page, int size) {
+        return postReaderESService.getParticipantListByAcceptedES(userId, postId, page, size);
+    }
+
+    @Override
+    public PagedResponse<InviteResponse> getMyInvitedES(Long userId, Pageable pageable) {
+        return postReaderESService.getMyInvitedES(userId, pageable);
+    }
+
+    @Override
+    public PagedResponse<InviteResponse> getMyInviteES(Long userId, Pageable pageable) {
+        return postReaderESService.getMyInviteES(userId, pageable);
+    }
 }

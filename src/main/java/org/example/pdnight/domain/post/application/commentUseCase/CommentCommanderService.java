@@ -97,7 +97,7 @@ public class CommentCommanderService {
         Comment childComment = Comment.createChild(postId, loginId, request.getContent(), foundComment);
         Comment savedChildComment = commentCommander.save(childComment);
 
-        producer.produce(KafkaTopic.POST_COMMENT_REPLY_CREATED.topicName(),  new CommentReplyCreatedEvent(foundComment.getAuthorId(), childComment.getAuthorId()));
+        producer.produce(KafkaTopic.POST_COMMENT_REPLY_CREATED.topicName(), new CommentReplyCreatedEvent(foundComment.getAuthorId(), childComment.getAuthorId()));
 
         return CommentResponse.from(savedChildComment);
     }

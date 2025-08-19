@@ -1,5 +1,7 @@
 package org.example.pdnight.domain.post.presentation;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.post.application.commentUseCase.CommentService;
@@ -15,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "Comment")
 @RestController
 @RequiredArgsConstructor
 public class CommentController {
@@ -23,6 +26,7 @@ public class CommentController {
 
     //댓글 다건조회 메서드
     @GetMapping("/api/posts/{postId}/comments")
+    @Operation(summary = "댓글 리스트 조회", description = "특정 게시글의 댓글 전체를 조회한다")
     public ResponseEntity<ApiResponse<PagedResponse<CommentResponse>>> getComments(
             @PathVariable Long postId,
             @RequestParam(defaultValue = "0") int page,
@@ -37,6 +41,7 @@ public class CommentController {
 
     //댓글 생성 메서드
     @PostMapping("/api/posts/{postId}/comments")
+    @Operation(summary = "댓글 등록", description = "특정 게시글에 댓글을 등록한다")
     public ResponseEntity<ApiResponse<CommentResponse>> saveComment(
             @PathVariable Long postId,
             @AuthenticationPrincipal CustomUserDetails loginUser,
@@ -51,6 +56,7 @@ public class CommentController {
 
     //댓글 수정 메서드
     @PatchMapping("/api/posts/{postId}/comments/{id}")
+    @Operation(summary = "댓글 수정", description = "댓글을 수정한다")
     public ResponseEntity<ApiResponse<CommentResponse>> updateComment(
             @PathVariable Long postId,
             @PathVariable Long id,
@@ -66,6 +72,7 @@ public class CommentController {
 
     //대댓글 생성 메서드
     @PostMapping("/api/posts/{postId}/comments/{id}/comments")
+    @Operation(summary = "대댓글 등록", description = "대댓글을 등록한다")
     public ResponseEntity<ApiResponse<CommentResponse>> saveChildComment(
             @PathVariable Long postId,
             @PathVariable Long id,
@@ -81,6 +88,7 @@ public class CommentController {
 
     //댓글 삭제 메서드
     @DeleteMapping("/api/posts/{postId}/comments/{id}")
+    @Operation(summary = "댓글 삭제", description = "댓글을 삭제한다")
     public ResponseEntity<ApiResponse<Void>> deleteComment(
             @PathVariable Long postId,
             @PathVariable Long id,
@@ -95,6 +103,7 @@ public class CommentController {
 
     //   ------ admin ------
     @DeleteMapping("/api/admin/posts/{postId}/comments/{id}")
+    @Operation(summary = "[관리자] 댓글 강제 삭제", description = "관리자가 댓글을 강제로 삭제한다")
     public ResponseEntity<ApiResponse<Void>> deleteAdminComment(
             @PathVariable Long postId,
             @PathVariable Long id,

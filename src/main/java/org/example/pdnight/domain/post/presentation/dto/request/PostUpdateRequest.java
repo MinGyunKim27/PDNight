@@ -1,11 +1,11 @@
 package org.example.pdnight.domain.post.presentation.dto.request;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
-import org.example.pdnight.domain.post.enums.PostStatus;
 import org.example.pdnight.global.common.enums.JobCategory;
 
 import java.time.LocalDateTime;
@@ -20,15 +20,12 @@ public class PostUpdateRequest {
     private String title;
     private LocalDateTime timeSlot;
     private String publicContent;
-    private PostStatus status;
-
     //maxParticipants 는 1인 이상 검증해야함
+    @Schema(description = "참가자", example = "2")
     private Integer maxParticipants;
     private Gender genderLimit;
     private JobCategory jobCategoryLimit;
     private AgeLimit ageLimit;
 
-    private List<Long> hobbyIdList;
-    private List<Long> techStackIdList;
-
+    private List<Long> tagIdList;
 }

@@ -15,7 +15,6 @@ import org.example.pdnight.global.common.enums.KafkaTopic;
 import org.example.pdnight.global.common.exception.BaseException;
 import org.example.pdnight.global.event.CouponExpiredEvent;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -53,13 +52,8 @@ public class UserReaderService {
     //유저 이름이나 닉네임이나 이메일로 검색
     @Transactional(readOnly = true)
     public PagedResponse<UserResponse> searchUsers(String search, Pageable pageable) {
-        Page<User> page = userReader.searchUsers(search, pageable);
-
-        List<UserResponse> responseList = userInfoAssembler.toDtoList(page);
-
-        Page<UserResponse> dtos = new PageImpl<>(responseList, pageable, page.getTotalElements());
-
-        return PagedResponse.from(dtos);
+        Page<UserResponse> page = userReader.searchUsers(search, pageable);
+        return PagedResponse.from(page);
     }
 
     public PagedResponse<FollowingResponse> getFollowings(Long myId, Pageable pageable) {
@@ -83,7 +77,7 @@ public class UserReaderService {
         List<UserCoupon> userCoupons = userReader.findByDeadlineAtBetween(now, plusOneDay);
         List<Long> targetUserIds = new ArrayList<>();
 
-        for(UserCoupon c : userCoupons) {
+        for (UserCoupon c : userCoupons) {
             targetUserIds.add(c.getUser().getId());
         }
 
@@ -94,14 +88,8 @@ public class UserReaderService {
 
     @Transactional(readOnly = true)
     public PagedResponse<UserResponse> getAllUsers(Pageable pageable) {
-
-        Page<User> page = userReader.findAll(pageable);
-
-        List<UserResponse> responseList = userInfoAssembler.toDtoList(page);
-
-        Page<UserResponse> dtos = new PageImpl<>(responseList, pageable, page.getTotalElements());
-
-        return PagedResponse.from(dtos);
+        Page<UserResponse> page = userReader.findAll(pageable);
+        return PagedResponse.from(page);
     }
 
 

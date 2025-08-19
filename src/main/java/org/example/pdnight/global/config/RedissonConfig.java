@@ -20,11 +20,15 @@ public class RedissonConfig {
     @Value("${spring.data.redis.port}")
     private int redisPort;
 
+    @Value("${spring.data.redis.password}")
+    private String password;
+
     @Bean
     public RedissonClient redissonClient() {
         Config config = new Config();
         config.useSingleServer()
                 .setAddress("redis://" + redisHost + ":" + redisPort)
+                .setPassword(password)
                 .setDatabase(0)
                 .setConnectionPoolSize(64)  // 연결 풀 크기 명시적 설정
                 .setConnectionMinimumIdleSize(10);

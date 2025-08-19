@@ -1,7 +1,6 @@
 version: "3.8"
 
-# .env 파일에 아래 값 준비 권장
-# EC2_PRIVATE_IP=10.0.1.23   # VPC 내에서 접속할 프라이빗 IP 또는 호스트네임
+# 배포 하는 서비스들
 
 services:
   redis:
@@ -49,6 +48,8 @@ services:
 
       # --- JVM/JMX Exporter(javaagent) ---
       - KAFKA_OPTS=-javaagent:/opt/jmx/jmx_prometheus_javaagent.jar=7071:/opt/jmx/kafka-jmx.yml
+      - KAFKA_HEAP_OPTS=-Xms384M -Xmx512M
+      - KAFKA_JVM_PERFORMANCE_OPTS=-XX:+UseG1GC -XX:MaxGCPauseMillis=30 -XX:InitiatingHeapOccupancyPercent=20 -XX:+ExplicitGCInvokesConcurrent
     volumes:
       - Kafka00:/bitnami/kafka
       - ./jmx:/opt/jmx:ro
@@ -87,6 +88,8 @@ services:
       - KAFKA_CFG_LOG_RETENTION_HOURS=168
 
       - KAFKA_OPTS=-javaagent:/opt/jmx/jmx_prometheus_javaagent.jar=7071:/opt/jmx/kafka-jmx.yml
+      - KAFKA_HEAP_OPTS=-Xms384M -Xmx512M
+      - KAFKA_JVM_PERFORMANCE_OPTS=-XX:+UseG1GC -XX:MaxGCPauseMillis=30 -XX:InitiatingHeapOccupancyPercent=20 -XX:+ExplicitGCInvokesConcurrent
     volumes:
       - Kafka01:/bitnami/kafka
       - ./jmx:/opt/jmx:ro
@@ -125,6 +128,8 @@ services:
       - KAFKA_CFG_LOG_RETENTION_HOURS=168
 
       - KAFKA_OPTS=-javaagent:/opt/jmx/jmx_prometheus_javaagent.jar=7071:/opt/jmx/kafka-jmx.yml
+      - KAFKA_HEAP_OPTS=-Xms384M -Xmx512M
+      - KAFKA_JVM_PERFORMANCE_OPTS=-XX:+UseG1GC -XX:MaxGCPauseMillis=30 -XX:InitiatingHeapOccupancyPercent=20 -XX:+ExplicitGCInvokesConcurrent
     volumes:
       - Kafka02:/bitnami/kafka
       - ./jmx:/opt/jmx:ro
@@ -150,6 +155,51 @@ services:
       - Kafka02Service
     networks:
       - kafka_network
+
+  elasticsearch:
+    build:
+      context: elasticsearch/
+      args:
+        ELK_VERSION: 8.14.0
+    volumes:
+      - type: bind
+        source: ./elasticsearch/config/elasticsearch.yml
+        target: /usr/share/elasticsearch/config/elasticsearch.yml
+        read_only: true
+      - type: volume
+        source: elasticsearch
+        target: /usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      ES_JAVA_OPTS: "-Xms128M -Xmx256M"
+      ELASTIC_PASSWORD: elastic
+      # Use single node discovery in order to disable production mode and avoid bootstrap checks
+      # see https://www.elastic.co/guide/en/elasticsearch/reference/current/bootstrap-checks.html
+      discovery.type: single-node
+      xpack.security.enabled: false
+    networks:
+      - elk
+
+  kibana:
+    build:
+      context: kibana/
+      args:
+        ELK_VERSION: 8.14.0
+    volumes:
+      - type: bind
+        source: ./kibana/config/kibana.yml
+        target: /usr/share/kibana/config/kibana.yml
+        read_only: true
+    ports:
+      - "5601:5601"
+    environment:
+      SERVER_JAVA_OPTS: "-Xms96M -Xmx128M"
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
 
   kafka-exporter:
     image: danielqsj/kafka-exporter:latest
@@ -198,7 +248,12 @@ volumes:
   Kafka00:
   Kafka01:
   Kafka02:
+    driver: local
+  es-data:
+  elasticsearch:
 
 networks:
   spring-net:
   kafka_network:
+  elk:
+    driver: bridge

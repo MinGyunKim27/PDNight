@@ -1,6 +1,7 @@
 package org.example.pdnight.domain.post.application.PostUseCase;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.pdnight.domain.post.domain.post.*;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
@@ -24,10 +25,12 @@ import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.example.pdnight.global.common.enums.ErrorCode.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PostCommanderService {
@@ -35,6 +38,7 @@ public class PostCommanderService {
     private final PostCommander postCommander;
     private final PostProducer postProducer;
     private final UserPort userPort;
+    private final PostInfoAssembler postInfoAssembler;
 
     // region  게시물
     @Transactional
@@ -54,7 +58,8 @@ public class PostCommanderService {
                 request.getGenderLimit(),
                 request.getJobCategoryLimit(),
                 request.getAgeLimit(),
-                request.isFirstCome()
+                request.isFirstCome(),
+                request.getTagIdList()
         );
 
         postCommander.save(post);
@@ -65,7 +70,7 @@ public class PostCommanderService {
             Long authorId = post.getAuthorId();
             postProducer.produce("followee.post.created", new FolloweePostCreatedEvent(authorId, post.getId(), followeeIds));
         }
-        return PostResponse.toDto(post);
+        return postInfoAssembler.toDto(post);
     }
 
     // 논리적 삭제
@@ -83,6 +88,9 @@ public class PostCommanderService {
         validateAuthor(userId, foundPost);
 
         foundPost.softDelete();
+
+        // 명시적으로 save
+        postCommander.saveES(foundPost);
     }
 
     // 물리적 삭제
@@ -133,10 +141,13 @@ public class PostCommanderService {
                 request.getMaxParticipants(),
                 request.getGenderLimit(),
                 request.getJobCategoryLimit(),
-                request.getAgeLimit()
+                request.getAgeLimit(),
+                request.getTagIdList()
         );
+        // 명시적으로 save
+        postCommander.saveES(foundPost);
 
-        return PostResponse.toDto(foundPost);
+        return postInfoAssembler.toDto(foundPost);
     }
 
     @Transactional
@@ -161,8 +172,12 @@ public class PostCommanderService {
         //변동사항 있을시에만 업데이트
         if (!foundPost.getStatus().equals(request.getStatus())) {
             foundPost.updateStatus(request.getStatus());
+
+            // 명시적으로 save
+            postCommander.saveES(foundPost);
+
             // 참가자들에게 이벤트 발행
-            if(request.getStatus().equals(PostStatus.CONFIRMED)){
+            if (request.getStatus().equals(PostStatus.CONFIRMED)) {
                 // Kafka 이벤트 발행
                 postProducer.produce("post.confirmed",
                         new PostConfirmedEvent(
@@ -177,7 +192,7 @@ public class PostCommanderService {
             }
         }
 
-        return PostResponse.toDto(foundPost);
+        return postInfoAssembler.toDto(foundPost);
     }
 
     @Transactional
@@ -208,7 +223,12 @@ public class PostCommanderService {
 
         // 참가 신청 처리
         PostParticipant participant = handleJoinRequest(foundPost, loginId, foundPost.getIsFirstCome());
+        LocalDateTime now = LocalDateTime.now();
+        participant.setCreatedAt(now);
         postProducer.produce("post.participant.applied", new PostParticipateAppliedEvent(foundPost.getId(), foundPost.getAuthorId(), loginId));
+
+        // 명시적으로 save
+        postCommander.saveES(foundPost);
 
         return ParticipantResponse.from(
                 loginId,
@@ -219,7 +239,7 @@ public class PostCommanderService {
         );
     }
 
-    //참가 취소
+    // 참가 취소
     // @DistributedLock(key = "#postId", timeoutMs = 5000)
     @Transactional
     public void deleteParticipant(Long loginId, Long postId) {
@@ -234,6 +254,7 @@ public class PostCommanderService {
 
         // 정상 삭제
         post.removeParticipant(pending);
+        postCommander.saveES(post);
     }
 
     //참가 확정(작성자)
@@ -251,6 +272,10 @@ public class PostCommanderService {
 
         // 상태변경
         pending.changeStatus(joinStatus);
+
+        // 명시적으로 save
+        postCommander.saveES(post);
+
         // 모임 참여 수락
         if (joinStatus.equals(JoinStatus.ACCEPTED)) {
             postProducer.produce("post.participant.accepted", new PostApplyAcceptedEvent(postId, authorId, userId));
@@ -286,6 +311,9 @@ public class PostCommanderService {
         PostLike postLike = PostLike.create(post, userId);
         post.addLike(postLike);
 
+        // 명시적으로 save
+        postCommander.saveES(post);
+
         return PostLikeResponse.from(postLike);
     }
 
@@ -297,6 +325,9 @@ public class PostCommanderService {
         PostLike like = getUserLikeForPost(post, userId);
 
         post.removeLike(like);
+
+        // 명시적으로 save
+        postCommander.saveES(post);
     }
 
     //endregion
@@ -310,6 +341,9 @@ public class PostCommanderService {
 
         Invite invite = Invite.create(loginUserId, userId, post);
         post.addInvite(invite);
+
+        // 명시적으로 save
+        postCommander.saveES(post);
 
         // 초대 전송
         postProducer.produce("invite.sent", new InviteSentEvent(loginUserId, userId, postId));
@@ -327,6 +361,9 @@ public class PostCommanderService {
                 .orElseThrow(() -> new BaseException(INVITE_UNAUTHORIZED));
 
         post.removeInvite(findInvite);
+
+        // 명시적으로 save
+        postCommander.saveES(post);
     }
     //endregion
 
@@ -347,6 +384,9 @@ public class PostCommanderService {
         postProducer.produce("invite.accepted", new InviteAcceptedEvent(post.getAuthorId(), loginUserId, postId));
 
         post.removeInvite(findInvite);
+
+        // 명시적으로 save
+        postCommander.saveES(post);
     }
 
     //내가 받은 초대 거절
@@ -360,6 +400,9 @@ public class PostCommanderService {
                 .orElseThrow(() -> new BaseException(INVITE_NOT_FOUND));
 
         post.removeInvite(findInvite);
+
+        // 명시적으로 save
+        postCommander.saveES(post);
 
         postProducer.produce("invite.denied", new InviteDeniedEvent(post.getAuthorId(), loginUserId, postId));
     }
@@ -398,7 +441,7 @@ public class PostCommanderService {
                 .orElseThrow(() -> new BaseException(POST_NOT_FOUND));
 
         // OPEN 상태가 아닌 포스트의 경우
-        if(post.getStatus() != PostStatus.OPEN) {
+        if (post.getStatus() != PostStatus.OPEN) {
             throw new BaseException(POST_STATUS_NOT_OPEN);
         }
 

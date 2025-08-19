@@ -5,6 +5,7 @@ import org.example.pdnight.domain.user.presentation.dto.userDto.request.GiveCoup
 import org.example.pdnight.domain.user.presentation.dto.userDto.request.UserNicknameUpdate;
 import org.example.pdnight.domain.user.presentation.dto.userDto.request.UserUpdateRequest;
 import org.example.pdnight.domain.user.presentation.dto.userDto.response.*;
+import org.example.pdnight.global.aop.SaveLog;
 import org.example.pdnight.global.common.dto.PagedResponse;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,7 @@ public class UserServiceImpl implements UserService {
         userCommanderService.unfollow(userId, loginId);
     }
 
+    @SaveLog
     public void delete(Long userId) {
         userCommanderService.delete(userId);
     }
@@ -39,10 +41,12 @@ public class UserServiceImpl implements UserService {
     }
     // --------------------- Admin Command Api ------------------------------------------------//
 
+    @SaveLog
     public UserCouponResponse giveCouponToUser(GiveCouponRequest request) {
         return userCommanderService.giveCouponToUser(request);
     }
 
+    @SaveLog
     public UserResponse updateNickname(Long userId, UserNicknameUpdate dto) {
         return userCommanderService.updateNickname(userId, dto);
     }

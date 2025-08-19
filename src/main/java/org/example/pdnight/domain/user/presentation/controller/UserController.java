@@ -1,5 +1,6 @@
 package org.example.pdnight.domain.user.presentation.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.user.application.userUseCase.UserService;
 import org.example.pdnight.domain.user.presentation.dto.userDto.request.GiveCouponRequest;
@@ -28,6 +29,7 @@ public class UserController {
     // --------------- users
     // 본인 프로필 수정
     @PatchMapping("/users/my/profile")
+    @Operation(summary = "프로필 수정", description = "본인의 프로필을 수정한다", tags = {"User"})
     public ResponseEntity<ApiResponse<UserResponse>> updateMyProfile(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody UserUpdateRequest request
@@ -43,6 +45,7 @@ public class UserController {
     // --------------- users/follow
     //팔로우
     @PostMapping("/users/{userId}/follow")
+    @Operation(summary = "팔로우", description = "상대방을 팔로우한다", tags = {"Follow"})
     public ResponseEntity<ApiResponse<FollowResponse>> follow(
             @PathVariable Long userId,
             @AuthenticationPrincipal CustomUserDetails loginUser
@@ -54,6 +57,7 @@ public class UserController {
 
     //언팔로우
     @DeleteMapping("/users/{userId}/follow")
+    @Operation(summary = "언팔로우", description = "팔로우를 취소한다", tags = {"Follow"})
     public ResponseEntity<ApiResponse<Void>> unfollow(
             @PathVariable Long userId,
             @AuthenticationPrincipal CustomUserDetails loggedInUser
@@ -65,6 +69,7 @@ public class UserController {
     // --------------- coupons
     // 쿠폰사용
     @PatchMapping("/users/user-coupons/{id}")
+    @Operation(summary = "쿠폰 사용", description = "본인의 쿠폰을 사용한다", tags = {"Coupon"})
     public ResponseEntity<ApiResponse<UserCouponResponse>> useCoupon(
             @PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -76,12 +81,14 @@ public class UserController {
     // --------------------- Admin Command Api ------------------------------------------------//
     // --------------- users
     @PatchMapping("/admin/users/{id}/nickname")
+    @Operation(summary = "[관리자] 닉네임 강제 변경", description = "관리자가 사용자의 닉네임을 강제로 변경한다", tags = {"AdminUser"})
     public ResponseEntity<ApiResponse<UserResponse>> adminUpdateNickname(@PathVariable Long id,
                                                                          @RequestBody UserNicknameUpdate dto) {
         return ResponseEntity.ok(ApiResponse.ok("닉네임이 변경되었습니다.", userService.updateNickname(id, dto)));
     }
 
     @DeleteMapping("/admin/users/{id}")
+    @Operation(summary = "[관리자] 강제 회원탈퇴", description = "관리자가 사용자를 회원탈퇴 시킨다", tags = {"AdminUser"})
     public ResponseEntity<ApiResponse<Void>> adminDeleteUser(@PathVariable Long id) {
         userService.delete(id);
         return ResponseEntity.ok(ApiResponse.ok("회원탈퇴 시켰습니다.", null));
@@ -90,6 +97,7 @@ public class UserController {
     // --------------- coupons
     // 사용자에게 쿠폰 부여
     @PostMapping("/admin/users/coupons")
+    @Operation(summary = "[관리자] 사용자에게 쿠폰 부여", description = "관리자가 사용자에게 쿠폰을 부여한다", tags = {"AdminCoupon"})
     public ResponseEntity<ApiResponse<UserCouponResponse>> giveCouponToUser(
             @RequestBody GiveCouponRequest request
     ) {
@@ -102,6 +110,7 @@ public class UserController {
     // --------------- users
     // 내 프로필 조회
     @GetMapping("/users/my/profile")
+    @Operation(summary = "내 프로필 조회", description = "본인의 프로필을 조회한다", tags = {"User"})
     public ResponseEntity<ApiResponse<UserResponse>> getMyProfile(
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
@@ -114,6 +123,7 @@ public class UserController {
 
     // 유저 프로필 조회
     @GetMapping("/users/{id}/profile")
+    @Operation(summary = "사용자 프로필 조회", description = "다른 사용자의 프로필을 조회한다", tags = {"User"})
     public ResponseEntity<ApiResponse<UserResponse>> getProfile(
             @PathVariable Long id
     ) {
@@ -125,6 +135,7 @@ public class UserController {
 
     //유저 검색
     @GetMapping("/users/search")
+    @Operation(summary = "사용자 검색 조회", description = "사용자를 검색해서 조회한다", tags = {"User"})
     public ResponseEntity<ApiResponse<PagedResponse<UserResponse>>> searchUsers(
             @RequestParam String search,
             @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
@@ -138,6 +149,7 @@ public class UserController {
 
     //평가 조회
     @GetMapping("/users/{id}/evaluation")
+    @Operation(summary = "사용자 평가 조회", description = "사용자의 평가를 조회한다", tags = {"User"})
     public ResponseEntity<ApiResponse<UserEvaluationResponse>> getEvaluation(
             @PathVariable Long id
     ) {
@@ -150,6 +162,7 @@ public class UserController {
     // --------------- users/follow
     //내 팔로잉 목록 조회
     @GetMapping("/users/my/following")
+    @Operation(summary = "내 팔로잉 목록 조회", description = "본인의 팔로잉 목록을 조회한다", tags = {"Follow"})
     public ResponseEntity<ApiResponse<PagedResponse<FollowingResponse>>> getFollowings(
             @AuthenticationPrincipal CustomUserDetails loggedInUser,
             @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
@@ -163,6 +176,7 @@ public class UserController {
 
     // 내 쿠폰목록 조회
     @GetMapping("/users/my/user-coupons")
+    @Operation(summary = "내 쿠폰 목록 조회", description = "본인의 쿠폰 목록을 조회한다", tags = {"Coupon"})
     public ResponseEntity<ApiResponse<PagedResponse<UserCouponResponse>>> getMyCoupons(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PageableDefault() Pageable pageable
@@ -173,6 +187,7 @@ public class UserController {
     // --------------------- Admin 조회 Api ----------------------------------------------------//
     // --------------- users
     @GetMapping("/admin/users")
+    @Operation(summary = "[관리자] 전체 사용자 조회", description = "서비스에 가입한 사용자 목록을 조회한다", tags = {"AdminUser"})
     public ResponseEntity<ApiResponse<PagedResponse<UserResponse>>> adminGetAllUsers(
             @PageableDefault() Pageable pageable
     ) {

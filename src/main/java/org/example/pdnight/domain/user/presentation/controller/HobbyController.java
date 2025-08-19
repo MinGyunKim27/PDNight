@@ -1,6 +1,8 @@
 package org.example.pdnight.domain.user.presentation.controller;
 
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.user.application.hobbyUseCase.HobbyService;
 import org.example.pdnight.domain.user.presentation.dto.hobbyDto.request.HobbyRequest;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "UserTag")
 @RestController
 @RequestMapping("/api/hobbies")
 @RequiredArgsConstructor
@@ -19,6 +22,7 @@ public class HobbyController {
     private final HobbyService hobbyService;
 
     @PostMapping
+    @Operation(summary = "취미 추가", description = "취미을 추가한다")
     public ResponseEntity<ApiResponse<HobbyResponse>> createHobby(
             @Validated @RequestBody HobbyRequest dto
     ){
@@ -28,6 +32,7 @@ public class HobbyController {
     }
 
     @GetMapping
+    @Operation(summary = "취미 조회", description = "취미 목록을 조회한다")
     private ResponseEntity<ApiResponse<List<HobbyResponse>>> searchHobby(
             @RequestParam (required = false)  String searchHobby
     ){

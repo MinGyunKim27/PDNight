@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.pdnight.domain.post.domain.post.Post;
 import org.example.pdnight.domain.post.domain.post.PostParticipant;
 import org.example.pdnight.domain.post.domain.post.PostReader;
+import org.example.pdnight.domain.post.domain.post.PostTag;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.enums.JoinStatus;
@@ -25,12 +26,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-
 @Service
 @RequiredArgsConstructor
 public class PostReaderService {
 
     private final PostReader postReader;
+    private final TagPort tagPort;
 
     //region 게시글 조회
     // 게시글 단건 조회
@@ -38,8 +39,14 @@ public class PostReaderService {
     @Cacheable(value = CacheName.ONE_POST, key = "#id")
     public PostResponse findPost(Long id) {
         Post foundPost = getPost(id);
+        // 참여자 수 조회
         int participants = acceptedParticipantsCounter(foundPost.getPostParticipants());
-        return PostResponse.toDtoWithCount(foundPost, participants, foundPost.getPostParticipants().size());
+
+        // 태그 리스트 조회 - 게시글의 태그 Id 들로 이름 검색
+        List<Long> tagIdList = foundPost.getPostTagList().stream().map(PostTag::getTagId).toList();
+        List<String> tagNames = tagPort.findAllTagNames(tagIdList);
+
+        return PostResponse.toDtoWithCount(foundPost, tagNames, participants, foundPost.getPostParticipants().size());
     }
 
     //게시물 조건 검색
@@ -57,9 +64,16 @@ public class PostReaderService {
     ) {
         Page<Post> postSearch = postReader.findPostsBySearch(pageable, maxParticipants,
                 ageLimit, jobCategoryLimit, genderLimit);
+
+        // Page<PostResponse> 매핑
         Page<PostResponse> postDtosBySearch = postSearch.map(search -> {
+            // 태그 리스트 조회 - 게시글의 태그 Id 들로 이름 검색
+            List<Long> tagIds = search.getPostTagList().stream().map(PostTag::getTagId).toList();
+            List<String> tagNames = tagPort.findAllTagNames(tagIds);
+
+            // 참여자 수 조회
             int participantCount = acceptedParticipantsCounter(search.getPostParticipants());
-            return PostResponse.toDtoWithCount(search, participantCount, search.getPostParticipants().size());
+            return PostResponse.toDtoWithCount(search, tagNames, participantCount, search.getPostParticipants().size());
         });
         return PagedResponse.from(postDtosBySearch);
     }
@@ -81,9 +95,16 @@ public class PostReaderService {
     )
     public PagedResponse<PostResponse> findMyWrittenPosts(Long userId, Pageable pageable) {
         Page<Post> postSearch = postReader.getWrittenPost(userId, pageable);
+
+        // Page<PostResponse> 매핑
         Page<PostResponse> myLikePost = postSearch.map(search -> {
+            // 태그 리스트 조회 - 게시글의 태그 Id 들로 이름 검색
+            List<Long> tagIds = search.getPostTagList().stream().map(PostTag::getTagId).toList();
+            List<String> tagNames = tagPort.findAllTagNames(tagIds);
+
+            // 참여자 수 조회
             int participantCount = acceptedParticipantsCounter(search.getPostParticipants());
-            return PostResponse.toDtoWithCount(search, participantCount, search.getPostParticipants().size());
+            return PostResponse.toDtoWithCount(search, tagNames, participantCount, search.getPostParticipants().size());
         });
 
         return PagedResponse.from(myLikePost);
@@ -96,9 +117,16 @@ public class PostReaderService {
     )
     public PagedResponse<PostResponse> getSuggestedPosts(Long userId, Pageable pageable) {
         Page<Post> postSearch = postReader.getSuggestedPost(userId, pageable);
+
+        // Page<PostResponse> 매핑
         Page<PostResponse> suggestedPost = postSearch.map(search -> {
+            // 태그 리스트 조회 - 게시글의 태그 Id 들로 이름 검색
+            List<Long> tagIds = search.getPostTagList().stream().map(PostTag::getTagId).toList();
+            List<String> tagNames = tagPort.findAllTagNames(tagIds);
+
+            // 참여자 수 조회
             int participantCount = acceptedParticipantsCounter(search.getPostParticipants());
-            return PostResponse.toDtoWithCount(search, participantCount, search.getPostParticipants().size());
+            return PostResponse.toDtoWithCount(search, tagNames, participantCount, search.getPostParticipants().size());
         });
         return PagedResponse.from(suggestedPost);
     }
