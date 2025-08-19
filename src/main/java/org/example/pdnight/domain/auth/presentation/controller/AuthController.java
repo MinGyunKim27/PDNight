@@ -79,6 +79,7 @@ public class AuthController {
     }
 
     @PostMapping("/reissue")
+    @Operation(summary = "토큰 재발급", description = "사용자엑세스 토큰 만료시 리프레쉬 토큰으로 토큰 재발급")
     public ResponseEntity<ApiResponse<LoginResponse>> reissue(@RequestHeader("Authorization") String refreshTokenHeader) {
         log.info("리이슈 리프레쉬 토큰" + refreshTokenHeader);
         LoginResponse response = authService.reissue(refreshTokenHeader);
