@@ -138,15 +138,19 @@ public class Post extends Timestamped {
         if (maxParticipants != null && maxParticipants >= 1) this.maxParticipants = maxParticipants;
         if (genderLimit != null) this.genderLimit = genderLimit;
         if (jobCategoryLimit != null) this.jobCategoryLimit = jobCategoryLimit;
-        if (postTagList != null) this.postTagList = postTagList;
+        if (postTagList != null) {
+            this.postTagList.clear();
+            setPostTagList(tagIdList);
+        }
         if (ageLimit != null) this.ageLimit = ageLimit;
-        this.postTagList.clear();
-        setPostTagList(tagIdList);
+
     }
 
     public void setPostTagList(List<Long> tagIdList) {
-        for (Long tagId : tagIdList) {
-            this.postTagList.add(PostTag.create(this, tagId));
+        if (tagIdList != null) {
+            for (Long tagId : tagIdList) {
+                this.postTagList.add(PostTag.create(this, tagId));
+            }
         }
     }
 

@@ -119,69 +119,6 @@ public class PostController {
                 .body(ApiResponse.ok("게시글 목록이 조회되었습니다.", pagedResponse));
     }
 
-    // 내 좋아요 게시글 목록 조회
-    @GetMapping("/my/likes")
-    @Operation(summary = "좋아요 게시글 조회", description = "본인이 좋아요한 게시글 목록을 조회한다", tags = {"Post"})
-    public ResponseEntity<ApiResponse<PagedResponse<PostResponse>>> getMyLikedPosts(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
-            @PageableDefault(size = 10, page = 0) Pageable pageable
-    ) {
-        Long id = userDetails.getUserId();
-        PagedResponse<PostResponse> myLikedPost = postService.findMyLikedPosts(id, pageable);
-        return ResponseEntity.ok(ApiResponse.ok("내 좋아요 게시글 목록이 조회되었습니다.", myLikedPost));
-    }
-
-    //내 신청/성사된 게시글 조회
-    @GetMapping("/my/confirmed-posts")
-    @Operation(summary = "신청/성사된 게시글 조회", description = "본인이 신청한/성사된 게시글 목록을 조회한다", tags = {"Post"})
-    public ResponseEntity<ApiResponse<PagedResponse<PostResponse>>> getMyConfirmedPosts(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestParam(required = false) JoinStatus joinStatus,
-            @PageableDefault(size = 10, page = 0) Pageable pageable
-    ) {
-        Long id = userDetails.getUserId();
-        PagedResponse<PostResponse> myLikedPost = postService.findMyConfirmedPosts(id, joinStatus, pageable);
-        return ResponseEntity.ok(ApiResponse.ok("참여 신청한 게시글 목록이 조회되었습니다.", myLikedPost));
-    }
-
-    //게시글 단건 조회
-    @GetMapping("/posts/{id}")
-    @Operation(summary = "게시글 단건 조회", description = "게시글 하나를 조회한다", tags = {"Post"})
-    public ResponseEntity<ApiResponse<PostResponse>> getPostById(@PathVariable Long id) {
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(ApiResponse.ok("게시글이 조회되었습니다.", postService.findPost(id)));
-    }
-
-    // 내가 작성한 게시글 조회
-    @GetMapping("/my/written-posts")
-    @Operation(summary = "작성한 게시글 조회", description = "본인이 작성한 게시글 목록을 조회한다", tags = {"Post"})
-    public ResponseEntity<ApiResponse<PagedResponse<PostResponse>>> getMyWrittenPosts(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
-            @PageableDefault(size = 10, page = 0) Pageable pageable
-    ) {
-        Long id = userDetails.getUserId();
-        PagedResponse<PostResponse> myLikedPost = postService.findMyWrittenPosts(id, pageable);
-        return ResponseEntity.ok(ApiResponse.ok("내가 작성 한 게시글이 조회되었습니다.", myLikedPost));
-    }
-
-    // 게시글 조건 조회
-    @GetMapping("/posts")
-    @Operation(summary = "게시글 검색 조회", description = "게시글 목록을 검색하거나, 전체 조회한다", tags = {"Post"})
-    public ResponseEntity<ApiResponse<PagedResponse<PostResponse>>> searchPosts(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "1") Integer maxParticipants,
-            @RequestParam(required = false) AgeLimit ageLimit,
-            @RequestParam(required = false) JobCategory jobCategoryLimit,
-            @RequestParam(required = false) Gender genderLimit
-    ) {
-        Pageable pageable = PageRequest.of(page, size);
-
-        PagedResponse<PostResponse> pagedResponse = postService.getPostDtosBySearch(
-                pageable, maxParticipants, ageLimit, jobCategoryLimit, genderLimit);
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(ApiResponse.ok("게시글 목록이 조회되었습니다.", pagedResponse));
-    }
 
     //endregion
     //endregion
@@ -228,36 +165,6 @@ public class PostController {
         postService.deleteParticipant(loginUser.getUserId(), postId);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.ok("참여 신청이 취소되었습니다.", null));
-    }
-
-    //endregion
-    //region 게시글신청자 조회 메서드
-    // 신청자 목록 조회
-    @GetMapping("/posts/{postId}/participant")
-    @Operation(summary = "게시글 신청자 목록 조회", description = "본인 게시글에 신청한 사용자 목록을 조회한다", tags = {"Participate"})
-    public ResponseEntity<ApiResponse<PagedResponse<ParticipantResponse>>> getPendingParticipantList(
-            @AuthenticationPrincipal CustomUserDetails author,
-            @PathVariable Long postId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
-        PagedResponse<ParticipantResponse> response = postService.getParticipantListByPending(author.getUserId(), postId, page, size);
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(ApiResponse.ok("신청자 목록이 조회되었습니다.", response));
-    }
-
-    // 참가자 목록 조회
-    @GetMapping("/posts/{postId}/participate/confirmed")
-    @Operation(summary = "게시글 참가자 목록 조회", description = "본인 게시글에 참가한 사용자 목록을 조회한다", tags = {"Participate"})
-    public ResponseEntity<ApiResponse<PagedResponse<ParticipantResponse>>> getAcceptedParticipantList(
-            @AuthenticationPrincipal CustomUserDetails loginUser,
-            @PathVariable Long postId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
-        PagedResponse<ParticipantResponse> response = postService.getParticipantListByAccepted(loginUser.getUserId(), postId, page, size);
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(ApiResponse.ok("참여자 목록이 조회되었습니다.", response));
     }
 
     //endregion
@@ -319,36 +226,6 @@ public class PostController {
         return ResponseEntity.ok(ApiResponse.ok("초대가 취소되었습니다.", null));
     }
 
-    //endregion
-    //region 게시글초대 조회 메서드
-    //내 초대받은 목록 조회
-    @GetMapping("/my/invited")
-    @Operation(summary = "초대받은 목록 조회", description = "본인이 초대받은 목록을 조회한다", tags = {"Invite"})
-    public ResponseEntity<ApiResponse<PagedResponse<InviteResponse>>> getMyInvited(
-            @AuthenticationPrincipal CustomUserDetails loggedInUser,
-            @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
-            Pageable pageable
-    ) {
-        Long userId = loggedInUser.getUserId();
-        PagedResponse<InviteResponse> inviteResponseDto = postService.getMyInvited(userId, pageable);
-
-        return ResponseEntity.ok(ApiResponse.ok("초대 받은 목록 조회가 완료되었습니다", inviteResponseDto));
-    }
-
-    //내가 보낸 초대 목록 조회
-    @GetMapping("/my/invite")
-    @Operation(summary = "초대보낸 목록 조회", description = "본인이 초대한 목록을 조회한다", tags = {"Invite"})
-    public ResponseEntity<ApiResponse<PagedResponse<InviteResponse>>> getMyInvite(
-            @AuthenticationPrincipal CustomUserDetails loggedInUser,
-            @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
-            Pageable pageable
-    ) {
-        Long userId = loggedInUser.getUserId();
-        PagedResponse<InviteResponse> inviteResponseDto = postService.getMyInvite(userId, pageable);
-
-        return ResponseEntity.ok(ApiResponse.ok("초대 보낸 목록 조회가 완료되었습니다", inviteResponseDto));
-    }
-    //endregion
 
     //초대 수락
     @PostMapping("/post/{postId}/invite/accept")
@@ -382,7 +259,7 @@ public class PostController {
     // ----------------------------------이하 ES 메서드----------------------------------------
 
     //게시물 단건 조회
-    @GetMapping("/posts/{id}/ES")
+    @GetMapping("/posts/{id}")
     @Operation(summary = "[ES] 게시글 단건 조회", description = "게시글 하나를 조회한다", tags = {"Post"})
     public ResponseEntity<ApiResponse<PostResponse>> getPostByIdES(@PathVariable Long id) {
         return ResponseEntity.status(HttpStatus.OK)
@@ -390,7 +267,7 @@ public class PostController {
     }
 
     // 내가 작성한 게시글 조회
-    @GetMapping("/my/written-posts/ES")
+    @GetMapping("/my/written-posts")
     @Operation(summary = "[ES] 작성한 게시글 조회", description = "본인이 작성한 게시글 목록을 조회한다", tags = {"Post"})
     public ResponseEntity<ApiResponse<PagedResponse<PostResponse>>> getMyWrittenPostsES(
             @AuthenticationPrincipal CustomUserDetails userDetails,
@@ -405,7 +282,7 @@ public class PostController {
     //추천 게시물 조회
 
     // 내 좋아요 게시글 목록 조회
-    @GetMapping("/my/likes/ES")
+    @GetMapping("/my/likes")
     @Operation(summary = "[ES] 좋아요 게시글 조회", description = "본인이 좋아요한 게시글 목록을 조회한다", tags = {"Post"})
     public ResponseEntity<ApiResponse<PagedResponse<PostResponse>>> getMyLikedPostsES(
             @AuthenticationPrincipal CustomUserDetails userDetails,
@@ -417,7 +294,7 @@ public class PostController {
     }
 
     //내 신청/성사된 게시글 조회
-    @GetMapping("/my/confirmed-posts/ES")
+    @GetMapping("/my/confirmed-posts")
     @Operation(summary = "[ES] 신청/성사된 게시글 조회", description = "본인이 신청한/성사된 게시글 목록을 조회한다", tags = {"Post"})
     public ResponseEntity<ApiResponse<PagedResponse<PostResponse>>> getMyConfirmedPostsES(
             @AuthenticationPrincipal CustomUserDetails userDetails,
@@ -430,7 +307,7 @@ public class PostController {
     }
 
     // 게시물 조건 조회
-    @GetMapping("/posts/ES")
+    @GetMapping("/posts")
     @Operation(summary = "[ES] 게시글 검색 조회", description = "게시글 목록을 검색하거나, 전체 조회한다", tags = {"Post"})
     public ResponseEntity<ApiResponse<PagedResponse<PostResponse>>> searchPostsES(
             @RequestParam(defaultValue = "0") int page,
@@ -449,7 +326,7 @@ public class PostController {
     }
 
     // 신청자 목록 조회
-    @GetMapping("/posts/{postId}/participant/ES")
+    @GetMapping("/posts/{postId}/participant")
     @Operation(summary = "[ES] 게시글 신청자 목록 조회", description = "본인 게시글에 신청한 사용자 목록을 조회한다", tags = {"Participate"})
     public ResponseEntity<ApiResponse<PagedResponse<ParticipantResponse>>> getPendingParticipantListES(
             @AuthenticationPrincipal CustomUserDetails author,
@@ -463,7 +340,7 @@ public class PostController {
     }
 
     // 참가자 목록 조회
-    @GetMapping("/posts/{postId}/participate/confirmed/ES")
+    @GetMapping("/posts/{postId}/participate/confirmed")
     @Operation(summary = "[ES] 게시글 참가자 목록 조회", description = "본인 게시글에 참가한 사용자 목록을 조회한다", tags = {"Participate"})
     public ResponseEntity<ApiResponse<PagedResponse<ParticipantResponse>>> getAcceptedParticipantListES(
             @AuthenticationPrincipal CustomUserDetails loginUser,
@@ -477,7 +354,7 @@ public class PostController {
     }
 
     //내 초대받은 목록 조회
-    @GetMapping("/my/invited/ES")
+    @GetMapping("/my/invited")
     @Operation(summary = "[ES] 초대받은 목록 조회", description = "본인이 초대받은 목록을 조회한다", tags = {"Invite"})
     public ResponseEntity<ApiResponse<PagedResponse<InviteResponse>>> getMyInvitedES(
             @AuthenticationPrincipal CustomUserDetails loggedInUser,
@@ -491,7 +368,7 @@ public class PostController {
     }
 
     //내가 보낸 초대 목록 조회
-    @GetMapping("/my/invite/ES")
+    @GetMapping("/my/invite")
     @Operation(summary = "[ES] 초대보낸 목록 조회", description = "본인이 초대한 목록을 조회한다", tags = {"Invite"})
     public ResponseEntity<ApiResponse<PagedResponse<InviteResponse>>> getMyInviteES(
             @AuthenticationPrincipal CustomUserDetails loggedInUser,

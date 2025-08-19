@@ -169,8 +169,12 @@ public class User extends Timestamped {
         if (comment != null) {
             this.comment = comment;
         }
-        setHobbies(hobbies);
-        setTechs(techStacks);
+        if (hobbies != null) {
+            setHobbies(hobbies);
+        }
+        if (techStacks != null) {
+            setTechs(techStacks);
+        }
     }
 
     public void setHobbies(List<Long> hobbies) {
