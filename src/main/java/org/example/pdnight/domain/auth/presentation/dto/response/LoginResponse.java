@@ -4,13 +4,15 @@ import lombok.Getter;
 
 @Getter
 public class LoginResponse {
-    private String token;
+    private final String token;
+    private final String refreshToken;
 
-    private LoginResponse(String token) {
+    private LoginResponse(String token, String refreshToken) {
         this.token = token;
+        this.refreshToken = refreshToken;
     }
 
-    public static LoginResponse from(String token) {
-        return new LoginResponse(token);
+    public static LoginResponse from(String token, String refreshToken) {
+        return new LoginResponse(token, refreshToken);
     }
 }

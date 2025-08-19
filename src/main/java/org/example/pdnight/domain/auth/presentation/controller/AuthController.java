@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.pdnight.domain.auth.application.authUseCase.AuthService;
 import org.example.pdnight.domain.auth.presentation.dto.request.LoginRequest;
 import org.example.pdnight.domain.auth.presentation.dto.request.SignupRequest;
@@ -20,6 +21,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Auth")
+@Slf4j
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -74,6 +76,14 @@ public class AuthController {
         authService.withdraw(userId, request);
         authService.logout(http);
         return ResponseEntity.ok(ApiResponse.ok("회원탈퇴 되었습니다.", null));
+    }
+
+    @PostMapping("/reissue")
+    @Operation(summary = "토큰 재발급", description = "사용자엑세스 토큰 만료시 리프레쉬 토큰으로 토큰 재발급")
+    public ResponseEntity<ApiResponse<LoginResponse>> reissue(@RequestHeader("Authorization") String refreshTokenHeader) {
+        log.info("리이슈 리프레쉬 토큰" + refreshTokenHeader);
+        LoginResponse response = authService.reissue(refreshTokenHeader);
+        return ResponseEntity.ok(ApiResponse.ok("토큰 재발급 성공", response));
     }
 
 }

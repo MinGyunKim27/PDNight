@@ -19,4 +19,6 @@ public interface AuthService {
     void logout(HttpServletRequest http);
 
     void withdraw(Long userId, WithdrawRequest request);
+
+    LoginResponse reissue(String refreshTokenHeader);
 }
