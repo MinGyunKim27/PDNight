@@ -1,16 +1,16 @@
 version: "3.8"
 
-# .env 파일에 아래 값 준비 권장
-# EC2_PRIVATE_IP=10.0.1.23   # VPC 내에서 접속할 프라이빗 IP 또는 호스트네임
+# 배포 하는 서비스들
 
 services:
   redis:
     image: redis:6
     container_name: redis
+    environment:
+      REDIS_PASSWORD: $REDIS_PASSWORD
+    command: [ "redis-server", "--requirepass", "${REDIS_PASSWORD}" ]
     ports:
-      - "6379:6379"
-    networks:
-      - spring-net
+     - "6379:6379"
 
   Kafka00Service:
     image: bitnami/kafka:3.7.0
@@ -49,6 +49,8 @@ services:
 
       # --- JVM/JMX Exporter(javaagent) ---
       - KAFKA_OPTS=-javaagent:/opt/jmx/jmx_prometheus_javaagent.jar=7071:/opt/jmx/kafka-jmx.yml
+      - KAFKA_HEAP_OPTS=-Xms384M -Xmx512M
+      - KAFKA_JVM_PERFORMANCE_OPTS=-XX:+UseG1GC -XX:MaxGCPauseMillis=30 -XX:InitiatingHeapOccupancyPercent=20 -XX:+ExplicitGCInvokesConcurrent
     volumes:
       - Kafka00:/bitnami/kafka
       - ./jmx:/opt/jmx:ro
@@ -87,6 +89,8 @@ services:
       - KAFKA_CFG_LOG_RETENTION_HOURS=168
 
       - KAFKA_OPTS=-javaagent:/opt/jmx/jmx_prometheus_javaagent.jar=7071:/opt/jmx/kafka-jmx.yml
+      - KAFKA_HEAP_OPTS=-Xms384M -Xmx512M
+      - KAFKA_JVM_PERFORMANCE_OPTS=-XX:+UseG1GC -XX:MaxGCPauseMillis=30 -XX:InitiatingHeapOccupancyPercent=20 -XX:+ExplicitGCInvokesConcurrent
     volumes:
       - Kafka01:/bitnami/kafka
       - ./jmx:/opt/jmx:ro
@@ -125,6 +129,8 @@ services:
       - KAFKA_CFG_LOG_RETENTION_HOURS=168
 
       - KAFKA_OPTS=-javaagent:/opt/jmx/jmx_prometheus_javaagent.jar=7071:/opt/jmx/kafka-jmx.yml
+      - KAFKA_HEAP_OPTS=-Xms384M -Xmx512M
+      - KAFKA_JVM_PERFORMANCE_OPTS=-XX:+UseG1GC -XX:MaxGCPauseMillis=30 -XX:InitiatingHeapOccupancyPercent=20 -XX:+ExplicitGCInvokesConcurrent
     volumes:
       - Kafka02:/bitnami/kafka
       - ./jmx:/opt/jmx:ro
@@ -150,6 +156,7 @@ services:
       - Kafka02Service
     networks:
       - kafka_network
+
   elasticsearch:
     build:
       context: elasticsearch/
@@ -167,7 +174,7 @@ services:
       - "9200:9200"
       - "9300:9300"
     environment:
-      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+      ES_JAVA_OPTS: "-Xms128M -Xmx256M"
       ELASTIC_PASSWORD: elastic
       # Use single node discovery in order to disable production mode and avoid bootstrap checks
       # see https://www.elastic.co/guide/en/elasticsearch/reference/current/bootstrap-checks.html
@@ -175,32 +182,6 @@ services:
       xpack.security.enabled: false
     networks:
       - elk
-
-  logstash:
-    build:
-      context: logstash/
-      args:
-        ELK_VERSION: 8.14.0
-    volumes:
-      - type: bind
-        source: ./logstash/config/logstash.conf
-        target: /usr/share/logstash/config/logstash.conf
-        read_only: true
-      - type: bind
-        source: ./logstash/pipeline
-        target: /usr/share/logstash/pipeline
-        read_only: true
-    ports:
-      - "5044:5044"
-      - "15000:5000/tcp"
-      - "15000:5000/udp"
-      - "9600:9600"
-    environment:
-      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
-    networks:
-      - elk
-    depends_on:
-      - elasticsearch
 
   kibana:
     build:
@@ -214,25 +195,12 @@ services:
         read_only: true
     ports:
       - "5601:5601"
+    environment:
+      SERVER_JAVA_OPTS: "-Xms96M -Xmx128M"
     networks:
       - elk
     depends_on:
       - elasticsearch
-
-  filebeat:
-    build:
-      context: filebeat/
-      args:
-        ELK_VERSION: 8.14.0
-    volumes:
-      - ./log:/usr/share/log/host_logs:ro
-      - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml
-    networks:
-      - elk
-    depends_on:
-      - logstash
-    entrypoint: >
-      sh -c "chmod go-w /usr/share/filebeat/filebeat.yml && filebeat"  
 
   kafka-exporter:
     image: danielqsj/kafka-exporter:latest

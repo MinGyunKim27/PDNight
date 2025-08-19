@@ -47,14 +47,25 @@ public class JwtFilter implements Filter {
             return;
         }
 
+        if (url.startsWith("/api-docs") || url.startsWith("/swagger-ui")) {
+            chain.doFilter(request, response);
+            return;
+        }
+
         if (url.startsWith("/health")) {
 
             chain.doFilter(request, response);
             return;
         }
 
-        if (url.startsWith("/api/auth/signup") || url.startsWith("/api/auth/login") || url.startsWith("/login")
-                || url.startsWith("/ws-stomp") || url.startsWith("/chat/view") || url.startsWith("/chat/view/enter/")
+        if (url.startsWith("/api/auth/signup")
+                || url.startsWith("/api/auth/login")
+                || url.startsWith("/login")
+                || url.startsWith("/ws-stomp")
+                || url.startsWith("/chat/view")
+                || url.startsWith("/chat/view/enter/")
+                || url.startsWith("/oauth/")
+                || url.startsWith("/api/auth/reissue")
         ) {
 
             chain.doFilter(request, response);
@@ -64,7 +75,7 @@ public class JwtFilter implements Filter {
         String bearerJwt = httpRequest.getHeader("Authorization");
 
         if (bearerJwt == null || !bearerJwt.startsWith("Bearer ")) {
-            log.error("JWT 토큰이 필요합니다.");
+            log.error("JWT 토큰이 필요합니다. getRequestURI : {}", url);
             sendError(httpResponse, 400, "JWT 토큰이 필요합니다.");
             return;
         }

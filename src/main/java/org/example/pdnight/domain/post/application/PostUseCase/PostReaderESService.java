@@ -1,9 +1,7 @@
 package org.example.pdnight.domain.post.application.PostUseCase;
 
 import lombok.RequiredArgsConstructor;
-import org.example.pdnight.domain.post.domain.post.PostDocument;
-import org.example.pdnight.domain.post.domain.post.PostParticipantDocument;
-import org.example.pdnight.domain.post.domain.post.PostReader;
+import org.example.pdnight.domain.post.domain.post.*;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.enums.JoinStatus;
@@ -32,6 +30,7 @@ import java.util.List;
 public class PostReaderESService {
 
     private final PostReader postReader;
+    private final TagPort tagPort;
 
     //region 게시글 조회
     // 게시글 단건 조회 O
@@ -195,6 +194,34 @@ public class PostReaderESService {
 
     // 리스트를 불러와서 참여자 수
     private int acceptedParticipantsCounter(List<PostParticipantDocument> participants) {
+        return (int) participants.stream()
+                .filter(participant -> participant.getStatus() == JoinStatus.ACCEPTED)
+                .count();
+    }
+
+    //추천 게시물 조회
+    @Cacheable(
+            value = CacheName.SUGGESTED_POST,
+            key = "{#pageable.pageNumber, #pageable.pageSize, #userId}"
+    )
+    public PagedResponse<PostResponse> getSuggestedPosts(Long userId, Pageable pageable) {
+        Page<Post> postSearch = postReader.getSuggestedPost(userId, pageable);
+
+        // Page<PostResponse> 매핑
+        Page<PostResponse> suggestedPost = postSearch.map(search -> {
+            // 태그 리스트 조회 - 게시글의 태그 Id 들로 이름 검색
+            List<Long> tagIds = search.getPostTagList().stream().map(PostTag::getTagId).toList();
+            List<String> tagNames = tagPort.findAllTagNames(tagIds);
+
+            // 참여자 수 조회
+            int participantCount = acceptedParticipantsCounterJpa(search.getPostParticipants());
+            return PostResponse.toDtoWithCount(search, tagNames, participantCount, search.getPostParticipants().size());
+        });
+        return PagedResponse.from(suggestedPost);
+    }
+
+    // 리스트를 불러와서 참여자 수
+    private int acceptedParticipantsCounterJpa(List<PostParticipant> participants) {
         return (int) participants.stream()
                 .filter(participant -> participant.getStatus() == JoinStatus.ACCEPTED)
                 .count();

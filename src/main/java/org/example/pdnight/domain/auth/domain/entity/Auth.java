@@ -21,7 +21,7 @@ public class Auth {
     @Column(nullable = false)
     private String email;
 
-    @Column(nullable = false)
+    // OAuth 로그인 고려하여 널값 허용
     private String password;
 
     @Enumerated(EnumType.STRING)
