@@ -8,6 +8,7 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.pdnight.domain.post.application.PostUseCase.TagPort;
 import org.example.pdnight.domain.post.domain.post.Post;
 import org.example.pdnight.domain.post.domain.post.PostDocument;
@@ -46,6 +47,7 @@ import static org.example.pdnight.domain.post.domain.post.QPostParticipant.postP
 import static org.example.pdnight.domain.post.domain.post.QPostTag.postTag;
 import static org.example.pdnight.domain.post.domain.tag.QTag.tag;
 
+@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class PostReaderImpl implements PostReader {
@@ -80,7 +82,9 @@ public class PostReaderImpl implements PostReader {
 
     @Override
     public Optional<PostDocument> findByIdES(Long postId) {
-        return postESRepository.findById(postId);
+        Optional<PostDocument> result = postESRepository.findById(postId);
+        log.info("findByIdES result: {}", result);
+        return result;
     }
 
     private Map<Long, List<String>> getPostTagMap(List<Long> postIds) {

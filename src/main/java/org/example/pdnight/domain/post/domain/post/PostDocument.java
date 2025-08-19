@@ -15,6 +15,7 @@ import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
 import org.example.pdnight.domain.post.enums.PostStatus;
 import org.example.pdnight.global.common.enums.JobCategory;
+import org.springframework.data.annotation.PersistenceCreator;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
@@ -195,8 +196,8 @@ public class PostDocument {
     private Map<String, Integer> applyDaily;  // key: "yyyy-MM-dd"
     // =========================================
 
+    @PersistenceCreator
     public PostDocument(
-
             Long id,
             Long authorId,
             String title,
@@ -237,6 +238,7 @@ public class PostDocument {
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
+
 
     // Builder 사용 시 updatedAt 자동 설정
     public void touchUpdatedAt() {
