@@ -1,7 +1,8 @@
 package org.example.pdnight.domain.post.application.PostUseCase;
 
 import org.example.pdnight.domain.post.domain.post.Post;
-import org.example.pdnight.domain.post.domain.post.PostParticipant;
+import org.example.pdnight.domain.post.domain.post.PostDocument;
+import org.example.pdnight.domain.post.domain.post.PostParticipantDocument;
 import org.example.pdnight.domain.post.domain.post.PostReader;
 import org.example.pdnight.domain.post.enums.AgeLimit;
 import org.example.pdnight.domain.post.enums.Gender;
@@ -16,7 +17,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -37,7 +37,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class PostReaderServiceTest {
     @InjectMocks
-    private PostReaderService postReaderService;
+    private PostReaderESService postReaderService;
 
     @Mock
     private PostReader postReader;
@@ -51,12 +51,12 @@ class PostReaderServiceTest {
     void findPost_게시글_단건_조회_성공() {
         // given
         Long postId = 1L;
-        Post post = getParticipants(2, 1);
+        PostDocument post = getParticipants(2, 1);
 
-        when(postReader.findByIdWithParticipants(postId)).thenReturn(Optional.of(post));
+        when(postReader.findByIdES(postId)).thenReturn(Optional.of(post));
 
         // when
-        PostResponse response = postReaderService.findPost(postId);
+        PostResponse response = postReaderService.findPostES(postId);
 
         // then
         assertThat(response).isNotNull();
@@ -68,11 +68,9 @@ class PostReaderServiceTest {
     @DisplayName("게시글 단건 조회 예외 - 게시글이 없는 경우")
     void findPost_게시글_단건_조회_예외() {
         // given
-        when(postReader.findByIdWithParticipants(anyLong())).thenReturn(Optional.empty());
-
         // when & then
         BaseException exception = assertThrows(BaseException.class, () -> {
-            postReaderService.findPost(1L);
+            postReaderService.findPostES(1L);
         });
 
         assertEquals(POST_NOT_FOUND.getMessage(), exception.getMessage());
@@ -89,11 +87,11 @@ class PostReaderServiceTest {
         Gender genderLimit = Gender.MALE;
 
 
-        Post post = getParticipants(2, 1);
+        PostDocument post = getParticipants(2, 1);
 
-        Page<Post> page = new PageImpl<>(List.of(post), pageable, 1);
+        Page<PostDocument> page = new PageImpl<>(List.of(post), pageable, 1);
 
-        when(postReader.findPostsBySearch(
+        when(postReader.findPostsBySearchES(
                 pageable,
                 maxParticipants,
                 ageLimit,
@@ -102,7 +100,7 @@ class PostReaderServiceTest {
         ).thenReturn(page);
 
         //when
-        PagedResponse<PostResponse> responseDtos = postReaderService.getPostDtosBySearch(
+        PagedResponse<PostResponse> responseDtos = postReaderService.getPostDtosBySearchES(
                 pageable,
                 maxParticipants,
                 ageLimit,
@@ -122,17 +120,16 @@ class PostReaderServiceTest {
         Long userId = 1L;
         JoinStatus joinStatus = JoinStatus.ACCEPTED;
         Pageable pageable = PageRequest.of(0, 10);
-        PostResponse response = mock(PostResponse.class);
-        Page<PostResponse> page = new PageImpl<>(List.of(response), pageable, 1);
+        PostDocument response = mock(PostDocument.class);
+        Page<PostDocument> page = new PageImpl<>(List.of(response), pageable, 1);
 
-        when(postReader.getConfirmedPost(userId, joinStatus, pageable)).thenReturn(page);
+        when(postReader.getConfirmedPostES(userId, joinStatus, pageable)).thenReturn(page);
 
         // when
-        PagedResponse<PostResponse> result = postReaderService.findMyConfirmedPosts(userId, joinStatus, pageable);
+        PagedResponse<PostResponse> result = postReaderService.findMyConfirmedPostsES(userId, joinStatus, pageable);
 
         // then
         assertThat(result.contents()).hasSize(1);
-        assertThat(result.contents().get(0)).isEqualTo(response);
     }
 
     @Test
@@ -140,20 +137,25 @@ class PostReaderServiceTest {
     void findMyWrittenPosts_내가_작성한_게시물_조회_성공() {
         // given
         Long userId = 1L;
-        Pageable pageable = PageRequest.of(0, 10);
-        Post post = getParticipants(3, 2);
-        Page<Post> page = new PageImpl<>(List.of(post), pageable, 1);
+        Long postId = 2L;
 
-        when(postReader.getWrittenPost(userId, pageable)).thenReturn(page);
+        PostDocument post = mock(PostDocument.class);
+        when(post.getId()).thenReturn(postId);
+        when(post.getAuthorId()).thenReturn(userId);
+
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<PostDocument> page = new PageImpl<>(List.of(post), pageable, 1);
+
+        when(postReader.getWrittenPostES(userId, pageable)).thenReturn(page);
 
         // when
-        PagedResponse<PostResponse> result = postReaderService.findMyWrittenPosts(userId, pageable);
+        PagedResponse<PostResponse> result = postReaderService.findMyWrittenPostsES(userId, pageable);
         PostResponse dto = result.contents().get(0);
 
         // then
         assertThat(result.contents()).hasSize(1);
-        assertThat(dto.getAcceptedParticipantsCount()).isEqualTo(2);
-        assertThat(dto.getParticipantsCount()).isEqualTo(3);
+        assertThat(dto.getPostId()).isEqualTo(postId);
+        assertThat(dto.getAuthorId()).isEqualTo(userId);
     }
 
     @Test
@@ -161,8 +163,13 @@ class PostReaderServiceTest {
     void getSuggestedPosts_추천_게시물_조회_성공() {
         // given
         Long userId = 1L;
+        Long postId = 2L;
+
+        Post post = mock(Post.class);
+        when(post.getId()).thenReturn(postId);
+        when(post.getAuthorId()).thenReturn(userId);
+
         Pageable pageable = PageRequest.of(0, 10);
-        Post post = getParticipants(4, 1);
         Page<Post> page = new PageImpl<>(List.of(post), pageable, 1);
 
         when(postReader.getSuggestedPost(userId, pageable)).thenReturn(page);
@@ -173,8 +180,8 @@ class PostReaderServiceTest {
 
         // then
         assertThat(result.contents()).hasSize(1);
-        assertThat(dto.getAcceptedParticipantsCount()).isEqualTo(1);
-        assertThat(dto.getParticipantsCount()).isEqualTo(4);
+        assertThat(dto.getPostId()).isEqualTo(postId);
+        assertThat(dto.getAuthorId()).isEqualTo(userId);
     }
 
     @Test
@@ -183,17 +190,16 @@ class PostReaderServiceTest {
         // given
         Long userId = 1L;
         Pageable pageable = PageRequest.of(0, 10);
-        PostResponse response = mock(PostResponse.class);
-        Page<PostResponse> page = new PageImpl<>(List.of(response), pageable, 1);
+        PostDocument response = mock(PostDocument.class);
+        Page<PostDocument> page = new PageImpl<>(List.of(response), pageable, 1);
 
-        when(postReader.getMyLikePost(userId, pageable)).thenReturn(page);
+        when(postReader.getMyLikePostES(userId, pageable)).thenReturn(page);
 
         // when
-        PagedResponse<PostResponse> result = postReaderService.findMyLikedPosts(userId, pageable);
+        PagedResponse<PostResponse> result = postReaderService.findMyLikedPostsES(userId, pageable);
 
         // then
         assertThat(result.contents()).hasSize(1);
-        assertThat(result.contents().get(0)).isEqualTo(response);
     }
 
     //endregion
@@ -204,12 +210,12 @@ class PostReaderServiceTest {
         // given
         Long postId = 1L;
         Long loginId = 1L;
-        Post post = getParticipants(4, 1);
+        PostDocument postDocument = getParticipants(4, 1);
 
-        when(postReader.findByIdWithParticipants(postId)).thenReturn(Optional.of(post));
+        when(postReader.findByIdES(postId)).thenReturn(Optional.of(postDocument));
 
         // when
-        PagedResponse<ParticipantResponse> result = postReaderService.getParticipantListByPending(loginId, postId, 0, 10);
+        PagedResponse<ParticipantResponse> result = postReaderService.getParticipantListByPendingES(loginId, postId, 0, 10);
 
         // then
         assertThat(result.contents()).hasSize(3);
@@ -221,13 +227,13 @@ class PostReaderServiceTest {
         // given
         Long postId = 1L;
         Long loginId = 2L;
-        Post post = getParticipants(4, 1);
+        PostDocument postDocument = getParticipants(4, 1);
 
-        when(postReader.findByIdWithParticipants(postId)).thenReturn(Optional.of(post));
+        when(postReader.findByIdES(postId)).thenReturn(Optional.of(postDocument));
 
         // when
         BaseException exception = assertThrows(BaseException.class, () -> {
-            postReaderService.getParticipantListByPending(loginId, postId, 0, 10);
+            postReaderService.getParticipantListByPendingES(loginId, postId, 0, 10);
         });
 
         assertEquals(NO_VIEWING_PERMISSION.getMessage(), exception.getMessage());
@@ -239,12 +245,12 @@ class PostReaderServiceTest {
         // given
         Long postId = 1L;
         Long loginId = 1L;
-        Post post = getParticipants(4, 1);
+        PostDocument postDocument = getParticipants(4, 1);
 
-        when(postReader.findByIdWithParticipants(postId)).thenReturn(Optional.of(post));
+        when(postReader.findByIdES(postId)).thenReturn(Optional.of(postDocument));
 
         // when
-        PagedResponse<ParticipantResponse> result = postReaderService.getParticipantListByAccepted(loginId, postId, 0, 10);
+        PagedResponse<ParticipantResponse> result = postReaderService.getParticipantListByAcceptedES(loginId, postId, 0, 10);
 
         // then
         assertThat(result.contents()).hasSize(1);
@@ -256,13 +262,13 @@ class PostReaderServiceTest {
         // given
         Long postId = 1L;
         Long loginId = 2L;
-        Post post = getParticipants(4, 1);
+        PostDocument postDocument = getParticipants(4, 1);
 
-        when(postReader.findByIdWithParticipants(postId)).thenReturn(Optional.of(post));
+        when(postReader.findByIdES(postId)).thenReturn(Optional.of(postDocument));
 
         // when
         BaseException exception = assertThrows(BaseException.class, () -> {
-            postReaderService.getParticipantListByAccepted(loginId, postId, 0, 10);
+            postReaderService.getParticipantListByAcceptedES(loginId, postId, 0, 10);
         });
 
         assertEquals(NO_VIEWING_PERMISSION.getMessage(), exception.getMessage());
@@ -272,38 +278,37 @@ class PostReaderServiceTest {
     //endregion
 
     //region 헬퍼메서드
-    private Post getPost(Long authorId) {
-        Post mockPost = Mockito.mock(Post.class);
-        lenient().when(mockPost.getId()).thenReturn(1L);
-        lenient().when(mockPost.getAuthorId()).thenReturn(authorId);
-        lenient().when(mockPost.getAgeLimit()).thenReturn(AgeLimit.AGE_20S); // 유저 조건과 일치
-        lenient().when(mockPost.getGenderLimit()).thenReturn(Gender.ALL);    // 통과 가능
-        lenient().when(mockPost.getJobCategoryLimit()).thenReturn(JobCategory.ALL); // 통과 가능
-        lenient().when(mockPost.getMaxParticipants()).thenReturn(5);
-        lenient().when(mockPost.getIsFirstCome()).thenReturn(false); // 일반 게시글
+    private PostDocument getPostDoc(Long authorId) {
+        PostDocument mockPostDoc = mock(PostDocument.class);
+        lenient().when(mockPostDoc.getId()).thenReturn(1L);
+        lenient().when(mockPostDoc.getAuthorId()).thenReturn(authorId);
+        lenient().when(mockPostDoc.getAgeLimit()).thenReturn(AgeLimit.AGE_20S); // 유저 조건과 일치
+        lenient().when(mockPostDoc.getGenderLimit()).thenReturn(Gender.ALL);    // 통과 가능
+        lenient().when(mockPostDoc.getJobCategoryLimit()).thenReturn(JobCategory.ALL); // 통과 가능
+        lenient().when(mockPostDoc.getMaxParticipants()).thenReturn(5);
+        lenient().when(mockPostDoc.getIsFirstCome()).thenReturn(false); // 일반 게시글
 
-        return mockPost;
+        return mockPostDoc;
     }
 
-    private PostParticipant getParticipant(JoinStatus status) {
-        PostParticipant participant = mock(PostParticipant.class);
+    private PostParticipantDocument getParticipantDocument(JoinStatus status) {
+        PostParticipantDocument participant = mock(PostParticipantDocument.class);
         lenient().when(participant.getStatus()).thenReturn(status);
         return participant;
     }
 
-    private Post getParticipants(int total, int accepted) {
-        Post post = getPost(1L);
+    // 추천 게시글 쪽은 걍 뺴도 되긴 함
+    private PostDocument getParticipants(int total, int accepted) {
+        PostDocument post = getPostDoc(1L);
 
-        List<PostParticipant> list = new ArrayList<>();
+        List<PostParticipantDocument> list = new ArrayList<>();
         for (int i = 0; i < accepted; i++) {
-            PostParticipant postParticipant = getParticipant(JoinStatus.ACCEPTED);
+            PostParticipantDocument postParticipant = getParticipantDocument(JoinStatus.ACCEPTED);
             list.add(postParticipant);
-            lenient().when(postParticipant.getPost()).thenReturn(post);
         }
         for (int i = 0; i < total - accepted; i++) {
-            PostParticipant postParticipant = getParticipant(JoinStatus.PENDING);
+            PostParticipantDocument postParticipant = getParticipantDocument(JoinStatus.PENDING);
             list.add(postParticipant);
-            lenient().when(postParticipant.getPost()).thenReturn(post);
         }
 
         lenient().when(post.getPostParticipants()).thenReturn(list);
