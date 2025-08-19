@@ -36,6 +36,7 @@ public class RedissonConfig {
             config.useSingleServer().setPassword(password);
         }
 
+
         RedissonClient client = Redisson.create(config);
 
         // 연결 테스트 강화
