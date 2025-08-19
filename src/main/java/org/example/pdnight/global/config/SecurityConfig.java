@@ -27,17 +27,29 @@ public class SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable)
                 .addFilterBefore(jwtFilter, SecurityContextHolderAwareRequestFilter.class)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/signup").permitAll()
-                        .requestMatchers("/api/auth/login").permitAll()
+                        .requestMatchers(
+                                // auth
+                                "/api/auth/signup",
+                                "/api/auth/login",
+                                "/api/auth/reissue",
+                                "/oauth/**",
+                                // 프론트용
+                                "/login",
+                                "/webjars/**",
+                                "/css/**",
+                                "/js/**",
+                                "/images/**",
+                                "/ws-stomp/**",
+                                "/chat/view",
+                                "/chat/view/enter/**",
+                                // 서버체크용
+                                "/health",
+                                "/api-docs",
+                                "/api-docs/**",
+                                "/swagger-ui",
+                                "/swagger-ui/**"
+                        ).permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/login").permitAll()
-                        .requestMatchers("/webjars/**", "/css/**", "/js/**", "/images/**").permitAll()
-                        .requestMatchers("/ws-stomp/**").permitAll()
-                        .requestMatchers("/chat/view").permitAll()
-                        .requestMatchers("/chat/view/enter/**").permitAll()
-                        .requestMatchers("/health").permitAll()
-                        .requestMatchers("/api-docs", "/api-docs/**").permitAll()
-                        .requestMatchers("/swagger-ui", "/swagger-ui/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .build();
