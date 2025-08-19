@@ -7,6 +7,7 @@ import org.example.pdnight.domain.post.enums.PostStatus;
 import org.example.pdnight.global.common.enums.JobCategory;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 public class PostInfo {
@@ -19,6 +20,7 @@ public class PostInfo {
     private Integer maxParticipants;
     private Gender genderLimit;
     private JobCategory jobCategoryLimit;
+    private List<String> tagList;
     private AgeLimit ageLimit;
     private boolean isFirstCome;
     private LocalDateTime createdAt;
@@ -34,6 +36,7 @@ public class PostInfo {
             Integer maxParticipants,
             Gender genderLimit,
             JobCategory jobCategoryLimit,
+            List<String> tagList,
             AgeLimit ageLimit,
             boolean isFirstCome,
             LocalDateTime createdAt,
@@ -48,6 +51,7 @@ public class PostInfo {
         this.maxParticipants = maxParticipants;
         this.genderLimit = genderLimit;
         this.jobCategoryLimit = jobCategoryLimit;
+        this.tagList = tagList;
         this.ageLimit = ageLimit;
         this.isFirstCome = isFirstCome;
         this.createdAt = createdAt;
@@ -64,6 +68,7 @@ public class PostInfo {
             Integer maxParticipants,
             Gender genderLimit,
             JobCategory jobCategoryLimit,
+            List<String> tagList,
             AgeLimit ageLimit,
             boolean isFirstCome,
             LocalDateTime createdAt,
@@ -79,6 +84,7 @@ public class PostInfo {
                 maxParticipants,
                 genderLimit,
                 jobCategoryLimit,
+                tagList,
                 ageLimit,
                 isFirstCome,
                 createdAt,

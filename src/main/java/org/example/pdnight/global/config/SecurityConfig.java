@@ -43,7 +43,11 @@ public class SecurityConfig {
                                 "/chat/view",
                                 "/chat/view/enter/**",
                                 // 서버체크용
-                                "/health"
+                                "/health",
+                                "/api-docs",
+                                "/api-docs/**",
+                                "/swagger-ui",
+                                "/swagger-ui/**"
                         ).permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()

@@ -1,6 +1,7 @@
 package org.example.pdnight.domain.post.infra.comment;
 
 import lombok.RequiredArgsConstructor;
+import org.example.pdnight.domain.post.application.PostUseCase.PostInfoAssembler;
 import org.example.pdnight.domain.post.application.commentUseCase.PostPort;
 import org.example.pdnight.domain.post.domain.post.Post;
 import org.example.pdnight.domain.post.domain.post.PostCommander;
@@ -16,27 +17,14 @@ public class PostAdapter implements PostPort {
 
     private final PostReader postReader;
     private final PostCommander postCommander;
+    private final PostInfoAssembler postInfoAssembler;
 
     @Override
     public PostInfo findById(Long postId) {
         Post post = postReader.findById(postId)
                 .orElseThrow(() -> new BaseException(ErrorCode.POST_NOT_FOUND));
 
-        return PostInfo.toDto(
-                post.getId(),
-                post.getAuthorId(),
-                post.getTitle(),
-                post.getTimeSlot(),
-                post.getPublicContent(),
-                post.getStatus(),
-                post.getMaxParticipants(),
-                post.getGenderLimit(),
-                post.getJobCategoryLimit(),
-                post.getAgeLimit(),
-                post.getIsFirstCome(),
-                post.getCreatedAt(),
-                post.getUpdatedAt()
-        );
+        return postInfoAssembler.toInfoDto(post);
     }
 
     @Override

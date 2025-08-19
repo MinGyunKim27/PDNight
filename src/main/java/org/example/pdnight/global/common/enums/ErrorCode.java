@@ -82,6 +82,10 @@ public enum ErrorCode {
     TECH_STACK_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 존재하는 기술 스택입니다"),
     TECH_STACK_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 기술 스택입니다."),
 
+    //기술 스택 관련 오류
+    TAG_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 존재하는 태그입니다"),
+    TAG_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 태그 입니다."),
+
     CHAT_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 채팅방입니다."),
     CHAT_ROOM_NOT_PARTICIPANT(HttpStatus.FORBIDDEN, "참가 불가능한 채팅방입니다."),
 

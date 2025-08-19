@@ -47,6 +47,11 @@ public class JwtFilter implements Filter {
             return;
         }
 
+        if (url.startsWith("/api-docs") || url.startsWith("/swagger-ui")) {
+            chain.doFilter(request, response);
+            return;
+        }
+
         if (url.startsWith("/health")) {
 
             chain.doFilter(request, response);
