@@ -48,6 +48,9 @@ class PostCommanderServiceTest {
     private UserPort userPort;
 
     @Mock
+    private TagPort tagPort;
+
+    @Mock
     private PostInfoAssembler postInfoAssembler;
 
     private PostRequest postRequest;

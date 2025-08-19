@@ -41,6 +41,10 @@ public class UserCommanderServiceTest {
     private UserInfoAssembler userInfoAssembler;
     @Mock
     private UserCouponAdapter userCouponAdapter;
+    @Mock
+    private TechStackPort techStackPort;
+    @Mock
+    private HobbyPort hobbyPort;
     @InjectMocks
     private UserCommanderService userCommanderService;
 
