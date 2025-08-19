@@ -286,7 +286,7 @@ public class PostCommanderService {
 
         // 정상 삭제
         post.removeParticipant(pending);
-        postCommander.save(post);
+        postCommander.saveES(post);
 
         PostDocument document = makePostDocument(post);
         postProducer.producePostEvent(new PostEvent(PostEvent.Operation.UPDATE, document));
@@ -309,7 +309,7 @@ public class PostCommanderService {
         pending.changeStatus(joinStatus);
 
         // 명시적으로 save
-        postCommander.save(post);
+        postCommander.saveES(post);
 
         // 모임 참여 수락
         if (joinStatus.equals(JoinStatus.ACCEPTED)) {
@@ -352,7 +352,7 @@ public class PostCommanderService {
         List<String> allTagNames = tagPort.findAllTagNames(post.getPostTagList().stream().map(PostTag::getTagId).toList());
 
         // 명시적으로 save
-        postCommander.save(post);
+        postCommander.saveES(post);
 
         // Elasticsearch 색인을 위한 이벤트 발행
         PostDocument document = makePostDocument(post);
@@ -374,7 +374,7 @@ public class PostCommanderService {
         post.removeLike(like);
 
         // 명시적으로 save
-        postCommander.save(post);
+        postCommander.saveES(post);
 
         // Elasticsearch 색인을 위한 이벤트 발행
         PostDocument document = makePostDocument(post);
@@ -394,7 +394,7 @@ public class PostCommanderService {
         post.addInvite(invite);
 
         // 명시적으로 save
-        postCommander.save(post);
+        postCommander.saveES(post);
 
         // 초대 전송
         postProducer.produce("invite.sent", new InviteSentEvent(loginUserId, userId, postId));
@@ -418,7 +418,7 @@ public class PostCommanderService {
         post.removeInvite(findInvite);
 
         // 명시적으로 save
-        postCommander.save(post);
+        postCommander.saveES(post);
 
         // Elasticsearch 색인을 위한 이벤트 발행
         PostDocument document = makePostDocument(post);
@@ -445,7 +445,7 @@ public class PostCommanderService {
         post.removeInvite(findInvite);
 
         // 명시적으로 save
-        postCommander.save(post);
+        postCommander.saveES(post);
 
         // Elasticsearch 색인을 위한 이벤트 발행
         PostDocument document = makePostDocument(post);
@@ -465,7 +465,7 @@ public class PostCommanderService {
         post.removeInvite(findInvite);
 
         // 명시적으로 save
-        postCommander.save(post);
+        postCommander.saveES(post);
 
         postProducer.produce("invite.denied", new InviteDeniedEvent(post.getAuthorId(), loginUserId, postId));
 

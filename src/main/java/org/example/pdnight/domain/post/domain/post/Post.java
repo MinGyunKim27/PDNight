@@ -145,6 +145,7 @@ public class Post extends Timestamped {
     }
 
     public void setPostTagList(List<Long> tagIdList) {
+        if (tagIdList == null) return;
         for (Long tagId : tagIdList) {
             this.postTagList.add(PostTag.create(this, tagId));
         }
