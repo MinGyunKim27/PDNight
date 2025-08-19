@@ -182,7 +182,7 @@ public class PostResponse {
         this.genderLimit = post.getGenderLimit();
         this.jobCategoryLimit = post.getJobCategoryLimit();
         this.ageLimit = post.getAgeLimit();
-        this.isFirstCome = post.getIsFirstCome();
+        this.isFirstCome = post.getIsFirstCome() != null && post.getIsFirstCome();
         this.acceptedParticipantsCount = acceptedParticipantsCount;
         this.participantsCount = participantsCount;
         this.createdAt = post.getCreatedAt();

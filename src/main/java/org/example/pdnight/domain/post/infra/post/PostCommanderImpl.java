@@ -71,7 +71,38 @@ public class PostCommanderImpl implements PostCommander {
     @Override
     public Post save(Post post) {
         Post savePost = postJpaRepository.save(post);
+        saveES(savePost);
         return savePost;
+    }
+
+    @Override
+    public void saveES(Post foundPost) {
+        postESRepository.save(PostDocument.createPostDocument(
+                foundPost.getId(),
+                foundPost.getAuthorId(),
+                foundPost.getTitle(),
+                foundPost.getTimeSlot(),
+                foundPost.getPublicContent(),
+                foundPost.getStatus(),
+                foundPost.getMaxParticipants(),
+                foundPost.getGenderLimit(),
+                foundPost.getJobCategoryLimit(),
+                foundPost.getAgeLimit(),
+                foundPost.getIsFirstCome(),
+                foundPost.getPostLikes().stream()
+                        .map(postLike-> PostLikeDocument.create(postLike.getPost().getId(), postLike.getUserId()))
+                        .toList(),
+                foundPost.getPostParticipants().stream()
+                        .map(postParticipant-> PostParticipantDocument.create(postParticipant.getPost().getId(), postParticipant.getUserId(), postParticipant.getStatus(), postParticipant.getCreatedAt()))
+                        .toList(),
+                foundPost.getInvites().stream()
+                        .map(invite-> InviteDocument.create(invite.getInviterId(), invite.getInviteeId(), invite.getPost().getId()))
+                        .toList(),
+                tagAdaptor.findAllTagNames(foundPost.getPostTagList().stream().map(PostTag::getTagId).toList()),
+                foundPost.getIsDeleted(),
+                foundPost.getDeletedAt(),
+                foundPost.getCreatedAt()
+        ));
     }
 
     @Override

@@ -42,10 +42,15 @@ public class PostReaderESService {
     public PostResponse findPostES(Long id) {
         PostDocument foundPost = getPostES(id);
 
-        int participants = (int) foundPost.getPostParticipants().stream()
-                .filter(participant -> participant.getStatus() == JoinStatus.ACCEPTED)
-                .count();
-        return PostResponse.toDtoWithCountES(foundPost, participants, foundPost.getPostParticipants().size());
+        int participants = 0;
+        if(foundPost.getPostParticipants() != null) {
+            participants = (int) foundPost.getPostParticipants().stream()
+                    .filter(participant -> participant.getStatus() == JoinStatus.ACCEPTED)
+                    .count();
+        }
+        int participantCount = foundPost.getPostParticipants() != null ? foundPost.getPostParticipants().size() : 0;
+
+        return PostResponse.toDtoWithCountES(foundPost, participants, participantCount);
     }
 
     //게시물 조건 검색 O

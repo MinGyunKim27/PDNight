@@ -17,5 +17,7 @@ public interface PostCommander {
 
     Post save(Post post);
 
+    void saveES(Post foundPost);
+
     List<Post> findAllByAuthorId(Long authorId);
 }
