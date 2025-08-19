@@ -1,0 +1,43 @@
+package org.example.pdnight.domain.user.application.reviewUserCase;
+
+import lombok.RequiredArgsConstructor;
+import org.example.pdnight.domain.user.domain.entity.Review;
+import org.example.pdnight.domain.user.domain.reviewDomain.ReviewCommander;
+import org.example.pdnight.domain.user.domain.reviewDomain.ReviewProducer;
+import org.example.pdnight.domain.user.presentation.dto.reviewDto.request.ReviewRequest;
+import org.example.pdnight.domain.user.presentation.dto.reviewDto.response.ReviewResponse;
+import org.example.pdnight.global.common.enums.ErrorCode;
+import org.example.pdnight.global.common.enums.KafkaTopic;
+import org.example.pdnight.global.common.exception.BaseException;
+import org.example.pdnight.global.event.ReviewCreatedEvent;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@RequiredArgsConstructor
+public class ReviewCommanderService {
+
+    private final ReviewCommander reviewCommander;
+    private final ReviewProducer producer;
+
+    @Transactional
+    public ReviewResponse createReview(Long userId, Long ratedUserId, Long postId, ReviewRequest requestDto) {
+        // 존재 여부 판단
+        validateExists(userId, ratedUserId, postId);
+
+        Review review = Review.create(userId, ratedUserId, postId, requestDto.getRate(), requestDto.getComment());
+        Review saveReview = reviewCommander.save(review);
+
+        // user 평가 갱신 이벤트 발행
+        producer.produce(KafkaTopic.USER_REVIEW_CREATED.topicName(), new ReviewCreatedEvent(userId, ratedUserId));
+
+        return ReviewResponse.from(saveReview);
+    }
+
+    // ----------------------------------- HELPER 메서드 ------------------------------------------------------ //
+    private void validateExists(Long reviewerId, Long revieweeId, Long postId) {
+        if (reviewCommander.isExistsByUsersAndPost(reviewerId, revieweeId, postId)) {
+            throw new BaseException(ErrorCode.ALREADY_REVIEWED);
+        }
+    }
+}

@@ -9,7 +9,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.pdnight.domain.common.enums.UserRole;
+import org.example.pdnight.domain.post.enums.Gender;
+import org.example.pdnight.global.common.enums.JobCategory;
+import org.example.pdnight.global.common.enums.UserRole;
 import org.example.pdnight.global.constant.CacheName;
 import org.example.pdnight.global.utils.JwtUtil;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -45,14 +47,25 @@ public class JwtFilter implements Filter {
             return;
         }
 
+        if (url.startsWith("/api-docs") || url.startsWith("/swagger-ui")) {
+            chain.doFilter(request, response);
+            return;
+        }
+
         if (url.startsWith("/health")) {
 
             chain.doFilter(request, response);
             return;
         }
 
-        if (url.startsWith("/api/auth/signup") || url.startsWith("/api/auth/login") || url.startsWith("/login")
-                || url.startsWith("/ws-stomp") || url.startsWith("/chat/view") || url.startsWith("/chat/view/enter/")
+        if (url.startsWith("/api/auth/signup")
+                || url.startsWith("/api/auth/login")
+                || url.startsWith("/login")
+                || url.startsWith("/ws-stomp")
+                || url.startsWith("/chat/view")
+                || url.startsWith("/chat/view/enter/")
+                || url.startsWith("/oauth/")
+                || url.startsWith("/api/auth/reissue")
         ) {
 
             chain.doFilter(request, response);
@@ -62,7 +75,7 @@ public class JwtFilter implements Filter {
         String bearerJwt = httpRequest.getHeader("Authorization");
 
         if (bearerJwt == null || !bearerJwt.startsWith("Bearer ")) {
-            log.error("JWT 토큰이 필요합니다.");
+            log.error("JWT 토큰이 필요합니다. getRequestURI : {}", url);
             sendError(httpResponse, 400, "JWT 토큰이 필요합니다.");
             return;
         }
@@ -87,6 +100,12 @@ public class JwtFilter implements Filter {
             String roleStr = claims.get("userRole", String.class); // 문자열로 받기
             UserRole userRole = UserRole.valueOf(roleStr); // 문자열 → enum 변환
             Object userNickname = claims.get("userNickname");
+            Long userAge = Long.valueOf((Integer) claims.get("age"));
+            String genderStr  = claims.get("gender", String.class);
+            Gender userGender = Gender.valueOf(genderStr);
+            String jobCategoryStr = claims.get("jobCategory", String.class);
+            JobCategory userJobCategory = JobCategory.valueOf(jobCategoryStr);
+
 
             Long userId = Long.parseLong(claims.getSubject());
 
@@ -94,7 +113,10 @@ public class JwtFilter implements Filter {
                     userId,
                     (String) userNickname,
                     "",
-                    userRole);
+                    userRole,
+                    userAge,
+                    userGender,
+                    userJobCategory);
 
             SecurityContextHolder.getContext().setAuthentication(
                     new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities())

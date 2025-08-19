@@ -1,0 +1,57 @@
+startDelaySeconds: 0
+lowercaseOutputName: true
+lowercaseOutputLabelNames: true
+whitelistObjectNames:
+  - kafka.server:*
+  - kafka.network:*
+  - kafka.controller:*
+  - java.lang:*
+
+rules:
+  # topic별 레이트
+  - pattern: 'kafka.server<type=BrokerTopicMetrics, name=(.+), topic=(.+)><>Count'
+    name: kafka_server_brokertopicmetrics_$1_total
+    labels: { topic: "$2" }
+    type: COUNTER
+
+  # 요청 수/지연
+  - pattern: 'kafka.network<type=RequestMetrics, name=RequestsPerSec, request=(.+)><>Count'
+    name: kafka_network_requestmetrics_requests_total
+    labels: { request: "$1" }
+    type: COUNTER
+
+  - pattern: 'kafka.network<type=RequestMetrics, name=TotalTimeMs, request=(.+)><>99thPercentile'
+    name: kafka_network_requestmetrics_totaltime_ms_p99
+    labels: { request: "$1" }
+    type: GAUGE
+
+  # 언더 레플리케이트 파티션
+  - pattern: 'kafka.server<type=ReplicaManager, name=UnderReplicatedPartitions><>Value'
+    name: kafka_server_replicamanager_under_replicated_partitions
+    type: GAUGE
+
+  # 액티브 컨트롤러 수
+  - pattern: 'kafka.controller<type=KafkaController, name=ActiveControllerCount><>Value'
+    name: kafka_controller_active_controller_count
+    type: GAUGE
+
+  # JVM 기본
+  - pattern: 'java.lang<type=GarbageCollector, name=(.+)><>CollectionTime'
+    name: jvm_gc_collection_time_ms
+    labels: { gc: "$1" }
+    type: COUNTER
+  - pattern: 'java.lang<type=Memory><>HeapMemoryUsage.used'
+    name: jvm_memory_heap_used_bytes
+    type: GAUGE
+
+    # (기존 rules 아래에 추가)
+    # BrokerTopicMetrics (브로커 총합, topic 라벨 없음)
+  - pattern: 'kafka.server<type=BrokerTopicMetrics, name=(BytesInPerSec|BytesOutPerSec)><>Count'
+    name: kafka_server_brokertopicmetrics_$1_total
+    type: COUNTER
+
+  # RequestMetrics (총 요청 수)
+  - pattern: 'kafka.network<type=RequestMetrics, name=RequestsPerSec, request=(.+)><>Count'
+    name: kafka_network_requestmetrics_requests_total
+    labels: { request: "$1" }
+    type: COUNTER

@@ -20,7 +20,11 @@
 - Library
   - QueryDSL
   - Redisson
-
+  - 
+- Architecture 
+    - Domain-Driven Design : DDD
+      - Port & Adapter Pattern
+      - Spring Event 기반 도메인 이벤트 처리
 ---
 ### Database
 - MySQL
@@ -50,41 +54,46 @@
 ## API
 
 <details>
-  <summary> 전체 API 명세 </summary>
+  <summary> 인증 - Auth API </summary>
 
 ### 인증 - Auth API
 
-| 기능           | 메소드      | 엔드포인트                      | 권한      | 설명                  |
-|--------------|----------|----------------------------|---------|---------------------|
-| 회원가입         | `POST`   | `/api/auth/signup`         | PUBLIC  | 새로운 사용자 회원가입        |
-| 로그인          | `POST`   | `/api/auth/login`          | PUBLIC  | 사용자 로그인, 토큰 발급      |
-| 로그아웃         | `POST`   | `/api/auth/logout`         | USER    | 사용자 로그아웃            |
-| 회원탈퇴         | `DELETE` | `/api/auth/withdraw`       | USER    | 사용자 계정 비활성화         |
+| 기능 | Method | Endpoint | 설명 | 권한 |
+|------|--------|----------|------|------|
+| 회원가입 | `POST` | /api/auth/signup | 서비스 이용을 위한 계정 생성| PUBLIC |
+| 로그인 | `POST` | /api/auth/login | 사용자 인증을 통해 액세스 토큰을 발급 | PUBLIC |
+| 로그아웃 | `POST` | /api/auth/logout | 로그아웃 | USER |
+| 비밀번호 수정 | `PATCH` | /api/auth/password | 비밀번호 수정 | USER |
+| 회원탈퇴 | `DELETE` | /api/auth/withdraw | 사용자의 계정을 비활성화하고 서비스 이용을 종료 | USER |
+
+</details>
 
 ---
+<details>
+  <summary> 사용자 - User API </summary>
+
 ### 사용자 - User API
 
-| 기능               | 메소드  | 엔드포인트                          | 권한   | 설명                     |
-| ---------------- | ---- | ------------------------------ | ---- | ---------------------- |
-| 내 좋아요 게시글 조회     | GET  | `/api/users/my/likedPosts`     | User | 내가 좋아요한 게시글 목록 조회      |
-| 신청/성사된 게시글 목록 조회 | GET  | `/api/users/my/confirmedPosts` | User | 내가 신청했거나 성사된 게시글 목록 조회 |
-| 내가 작성한 게시글 조회    | GET  | `/api/users/my/writtenPosts`   | User | 내가 직접 작성한 게시글 목록 조회    |
-| 내 프로필 조회  | GET   | `/api/users/my/profile`      | User | 내 프로필 정보 조회    |
-| 프로필 수정    | PATCH | `/api/users/my/profile`      | User | 내 프로필 정보 수정    |
-| 비밀번호 수정   | PATCH | `/api/users/my/password`     | User | 비밀번호 변경        |
-| 상대 프로필 조회 | GET   | `/api/users/{Id}/profile`    | User | 다른 사용자의 프로필 조회 |
-| 사용자 평가 조회 | GET   | `/api/users/{Id}/evaluation` | User | 특정 사용자의 평가 조회  |
-| 사용자 리뷰 조회           | `GET`    | `/api/users/{userId}/review`                | USER               | 특정 사용자의 받은 리뷰 조회          |
-| 내 받은 리뷰 조회          | `GET`    | `/api/users/my/review`                      | USER            | 내가 받은 리뷰 목록 조회            |
-| 내가 쓴 리뷰 조회          | `GET`    | `/api/users/my/writtenReview`               | USER            | 내가 작성한 리뷰 목록 조회           |
-| 인물 검색 조회 기능 추가      | `GET`    | `/api/users/search`                         | USER            | 사용자(인물) 검색 기능             |
-| 내 초대받은 목록 조회        | `GET`    | `/api/users/my/invited`                     | USER            | 내가 받은 초대 목록 조회            |
-| 내가 보낸 초대 목록 조회      | `GET`    | `/api/users/my/invite`                      | USER            | 내가 보낸 초대 목록 조회            |
-| 팔로우 추가              | `POST`   | `/api/users/{userId}/follow`                | USER          | 특정 사용자 팔로우 추가             |
-| 팔로우 삭제              | `DELETE` | `/api/users/{userId}/follow`                | USER         | 특정 사용자 팔로우 취소             |
-| 팔로잉 목록 조회           | `GET`    | `/api/users/my/following`                   | USER          | 내가 팔로우한 사용자 목록 조회         |
+| 기능 | Method | Endpoint | 설명            | 권한 |
+|------|--------|----------|---------------|------|
+| 내 쿠폰 사용 | `POST` | /api/users/my/user-coupons/{id} | 내 쿠폰 사용       | USER |
+| 팔로우 추가 | `POST` | /api/users/{userId}/follow | 팔로우 추가        | USER |
+| 프로필 수정 | `PATCH` | /api/users/my/profile | 프로필 수정        | USER |
+| 언팔로우 | `DELETE` | /api/users/{userId}/follow | 언팔로우          | USER |
+| 내 프로필 조회 | `GET` | /api/users/my/profile | 내 프로필 조회      | USER |
+| 상대 프로필 조회 | `GET` | /api/users/{Id}/profile | 상대 프로필 조회     | USER |
+| 인물 검색 조회 기능 추가 | `GET` | /api/users/search | 인물 검색 조회 기능 추가 | USER |
+| 내 받은 리뷰 조회 | `GET` | /api/users/my/review | 내 받은 리뷰 조회    | USER |
+| 팔로잉 목록 조회 | `GET` | /api/users/my/following | 팔로잉 목록 조회     | USER |
+| 내 쿠폰 조회 | `GET` | /api/users/my/user-coupons | 해당 쿠폰의 상세 정보를 반환합니다. | USER |
+| 사용자 평가 조회 | `GET` | /api/users/{id}/evaluation | 사용자 평가 조회     | USER |
+
+</details>
 
 ---
+<details>
+  <summary> 취미/기술스택  - Hobby,TechStack API </summary>
+
 ### 취미/기술스택  - Hobby,TechStack API
 
 | 기능        | 메소드   | 엔드포인트                        | 권한   | 설명             |
@@ -94,21 +103,28 @@
 | 기술 스택 추가         | POST | `/api/techStacks`              | User | 나의 기술 스택 추가            |
 | 기술 스택 리스트 조회     | GET  | `/api/techStacks`              | User | 전체 기술 스택 목록 조회         |
 
+</details>
+
 ---
+<details>
+  <summary> 게시글 - Post API </summary>
+
 ### 게시글 - Post API
 
-| 기능        | 메소드    | 엔드포인트                                            | 권한             | 설명                |
-| --------- | ------ | ------------------------------------------------ |----------------| ----------------- |
+| 기능        | 메소드    | 엔드포인트                                            | 권한           | 설명                |
+| --------- | ------ | ------------------------------------------------ |--------------| ----------------- |
 | 게시글 참여 신청 | POST   | `/api/posts/{postId}/participate`                | USER | 해당 게시글에 참여 신청     |
-| 게시글 참여 취소 | DELETE | `/api/posts/{postId}/participate`                | USER               | 내가 신청한 참여를 취소     |
-| 신청자 수락/거절 | PATCH  | `/api/posts/{postId}/participate/users/{userId}` | USER           | 신청자의 참여를 수락 또는 거절 |
-| 신청자 목록 조회 | GET    | `/api/posts/{postId}/participate`                | USER           | 해당 게시글의 신청자 목록 조회 |
-| 참여자 목록 조회 | GET    | `/api/posts/{postId}/participate/confirmed`      | USER           | 확정된 참여자 목록 조회     |
-| 게시글 목록 조회 (신청자 수 포함) | `GET`    | `/api/posts`                                | USER            | 신청자 수, 확정 참여자 수 포함 게시글 조회 |
+| 게시글 참여 취소 | DELETE | `/api/posts/{postId}/participate`                | USER             | 내가 신청한 참여를 취소     |
+| 신청자 수락/거절 | PATCH  | `/api/posts/{postId}/participate/users/{userId}` | USER         | 신청자의 참여를 수락 또는 거절 |
+| 신청자 목록 조회 | GET    | `/api/posts/{postId}/participate`                | USER         | 해당 게시글의 신청자 목록 조회 |
+| 참여자 목록 조회 | GET    | `/api/posts/{postId}/participate/confirmed`      | USER         | 확정된 참여자 목록 조회     |
+| 게시글 목록 조회 (신청자 수 포함) | `GET`    | `/api/posts`                                | USER          | 신청자 수, 확정 참여자 수 포함 게시글 조회 |
 | 게시글 참여 신청 (제한 로직 추가) | `POST`   | `/api/posts/{postId}/participate`           | USER | 제한 조건이 적용된 게시글 참여 신청      |
-| 게시글 초대              | `POST`   | `/api/posts/{postId}/users/{userId}/invite` | USER            | 특정 유저를 게시글에 초대            |
-| 추천 게시글 목록 조회        | `GET`    | `/api/posts/suggestedPosts`                 | USER            | 사용자에게 추천되는 게시글 목록 조회      |
-| 초대 취소               | `DELETE` | `/api/posts/{postId}/users/{userId}/invite` | USER            | 게시글 초대를 취소함               |
+| 참여자 목록 조회 | `GET` | /api/posts/{postId}/participate/confirmed | 참여자 목록 조회 | USER |
+| 신청자 목록 조회 | `GET` | /api/posts/{postId}/participate | 신청자 목록 조회 | USER |
+| 게시글 초대              | `POST`   | `/api/posts/{postId}/users/{userId}/invite` | USER          | 특정 유저를 게시글에 초대            |
+| 추천 게시글 목록 조회        | `GET`    | `/api/posts/suggestedPosts`                 | USER          | 사용자에게 추천되는 게시글 목록 조회      |
+| 초대 취소               | `DELETE` | `/api/posts/{postId}/users/{userId}/invite` | USER          | 게시글 초대를 취소함               |
 | 게시글 좋아요    | POST   | `/api/posts/{id}/likes`                            | USER   | 게시글에 좋아요를 누름    |
 | 게시글 좋아요 취소 | DELETE | `/api/posts/{id}/likes`                            | USER   | 게시글의 좋아요를 취소함   |
 | 사용자 리뷰     | POST   | `/api/posts/{postId}/participants/{userId}/review` | USER | 참여한 사용자에게 리뷰 작성 |
@@ -116,47 +132,46 @@
 | 게시글 좋아요 취소 | DELETE | `/api/posts/{id}/likes`                            | USER   | 게시글의 좋아요를 취소함   |
 | 사용자 리뷰     | POST   | `/api/posts/{postId}/participants/{userId}/review` | USER | 참여한 사용자에게 리뷰 작성 |
 
+</details>
+
 ---
+<details>
+  <summary> 댓글 - Comment API </summary>
+
 ### 댓글 - Comment API
 
-| 기능           | 메소드    | 엔드포인트                                        | 권한    | 설명               |
-| ------------ | ------ | -------------------------------------------- |-------| ---------------- |
-| [관리자] 댓글 삭제 | `DELETE` | `/api/admin/posts/{postId}/comments/{id}`    | ADMIN | 관리자가 댓글을 삭제함     |
-| 댓글 추가        | `POST`   | `/api/posts/{postId}/comments`               | USER | 게시글에 댓글 추가       |
-| 댓글 삭제        | `PATCH`  | `/api/posts/{postId}/comments/{id}`          | USER| 댓글을 논리적으로 삭제     |
-| 댓글 수정        | `DELETE` | `/api/posts/{postId}/comments/{id}`          | USER | 댓글을 물리적으로 삭제     |
-| 댓글 다건 조회     | `GET`    | `/api/posts/{postId}/comments`               | USER | 해당 게시글의 댓글 목록 조회 |
-| 대댓글 생성  | `POST`   | `/api/posts/{postId}/comments/{id}/comments` |USER| 특정 댓글에 대댓글 추가    |
+| 기능 | Method | Endpoint | 설명 | 권한 |
+|------|--------|----------|------|------|
+| 댓글 추가 | `POST` | /api/posts/{postId}/comments | 댓글 추가 | USER |
+| 대댓글 생성 | `POST` | /api/posts/{postId}/comments/{id}/comments |  대댓글 생성 | USER |
+| 댓글 수정 | `PATCH` | /api/posts/{postId}/comments/{id} | 댓글 수정 | USER |
+| 댓글 삭제 | `DELETE` | /api/posts/{postId}/comments/{id} | 특정 게시글에 달린 댓글을 삭제 | USER |
+| 댓글 다건 조회 | `GET` | /api/posts/{postId}/comments | 댓글 다건 조회 | USER |
+
+</details>
 
 ---
-### 이벤트 - Event API
+<details>
+  <summary> 관리자 - ADMIN API </summary>
 
-| 기능                  | 메소드    | 엔드포인트                                       | 권한              | 설명                        |
-| ------------------- | ------ | ------------------------------------------- |-----------------| ------------------------- |
-| [관리자] 게시물 삭제        | `DELETE` | `/api/admin/posts/{id}`                     | ADMIN           | 관리자가 게시글을 삭제함             |
-|[관리자] 이벤트 추가    | POST   | `/api/admin/events`                   | ADMIN | 관리자가 이벤트 등록          |
-|[관리자] 이벤트 조회    | GET    | `/api/admin/events/{id}`              | ADMIN | 특정 이벤트 상세 조회         |
-|[관리자] 이벤트 수정    | PATCH  | `/api/admin/events/{id}`              | ADMIN | 이벤트 정보 수정            |
-|[관리자] 이벤트 삭제    | DELETE | `/api/admin/events/{id}`              | ADMIN | 이벤트 삭제               |
-| [관리자] 이벤트 참가자 조회 | GET    | `/api/admin/events/{id}/participants` | ADMIN | 이벤트 참가자 목록 조회        |
-|[관리자] 이벤트 전체 조회 | GET    | (미정)                                  | ADMIN      | 등록된 이벤트 전체 목록 조회     |
-| 이벤트 조회           | GET    | (미정)                                  | USER | 일반 유저가 볼 수 있는 이벤트 조회 |
-| 이벤트 참가           | POST   | `/api/events/{id}/participants`       | USER | 일반 사용자의 이벤트 참가       |
+### 관리자 - ADMIN API
 
----
-### 쿠폰 - Coupon API
-
-| 기능            | 메소드    | 엔드포인트                     | 권한    | 설명                |
-| ------------- | ------ | ------------------------- |-------| ----------------- |
-| [관리자] 강제 회원 탈퇴 | `DELETE` | `/api/admin/users/{id}`   | ADMIN | 관리자에 의한 회원 강제 탈퇴  |
-| [관리자] 닉네임 강제 변경 | `PATCH`  | `/api/admin/users/{id}`   | ADMIN | 회원 닉네임 강제 변경      |
-| [관리자] 전체 유저 조회 | `GET`    | `/api/admin/users`        | ADMIN | 전체 유저 리스트 조회      |
-| [관리자] 쿠폰 등록  | `POST`   | `/api/admin/coupons`      | ADMIN | 쿠폰 생성             |
-|[관리자] 쿠폰 조회   | `GET`    | `/api/admin/coupons/{id}` | ADMIN | 쿠폰 상세 조회          |
-| [관리자] 쿠폰 수정   | `PATCH`  | `/api/admin/coupons/{id}` | ADMIN | 쿠폰 정보 수정          |
-| [관리자] 쿠폰 삭제   | `DELETE` | `/api/admin/coupons/{id}` | ADMIN | 쿠폰 삭제             |
-| 쿠폰 사용         | `PATCH`  | `/api/coupons/{id}`       | USER  | 쿠폰 사용 처리          |
-| 보유한 쿠폰 조회     | `GET`    | `/api/users/my/coupons`   | USER  | 로그인 사용자의 쿠폰 목록 조회 |
+| 기능                | Method | Endpoint | 설명                | 권한 |
+|-------------------|--------|----------|-------------------|------|
+| [관리자] 사용자에게 쿠폰 할당 | `POST` | /api/admin/users/coupons | 사용자에게 쿠폰 할당  | ADMIN |
+| [관리자] 닉네임 강제 변경   | `PATCH` | /api/admin/users/{id} | 닉네임 강제 변경    | ADMIN |
+| [관리자] 강제 회원 탈퇴    | `DELETE` | /api/admin/users/{id} | 강제 회원 탈퇴     | ADMIN |
+| [관리자] 전체 유저 조회    | `GET` | /api/admin/users | 전체 유저 조회     | ADMIN |
+| [관리자] 게시글 삭제      | `DELETE` | /api/admin/posts/{id} | 게시글 삭제       | ADMIN |
+| [관리자] 프로모션 추가     | `POST` | /api/admin/promotions | 프로모션 추가       | ADMIN |
+| [관리자] 프로모션 수정      | `PATCH` | /api/admin/promotions/{id} | 프로모션 수정       | ADMIN |
+| [관리자] 프로모션 삭제      | `DELETE` | /api/admin/promotions/{id} | 프로모션 삭제       | ADMIN |
+| [관리자] 프로모션 참가자 조회  | `GET` | /api/admin/promotions/{id}/participants | 사용자가 특정 프로모션에 참가 신청을 합니다 | ADMIN |
+| [관리자] 쿠폰 생성       | `POST` | /api/admin/coupons | 관리자가 새로운 쿠폰을 등록   | ADMIN |
+| [관리자] 쿠폰 수정       | `PATCH` | /api/admin/coupons/{id} | 쿠폰 수정        | ADMIN |
+| [관리자] 쿠폰 삭제       | `DELETE` | /api/admin/coupons/{id} | 쿠폰 삭제        | ADMIN |
+| [관리자] 쿠폰 조회       | `GET` | /api/admin/coupons/{id} | 해당 쿠폰의 상세 정보를 반환  | ADMIN |
+| [관리자] 댓글 삭제       | `DELETE` | /api/admin/posts/{postId}/comments/{id} | 게시글에 달린 댓글을 강제 삭제 | ADMIN |
 
 </details>
 
@@ -219,10 +234,10 @@
 
 ---
 
-### Event - 이벤트
+### Promotion - 프로모션
 
-- **이벤트 기반 모임 기능**
-  - 관리자가 특정 조건의 이벤트 모임 생성 가능 (예: 유명인 초청 번개)
+- **프로모션 기능**
+  - 관리자가 특정 조건의 프로모션 생성 가능 (예: 유명인 초청 번개)
 
 ---
 
@@ -622,3 +637,89 @@ Redis는 인메모리 기반의 고성능 Key-Value 저장소로,
 </details>
 
 ---
+<details>
+<summary> 도메인 주도 설계 (DDD: Domain-Driven Design) 도입 배경 및 선택 이유 </summary>
+
+### [ DDD: Domain-Driven Design ]
+
+---
+
+### 1. 기술 설명
+
+DDD는 도메인(비즈니스 핵심 영역)을 중심으로 소프트웨어를 설계하는 방식입니다.  
+기능 분할 중심의 단순한 계층 구조를 넘어 도메인 모델과 경계(Bounded Context)를  
+명확히 하여 복잡한 비즈니스 로직을 효과적으로 분리하고 유지보수하기 위한  
+설계 철학입니다.
+
+---
+
+### 2. 기술 장점
+
+1. 도메인 중심의 구조화
+    - ERD 기반이 아닌 비즈니스 개념 중심의 모델 구성
+    - 복잡한 로직을 애그리거트 단위로 묶어 응집도 향상
+
+---
+
+2. 경계(Bounded Context) 설정을 통한 독립성 확보
+    - 각 도메인을 독립된 컨텍스트로 분리
+    - 도메인 간 의존은 API나 이벤트로 통신 → 결합도 감소
+
+---
+
+3. 유지보수성과 테스트 용이성 향상
+    - 도메인마다 로직이 명확히 분리되어 있어 변경 영향 최소화
+    - 응용 서비스와 도메인 모델이 분리되어 단위 테스트 작성이 용이
+
+---
+
+4. 명확한 트랜잭션 경계 설정
+    - 애그리거트 루트를 통해서만 변경 → 일관성 있는 트랜잭션 관리
+
+---
+
+5. 리포지토리 및 계층 구조의 정립
+    - 애그리거트 단위 저장 → 불필요한 저장소 호출 최소화
+    - 표현-응용-도메인-인프라의 계층적 구조에 맞춘 DIP 원칙 적용 가능
+
+---
+
+### 3. 단점 / 주의사항
+
+- 초기 설계 비용 존재
+    - 도메인 분석과 설계에 시간이 소요됨
+    - 작은 프로젝트나 MVP 단계에선 오히려 오버엔지니어링 될 수 있음
+
+- 개발자 간 개념 정립 필요
+    - DDD 용어(Bounded Context, Aggregate 등)의 명확한 이해 필요
+
+- 복잡한 기능은 여전히 도메인 서비스 등에서 조정이 필요
+    - 모든 로직을 엔티티에 담으려 하면 과도하게 무거워질 수 있음
+
+---
+
+### 4. 도입 배경과 필요성
+
+우리 팀은 다음과 같은 판단 아래 DDD를 도입하기로 하였습니다.
+
+- 기능별 레이어 설계의 한계
+    - 도메인 간 의존성과 강한 결합 발생 → 예기치 못한 변경 전파
+    - 객체 그래프 탐색 증가 → N+1, 불필요한 fetch 등 성능 이슈 발생
+
+- 비즈니스 복잡도 증가
+    - 참여, 리뷰, 추천, 필터링 등 도메인 간 상호작용이 증가하는 구조
+    - 초기 설계 이후 확장성 고려가 필요한 시점
+
+- 도메인 경계와 책임 분리가 명확하지 않음
+    - "이 로직은 어디에 있어야 하지?"라는 판단이 반복됨
+    - 유지보수/협업 과정에서 의사결정 피로 증가
+
+- 루트 애그리거트를 통한 하위 객체 일관성 관리
+  - 루트 애그리거트에서만 하위 엔티티를 변경하도록 하여 일관성 있는 도메인 모델을 유지
+    - 무분별한 직접 접근을 방지하고 변경 책임을 명확히 구분
+
+- 인터페이스 기반의 추상화를 통한 DIP 원칙 적용
+  - 구현이 아닌 추상화에 의존하도록 설계하여 유연한 구조 확보
+    - 도메인 계층이 인프라 세부 구현에 종속되지 않도록 방지
+
+</details>

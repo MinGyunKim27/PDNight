@@ -56,6 +56,9 @@ dependencies {
     testRuntimeOnly 'com.h2database:h2'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
+    // WebClient를 위한 Spring WebFlux
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
     // Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.redisson:redisson-spring-boot-starter:3.24.3'
@@ -76,6 +79,16 @@ dependencies {
     implementation 'org.webjars:stomp-websocket:2.3.3-1'
     implementation 'com.google.code.gson:gson:2.8.0'
 
+    //카프카
+    implementation 'org.springframework.kafka:spring-kafka'
+    testImplementation 'org.springframework.kafka:spring-kafka-test'
+
+    // Elasticsearch
+    implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
+    implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
+
+    // Springdoc OpenAPI
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9'
 }
 
 tasks.named('test') {

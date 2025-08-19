@@ -1,0 +1,34 @@
+package org.example.pdnight.domain.user.application.couponUseCase;
+
+import lombok.RequiredArgsConstructor;
+import org.example.pdnight.domain.user.domain.couponDomain.CouponReader;
+import org.example.pdnight.domain.user.domain.entity.Coupon;
+import org.example.pdnight.domain.user.presentation.dto.couponDto.response.CouponResponse;
+import org.example.pdnight.global.common.enums.ErrorCode;
+import org.example.pdnight.global.common.exception.BaseException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@RequiredArgsConstructor
+public class CouponReaderService {
+
+    private final CouponReader couponReader;
+
+    // --------------------- Admin 조회 Api ----------------------------------------------------//
+    // 쿠폰 단건 조회
+    @Transactional(readOnly = true)
+    public CouponResponse getCoupon(Long id) {
+        Coupon coupon = getCouponById(id);
+        return CouponResponse.from(coupon);
+    }
+
+    // ----------------------------------- HELPER 메서드 ------------------------------------------------------ //
+    // get
+    private Coupon getCouponById(Long couponId) {
+        return couponReader.findById(couponId).orElseThrow(
+                () -> new BaseException(ErrorCode.COUPON_NOT_FOUND)
+        );
+    }
+
+}

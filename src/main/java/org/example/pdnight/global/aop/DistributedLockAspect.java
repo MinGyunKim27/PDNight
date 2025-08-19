@@ -7,8 +7,8 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.example.pdnight.domain.common.enums.ErrorCode;
-import org.example.pdnight.domain.common.exception.BaseException;
+import org.example.pdnight.global.common.enums.ErrorCode;
+import org.example.pdnight.global.common.exception.BaseException;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.core.annotation.Order;
@@ -17,6 +17,7 @@ import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.stereotype.Component;
+
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 

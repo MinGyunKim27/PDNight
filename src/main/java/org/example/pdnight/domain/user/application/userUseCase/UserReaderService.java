@@ -1,0 +1,108 @@
+package org.example.pdnight.domain.user.application.userUseCase;
+
+import lombok.RequiredArgsConstructor;
+import org.example.pdnight.domain.user.domain.entity.User;
+import org.example.pdnight.domain.user.domain.entity.UserCoupon;
+import org.example.pdnight.domain.user.domain.userDomain.UserProducer;
+import org.example.pdnight.domain.user.domain.userDomain.UserReader;
+import org.example.pdnight.domain.user.presentation.dto.userDto.response.FollowingResponse;
+import org.example.pdnight.domain.user.presentation.dto.userDto.response.UserCouponResponse;
+import org.example.pdnight.domain.user.presentation.dto.userDto.response.UserEvaluationResponse;
+import org.example.pdnight.domain.user.presentation.dto.userDto.response.UserResponse;
+import org.example.pdnight.global.common.dto.PagedResponse;
+import org.example.pdnight.global.common.enums.ErrorCode;
+import org.example.pdnight.global.common.enums.KafkaTopic;
+import org.example.pdnight.global.common.exception.BaseException;
+import org.example.pdnight.global.event.CouponExpiredEvent;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+@Component
+@RequiredArgsConstructor
+public class UserReaderService {
+
+    private final UserInfoAssembler userInfoAssembler;
+    private final UserReader userReader;
+    private final UserProducer userProducer;
+
+    @Transactional(readOnly = true)
+    public UserResponse getProfile(Long userId) {
+        // id로 유저 조회
+        User user = getUserById(userId);
+
+        // UserResponseDto로 변환하여 반환
+        return userInfoAssembler.toDto(user);
+    }
+
+    @Transactional(readOnly = true)
+    public UserEvaluationResponse getEvaluation(Long userId) {
+        // id로 유저 조회
+        User user = getUserById(userId);
+
+        return UserEvaluationResponse.from(user);
+    }
+
+    //유저 이름이나 닉네임이나 이메일로 검색
+    @Transactional(readOnly = true)
+    public PagedResponse<UserResponse> searchUsers(String search, Pageable pageable) {
+        Page<UserResponse> page = userReader.searchUsers(search, pageable);
+        return PagedResponse.from(page);
+    }
+
+    public PagedResponse<FollowingResponse> getFollowings(Long myId, Pageable pageable) {
+        Page<FollowingResponse> followingsByUserId = userReader.findFollowingsByUserId(myId, pageable);
+        return PagedResponse.from(followingsByUserId);
+    }
+
+    //  보유한 사용가능한 쿠폰 조회
+    @Transactional(readOnly = true)
+    public PagedResponse<UserCouponResponse> getValidCoupons(Long userId, Pageable pageable) {
+        LocalDateTime now = LocalDateTime.now();
+        return PagedResponse.from(userReader.findUserCoupons(userId, now, pageable));
+    }
+
+    @Scheduled(cron = "0 0 12 * * *")
+    @Transactional
+    public void couponDeadLineChecker() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime plusOneDay = now.plusDays(1);
+
+        List<UserCoupon> userCoupons = userReader.findByDeadlineAtBetween(now, plusOneDay);
+        List<Long> targetUserIds = new ArrayList<>();
+
+        for (UserCoupon c : userCoupons) {
+            targetUserIds.add(c.getUser().getId());
+        }
+
+        userProducer.produce(KafkaTopic.COUPON_EXPIRED.topicName(), new CouponExpiredEvent(targetUserIds));
+    }
+
+    // --------------------- Admin 조회 Api ----------------------------------------------------//
+
+    @Transactional(readOnly = true)
+    public PagedResponse<UserResponse> getAllUsers(Pageable pageable) {
+        Page<UserResponse> page = userReader.findAll(pageable);
+        return PagedResponse.from(page);
+    }
+
+
+    // --------------------------------------------------------------------------------------------------------//
+    // --------------------------------------------------------------------------------------------------------//
+    // ----------------------------------- HELPER 메서드 ------------------------------------------------------ //
+    // --------------------------------------------------------------------------------------------------------//
+    // --------------------------------------------------------------------------------------------------------//
+
+    // get
+    private User getUserById(Long id) {
+        return userReader.findById(id).orElseThrow(
+                () -> new BaseException(ErrorCode.USER_NOT_FOUND));
+    }
+
+}
