@@ -54,6 +54,7 @@ export default function () {
         genderLimit: ['MALE','FEMALE','ALL'][Math.floor(Math.random()*3)],
         jobCategoryLimit: ['BACK_END_DEVELOPER','FRONT_END_DEVELOPER','FULL_STACK_DEVELOPER','ETC','ALL'][Math.floor(Math.random()*5)],
         ageLimit: ['AGE_20S','AGE_30S','AGE_40S','AGE_50S','ALL'][Math.floor(Math.random()*5)],
+        tagIdList: [Math.floor(Math.random()*5) + 1, Math.floor(Math.random()*5) + 1],
         isFirstCome: Math.random() < 0.5,
     };
 
