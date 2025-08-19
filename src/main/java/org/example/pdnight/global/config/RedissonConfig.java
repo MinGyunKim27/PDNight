@@ -20,7 +20,7 @@ public class RedissonConfig {
     @Value("${spring.data.redis.port}")
     private int redisPort;
 
-    @Value("${spring.data.redis.password}")
+    @Value("${spring.data.redis.password:}")
     private String password;
 
     @Bean
@@ -28,10 +28,13 @@ public class RedissonConfig {
         Config config = new Config();
         config.useSingleServer()
                 .setAddress("redis://" + redisHost + ":" + redisPort)
-                .setPassword(password)
                 .setDatabase(0)
                 .setConnectionPoolSize(64)  // 연결 풀 크기 명시적 설정
                 .setConnectionMinimumIdleSize(10);
+        // ★ 비밀번호가 있을 때만 AUTH
+        if (password != null && !password.isBlank()) {
+            config.useSingleServer().setPassword(password);
+        }
 
         RedissonClient client = Redisson.create(config);
 
