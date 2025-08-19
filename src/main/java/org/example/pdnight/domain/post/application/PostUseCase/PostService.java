@@ -16,32 +16,6 @@ import org.springframework.data.domain.Pageable;
 
 public interface PostService {
 
-    //----------읽기 메서드
-    PagedResponse<ParticipantResponse> getParticipantListByPending(Long authorId, Long postId, int page, int size);
-
-    PagedResponse<ParticipantResponse> getParticipantListByAccepted(Long loginId, Long postId, int page, int size);
-
-    PostResponse findPost(Long id);
-
-    PagedResponse<PostResponse> getPostDtosBySearch(
-            Pageable pageable,
-            Integer maxParticipants,
-            AgeLimit ageLimit,
-            JobCategory jobCategoryLimit,
-            Gender genderLimit
-    );
-
-    PagedResponse<PostResponse> findMyLikedPosts(Long userId, Pageable pageable);
-
-    PagedResponse<PostResponse> findMyConfirmedPosts(Long userId, JoinStatus joinStatus, Pageable pageable);
-
-    PagedResponse<PostResponse> findMyWrittenPosts(Long userId, Pageable pageable);
-
-    PagedResponse<InviteResponse> getMyInvited(Long userId, Pageable pageable);
-
-    PagedResponse<InviteResponse> getMyInvite(Long userId, Pageable pageable);
-
-
     //----------쓰기 메서드
     void deleteAdminPostById(Long id);
 

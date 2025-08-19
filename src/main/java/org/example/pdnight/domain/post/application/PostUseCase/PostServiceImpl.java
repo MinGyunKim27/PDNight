@@ -21,44 +21,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class PostServiceImpl implements PostService {
 
-    private final PostReaderService postReaderService;
     private final PostCommanderService postCommanderService;
     private final PostReaderESService postReaderESService;
-
-    @Override
-    public PagedResponse<ParticipantResponse> getParticipantListByPending(Long authorId, Long postId, int page, int size) {
-        return postReaderService.getParticipantListByPending(authorId, postId, page, size);
-    }
-
-    @Override
-    public PagedResponse<ParticipantResponse> getParticipantListByAccepted(Long loginId, Long postId, int page, int size) {
-        return postReaderService.getParticipantListByAccepted(loginId, postId, page, size);
-    }
-
-    @Override
-    public PostResponse findPost(Long id) {
-        return postReaderService.findPost(id);
-    }
-
-    @Override
-    public PagedResponse<PostResponse> findMyLikedPosts(Long userId, Pageable pageable) {
-        return postReaderService.findMyLikedPosts(userId, pageable);
-    }
-
-    @Override
-    public PagedResponse<PostResponse> findMyConfirmedPosts(Long userId, JoinStatus joinStatus, Pageable pageable) {
-        return postReaderService.findMyConfirmedPosts(userId, joinStatus, pageable);
-    }
-
-    @Override
-    public PagedResponse<PostResponse> findMyWrittenPosts(Long userId, Pageable pageable) {
-        return postReaderService.findMyWrittenPosts(userId, pageable);
-    }
-
-    @Override
-    public PagedResponse<PostResponse> getSuggestedPosts(Long userId, Pageable pageable) {
-        return postReaderService.getSuggestedPosts(userId, pageable);
-    }
 
     @Override
     public ParticipantResponse applyParticipant(Long loginId, Long age, Gender gender, JobCategory jobCategory, Long postId) {
@@ -81,14 +45,9 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public PagedResponse<PostResponse> getPostDtosBySearch(
-            Pageable pageable,
-            Integer maxParticipants,
-            AgeLimit ageLimit,
-            JobCategory jobCategoryLimit,
-            Gender genderLimit
-    ) {
-        return postReaderService.getPostDtosBySearch(pageable, maxParticipants, ageLimit, jobCategoryLimit, genderLimit);
+    public PagedResponse<PostResponse> getSuggestedPosts(Long userId, Pageable pageable) {
+        return postReaderESService.getSuggestedPosts(userId, pageable);
+
     }
 
     @Override
@@ -134,16 +93,6 @@ public class PostServiceImpl implements PostService {
     @Override
     public void rejectForInvite(Long postId, Long loginUserId) {
         postCommanderService.rejectForInvite(postId, loginUserId);
-    }
-
-    @Override
-    public PagedResponse<InviteResponse> getMyInvited(Long userId, Pageable pageable) {
-        return postReaderService.getMyInvited(userId, pageable);
-    }
-
-    @Override
-    public PagedResponse<InviteResponse> getMyInvite(Long userId, Pageable pageable) {
-        return postReaderService.getMyInvite(userId, pageable);
     }
 
     @SaveLog
