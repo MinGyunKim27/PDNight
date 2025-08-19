@@ -69,10 +69,11 @@ public class PostReaderESService {
         Page<PostDocument> postSearch = postReader.findPostsBySearchES(pageable, maxParticipants,
                 ageLimit, jobCategoryLimit, genderLimit);
         Page<PostResponse> postDtosBySearch = postSearch.map(search -> {
-            int participantCount = acceptedParticipantsCounter(search.getPostParticipants());
-            log.info("participantCount : {}", participantCount);
-            log.info("search.getPostParticipants().size() : {}", search.getPostParticipants().size());
-            return PostResponse.toDtoWithCountES(search, participantCount, search.getPostParticipants().size());
+            int acceptedParticipantsCount = acceptedParticipantsCounter(search.getPostParticipants());
+            log.info("participantCount : {}", acceptedParticipantsCount);
+            int postParticipantCount = search.getPostParticipants() != null ? search.getPostParticipants().size() : 0;
+            log.info("search.getPostParticipants().size() : {}", postParticipantCount);
+            return PostResponse.toDtoWithCountES(search, acceptedParticipantsCount, postParticipantCount);
         });
         return PagedResponse.from(postDtosBySearch);
     }
@@ -204,6 +205,7 @@ public class PostReaderESService {
 
     // 리스트를 불러와서 참여자 수
     private int acceptedParticipantsCounter(List<PostParticipantDocument> participants) {
+        if(participants == null) return 0;
         return (int) participants.stream()
                 .filter(participant -> participant.getStatus() == JoinStatus.ACCEPTED)
                 .count();
