@@ -1,6 +1,7 @@
 package org.example.pdnight.domain.post.application.PostUseCase;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.pdnight.domain.post.domain.post.Post;
 import org.example.pdnight.domain.post.domain.post.PostParticipant;
 import org.example.pdnight.domain.post.domain.post.PostReader;
@@ -26,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PostReaderService {
@@ -45,6 +47,10 @@ public class PostReaderService {
         // 태그 리스트 조회 - 게시글의 태그 Id 들로 이름 검색
         List<Long> tagIdList = foundPost.getPostTagList().stream().map(PostTag::getTagId).toList();
         List<String> tagNames = tagPort.findAllTagNames(tagIdList);
+
+        log.info("tagNames : {}", tagNames);
+        log.info("foundPost.getPostParticipants().size() : {}", foundPost.getPostParticipants().size());
+        log.info("participants : {}", participants);
 
         return PostResponse.toDtoWithCount(foundPost, tagNames, participants, foundPost.getPostParticipants().size());
     }
