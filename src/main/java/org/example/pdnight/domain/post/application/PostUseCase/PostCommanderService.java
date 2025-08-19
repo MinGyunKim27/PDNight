@@ -26,10 +26,8 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDateTime;
 import java.util.List;
-
 import static org.example.pdnight.global.common.enums.ErrorCode.*;
 
 @Slf4j
@@ -121,6 +119,8 @@ public class PostCommanderService {
 
         try {
             postProducer.produceAck("post.deleted", PostDeletedEvent.of(postId));
+
+            // Elasticsearch 색인을 위한 이벤트 발행
             PostDocument document = makePostDocument(foundPost);
             postProducer.producePostEvent(new PostEvent(PostEvent.Operation.DELETE, document));
 
@@ -161,6 +161,7 @@ public class PostCommanderService {
         // 명시적으로 save
         postCommander.save(foundPost);
 
+        // Elasticsearch 색인을 위한 이벤트 발행
         PostDocument document = makePostDocument(foundPost);
         postProducer.producePostEvent(new PostEvent(PostEvent.Operation.UPDATE, document));
 
@@ -214,6 +215,7 @@ public class PostCommanderService {
                 postProducer.produceAck("user.participation.confirmed",new ParticipationConfirmed(confirmedUserIds,allTagNames));
             }
 
+            // Elasticsearch 색인을 위한 이벤트 발행
             PostDocument document = makePostDocument(foundPost);
             postProducer.producePostEvent(new PostEvent(PostEvent.Operation.UPDATE, document));
         }
@@ -256,6 +258,7 @@ public class PostCommanderService {
         // 명시적으로 save
         postCommander.save(foundPost);
 
+        // Elasticsearch 색인을 위한 이벤트 발행
         PostDocument document = makePostDocument(foundPost);
         postProducer.producePostEvent(new PostEvent(PostEvent.Operation.UPDATE, document));
 
@@ -320,6 +323,7 @@ public class PostCommanderService {
         // 게시글 인원이 꽉차게 되면 게시글 상태를 마감으로 변경 (CONFIRMED)
         updatePostStatusIfFull(post);
 
+        // Elasticsearch 색인을 위한 이벤트 발행
         PostDocument document = makePostDocument(post);
         postProducer.producePostEvent(new PostEvent(PostEvent.Operation.UPDATE, document));
 
@@ -350,6 +354,7 @@ public class PostCommanderService {
         // 명시적으로 save
         postCommander.save(post);
 
+        // Elasticsearch 색인을 위한 이벤트 발행
         PostDocument document = makePostDocument(post);
         postProducer.producePostEvent(new PostEvent(PostEvent.Operation.UPDATE, document));
 
@@ -371,6 +376,7 @@ public class PostCommanderService {
         // 명시적으로 save
         postCommander.save(post);
 
+        // Elasticsearch 색인을 위한 이벤트 발행
         PostDocument document = makePostDocument(post);
         postProducer.producePostEvent(new PostEvent(PostEvent.Operation.UPDATE, document));
     }
@@ -393,6 +399,7 @@ public class PostCommanderService {
         // 초대 전송
         postProducer.produce("invite.sent", new InviteSentEvent(loginUserId, userId, postId));
 
+        // Elasticsearch 색인을 위한 이벤트 발행
         PostDocument document = makePostDocument(post);
         postProducer.producePostEvent(new PostEvent(PostEvent.Operation.UPDATE, document));
 
@@ -413,6 +420,7 @@ public class PostCommanderService {
         // 명시적으로 save
         postCommander.save(post);
 
+        // Elasticsearch 색인을 위한 이벤트 발행
         PostDocument document = makePostDocument(post);
         postProducer.producePostEvent(new PostEvent(PostEvent.Operation.UPDATE, document));
     }
@@ -439,6 +447,7 @@ public class PostCommanderService {
         // 명시적으로 save
         postCommander.save(post);
 
+        // Elasticsearch 색인을 위한 이벤트 발행
         PostDocument document = makePostDocument(post);
         postProducer.producePostEvent(new PostEvent(PostEvent.Operation.UPDATE, document));
     }
@@ -460,6 +469,7 @@ public class PostCommanderService {
 
         postProducer.produce("invite.denied", new InviteDeniedEvent(post.getAuthorId(), loginUserId, postId));
 
+        // Elasticsearch 색인을 위한 이벤트 발행
         PostDocument document = makePostDocument(post);
         postProducer.producePostEvent(new PostEvent(PostEvent.Operation.UPDATE, document));
     }

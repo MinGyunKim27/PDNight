@@ -190,7 +190,7 @@ public class PostReaderESService {
         PostDocument post = postReader.findByIdES(postId)
                 .orElseThrow(() -> new BaseException(ErrorCode.POST_NOT_FOUND));
 
-        if (post.getIsDeleted()) {
+        if(post.getIsDeleted() != null && post.getIsDeleted()) {
             throw new BaseException(ErrorCode.POST_DEACTIVATED);
         }
 

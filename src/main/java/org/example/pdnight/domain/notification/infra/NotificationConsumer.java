@@ -1,7 +1,5 @@
 package org.example.pdnight.domain.notification.infra;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -12,7 +10,6 @@ import org.example.pdnight.global.event.*;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -211,6 +208,7 @@ public class NotificationConsumer {
         );
     }
 
+    // Kafka로부터 PostEvent 메시지를 받아서 일정량 모아두었다가 Elasticsearch에 bulk insert
     @KafkaListener(
             topics = "post",
             groupId = "search-indexer-group",
@@ -220,21 +218,22 @@ public class NotificationConsumer {
         log.info("Consuming PostEvent: {}", event);
 
         try {
-            PostDocument document = event.document(); // 유효성 검증
+            PostDocument document = event.document();   // 이벤트로부터 문서 추출
             log.info("Valid PostDocument extracted, id={}", document.getId());
 
+            // 동기화 블록
             synchronized (lock) {
-                buffer.add(event);
+                buffer.add(event);  // 이벤트를 버퍼에 추가
                 log.info("Added PostEvent to buffer. Current buffer size: {}", buffer.size());
 
+                // 버퍼가 BATCH_SIZE 이상이면 즉시 flush 실행
                 if (buffer.size() >= BATCH_SIZE) {
                     flush();
                 }
             }
         } catch (Exception e) {
             log.error("Failed to process PostEvent: {}", event, e);
-            // DLT로 전송하거나 재시도 로직 추가 필요
-            throw e; // 원하면 예외를 다시 던져서 Kafka 재시도 메커니즘 활용
+            throw e;
         }
     }
 
@@ -247,11 +246,13 @@ public class NotificationConsumer {
         }
     }
 
+    // 버퍼의 이벤트들을 Elasticsearch에 bulk insert하는 메서드
     private void flush() {
         if (buffer.isEmpty()) {
             return;
         }
 
+        // 현재 버퍼 내용을 복사해서 작업용 리스트로 만들고, 버퍼는 비움
         List<PostEvent> currentBatch = new ArrayList<>(buffer);
         buffer.clear();
 
@@ -259,6 +260,7 @@ public class NotificationConsumer {
         int attempt = 0;
         boolean success = false;
 
+        // 실패 시 최대 3번까지 재시도
         while (attempt < maxRetries && !success) {
             try {
                 attempt++;
@@ -272,6 +274,7 @@ public class NotificationConsumer {
                 success = true;
 
             } catch (Exception e) {
+                // 실패 시 로그 기록 후 2초 대기
                 log.error("Failed to bulk index batch (attempt {}/{}). Retrying...", attempt, maxRetries, e);
 
                 try {
