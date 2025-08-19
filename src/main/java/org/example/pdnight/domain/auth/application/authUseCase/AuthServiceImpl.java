@@ -40,4 +40,9 @@ public class AuthServiceImpl implements AuthService {
     public void withdraw(Long userId, WithdrawRequest request) {
         authCommanderService.withdraw(userId, request);
     }
+
+    @Override
+    public LoginResponse reissue(String refreshTokenHeader) {
+        return authCommanderService.reissue(refreshTokenHeader);
+    }
 }
