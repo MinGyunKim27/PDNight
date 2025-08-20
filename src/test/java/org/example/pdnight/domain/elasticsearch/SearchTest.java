@@ -1,6 +1,5 @@
 package org.example.pdnight.domain.elasticsearch;
 
-import org.example.pdnight.domain.post.application.PostUseCase.PostReaderESService;
 import org.example.pdnight.domain.post.domain.post.Post;
 import org.example.pdnight.domain.post.domain.post.PostDocument;
 import org.example.pdnight.domain.post.domain.post.PostReader;
@@ -33,9 +32,6 @@ public class SearchTest {
     private PostReader postReader;
 
     @Autowired
-    private PostReaderESService postReaderESService;
-
-    @Autowired
     private PostJpaRepository postJpaRepository;
 
     @Autowired
@@ -45,7 +41,7 @@ public class SearchTest {
     void setUp() {
         List<Post> postList = new ArrayList<>();
         List<PostDocument> postDocumentList = new ArrayList<>();
-        for (Long i = 0L; i < 10000; i++) {
+        for (Long i = 0L; i < 100000; i++) {
             int num = (int) (Math.random()*3);
             Gender gender;
             if(num == 0)  {
@@ -102,10 +98,65 @@ public class SearchTest {
 
 
         long startES = System.currentTimeMillis();
-        postReaderESService.getPostDtosBySearchES(pageable, 4, null, null, Gender.ALL);
+        postReader.findPostsBySearchES(pageable, 4, null, null, Gender.ALL);
         long endES = System.currentTimeMillis();
 
         System.out.println("ElasticSearch 총 소요시간(ms): " + (endES - startES));
     }
 
+    @Test
+    @DisplayName("성능 벤치마크 (평균값 출력)")
+    void benchmark() {
+        double[] shallow = runBenchmark("0 ~ 50 페이지", 0, 50, false);
+
+        double[] deep100 = runBenchmark("100 ~ 110 페이지", 100, 110, false);
+
+        double[] deep500 = runBenchmark("500 ~ 510 페이지)", 500, 510, false);
+
+        double[] random = runBenchmark("조건 랜덤", 10, 20, true);
+
+        // 결과 요약 출력
+        System.out.println("\n===== 성능 결과 요약 (평균 ms) =====");
+        System.out.printf("0 ~ 50 페이지: MySQL=%.2f ms, ES=%.2f ms%n", shallow[0], shallow[1]);
+        System.out.printf("100 ~ 110 페이지: MySQL=%.2f ms, ES=%.2f ms%n", deep100[0], deep100[1]);
+        System.out.printf("500 ~ 510 페이지: MySQL=%.2f ms, ES=%.2f ms%n", deep500[0], deep500[1]);
+        System.out.printf("조건 랜덤(20회): MySQL=%.2f ms, ES=%.2f ms%n", random[0], random[1]);
+    }
+
+    private double[] runBenchmark(String label, int startPage, int endPage, boolean randomCond) {
+        long totalMySQL = 0;
+        long totalES = 0;
+        int count = 0;
+
+        for (int page = startPage; page <= endPage; page++) {
+            Pageable pageable = PageRequest.of(page, 10);
+
+            int maxParticipant;
+            Gender gender;
+
+            if (randomCond) {
+                maxParticipant = (int) (Math.random() * 4) + 1;
+                gender = Gender.values()[(int) (Math.random() * Gender.values().length)];
+            } else {
+                maxParticipant = 4;
+                gender = Gender.ALL;
+            }
+
+            long start = System.currentTimeMillis();
+            postReader.findPostsBySearch(pageable, maxParticipant, null, null, gender);
+            totalMySQL += (System.currentTimeMillis() - start);
+
+            long startES = System.currentTimeMillis();
+            postReader.findPostsBySearchES(pageable, maxParticipant, null, null, gender);
+            totalES += (System.currentTimeMillis() - startES);
+
+            count++;
+        }
+
+        double avgMySQL = totalMySQL / (double) count;
+        double avgES = totalES / (double) count;
+
+        System.out.printf("[%s] MySQL 평균=%.2f ms, ES 평균=%.2f ms%n", label, avgMySQL, avgES);
+        return new double[]{avgMySQL, avgES};
+    }
 }

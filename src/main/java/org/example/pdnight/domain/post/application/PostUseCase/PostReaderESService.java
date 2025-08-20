@@ -48,10 +48,10 @@ public class PostReaderESService {
 
     //게시물 조건 검색 O
     @Transactional(readOnly = true)
-    @Cacheable(
-            value = CacheName.SEARCH_POST,
-            key = "{#pageable.pageNumber, #pageable.pageSize, #maxParticipants, #ageLimit, #jobCategoryLimit, #genderLimit}"
-    )
+//    @Cacheable(
+//            value = CacheName.SEARCH_POST,
+//            key = "{#pageable.pageNumber, #pageable.pageSize, #maxParticipants, #ageLimit, #jobCategoryLimit, #genderLimit}"
+//    )
     public PagedResponse<PostResponse> getPostDtosBySearchES(
             Pageable pageable,
             Integer maxParticipants,
