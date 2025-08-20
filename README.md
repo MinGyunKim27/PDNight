@@ -51,70 +51,86 @@
 ---
 ## 👨‍👩‍👧‍👦 팀원 소개
 
+<div align="center">
 <table>
   <tr>
-    <td style="text-align: center;">
-      <img src="https://avatars.githubusercontent.com/u/89957296?v=4" width="100px;" alt=""/>
-      <br /><b>김민균 [팀장]</b>
-      <br />Kafka 시각화(모니터링)
-      <br />Elasticsearch 추천 시스템
-      <br />Deploy
-      <br />
-      <a href="https://github.com/MinGyunKim27" target="_blank">GitHub</a> | 
-      <a href="https://velog.io/notifications" target="_blank">Blog</a>
+    <td>
+      <div align="center" style="width:250px; height:300px;">
+        <img src="https://avatars.githubusercontent.com/u/89957296?v=4" width="120px;" alt=""/>
+        <br /><b>김민균 [팀장]</b>
+        <br />Kafka 모니터링
+        <br />ES 추천기능
+        <br />Deploy
+        <br />
+        <a href="https://github.com/MinGyunKim27" target="_blank">GitHub</a> | 
+        <a href="https://velog.io/notifications" target="_blank">Blog</a>
+      </div>
     </td>
-    <td style="text-align: center;">
-      <img src="https://avatars.githubusercontent.com/u/79428775?v=4" width="100px;" alt=""/>
-      <br /><b>김지현 [부팀장]</b>
-      <br />Logging
-      <br />동시성 제어
-      <br />엘라스틱 Bulk 처리
-      <br />
-      <a href="https://github.com/jh-01" target="_blank">GitHub</a> | 
-      <a href="https://everyday-for-coding.tistory.com/" target="_blank">Blog</a>
+    <td>
+      <div align="center" style="width:250px; height:300px;">
+        <img src="https://avatars.githubusercontent.com/u/79428775?v=4" width="120px;" alt=""/>
+        <br /><b>김지현 [부팀장]</b>
+        <br />Logging
+        <br />동시성 제어
+        <br />엘라스틱 Bulk 처리
+        <br />
+        <a href="https://github.com/jh-01" target="_blank">GitHub</a> | 
+        <a href="https://everyday-for-coding.tistory.com/" target="_blank">Blog</a>
+      </div>
     </td>
-    <td style="text-align: center;">
-      <img src="https://avatars.githubusercontent.com/u/115523810?v=4" width="100px;" alt=""/>
-      <br /><b>류수연 [팀원]</b>
-      <br />Logging
-      <br />Redis Cache
-      <br />
-      <a href="https://github.com/ryusu12" target="_blank">GitHub</a> | 
-      <a href="https://velog.io/@rsy7567/posts" target="_blank">Blog</a>
+    <td>
+      <div align="center" style="width:250px; height:300px;">
+        <img src="https://avatars.githubusercontent.com/u/115523810?v=4" width="120px;" alt=""/>
+        <br /><b>류수연 [팀원]</b>
+        <br />Logging
+        <br />Redis Cache
+        <br />쿼리 최적화
+        <br />
+        <a href="https://github.com/ryusu12" target="_blank">GitHub</a> | 
+        <a href="https://velog.io/@rsy7567/posts" target="_blank">Blog</a>
+      </div>
     </td>
   </tr>
   <tr>
-    <td style="text-align: center;">
-      <img src="https://avatars.githubusercontent.com/u/114732394?v=4" width="100px;" alt=""/>
-      <br /><b>박진 [팀원]</b>
-      <br />Kafka 재시도 설계
-      <br />OAuth / Refresh Token
-      <br />
-      <a href="https://github.com/ParkJin0814" target="_blank">GitHub</a> | 
-      <a href="https://velog.io/@klkl97/posts" target="_blank">Blog</a>
+    <td>
+      <div align="center" style="width:250px; height:300px;">
+        <img src="https://avatars.githubusercontent.com/u/114732394?v=4" width="120px;" alt=""/>
+        <br /><b>박진 [팀원]</b>
+        <br />Kafka 재시도 설계
+        <br />OAuth
+        <br />Refresh Token
+        <br />
+        <a href="https://github.com/ParkJin0814" target="_blank">GitHub</a> | 
+        <a href="https://velog.io/@klkl97/posts" target="_blank">Blog</a>
+      </div>
     </td>
-    <td style="text-align: center;">
-      <img src="https://avatars.githubusercontent.com/u/64243394?v=4" width="100px;" alt=""/>
-      <br /><b>이안근 [팀원]</b>
-      <br />Kafka 재시도 설계
-      <br />Elasticsearch
-      <br />MongoDB
-      <br />
-      <a href="https://github.com/roog23" target="_blank">GitHub</a> | 
-      <a href="https://roog23.tistory.com/" target="_blank">Blog</a>
+    <td>
+      <div align="center" style="width:250px; height:300px;">
+        <img src="https://avatars.githubusercontent.com/u/64243394?v=4" width="120px;" alt=""/>
+        <br /><b>이안근 [팀원]</b>
+        <br />Kafka 재시도 설계
+        <br />Elasticsearch
+        <br />MongoDB
+        <br />
+        <a href="https://github.com/roog23" target="_blank">GitHub</a> | 
+        <a href="https://roog23.tistory.com/" target="_blank">Blog</a>
+      </div>
     </td>
-    <td style="text-align: center;">
-      <img src="https://avatars.githubusercontent.com/u/180647905?v=4" width="100px;" alt=""/>
-      <br /><b>최영재 [팀원]</b>
-      <br />Kafka 재시도 설계
-      <br />Elasticsearch
-      <br />문서 정리
-      <br />
-      <a href="https://github.com/teopteop" target="_blank">GitHub</a> | 
-      <a href="https://velog.io/@teopteop/posts" target="_blank">Blog</a>
+    <td>
+      <div align="center" style="width:250px; height:300px;">
+        <img src="https://avatars.githubusercontent.com/u/180647905?v=4" width="120px;" alt=""/>
+        <br /><b>최영재 [팀원]</b>
+        <br />Kafka 재시도 설계
+        <br />Elasticsearch
+        <br />문서 정리
+        <br />
+        <a href="https://github.com/teopteop" target="_blank">GitHub</a> | 
+        <a href="https://velog.io/@teopteop/posts" target="_blank">Blog</a>
+      </div>
     </td>
   </tr>
 </table>
+</div>
 
 ---
 ## 🛠️ 기술 스택
