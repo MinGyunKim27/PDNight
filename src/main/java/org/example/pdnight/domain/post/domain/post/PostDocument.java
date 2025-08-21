@@ -26,9 +26,6 @@ import java.util.Map;
 
 @Document(indexName = "posts")
 @Getter
-@NoArgsConstructor(force = true)
-@Builder
-@AllArgsConstructor
 public class PostDocument {
 
     @Id
