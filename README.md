@@ -1,7 +1,6 @@
 # 🌃 판교의 밤 (PDNight)
 개발자들을 위한 오프라인 번개모임 플랫폼
 
----
 ## 📑 목차
 - [프로젝트 소개](#-프로젝트-소개)
 - [팀원 소개](#-팀원-소개)
@@ -39,7 +38,7 @@
 
 </aside>
 
----
+
 ### 🙆 판교의 밤이 해결하고자 하는 방향성
 
 | 관심사 기반의 추천                                    | 사용자 신뢰도 관리              | 지속적인 연결 제공               |
@@ -477,7 +476,6 @@ GitHub Actions는 GitHub 에서 제공하는 워크플로우 기반의 CI/CD 도
 
 </details>
 
----
 <details>
 
 
@@ -550,7 +548,6 @@ HTML, JS, 이미지 등 정적 파일을 빠르게 처리할 수 있는 고성�
 
 </details>
 
----
 <details>
 
 <summary> Redis를 캐시 라이브러리로 선택한 이유 </summary>
@@ -631,7 +628,6 @@ Redis는 인메모리 기반의 고성능 Key-Value 저장소로,
 
 </details>
 
----
 <details>
 <summary> 도메인 주도 설계 (DDD: Domain-Driven Design) 도입 배경 및 선택 이유 </summary>
 
@@ -719,7 +715,6 @@ DDD는 도메인(비즈니스 핵심 영역)을 중심으로 소프트웨어를 
 
 </details>
 
----
 <details>
 <summary> Kafka 도입 배경 및 선택 이유 </summary>
 
@@ -805,8 +800,6 @@ Kafka는 대용량 데이터의 비동기 메시지 전송을 지원하는 분�
 
 </details>
 
----
-
 <details>
 <summary> Elasticsearch 도입 배경 및 선택 이유 </summary>
 
@@ -890,8 +883,6 @@ Elasticsearch는 분산형 검색 엔진으로 구조화되지 않은 텍스트 
 
 </details>
 
----
-
 <details>
 <summary> mongoDB 도입 배경 및 선택 이유 </summary>
 
@@ -964,8 +955,6 @@ JSON 기반의 유연한 스키마 구조를 제공하여 정형/비정형 데�
     - 샤딩 확장을 고려할 수 있어 장기적으로 대규모 데이터에도 대응 가능
 </details>
 
----
-
 <details>
 <summary> OAuth 도입 배경 및 선택 이유 </summary>
 
@@ -1019,8 +1008,6 @@ OAuth는 인터넷 사용자들이 비밀번호를 제공하지 않고 다른 �
 - 추후 외부 서비스(Google 등)와의 연동 및 확장성을 고려
 - 사용자가 별도의 가입 과정 없이 손쉽게 로그인 할 수 있어 서비스의 진입 장벽을 낮춰 유입률을 높이는데 도움이 됨
 </details>
-
----
 
 
 
@@ -1155,9 +1142,6 @@ void 회원가입_이벤트_후_조회() {
 </details>
 
 
-
----
-
 <details>
 
 <summary> ⚖️ CQRS 책임 분리 위반에 따른 구조 개선 </summary>
@@ -1188,8 +1172,6 @@ void 회원가입_이벤트_후_조회() {
 - 이로써 책임의 경계를 명확히 하고 향후 DB 분리 시 발생할 수 있는 정합성 문제를 사전에 방지할 수 있게 됨.
 
 </details>
-
----
 
 <details>
 
@@ -1278,8 +1260,6 @@ private Set<UserTech> userTechs;
 
 </details>
 
----
-
 <details>
 
 <summary> 📑 JPA 페이징 + Fetch Join 시 발생하는 메모리 페이징 이슈 </summary>
@@ -1367,7 +1347,6 @@ for (UserResponse dto : users) {
 
 </details>
 
----
 
 <details>
 <summary> 🔒 @Transactional ,@DistributedLock 동시 사용 시 분산락 무효화 </summary>
@@ -1550,7 +1529,6 @@ Redis 캐시를 사용하여 조회
 - 시간적 여유가 있다면 추후 개선할 의향 있음
 </details>
 
----
 
 <details>
 <summary> 🔒 분산락 제어 </summary>
@@ -1636,7 +1614,6 @@ Redis 캐시를 사용하여 조회
 
 </details>
 
----
 
 <details>
 <summary> 🖥️ 부하/모니터링 - 컨슈머 스케일링을 통한 성능개선 </summary>
@@ -1723,7 +1700,6 @@ Redis 캐시를 사용하여 조회
 
 </details>
 
----
 
 <details>
 <summary> 📈 Elasticsearch 를 통한 조회 성능 개선 </summary>
