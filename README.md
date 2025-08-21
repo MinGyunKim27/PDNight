@@ -59,7 +59,7 @@
         <img src="https://avatars.githubusercontent.com/u/89957296?v=4" width="120px;" alt=""/>
         <br /><b>김민균 [팀장]</b>
         <br />Kafka 모니터링
-        <br />ES 추천기능
+        <br />프로젝트 총괄
         <br />Deploy
         <br />
         <a href="https://github.com/MinGyunKim27" target="_blank">GitHub</a> | 
