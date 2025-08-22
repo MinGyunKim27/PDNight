@@ -264,10 +264,16 @@
 <br />✅ 이벤트 데이터의 손실 없이 처리 가능
 <br />✅ 데이터의 흐름 파악 가능
 
-
 ---
-### 재시도 처리 설계
-![재시도_처리_설계.png](docs/image/%EC%9E%AC%EC%8B%9C%EB%8F%84_%EC%B2%98%EB%A6%AC_%EC%84%A4%EA%B3%84.png)
+### KRaft를 통한 클러스터 환경 구축
+
+| 구분                  | 핵심 내용                                                                                             | 기대 효과                                       |
+| ------------------- | ------------------------------------------------------------------------------------------------- |---------------------------------------------|
+| ⚡ **아키텍처 단순화**      | - ZooKeeper 제거, Kafka 단독 클러스터 구성<br>- 메타데이터 관리 Kafka 내부 Raft 합의 기반 통합<br>- 설치·구성 서비스 수 감소         | 👉 배포 환경(Docker, K8s)에서 **네트워크·리소스 구조 단순화** |
+| ⚙️ **운영 효율성**       | - ZK 전용 설정 불필요<br>- Kafka 설정만 관리<br>- `--bootstrap-server` 기반 관리 명령어 통일                           | 👉 **CLI 사용 일관성 확보**, 관리 단순화                 |
+| 🛡️ **안정성 & 장애 복구** | - 컨트롤러 리더 교체 시 즉시 활성화<br>- 쿼럼 구조 기반 → 과반수 생존 시 가용성 유지<br>- 이벤트 소싱 + 스냅샷으로 빠른 복구                   | 👉 **서비스 불가 구간 최소화**, 단일 장애점 제거              |
+| 📈 **확장성 & 유연성**    | - 브로커/컨트롤러 역할 겸임 or 분리 가능<br>- 노드 증설·축소 시 ZK quorum 고려 불필요                                        | 👉 브로커만 추가해도 확장, **수백만 파티션까지 대응**            |
+| 💰 **성능·비용 최적화**    | - ZK 서버 리소스 절감<br>- 메타데이터 업데이트 레이어 축소 → latency 감소<br>- Kafka 단일 보안 모델 적용<br>- Kafka/ZK 버전 관리 불필요 | 👉 **CPU·메모리 절감**, 업그레이드·보안 관리 간소화           |
 
 ---
 ### 에러 핸들러 설계 의도
@@ -289,15 +295,11 @@
 <br />🔹 문제 원인 추적 가능
 
 ---
-### KRaft를 통한 클러스터 환경 구축
 
-| 구분                  | 핵심 내용                                                                                             | 기대 효과                                       |
-| ------------------- | ------------------------------------------------------------------------------------------------- |---------------------------------------------|
-| ⚡ **아키텍처 단순화**      | - ZooKeeper 제거, Kafka 단독 클러스터 구성<br>- 메타데이터 관리 Kafka 내부 Raft 합의 기반 통합<br>- 설치·구성 서비스 수 감소         | 👉 배포 환경(Docker, K8s)에서 **네트워크·리소스 구조 단순화** |
-| ⚙️ **운영 효율성**       | - ZK 전용 설정 불필요<br>- Kafka 설정만 관리<br>- `--bootstrap-server` 기반 관리 명령어 통일                           | 👉 **CLI 사용 일관성 확보**, 관리 단순화                 |
-| 🛡️ **안정성 & 장애 복구** | - 컨트롤러 리더 교체 시 즉시 활성화<br>- 쿼럼 구조 기반 → 과반수 생존 시 가용성 유지<br>- 이벤트 소싱 + 스냅샷으로 빠른 복구                   | 👉 **서비스 불가 구간 최소화**, 단일 장애점 제거              |
-| 📈 **확장성 & 유연성**    | - 브로커/컨트롤러 역할 겸임 or 분리 가능<br>- 노드 증설·축소 시 ZK quorum 고려 불필요                                        | 👉 브로커만 추가해도 확장, **수백만 파티션까지 대응**            |
-| 💰 **성능·비용 최적화**    | - ZK 서버 리소스 절감<br>- 메타데이터 업데이트 레이어 축소 → latency 감소<br>- Kafka 단일 보안 모델 적용<br>- Kafka/ZK 버전 관리 불필요 | 👉 **CPU·메모리 절감**, 업그레이드·보안 관리 간소화           |
+### 재시도 처리 설계
+![재시도_처리_설계.png](docs/image/%EC%9E%AC%EC%8B%9C%EB%8F%84_%EC%B2%98%EB%A6%AC_%EC%84%A4%EA%B3%84.png)
+
+---
 
 
 </details>
@@ -361,9 +363,9 @@
 
 ### 문제 상황
 
-❌ `@TransactionalEventListener(phase = BEFORE_COMMIT)`를 사용하는 이벤트 리스너가 테스트에서 동작하지 않음
+❌ `@TransactionalEventListener(phase = BEFORE_COMMIT)`를 사용하는 **이벤트 리스너가 테스트에서 동작하지 않음**
 
-❌ `ApplicationEventPublisher.publishEvent()`를 호출했지만 이후 `UserReader`를 통해 유저를 조회했을 때 저장된 결과가 없음
+❌ `ApplicationEventPublisher.publishEvent()`를 호출했지만 이후 `UserReader`를 통해 유저를 조회했을 때 **저장된 결과가 없음**
 
 ❌ `@TransactionalEventListener(phase = BEFORE_COMMIT)` 는 트랜잭션 커밋 직전에 실행됨.
 
@@ -457,6 +459,8 @@ void 회원가입_이벤트_후_조회() {
 
 ❌ 하지만 실제 구현시 **Commander 서비스가 Reader를 통해 데이터를 조회**하여 수정·생성·삭제 작업을 수행하는 상황이 발생함.
 
+![트러블슈팅_CQRS_문제상황.png](docs/image/%ED%8A%B8%EB%9F%AC%EB%B8%94%EC%8A%88%ED%8C%85_CQRS_%EB%AC%B8%EC%A0%9C%EC%83%81%ED%99%A9.png)
+
 ---
 
 ### 문제 원인
@@ -481,35 +485,16 @@ void 회원가입_이벤트_후_조회() {
 
 ### 문제 상황
 
-❌ JPA에서 `User` 엔티티를 조회할 때 `userHobbies`와 `userTeckStacks` 두 개의 연관 컬렉션을 패치 조인(fetch join) 하여 한 번에 가져오도록 설정함
-
-```java
-List<User> users = queryFactory
-        .selectFrom(user)
-        .leftJoin(user.userHobbies).fetchJoin()
-        .leftJoin(user.userTeckStacks).fetchJoin()
-        .offset(pageable.getOffset())
-        .limit(pageable.getPageSize())
-        .fetch();
-```
-
+❌ JPA에서 `User` 엔티티를 조회할 때 `userHobbies`와 `userTeckStacks` 두 개의 연관 컬렉션을 패치 조인(fetch join) 하여 한 번에 가져오도록 설정함<br/>
 ❌ 그 결과 MultipleBagFetchException가 발생함
 
-```bash
-org.hibernate.loader.MultipleBagFetchException:
-cannot simultaneously fetch multiple bags: [User.userHobbies, User.userTechs]
-```
+![트러블슈팅_패치조인_문제상황.png](docs/image/%ED%8A%B8%EB%9F%AC%EB%B8%94%EC%8A%88%ED%8C%85_%ED%8C%A8%EC%B9%98%EC%A1%B0%EC%9D%B8_%EB%AC%B8%EC%A0%9C%EC%83%81%ED%99%A9.png)
 
 ---
 
 ### 문제 원인
 
-💡 JPA(Hibernate)는 두 개 이상의 `List` 타입 컬렉션을 동시에 fetch join 할 경우 내부적으로 **카테시안 곱(Cartesian Product)** 이 발생
-
-- `List` 타입은 Hibernate 내부적으로 `Bag` 타입으로 처리되는데 Bag은 중복을 허용하므로 Hibernate가 이를 정리할 수 없어 예외를 발생시킴
-
-- 예를 들어 유저 1명이 취미 3개, 기술 2개를 가진다면 결과는 3 × 2 = 6개의 레코드로 늘어나게 되며 이 중복을 관리하지 못함
-
+![트러블슈팅_패치조인_문제원인.png](docs/image/%ED%8A%B8%EB%9F%AC%EB%B8%94%EC%8A%88%ED%8C%85_%ED%8C%A8%EC%B9%98%EC%A1%B0%EC%9D%B8_%EB%AC%B8%EC%A0%9C%EC%9B%90%EC%9D%B8.png)
 
 ---
 
@@ -640,29 +625,14 @@ public void applyForParticipation(Long postId) {
 
 💡 **실행 순서에 따라 발생하는 문제**
 - `@Transactional`이 먼저 실행되면 다음과 같은 순서가 됨
-
-
-    1. 트랜잭션 시작
-    2. 분산락 획득
-    3. 비즈니스 로직 실행
-    4. 분산락 해제 ⚠️
-    5. 트랜잭션 커밋
-
 - 문제점: 분산락은 해제되었지만 **트랜잭션이 아직 커밋되지 않은 상태**
 - 이 상태에서 다른 스레드가 락을 획득하면 이전 변경사항이 반영되지 않은 데이터를 참조하게 되어 정합성 문제가 발생함.
 
 💡 **올바른 실행 순서**
 - `@DistributedLock` → `@Transactional` 순으로 적용되어야 안전하다.
-    
-
-    1. 분산락 획득
-    2. 트랜잭션 시작
-    3. 비즈니스 로직 실행
-    4. 트랜잭션 커밋
-    5. 분산락 해제 ✅
-    
 - 트랜잭션 커밋이 완료된 이후에 락이 해제되므로 정합성이 보장된 상태에서 다음 요청이 처리됨
 
+![트러블슈팅_분산락_문제원인.png](docs/image/%ED%8A%B8%EB%9F%AC%EB%B8%94%EC%8A%88%ED%8C%85_%EB%B6%84%EC%82%B0%EB%9D%BD_%EB%AC%B8%EC%A0%9C%EC%9B%90%EC%9D%B8.png)
 
 ---
 
