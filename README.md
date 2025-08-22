@@ -115,11 +115,14 @@
 - **댓글/후기/쿠폰** 등 액티비티
 
 ---
-<h2 id="arch"> 🏛️ 아키텍쳐
+<h2 id="arch"> 🏛️ 아키텍쳐 </h2>
 
 ![아키텍쳐.png](docs/image/%EC%95%84%ED%82%A4%ED%85%8D%EC%B3%90.png)
 
+### 
+
 ---
+
 ## 📘 설계 문서
 
 ### 🔗 ERD
@@ -132,7 +135,7 @@
 
 ---
 
-<h2 id="wireframe"> 🖼️ 와이어 프레임
+<h2 id="wireframe"> 🖼️ 와이어 프레임 </h2>
 
 <details>
 
@@ -167,7 +170,7 @@
 ## 🙋 기술적 의사 결정
 
 <details>
-<summary> 🏗️ 도메인 주도 설계 (DDD: Domain-Driven Design) 도입 배경 및 선택 이유 </summary>
+<summary> <strong> 🏗️ 도메인 주도 설계 (DDD: Domain-Driven Design) 도입 배경 및 선택 이유 </strong> </summary>
 
 ### 도입 배경과 필요성
 
@@ -247,7 +250,7 @@
 
 <details>
 
-<summary> 📨 Kafka 도입 배경 및 선택 이유 </summary>
+<summary> <strong> 📨 Kafka 도입 배경 및 선택 이유 </strong> </summary>
 
 ### 도입 배경과 필요성
 
@@ -300,7 +303,7 @@
 </details>
 
 <details>
-<summary> 🔍 Elasticsearch 도입 배경 및 선택 이유 </summary>
+<summary> <strong> 🔍 Elasticsearch 도입 배경 및 선택 이유 </strong> </summary>
 
 ### 도입 배경과 필요성
 **[문제 상황]**
@@ -350,7 +353,8 @@
 
 ---
 
-<h2 id="troubleshooting"> ⚠️ 트러블 슈팅
+<h2 id="troubleshooting"> ⚠️ 트러블 슈팅 </h2>
+
 <details>
 
 <summary> <strong>🧪 통합 테스트 코드가 트랜잭션 때문에 계속 실패합니다! </strong></summary>
@@ -988,7 +992,7 @@ void benchmark() {
 </details>
 
 ---
-<h2 id="tech-stack"> 🛠️ 기술 스택
+<h2 id="tech-stack"> 🛠️ 기술 스택 </h2>
 
 ![기술스택2.png](docs/image/%EA%B8%B0%EC%88%A0%EC%8A%A4%ED%83%9D2.png)
 
