@@ -106,7 +106,7 @@
 
 ![아키텍쳐_구조.png](docs/image/%EC%95%84%ED%82%A4%ED%85%8D%EC%B3%90_%EA%B5%AC%EC%A1%B0.png)
 
-[🔗 CICD - GitHub Actions](https://teamsparta.notion.site/CI-CD-2552dc3ef51480edac63c40505b0486e)
+[🔗 CICD - GitHub Actions](https://www.notion.so/CI-CD-GitHub-Actions-257879e1bd2381dabf20d90a41b948c9)
 
 ---
 
@@ -119,12 +119,12 @@
 ### V5 ERD
 ![ERD_V5.png](docs/image/ERD_V5.png)
 
-[🔗 [버전 별 ERD] By notion](https://teamsparta.notion.site/ERD-2562dc3ef514807f812ddaf68361e7e8)
+[🔗 [버전 별 ERD] By notion](https://www.notion.so/ERD-257879e1bd2381a18fdcd4fe08760a50)
 
 ### V5 책임구조
 ![책임구조_V5.png](docs/image/책임구조_V5.png)
 
-[🔗 [버전 별 책임 구조] By notion](https://www.notion.so/teamsparta/2562dc3ef5148037a3e3e424c3537051)
+[🔗 [버전 별 책임 구조] By notion](https://www.notion.so/257879e1bd23819dac45f505e17c7ae0)
 
 ---
 
@@ -156,7 +156,7 @@
 
 - [🚀 API 명세서 By springdoc](https://pdnight.duckdns.org/swagger-ui)
 
-- [📋 API 명세서 By notion](https://teamsparta.notion.site/API-2562dc3ef5148049a9c9c9dd50312c65)
+- [📋 API 명세서 By notion](https://www.notion.so/API-257879e1bd238189a2eceb93a8204877)
 
 
 
