@@ -451,6 +451,8 @@ void 회원가입_이벤트_후_조회() {
 
 ### 문제 상황
 
+![Commander-Reader.png](docs/image/Commander-Reader.png)
+
 ❌ 우리 프로젝트는 CQRS 패턴을 사용하여 **Commander와 Reader를 구분하여 사용하기**로 결정함.
 - 현재는 하나의 DB를 사용 중이지만 구조적으로 Commander와 Reader를 분리하여 서비스별 기능을 명확히 분리
 - 추후 DB 분리에 대비하고자 하는 목적
@@ -480,7 +482,7 @@ void 회원가입_이벤트_후_조회() {
 <summary> <strong>⛓️ JPA에서 여러 컬렉션을 패치 조인하니 'MultipleBagFetchException' 예외가 발생합니다!</strong> </summary>
 
 ### 문제 상황
-
+![MultipleBagFetchException.png](docs/image/MultipleBagFetchException.png)
 ❌ JPA에서 `User` 엔티티를 조회할 때 `userHobbies`와 `userTeckStacks` 두 개의 연관 컬렉션을 패치 조인(fetch join) 하여 한 번에 가져오도록 설정함
 
 ```java
@@ -503,7 +505,7 @@ cannot simultaneously fetch multiple bags: [User.userHobbies, User.userTechs]
 ---
 
 ### 문제 원인
-
+![List-Bag.png](docs/image/List-Bag.png)
 💡 JPA(Hibernate)는 두 개 이상의 `List` 타입 컬렉션을 동시에 fetch join 할 경우 내부적으로 **카테시안 곱(Cartesian Product)** 이 발생
 
 - `List` 타입은 Hibernate 내부적으로 `Bag` 타입으로 처리되는데 Bag은 중복을 허용하므로 Hibernate가 이를 정리할 수 없어 예외를 발생시킴
@@ -548,6 +550,7 @@ private Set<UserTech> userTechs;
 
 ### 문제 상황
 
+
 ❌ `userHobbies`와 `userTeckStacks` 을 조회하는 과정에서 N+1 문제를 해결하기 위해 각각 `fetch join`과 **페이징 처리**를 적용함<br/>
 ❌ 실행은 되지만 다음과 같은 경고 메시지가 출력됨
 
@@ -560,7 +563,6 @@ firstResult/maxResults specified with collection fetch; **applying in memory**
 ---
 
 ### 문제 원인
-
 💡 Hibernate는 컬렉션(`@OneToMany`, `@ManyToMany`)에 대해 `fetch join`이 적용된 경우, DB 레벨에서 `limit`, `offset`을 이용한 페이징이 **불가능**
 - 카테시안 곱 + 중복 제거 과정이 복잡하여 DB에서 정확한 row 제한이 어려움
 
@@ -616,6 +618,7 @@ for (UserResponse dto : users) {
 
 ### 문제 상황
 
+![DistributedLock.png](docs/image/DistributedLock.png)
 ❌ `@Transactional`과 `@DistributedLock` 어노테이션을 함께 사용하는 메서드에서 **분산락이 제대로 동작하지 않는 문제**가 발생
 
 ```java
@@ -1008,3 +1011,4 @@ void benchmark() {
 | **박  진** | `🏅팀원`  | `👂질문의 대가`<br> `❄️냉철한 판단가`<br> `🕘효율 끝판왕`  | [GitHub](https://github.com/ParkJin0814)  | [블로그](https://velog.io/@klkl97/posts)           | 📌 Kafka 재시도 설계<br>📌 OAuth 로그인 구현<br>📌 Refresh Token을 이용한 토큰 재발급<br>📌 사용자 리뷰 시스템 구현 <br>📌 쿠폰 CRUD기능 구현 |
 | **이안근**  | `🥇팀원`  | `🔨장인 정신`<br> `🔥도전의 대가`<br> `🎯집중력 만렙`          | [GitHub](https://github.com/roog23)       | [블로그](https://roog23.tistory.com/)              | 📌 Kafka 재시도 설계<br>📌 Elasticsearch<br> 📌 회원가입, 로그인 기능 구현 <br>📌 실시간 채팅방 기능 구현                            |
 | **최영재**  | `🥇팀원`  | `✒️정리의 달인`<br> `🤗프로공감러`<br> `💪노력끝판왕`     | [GitHub](https://github.com/teopteop)     | [블로그](https://velog.io/@teopteop/posts)         | 📌 Kafka 재시도 설계<br>📌 Elasticsearch<br>📌 문서 정리 <br>📌 게시글CRUD기능 구현                                        |
+
