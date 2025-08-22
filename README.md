@@ -126,7 +126,7 @@
 
 ### 🔗 ERD
 
-
+![에그리거트_관계도.png](docs/image/%EC%97%90%EA%B7%B8%EB%A6%AC%EA%B1%B0%ED%8A%B8_%EA%B4%80%EA%B3%84%EB%8F%84.png)
 ![에그리거트_관계도3.png](docs/image/%EC%97%90%EA%B7%B8%EB%A6%AC%EA%B1%B0%ED%8A%B8_%EA%B4%80%EA%B3%84%EB%8F%843.png)
 
 [버전 별 ERD By notion](https://teamsparta.notion.site/ERD-2562dc3ef514807f812ddaf68361e7e8)
