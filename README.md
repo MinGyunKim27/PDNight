@@ -110,17 +110,16 @@
 ### V5 애그리거트 관계도
 
 ![애그리거트_관계도.png](docs/image/PDNight.png)
-[🔗 애그리거트 관계도 자세히 보기](https://www.canva.com/design/DAGwx9KFmfo/C42b5o0UEqquGpMhV2UeXQ/edit?utm_content=DAGwx9KFmfo&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
 
 ### V5 ERD
 ![ERD_V5.png](docs/image/ERD_V5.png)
 
-[🔗 버전 별 ERD By notion](https://teamsparta.notion.site/ERD-2562dc3ef514807f812ddaf68361e7e8)
+[🔗 [버전 별 ERD] By notion](https://teamsparta.notion.site/ERD-2562dc3ef514807f812ddaf68361e7e8)
 
 ### V5 책임구조
 ![책임구조_V5.png](docs/image/책임구조_V5.png)
 
-[🔗 버전 별 책임 구조 By notion](https://www.notion.so/teamsparta/2562dc3ef5148037a3e3e424c3537051)
+[🔗 [버전 별 책임 구조] By notion](https://www.notion.so/teamsparta/2562dc3ef5148037a3e3e424c3537051)
 
 ---
 
@@ -147,9 +146,9 @@
 ---
 ### 🌐 API 명세서
 
-[🚀 API 명세서 By springdoc](https://pdnight.duckdns.org/swagger-ui)
+- [🚀 API 명세서 By springdoc](https://pdnight.duckdns.org/swagger-ui)
 
-[📋 API 명세서 By notion](https://teamsparta.notion.site/API-2562dc3ef5148049a9c9c9dd50312c65)
+- [📋 API 명세서 By notion](https://teamsparta.notion.site/API-2562dc3ef5148049a9c9c9dd50312c65)
 
 
 
@@ -191,27 +190,23 @@
 
 ![계층구조.png](docs/image/%EA%B3%84%EC%B8%B5%EA%B5%AC%EC%A1%B0.png)
 
-![계층구조_설계방식.png](docs/image/계층구조_설계방식.png)
+![계층구조_설계_방식.png](docs/image/%EA%B3%84%EC%B8%B5%EA%B5%AC%EC%A1%B0_%EC%84%A4%EA%B3%84_%EB%B0%A9%EC%8B%9D.png)
 
 ---
 ### DDD 도입 후 변화
 
-```
-[결합도 감소]
-- 도메인 간 의존성이 현저히 줄어듦
-- 기능 변경 시 영향을 받는 범위 최소화
-- 로직이 기능별로 명확하게 분리 → 유지보수 용이
-```
-```
-[데이터 일관성 강화]
-- 애그리거트 루트를 통해서만 하위 애그리거트 변경
-- 데이터 무결성과 일관성 보장
-```
-```
-[확장성 & 협업 효율 향상]
-- 새로운 기능 추가 시 해당 도메인에만 집중
-- 협업 속도 증가 + 품질 개선
-```
+**[🧩 결합도 감소]**
+<br />🔹 도메인 간 의존성이 현저히 줄어듦
+<br />🔹 기능 변경 시 영향을 받는 범위 최소화
+<br />🔹 로직이 기능별로 명확하게 분리 → 유지보수 용이
+
+**[📊 데이터 일관성 강화]**
+<br />🔹 애그리거트 루트를 통해서만 하위 애그리거트 변경
+<br />🔹 데이터 무결성과 일관성 보장
+
+**[🤝 확장성 & 협업 효율 향상]**
+<br />🔹 새로운 기능 추가 시 해당 도메인에만 집중
+<br />🔹 협업 속도 증가 + 품질 개선
 </details>
 
 
@@ -485,10 +480,8 @@ private Set<UserTech> userTechs;
 ❌ `userHobbies`와 `userTeckStacks` 을 조회하는 과정에서 N+1 문제를 해결하기 위해 각각 `fetch join`과 **페이징 처리**를 적용함<br/>
 ❌ 실행은 되지만 다음과 같은 경고 메시지가 출력됨
 
-```
-firstResult/maxResults specified with collection fetch; **applying in memory**
-```
-
+> **firstResult/maxResults specified with collection fetch; applying in memory**
+> 
 > 컬렉션을 패치 조인하면서 페이징(offset, limit)을 설정했기 때문에 **메모리 내에서 페이징**이 수행된다는 의미
 
 ---
@@ -644,19 +637,15 @@ public void applyForParticipation(Long postId) {
 > 1분 동안 50명이 지속적으로 요청을 보내서, 얼마나 요청을 처리할 수 있는지, 하나의 요청을 처리하는 데 몇 초가 걸리는지 확인
 >
 - 캐시를 적용하게 되면, 전반적으로 **처리량(TPS)이 증가**하고 **평균 테스트 시간(Mean Test Time)이 감소**하는 것을 볼 수 있습니다.
-    - TPS는 **약 300% 증가**
-    - 최고 TPS는 **약 263% 증가**
-    - 평균 테스트 시간은 **약 75% 감소**
-    - 실행된 테스트 수는 **약** **318% 증가**
 
-  |                  | **캐싱 적용 안함 V1** | **캐싱 적용함 V2** |
-  |------------------|-----------------|---------------|
-  | TPS              | 532.4           | 2,129.9       |
-  | Peak TPS         | **759**         | **2,755**     |
-  | Mean Test Time   | **94.41 ms**    | **23.17 ms**  |
-  | Executed Tests   | **27,517**      | **115,523**   |
-  | Successful Tests | 27,517          | 115,523       |
-  | Errors           | 0               | 0             |
+  |                  | **캐싱 적용 안함 V1** | **캐싱 적용함 V2** |     비교 결과     |
+  |------------------|-----------------|---------------|:-------------:|
+  | TPS              | 532.4           | 2,129.9       | **약 300% 증가** |
+  | Peak TPS         | **759**         | **2,755**     | **약 263% 증가** |
+  | Mean Test Time   | **94.41 ms**    | **23.17 ms**  | **약 75% 감소**  |
+  | Executed Tests   | **27,517**      | **115,523**   | **약 318% 증가** |
+  | Successful Tests | 27,517          | 115,523       |       -       |
+  | Errors           | 0               | 0             |       -       |
 
 <aside>
 
@@ -799,7 +788,9 @@ public void applyForParticipation(Long postId) {
 
 ### 4. 부하 테스트 및 모니터링
 
-![테스트시나리오.png](docs/image/테스트시나리오.png)
+![모니터링_부하테스트_흐름.png](docs/image/%EB%AA%A8%EB%8B%88%ED%84%B0%EB%A7%81_%EB%B6%80%ED%95%98%ED%85%8C%EC%8A%A4%ED%8A%B8_%ED%9D%90%EB%A6%84.png)
+
+![모니터링_부하테스트_시나리오.png](docs/image/%EB%AA%A8%EB%8B%88%ED%84%B0%EB%A7%81_%EB%B6%80%ED%95%98%ED%85%8C%EC%8A%A4%ED%8A%B8_%EC%8B%9C%EB%82%98%EB%A6%AC%EC%98%A4.png)
 
 ---
 
@@ -923,7 +914,7 @@ void benchmark() {
 |----------|---------|--------------------------------------------|-------------------------------------------|-------------------------------------------------|------------------------------------------------------------------------------------------------------------|
 | **김민균**  | `👑팀장`  | `⭐뛰어난 지휘관`<br> `🎨아이디어 뱅크`<br> `🎤스피치 마스터` | [GitHub](https://github.com/MinGyunKim27) | [블로그](https://velog.io/notifications)           | 📌 Kafka 시각화(모니터링)<br>📌 배포(CI/CD) <br> 📌 기술스택, 취미 기능 구현 <br>📌 유저 팔로우 구현                                 |
 | **김지현**  | `👑부팀장` | `😀긍정 에너지`<br> `📚지식 탐험가`<br> `🕊️평화의 상징`   | [GitHub](https://github.com/jh-01)        | [블로그](https://everyday-for-coding.tistory.com/) | 📌 동시성 제어<br>📌 Logging<br>📌 엘라스틱 bulk 처리<br> 📌 프로필 조회, 수정 상대방 리뷰 조회 기능 구현 <br>📌 성능지표 시각화               |
-| **류수연**  | `🎖️팀원` | `🐞해결사`<br> `⚖️워라벨 마스터`<br> `🤝러닝메이트`      | [GitHub](https://github.com/ryusu12)      | [블로그](https://velog.io/@rsy7567/posts)          | 📌 Logging<br>📌 Redis Cache<br>📌 쿼리 최적화<br> 📌 게시글 신청 CRUD 기능 구현 <br>📌 성능지표 시각화                         |
+| **류수연**  | `🎖️팀원` | `🐞해결사`<br> `⚖️균형추구자`<br> `🤝러닝메이트`      | [GitHub](https://github.com/ryusu12)      | [블로그](https://velog.io/@rsy7567/posts)          | 📌 Logging<br>📌 Redis Cache<br>📌 쿼리 최적화<br> 📌 게시글 신청 CRUD 기능 구현 <br>📌 성능지표 시각화                         |
 | **박  진** | `🏅팀원`  | `👂질문의 대가`<br> `❄️냉철한 판단가`<br> `🕘효율 끝판왕`  | [GitHub](https://github.com/ParkJin0814)  | [블로그](https://velog.io/@klkl97/posts)           | 📌 Kafka 재시도 설계<br>📌 OAuth 로그인 구현<br>📌 Refresh Token을 이용한 토큰 재발급<br>📌 사용자 리뷰 시스템 구현 <br>📌 쿠폰 CRUD기능 구현 |
 | **이안근**  | `🥇팀원`  | `🔨장인 정신`<br> `🔥도전의 대가`<br> `🎯집중력 만렙`          | [GitHub](https://github.com/roog23)       | [블로그](https://roog23.tistory.com/)              | 📌 Kafka 재시도 설계<br>📌 Elasticsearch<br> 📌 회원가입, 로그인 기능 구현 <br>📌 실시간 채팅방 기능 구현                            |
 | **최영재**  | `🥇팀원`  | `✒️정리의 달인`<br> `🤗프로공감러`<br> `💪노력끝판왕`     | [GitHub](https://github.com/teopteop)     | [블로그](https://velog.io/@teopteop/posts)         | 📌 Kafka 재시도 설계<br>📌 Elasticsearch<br>📌 문서 정리 <br>📌 게시글CRUD기능 구현                                        |
