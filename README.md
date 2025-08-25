@@ -971,12 +971,17 @@ void benchmark() {
 ---
 
 
-## 👨‍👩‍👧‍👦 **팀 구성원 소개**
-| **구성원**  | **직책**  | **장점**                                     | **GitHub**                                | **Blog**                                        | **담당**                                                                                                     |
-|----------|---------|--------------------------------------------|-------------------------------------------|-------------------------------------------------|------------------------------------------------------------------------------------------------------------|
-| **김민균**  | `👑팀장`  | `⭐뛰어난 지휘관`<br> `🎨아이디어 뱅크`<br> `🎤스피치 마스터` | [GitHub](https://github.com/MinGyunKim27) | [블로그](https://velog.io/@kmk27/posts)           | 📌 Kafka 시각화(모니터링)<br>📌 배포(CI/CD) <br> 📌 기술스택, 취미 기능 구현 <br>📌 유저 팔로우 구현                                 |
-| **김지현**  | `👑부팀장` | `😀긍정 에너지`<br> `📚지식 탐험가`<br> `🕊️평화의 상징`  | [GitHub](https://github.com/jh-01)        | [블로그](https://everyday-for-coding.tistory.com/) | 📌 동시성 제어<br>📌 Logging<br>📌 엘라스틱 bulk 처리<br> 📌 프로필 조회, 수정 상대방 리뷰 조회 기능 구현 <br>📌 성능지표 시각화               |
-| **류수연**  | `🎖️팀원` | `🐞해결사`<br> `⚖️균형추구자`<br> `🤝러닝메이트`        | [GitHub](https://github.com/ryusu12)      | [블로그](https://velog.io/@rsy7567/posts)          | 📌 Logging<br>📌 Redis Cache<br>📌 쿼리 최적화<br> 📌 게시글 신청 CRUD 기능 구현 <br>📌 성능지표 시각화                         |
-| **박  진** | `🏅팀원`  | `👂질문의 대가`<br> `❄️냉철한 판단가`<br> `🕘효율 끝판왕`  | [GitHub](https://github.com/ParkJin0814)  | [블로그](https://velog.io/@klkl97/posts)           | 📌 Kafka 재시도 설계<br>📌 OAuth 로그인 구현<br>📌 Refresh Token을 이용한 토큰 재발급<br>📌 사용자 리뷰 시스템 구현 <br>📌 쿠폰 CRUD기능 구현 |
-| **이안근**  | `🥇팀원`  | `🔨장인 정신`<br> `🔥도전의 대가`<br> `🎯집중력 만렙`    | [GitHub](https://github.com/roog23)       | [블로그](https://roog23.tistory.com/)              | 📌 Kafka 재시도 설계<br>📌 Elasticsearch<br> 📌 회원가입, 로그인 기능 구현 <br>📌 실시간 채팅방 기능 구현                            |
-| **최영재**  | `🥇팀원`  | `✒️정리의 달인`<br> `🤗프로공감러`<br> `💪노력끝판왕`     | [GitHub](https://github.com/teopteop)     | [블로그](https://velog.io/@teopteop/posts)         | 📌 Kafka 재시도 설계<br>📌 Elasticsearch<br>📌 문서 정리 <br>📌 게시글CRUD기능 구현                                        |
+## 👨‍👩‍👧‍👦 팀 구성원 소개
+
+<div align="center">
+
+| **구성원**  | **사진** | **장점** | **GitHub** | **Blog** | **담당** |
+|-------------|----------|----------|------------|----------|----------|
+| <div align="center">**김민균** <br/> 👑팀장</div> | <img src="https://github.com/MinGyunKim27.png" width="100px" style="border-radius:50%;" alt="김민균"/> | ⭐ 뛰어난 지휘관 <br/> 🎨 아이디어 뱅크 <br/> 🎤 스피치 마스터 | [GitHub](https://github.com/MinGyunKim27) | [블로그](https://velog.io/@kmk27/posts) | 📌 Kafka 시각화(모니터링) <br/> 📌 배포(CI/CD) <br/> 📌 기술스택, 취미 기능 구현 <br/> 📌 유저 팔로우 구현 |
+| <div align="center">**김지현** <br/> 👑부팀장</div> | <img src="https://github.com/jh-01.png" width="100px" style="border-radius:50%;" alt="김지현"/> | 😀 긍정 에너지 <br/> 📚 지식 탐험가 <br/> 🕊️ 평화의 상징 | [GitHub](https://github.com/jh-01) | [블로그](https://everyday-for-coding.tistory.com/) | 📌 동시성 제어 <br/> 📌 Logging <br/> 📌 엘라스틱 bulk 처리 <br/> 📌 프로필 조회, 수정 <br/> 📌 성능지표 시각화 |
+| <div align="center">**류수연** <br/> 🎖️팀원</div> | <img src="https://github.com/ryusu12.png" width="100px" style="border-radius:50%;" alt="류수연"/> | 🐞 해결사 <br/> ⚖️ 균형추구자 <br/> 🤝 러닝메이트 | [GitHub](https://github.com/ryusu12) | [블로그](https://velog.io/@rsy7567/posts) | 📌 Logging <br/> 📌 Redis Cache <br/> 📌 쿼리 최적화 <br/> 📌 게시글 신청 CRUD <br/> 📌 성능지표 시각화 |
+| <div align="center">**박진** <br/> 🏅팀원</div> | <img src="https://github.com/ParkJin0814.png" width="100px" style="border-radius:50%;" alt="박진"/> | 👂 질문의 대가 <br/> ❄️ 냉철한 판단가 <br/> 🕘 효율 끝판왕 | [GitHub](https://github.com/ParkJin0814) | [블로그](https://velog.io/@klkl97/posts) | 📌 Kafka 재시도 설계 <br/> 📌 OAuth 로그인 <br/> 📌 Refresh Token 재발급 <br/> 📌 리뷰 시스템 구현 <br/> 📌 쿠폰 CRUD |
+| <div align="center">**이안근** <br/> 🥇팀원</div> | <img src="https://github.com/roog23.png" width="100px" style="border-radius:50%;" alt="이안근"/> | 🔨 장인 정신 <br/> 🔥 도전의 대가 <br/> 🎯 집중력 만렙 | [GitHub](https://github.com/roog23) | [블로그](https://roog23.tistory.com/) | 📌 Kafka 재시도 설계 <br/> 📌 Elasticsearch <br/> 📌 회원가입/로그인 <br/> 📌 실시간 채팅방 |
+| <div align="center">**최영재** <br/> 🥇팀원</div> | <img src="https://github.com/teopteop.png" width="100px" style="border-radius:50%;" alt="최영재"/> | ✒️ 정리의 달인 <br/> 🤗 프로공감러 <br/> 💪 노력끝판왕 | [GitHub](https://github.com/teopteop) | [블로그](https://velog.io/@teopteop/posts) | 📌 Kafka 재시도 설계 <br/> 📌 Elasticsearch <br/> 📌 문서 정리 <br/> 📌 게시글 CRUD |
+
+</div>
