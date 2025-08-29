@@ -9,6 +9,7 @@ import org.example.pdnight.domain.post.enums.PostStatus;
 import org.example.pdnight.global.common.enums.ErrorCode;
 import org.example.pdnight.global.common.enums.JobCategory;
 import org.example.pdnight.global.common.exception.BaseException;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -267,4 +269,50 @@ public class ParticipantServiceConcurrencyTest {
         assertEquals(postAfter.getMaxParticipants().intValue(), acceptedCount);
         assertEquals(successCount, acceptedCount);
     }
+
+    @Test
+    @DisplayName("선착순 게시물 공정 락 순서 테스트")
+    void testApplyParticipantFairOrder() throws InterruptedException {
+        int threadCount = 5;
+        ExecutorService executor = Executors.newFixedThreadPool(threadCount);
+        CountDownLatch latch = new CountDownLatch(threadCount);
+        List<Long> executionOrder = Collections.synchronizedList(new ArrayList<>());
+
+        // 테스트용 FairLock 생성
+        ReentrantLock fairLock = new ReentrantLock(true);
+
+        for (int i = 0; i < threadCount; i++) {
+            final long userId = i + 1;
+            executor.submit(() -> {
+                try {
+                    fairLock.lock();
+                    try {
+                        postCommanderService.applyParticipant(
+                                userId,
+                                25L,
+                                Gender.MALE,
+                                JobCategory.BACK_END_DEVELOPER,
+                                firstComeTestPost.getId()
+                        );
+                        executionOrder.add(userId);
+                        System.out.println("사용자 " + userId + " 처리 완료");
+                    } finally {
+                        fairLock.unlock();
+                    }
+                } finally {
+                    latch.countDown();
+                }
+            });
+        }
+
+        latch.await();
+        executor.shutdown();
+
+        System.out.println("실제 처리 순서: " + executionOrder);
+
+        // 순서 검증
+        Assertions.assertEquals(List.of(1L, 2L, 3L, 4L, 5L), executionOrder);
+    }
+
+
 }

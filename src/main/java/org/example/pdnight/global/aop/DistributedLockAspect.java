@@ -54,7 +54,7 @@ public class DistributedLockAspect {
             }
 
             log.info("🔒 RLock 객체 생성 시도");
-            RLock rLock = redissonClient.getLock(key);
+            RLock rLock = redissonClient.getFairLock(key);
             log.info("RLock 객체 생성 성공: {}", rLock.getName());
 
             boolean lockAcquired = false;
