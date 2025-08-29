@@ -28,6 +28,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.LongStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -271,9 +272,9 @@ public class ParticipantServiceConcurrencyTest {
     }
 
     @Test
-    @DisplayName("선착순 게시물 공정 락 순서 테스트")
-    void testApplyParticipantFairOrder() throws InterruptedException {
-        int threadCount = 5;
+    @DisplayName("선착순 게시물 공정 락 순서 테스트 - 100명")
+    void testApplyParticipantFairOrder100() throws InterruptedException {
+        int threadCount = 50;
         ExecutorService executor = Executors.newFixedThreadPool(threadCount);
         CountDownLatch latch = new CountDownLatch(threadCount);
         List<Long> executionOrder = Collections.synchronizedList(new ArrayList<>());
@@ -311,7 +312,8 @@ public class ParticipantServiceConcurrencyTest {
         System.out.println("실제 처리 순서: " + executionOrder);
 
         // 순서 검증
-        Assertions.assertEquals(List.of(1L, 2L, 3L, 4L, 5L), executionOrder);
+        List<Long> expectedOrder = LongStream.rangeClosed(1, threadCount).boxed().toList();
+        Assertions.assertEquals(expectedOrder, executionOrder);
     }
 
 
